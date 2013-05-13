@@ -1,8 +1,19 @@
+import os
+import tables
 from Chandra.Time import DateTime
 import Ska.Numpy
-import tables
 
-def agasc(ra, dec, radius=1.5, date=DateTime(), pm_correct=True):
+
+def agasc(ra, dec, radius=1.5, date=None,
+          pm_correct=True, agasc_file=None):
+    if agasc_file is None:
+        agasc_file = os.path.join(os.environ['SKA_DATA'],
+                                  'agasc',
+                                  'miniagasc.h5')
+    if date is None:
+        date = DateTime()
+
+    # determine ranges for "box" search of RA and Dec
     ras = []
     ra_min = ra - radius
     ra_max = ra + radius
@@ -38,7 +49,7 @@ def agasc(ra, dec, radius=1.5, date=DateTime(), pm_correct=True):
                            for dec_r in decs])
              + ")")
 
-    h5 = tables.openFile('miniagasc.h5')
+    h5 = tables.openFile(agasc_file)
     tbl = h5.getNode('/', 'data')
     get_coord_match = tbl.getWhereList(query)
     table = tbl.readCoordinates(get_coord_match)
