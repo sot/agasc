@@ -101,22 +101,10 @@ def agasc(ra, dec, radius=1.5, date=None,
         date = DateTime()
 
     # determine ranges for "box" search of RA and Dec
-    ras = []
-    ra_min = ra - radius
-    ra_max = ra + radius
-    if ra_min < 0:
-        ras.append([360 + ra_min, 360])
-        ras.append([0, ra])
-    else:
-        ras.append([ra_min, ra])
-    if ra_max > 360:
-        ras.append([ra, 360])
-        ras.append([0, ra_max - 360])
-    else:
-        ras.append([ra, ra_max])
     decs = []
     dec_min = dec - radius
     dec_max = dec + radius
+    max_abs_dec = max(abs(dec_min), abs(dec_max))
     if dec_min < -90:
         decs.append([180 + dec_min, 90],
                       [-90, dec])
@@ -127,6 +115,20 @@ def agasc(ra, dec, radius=1.5, date=None,
                       [-90, dec_max - 180])
     else:
         decs.append([dec, dec_max])
+
+    ras = []
+    ra_min = ra - radius / np.cos(np.radians(max_abs_dec))
+    ra_max = ra + radius / np.cos(np.radians(max_abs_dec))
+    if ra_min < 0:
+        ras.append([360 + ra_min, 360])
+        ras.append([0, ra])
+    else:
+        ras.append([ra_min, ra])
+    if ra_max > 360:
+        ras.append([ra, 360])
+        ras.append([0, ra_max - 360])
+    else:
+        ras.append([ra, ra_max])
 
     query = ("("
              + " | ".join(["((RA >= %f) & (RA <= %f)) " % (ra_r[0], ra_r[1])
