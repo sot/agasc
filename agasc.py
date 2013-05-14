@@ -92,6 +92,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
 
 def agasc(ra, dec, radius=1.5, date=None,
           pm_correct=True, agasc_file=None):
+    import Ska.Numpy
     if agasc_file is None:
         agasc_file = os.path.join(os.environ['SKA_DATA'],
                                   'agasc',
@@ -139,6 +140,7 @@ def agasc(ra, dec, radius=1.5, date=None,
     tbl = h5.getNode('/', 'data')
     get_coord_match = tbl.getWhereList(query)
     table = tbl.readCoordinates(get_coord_match)
+    h5.close()
     if not pm_correct:
         return table
 
