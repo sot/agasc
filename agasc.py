@@ -20,22 +20,28 @@ DEC = RDI['dec'].copy()
 del RDI
 
 
-def sphere_dist(lon1, lat1, lon2, lat2):
+def sphere_dist(ra1, dec1, ra2, dec2):
     """
     Haversine formula for angular distance on a sphere: more stable at poles.
     This version uses arctan instead of arcsin and thus does better with sign
-    conventions.
+    conventions.  This uses numexpr to speed expression evaluation by a factor
+    of 2 to 3.
 
-    Inputs must be in degrees.  Output is in degrees.
+    :param ra1: first RA (deg)
+    :param dec1: first Dec (deg)
+    :param ra2: second RA (deg)
+    :param dec2: second Dec (deg)
+
+    :returns: angular separation distance (deg)
     """
 
-    lon1 = np.radians(lon1)
-    lon2 = np.radians(lon2)
-    lat1 = np.radians(lat1)
-    lat2 = np.radians(lat2)
+    ra1 = np.radians(ra1)
+    ra2 = np.radians(ra2)
+    dec1 = np.radians(dec1)
+    dec2 = np.radians(dec2)
 
-    numerator = numexpr.evaluate('sin((lat2 - lat1) / 2) ** 2 + '
-                                 'cos(lat1) * cos(lat2) * sin((lon2 - lon1) / 2) ** 2')
+    numerator = numexpr.evaluate('sin((dec2 - dec1) / 2) ** 2 + '
+                                 'cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2')
 
     dists = numexpr.evaluate('2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)')
     return np.degrees(dists)
