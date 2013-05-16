@@ -56,16 +56,13 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     if agasc_file is None:
         agasc_file = os.path.join(os.environ['SKA_DATA'], 'agasc', 'miniagasc.h5')
 
-    dec0 = dec - radius
-    dec1 = dec + radius
-    idx0, idx1 = np.searchsorted(DEC, [dec0, dec1])
+    idx0, idx1 = np.searchsorted(DEC, [dec - radius, dec + radius])
 
     dists = sphere_dist(ra, dec, RA[idx0:idx1], DEC[idx0:idx1])
     ok = dists < radius
-    stars_idxs = np.arange(idx0, idx1)[ok]
 
     h5 = tables.openFile(agasc_file)
-    stars = h5.root.data.readCoordinates(stars_idxs)
+    stars = h5.root.data[idx0:idx1][ok]
     h5.close()
 
     # Compute the multiplicative factor to convert from the AGASC proper motion
