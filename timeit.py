@@ -23,13 +23,3 @@ for ra, dec, cnt in zip(ras, decs, count()):
     sys.stdout.flush()
 print
 print time.time() - t0
-
-print 'agasc'
-t0 = time.time()
-for ra, dec,cnt in zip(ras, decs, count()):
-    x = agasc.agasc(ra, dec, radius=radius, agasc_file='/proj/sot/ska/data/agasc/miniagasc.h5')
-    print cnt, len(ras), '\r',
-    sys.stdout.flush()
-print
-print time.time() - t0
-
