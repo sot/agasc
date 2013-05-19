@@ -7,6 +7,8 @@ import tables
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
 
+__all__ = ['sphere_dist', 'get_agasc_cone']
+
 # Read the file of RA and DEC indexes:
 #  dec: sorted DEC values
 #  dec_idx : corresponding indexes into miniagasc
@@ -49,7 +51,20 @@ def sphere_dist(ra1, dec1, ra2, dec2):
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     """
-    Get AGASC stars within ``radius`` degrees of ``ra``, ``dec``.
+    Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
+
+    The star positions are corrected for proper motion using the ``date``
+    argument, which defaults to the current date if not supplied.  The
+    corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``
+    columns, respectively.
+
+    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``
+
+    Example::
+
+      >>> import agasc
+      >>> stars = agasc.get_agasc_cone(10.0, 20.0, 1.5)
+      >>> plt.plot(stars['RA'], stars['DEC'], '.')
 
     :param ra: RA (deg)
     :param dec: Declination (deg)
@@ -57,15 +72,15 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     :param date: Date for proper motion (default=Now)
     :agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
 
-    :returns: table of AGASC stars
+    :returns: table of AGASC entries
     """
     if agasc_file is None:
-        agasc_file = os.path.join(os.environ['SKA_DATA'], 'agasc', 'miniagasc.h5')
+        agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
 
     idx0, idx1 = np.searchsorted(DEC, [dec - radius, dec + radius])
 
     dists = sphere_dist(ra, dec, RA[idx0:idx1], DEC[idx0:idx1])
-    ok = dists < radius
+    ok = dists <= radius
 
     h5 = tables.openFile(agasc_file)
     stars = h5.root.data[idx0:idx1][ok]
