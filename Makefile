@@ -9,7 +9,7 @@ include /proj/sot/ska/include/Makefile.FLIGHT
 WWW  = $(INSTALL)/www
 # Define the installed executables for the task.  This directory is reserved
 # for documented tools and not for dedicated scripts, one-off codes etc
-DOC = docs/_build/html/*
+DOC = doc/_build/html/*
 
 .PHONY: doc
 

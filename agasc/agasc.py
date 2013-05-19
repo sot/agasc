@@ -70,7 +70,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     :param dec: Declination (deg)
     :param radius: Cone search radius (deg)
     :param date: Date for proper motion (default=Now)
-    :agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
+    :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
 
     :returns: table of AGASC entries
     """

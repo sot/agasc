@@ -9,4 +9,5 @@ setup(name='agasc',
       author_email='taldcroft@head.cfa.harvard.edu',
       url='http://www.python.org/',
       packages=['agasc'],
+      package_data={'agasc': ['ra_dec.npy']},
       )
