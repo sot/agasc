@@ -1,17 +1,21 @@
 """
 Test that agasc.get_agasc_cone() gives the same answer as the ASCDS
 tool mp_get_agasc.  Note that mp_get_agasc gives incorrect results
-for search radius much above 1.5 degrees.  For instance the following
+for search radius much above 1.4 degrees.  For instance the following
 is missing around 50 stars (brighter than 11.5) near the edge of the
 search cone::
 
  % mp_get_agasc -r 0.0 -d 89.9 -w 2.0
 
-Tests here are limited to 1.5 degree radius.
+Tests here are limited to 1.4 degree radius.
 
 Another difference is that the output precision of ACA_MAG and
 ACA_MAG_ERR in mp_get_agasc are limited, so this produces slightly
 different results when the faint limit filtering is applied.
+
+Comprehensive test (takes a while):
+>>> import test_agasc
+>>> test_agasc.test_agasc(nsample=100)
 """
 
 
@@ -99,7 +103,7 @@ def mp_get_agasc(ra, dec, radius):
     return dat
 
 
-def test_agasc(radius=1.5, nsample=2):
+def test_agasc(radius=1.4, nsample=2):
     ras, decs = random_ra_dec(nsample)
     ras = np.hstack([ras, [0., 180., 0.1, 180.]])
     decs = np.hstack([decs, [89.9, -89.9, 0.0, 0.0]])
@@ -120,8 +124,7 @@ def test_agasc(radius=1.5, nsample=2):
             star2 = stars2[np.searchsorted(stars2['AGASC_ID'], agasc_id)]
             for colname in AGASC_COLNAMES:
                 if star1[colname].dtype.kind == 'f':
-                    assert np.allclose(np.round(star1[colname], 5),
-                                       np.round(star2[colname], 5))
+                    assert np.all(np.abs(star1[colname] - star2[colname]) < 1e-4)
                 else:
                     assert star1[colname] == star2[colname]
 
