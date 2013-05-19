@@ -1,0 +1,16 @@
+Fail
+=======
+
+import agasc
+import test_agasc
+
+stars1 = agasc.get_agasc_cone(221.582968609, -75.214485117, radius=2.0, agasc_file='miniagasc.h5')
+stars2 = test_agasc.mp_get_agasc(221.582968609, -75.214485117, 2.0)
+plt.clf()
+plt.plot(stars1['RA'], stars1['DEC'], '.r')
+plt.plot(stars2['RA'], stars2['DEC'], '.b')
+plt.savefig('mp_get_agasc_bug.png')
+
+Minor issue
+------------
+readme.txt shows column name COL0R1 not COLOR1.
