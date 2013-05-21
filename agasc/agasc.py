@@ -9,17 +9,33 @@ from astropy.table import Table, Column
 
 __all__ = ['sphere_dist', 'get_agasc_cone']
 
-# Read the file of RA and DEC indexes:
-#  dec: sorted DEC values
-#  dec_idx : corresponding indexes into miniagasc
-#  ra: sorted RA values
-#  ra_idx: corresponding indexes into miniagasc
-RDI = np.load(os.path.join(os.path.dirname(__file__), 'ra_dec.npy'))
 
-# Now copy to separate ndarrays for memory efficiency
-RA = RDI['ra'].copy()
-DEC = RDI['dec'].copy()
-del RDI
+class RaDec(object):
+    def __init__(self):
+        pass
+
+    @property
+    def ra(self):
+        if not hasattr(self, '_ra'):
+            self._ra, self._dec = self.read_ra_dec()
+        return self._ra
+
+    @property
+    def dec(self):
+        if not hasattr(self, '_dec'):
+            self._ra, self._dec = self.read_ra_dec()
+        return self._dec
+
+    def read_ra_dec(self):
+        # Read the file of RA and DEC values (sorted on DEC):
+        #  dec: DEC values
+        #  ra: RA values
+        radecs = np.load(os.path.join(os.path.dirname(__file__), 'ra_dec.npy'))
+
+        # Now copy to separate ndarrays for memory efficiency
+        return radecs['ra'].copy(), radecs['dec'].copy()
+
+RA_DECS = RaDec()
 
 
 def sphere_dist(ra1, dec1, ra2, dec2):
@@ -77,9 +93,9 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     if agasc_file is None:
         agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
 
-    idx0, idx1 = np.searchsorted(DEC, [dec - radius, dec + radius])
+    idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - radius, dec + radius])
 
-    dists = sphere_dist(ra, dec, RA[idx0:idx1], DEC[idx0:idx1])
+    dists = sphere_dist(ra, dec, RA_DECS.ra[idx0:idx1], RA_DECS.dec[idx0:idx1])
     ok = dists <= radius
 
     h5 = tables.openFile(agasc_file)
