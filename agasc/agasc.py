@@ -113,7 +113,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     for axis, axis_PM in (('RA', 'PM_RA'),
                           ('DEC', 'PM_DEC')):
         pm_corr[axis] = stars[axis].copy()
-        ok = pm_corr[axis] != -9999  # Select stars with an available PM correction
+        ok = stars[axis_PM] != -9999  # Select stars with an available PM correction
         pm_corr[axis][ok] = stars[axis][ok] + stars[axis_PM][ok] * pm_to_degrees
 
     # Add the proper-motion corrected columns to table using astropy.table.Table
