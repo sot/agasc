@@ -7,7 +7,7 @@ import tables
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
 
-__all__ = ['sphere_dist', 'get_agasc_cone']
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
 
 
 class RaDec(object):
@@ -122,3 +122,25 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
                        Column(data=pm_corr['DEC'], name='DEC_PMCORR')])
 
     return stars
+
+def get_star(id, agasc_file=None):
+    """
+    Get AGASC catalog entry for star with requested id.
+
+    :param id: AGASC id
+    :returns: record of entry for id (or None if not found)
+    """
+
+    if agasc_file is None:
+        agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
+
+    h5 = tables.openFile(agasc_file)
+    tbl = h5.root.data
+    id_rows = tbl.readWhere('(AGASC_ID == {})'.format(id))
+    h5.close()
+
+    if len(id_rows) > 1:
+        return ValueError("More than one entry found for {} in AGASC".format(id))
+    if id_rows is None or len(id_rows) == 0:
+        return None
+    return id_rows[0]
