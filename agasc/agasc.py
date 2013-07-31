@@ -140,7 +140,7 @@ def get_star(id, agasc_file=None):
     h5.close()
 
     if len(id_rows) > 1:
-        return ValueError("More than one entry found for {} in AGASC".format(id))
+        raise ValueError("More than one entry found for {} in AGASC".format(id))
     if id_rows is None or len(id_rows) == 0:
         return None
     return id_rows[0]
