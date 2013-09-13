@@ -135,8 +135,19 @@ def get_star(id, agasc_file=None):
     """
     Get AGASC catalog entry for star with requested id.
 
+    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``
+
+    Example::
+
+      >>> import agasc
+      >>> star_info = agasc.get_star(636629880
+      >>> print star_info['RA', 'DEC', 'MAG_ACA']
+       AGASC_ID      RA      DEC       MAG_ACA
+     ----------- --------- -------- -------------
+     636629880.0 125.64184 -4.23235 12.1160011292
+
     :param id: AGASC id
-    :returns: record of entry for id (or None if not found)
+    :returns: astropy Table Row of entry for id
     """
 
     if agasc_file is None:
