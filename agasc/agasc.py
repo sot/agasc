@@ -96,7 +96,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     :param date: Date for proper motion (default=Now)
     :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
 
-    :returns: table of AGASC entries
+    :returns: astropy Table of AGASC entries
     """
     if agasc_file is None:
         agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
