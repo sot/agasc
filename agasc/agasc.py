@@ -146,10 +146,13 @@ def get_star(id, agasc_file=None):
     tbl = h5.root.data
     id_rows = tbl.readWhere('(AGASC_ID == {})'.format(id))
     h5.close()
-
     if len(id_rows) > 1:
         raise InconsistentCatalogError(
             "More than one entry found for {} in AGASC".format(id))
     if id_rows is None or len(id_rows) == 0:
         raise IdNotFound()
-    return id_rows[0]
+
+    t = Table(names=id_rows.dtype.names)
+    row = dict([(col, id_rows[0][col]) for col in id_rows.dtype.names])
+    t.add_row(row)
+    return t[0]
