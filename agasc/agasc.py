@@ -131,6 +131,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
 
     return stars
 
+
 def get_star(id, agasc_file=None):
     """
     Get AGASC catalog entry for star with requested id.
@@ -140,11 +141,26 @@ def get_star(id, agasc_file=None):
     Example::
 
       >>> import agasc
-      >>> star_info = agasc.get_star(636629880)
-      >>> print star_info['RA', 'DEC', 'MAG_ACA']
-       AGASC_ID      RA      DEC       MAG_ACA
-     ----------- --------- -------- -------------
-     636629880.0 125.64184 -4.23235 12.1160011292
+      >>> star = agasc.get_star(636629880)
+      >>> for name in star.colnames:
+      ...     print '{:12s} : {}'.format(name, star[name])
+      AGASC_ID     : 636629880
+      RA           : 125.64184
+      DEC          : -4.23235
+      POS_ERR      : 300
+      POS_CATID    : 6
+      EPOCH        : 1983.0
+      PM_RA        : -9999
+      PM_DEC       : -9999
+      PM_CATID     : 0
+      PLX          : -9999
+      PLX_ERR      : -9999
+      PLX_CATID    : 0
+      MAG_ACA      : 12.1160011292
+      MAG_ACA_ERR  : 45
+      CLASS        : 0
+      MAG          : 13.2700004578
+      ...
 
     :param id: AGASC id
     :returns: astropy Table Row of entry for id
