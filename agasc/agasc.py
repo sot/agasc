@@ -179,7 +179,5 @@ def get_star(id, agasc_file=None):
     if id_rows is None or len(id_rows) == 0:
         raise IdNotFound()
 
-    t = Table(names=id_rows.dtype.names)
-    row = dict([(col, id_rows[0][col]) for col in id_rows.dtype.names])
-    t.add_row(row)
+    t = Table(id_rows)
     return t[0]
