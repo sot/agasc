@@ -7,7 +7,15 @@ import tables
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
 
-__all__ = ['sphere_dist', 'get_agasc_cone']
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
+
+
+class IdNotFound(LookupError):
+    pass
+
+
+class InconsistentCatalogError(Exception):
+    pass
 
 
 class RaDec(object):
@@ -88,7 +96,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     :param date: Date for proper motion (default=Now)
     :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
 
-    :returns: table of AGASC entries
+    :returns: astropy Table of AGASC entries
     """
     if agasc_file is None:
         agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
@@ -122,3 +130,54 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
                        Column(data=pm_corr['DEC'], name='DEC_PMCORR')])
 
     return stars
+
+
+def get_star(id, agasc_file=None):
+    """
+    Get AGASC catalog entry for star with requested id.
+
+    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``
+
+    Example::
+
+      >>> import agasc
+      >>> star = agasc.get_star(636629880)
+      >>> for name in star.colnames:
+      ...     print '{:12s} : {}'.format(name, star[name])
+      AGASC_ID     : 636629880
+      RA           : 125.64184
+      DEC          : -4.23235
+      POS_ERR      : 300
+      POS_CATID    : 6
+      EPOCH        : 1983.0
+      PM_RA        : -9999
+      PM_DEC       : -9999
+      PM_CATID     : 0
+      PLX          : -9999
+      PLX_ERR      : -9999
+      PLX_CATID    : 0
+      MAG_ACA      : 12.1160011292
+      MAG_ACA_ERR  : 45
+      CLASS        : 0
+      MAG          : 13.2700004578
+      ...
+
+    :param id: AGASC id
+    :returns: astropy Table Row of entry for id
+    """
+
+    if agasc_file is None:
+        agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
+
+    h5 = tables.openFile(agasc_file)
+    tbl = h5.root.data
+    id_rows = tbl.readWhere('(AGASC_ID == {})'.format(id))
+    h5.close()
+    if len(id_rows) > 1:
+        raise InconsistentCatalogError(
+            "More than one entry found for {} in AGASC".format(id))
+    if id_rows is None or len(id_rows) == 0:
+        raise IdNotFound()
+
+    t = Table(id_rows)
+    return t[0]
