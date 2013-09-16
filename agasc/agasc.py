@@ -140,7 +140,7 @@ def get_star(id, agasc_file=None):
     Example::
 
       >>> import agasc
-      >>> star_info = agasc.get_star(636629880
+      >>> star_info = agasc.get_star(636629880)
       >>> print star_info['RA', 'DEC', 'MAG_ACA']
        AGASC_ID      RA      DEC       MAG_ACA
      ----------- --------- -------- -------------
