@@ -102,16 +102,16 @@ def test_agasc_id(radius=.2, npointings=50, nstar_limit=50):
         print ra, dec
 
         cone_stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file='miniagasc.h5')
-        if not len(cone_stars):
+        if len(cone_stars) == 0:
             continue
         cone_stars.sort('AGASC_ID')
-        for agasc_id in cone_stars['AGASC_ID']:
+        for agasc_id in cone_stars['AGASC_ID'][:10]:  # No more than 10 at one position
             print agasc_id
             star1 = agasc.get_star(agasc_id)
             star2 = mp_get_agascid(agasc_id)
             for colname in AGASC_COLNAMES:
                 if star1[colname].dtype.kind == 'f':
-                    assert np.all(np.abs(star1[colname] - star2[colname]) < 1e-4)
+                    assert np.all(np.allclose(star1[colname], star2[colname]))
                 else:
                     assert star1[colname] == star2[colname]
             stars_checked += 1
