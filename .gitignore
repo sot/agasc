@@ -1,6 +1,10 @@
 mp_get_agasc_bug.png
 miniagasc.h5
-agasc/ra_dec.npy
+ra_dec.npy
 agasc1p6.h5
 doc/_*
 build
+data/
+dist/
+MANIFEST
+parsetab.py

@@ -4,10 +4,13 @@ import numpy as np
 import numexpr
 import tables
 
+from ska_path import ska_path
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
 
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
+
+DATA_ROOT = ska_path('data', 'agasc')
 
 
 class IdNotFound(LookupError):
@@ -38,7 +41,7 @@ class RaDec(object):
         # Read the file of RA and DEC values (sorted on DEC):
         #  dec: DEC values
         #  ra: RA values
-        radecs = np.load(os.path.join(os.path.dirname(__file__), 'ra_dec.npy'))
+        radecs = np.load(os.path.join(DATA_ROOT, 'ra_dec.npy'))
 
         # Now copy to separate ndarrays for memory efficiency
         return radecs['ra'].copy(), radecs['dec'].copy()
@@ -99,7 +102,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     :returns: astropy Table of AGASC entries
     """
     if agasc_file is None:
-        agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
+        agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
 
     idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - radius, dec + radius])
 
@@ -167,7 +170,7 @@ def get_star(id, agasc_file=None):
     """
 
     if agasc_file is None:
-        agasc_file = os.path.join('/', 'proj', 'sot', 'ska', 'data', 'agasc', 'miniagasc.h5')
+        agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
 
     h5 = tables.openFile(agasc_file)
     tbl = h5.root.data
