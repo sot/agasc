@@ -76,6 +76,27 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     return np.degrees(dists)
 
 
+def add_pmcorr_columns(stars, date):
+    # Compute the multiplicative factor to convert from the AGASC proper motion
+    # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
+    # is dyear * (degrees / milliarcsec)
+    agasc_equinox = DateTime('2000:001:00:00:00.000')
+    dyear = (DateTime(date) - agasc_equinox) / 365.25
+    pm_to_degrees = dyear / (3600. * 1000.)
+
+    dec_pmcorr = np.where(stars['PM_DEC'] != -9999,
+                          stars['DEC'] + stars['PM_DEC'] * pm_to_degrees,
+                          stars['DEC'])
+    ra_scale = np.cos(np.radians(stars['DEC']))
+    ra_pmcorr = np.where(stars['PM_RA'] != -9999,
+                         stars['RA'] + stars['PM_RA'] * pm_to_degrees / ra_scale,
+                         stars['RA'])
+
+    # Add the proper-motion corrected columns to table using astropy.table.Table
+    stars.add_columns([Column(data=ra_pmcorr, name='RA_PMCORR'),
+                       Column(data=dec_pmcorr, name='DEC_PMCORR')])
+
+
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
@@ -109,33 +130,15 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     dists = sphere_dist(ra, dec, RA_DECS.ra[idx0:idx1], RA_DECS.dec[idx0:idx1])
     ok = dists <= radius
 
-    h5 = tables.openFile(agasc_file)
-    stars = h5.root.data[idx0:idx1][ok]
-    h5.close()
+    with tables.openFile(agasc_file) as h5:
+        stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
-    # Compute the multiplicative factor to convert from the AGASC proper motion
-    # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
-    # is dyear * (degrees / milliarcsec)
-    agasc_equinox = DateTime('2000:001:00:00:00.000')
-    dyear = (DateTime(date) - agasc_equinox) / 365.25
-    pm_to_degrees = dyear / (3600. * 1000.)
-
-    pm_corr = {}  # Proper-motion corrected coordinates
-    for axis, axis_PM in (('RA', 'PM_RA'),
-                          ('DEC', 'PM_DEC')):
-        pm_corr[axis] = stars[axis].copy()
-        ok = stars[axis_PM] != -9999  # Select stars with an available PM correction
-        pm_corr[axis][ok] = stars[axis][ok] + stars[axis_PM][ok] * pm_to_degrees
-
-    # Add the proper-motion corrected columns to table using astropy.table.Table
-    stars = Table(stars, copy=False)
-    stars.add_columns([Column(data=pm_corr['RA'], name='RA_PMCORR'),
-                       Column(data=pm_corr['DEC'], name='DEC_PMCORR')])
+    add_pmcorr_columns(stars, date)
 
     return stars
 
 
-def get_star(id, agasc_file=None):
+def get_star(id, agasc_file=None, date=None):
     """
     Get AGASC catalog entry for star with requested id.
 
@@ -166,21 +169,25 @@ def get_star(id, agasc_file=None):
       ...
 
     :param id: AGASC id
+    :param date: Date for proper motion (default=Now)
     :returns: astropy Table Row of entry for id
     """
 
     if agasc_file is None:
         agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
 
-    h5 = tables.openFile(agasc_file)
-    tbl = h5.root.data
-    id_rows = tbl.readWhere('(AGASC_ID == {})'.format(id))
-    h5.close()
+    with tables.openFile(agasc_file) as h5:
+        tbl = h5.root.data
+        id_rows = tbl.readWhere('(AGASC_ID == {})'.format(id))
+
     if len(id_rows) > 1:
         raise InconsistentCatalogError(
             "More than one entry found for {} in AGASC".format(id))
+
     if id_rows is None or len(id_rows) == 0:
         raise IdNotFound()
 
     t = Table(id_rows)
+    add_pmcorr_columns(t, date)
+
     return t[0]

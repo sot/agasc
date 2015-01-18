@@ -15,7 +15,8 @@ different results when the faint limit filtering is applied.
 
 Comprehensive test (takes a while):
 >>> import test_agasc
->>> test_agasc.test_agasc(nsample=100)
+>>> test_agasc.test_agasc(nsample=100, agasc_file='miniagasc.h5') # local miniagasc
+>>> test_agasc.test_agasc(nsample=100) # installed  (/proj/sot/ska/data/agasc/miniagasc.h5)
 """
 
 
@@ -103,7 +104,7 @@ def mp_get_agasc(ra, dec, radius):
     return dat
 
 
-def test_agasc(radius=1.4, nsample=2):
+def test_agasc(radius=1.4, nsample=2, agasc_file=None):
     ras, decs = random_ra_dec(nsample)
     ras = np.hstack([ras, [0., 180., 0.1, 180.]])
     decs = np.hstack([decs, [89.9, -89.9, 0.0, 0.0]])
@@ -111,7 +112,7 @@ def test_agasc(radius=1.4, nsample=2):
     for ra, dec in zip(ras, decs):
         print ra, dec
 
-        stars1 = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file='miniagasc.h5')
+        stars1 = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file)
         stars1.sort('AGASC_ID')
 
         stars2 = mp_get_agasc(ra, dec, radius)
