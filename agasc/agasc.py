@@ -80,7 +80,7 @@ def add_pmcorr_columns(stars, date):
     # Compute the multiplicative factor to convert from the AGASC proper motion
     # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
     # is dyear * (degrees / milliarcsec)
-    agasc_equinox = DateTime('2000:001:00:00:00.000')
+    agasc_equinox = DateTime(stars['EPOCH'], format='frac_year')
     dyear = (DateTime(date) - agasc_equinox) / 365.25
     pm_to_degrees = dyear / (3600. * 1000.)
 
