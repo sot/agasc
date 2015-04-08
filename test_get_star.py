@@ -92,7 +92,7 @@ def mp_get_agascid(agasc_id):
     return dat
 
 
-def test_agasc_id(radius=.2, npointings=50, nstar_limit=50):
+def test_agasc_id(radius=.2, npointings=50, nstar_limit=50, agasc_file=None):
     ras, decs = random_ra_dec(npointings)
     ras = np.hstack([ras, [0., 180., 0.1, 180.]])
     decs = np.hstack([decs, [89.9, -89.9, 0.0, 0.0]])
@@ -101,7 +101,7 @@ def test_agasc_id(radius=.2, npointings=50, nstar_limit=50):
     for ra, dec in zip(ras, decs):
         print ra, dec
 
-        cone_stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file='miniagasc.h5')
+        cone_stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file)
         if len(cone_stars) == 0:
             continue
         cone_stars.sort('AGASC_ID')

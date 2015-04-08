@@ -19,3 +19,7 @@ doc:
 install_doc:
 	mkdir -p $(INSTALL_DOC)
 	rsync --archive --times $(DOC)   $(INSTALL_DOC)/
+
+install_data:
+	mkdir -p $(INSTALL_DATA)
+	rsync --archive --size-only data/agasc/ $(INSTALL_DATA)/
