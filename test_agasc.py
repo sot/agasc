@@ -25,6 +25,7 @@ import os
 import numpy as np
 import Ska.Shell
 from astropy.io import ascii
+from astropy.coordinates import SkyCoord
 
 import agasc
 
@@ -144,3 +145,29 @@ def test_agasc(radius=1.4, nsample=2, agasc_file=None):
                     # Allow for loss of precision in output of mp_get_agasc
                     print 'Bad star', agasc_id, rad, adj_mag, bad_is_star1
                     assert False
+
+
+def test_pm():
+    """
+    Test that the filtering in get_agasc_cone correctly expands the initial
+    search radius and then does final filtering using PM-corrected positions.
+    """
+    star = agasc.get_star(1180612288)  # High-PM star
+    radius = 2.0 / 3600  # 5 arcsec
+
+    stars = agasc.get_agasc_cone(star['RA'], star['DEC'], radius, date='2000:001')
+    assert len(stars) == 1
+
+    stars = agasc.get_agasc_cone(star['RA'], star['DEC'], radius, date='2017:001')
+    assert len(stars) == 0
+
+    stars = agasc.get_agasc_cone(star['RA'], star['DEC'], radius, date='2017:001',
+                                 pm_filter=False)
+    assert len(stars) == 1
+
+    stars = agasc.get_agasc_cone(star['RA_PMCORR'], star['DEC_PMCORR'], radius, date='2017:001')
+    assert len(stars) == 1
+
+    stars = agasc.get_agasc_cone(star['RA_PMCORR'], star['DEC_PMCORR'], radius, date='2017:001',
+                                 pm_filter=False)
+    assert len(stars) == 0
