@@ -97,7 +97,8 @@ def add_pmcorr_columns(stars, date):
                        Column(data=dec_pmcorr, name='DEC_PMCORR')])
 
 
-def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
+def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
+                   pm_filter=True):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -119,21 +120,31 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None):
     :param radius: Cone search radius (deg)
     :param date: Date for proper motion (default=Now)
     :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
+    :param pm_filter: Use PM-corrected positions in filtering
 
     :returns: astropy Table of AGASC entries
     """
     if agasc_file is None:
         agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
 
-    idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - radius, dec + radius])
+    # Possibly expand initial radius to allow for slop due proper motion
+    rad_pm = radius + (0.1 if pm_filter else 0.0)
+
+    idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - rad_pm, dec + rad_pm])
 
     dists = sphere_dist(ra, dec, RA_DECS.ra[idx0:idx1], RA_DECS.dec[idx0:idx1])
-    ok = dists <= radius
+    ok = dists <= rad_pm
 
     with tables.openFile(agasc_file) as h5:
         stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
     add_pmcorr_columns(stars, date)
+
+    # Final filtering using proper-motion corrected positions
+    if pm_filter:
+        dists = sphere_dist(ra, dec, stars['RA_PMCORR'], stars['DEC_PMCORR'])
+        ok = dists <= radius
+        stars = stars[ok]
 
     return stars
 
