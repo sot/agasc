@@ -12,6 +12,8 @@ __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
 
 DATA_ROOT = ska_path('data', 'agasc')
 
+tables_open_file = getattr(tables, 'open_file', None) or tables.openFile
+
 
 class IdNotFound(LookupError):
     pass
@@ -135,7 +137,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     dists = sphere_dist(ra, dec, RA_DECS.ra[idx0:idx1], RA_DECS.dec[idx0:idx1])
     ok = dists <= rad_pm
 
-    with tables.openFile(agasc_file) as h5:
+    with tables_open_file(agasc_file) as h5:
         stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
     add_pmcorr_columns(stars, date)
@@ -187,9 +189,10 @@ def get_star(id, agasc_file=None, date=None):
     if agasc_file is None:
         agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
 
-    with tables.openFile(agasc_file) as h5:
+    with tables_open_file(agasc_file) as h5:
         tbl = h5.root.data
-        id_rows = tbl.readWhere('(AGASC_ID == {})'.format(id))
+        tbl_read_where = getattr(tbl, 'read_where', None) or tbl.readWhere
+        id_rows = tbl_read_where('(AGASC_ID == {})'.format(id))
 
     if len(id_rows) > 1:
         raise InconsistentCatalogError(
