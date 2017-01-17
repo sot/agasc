@@ -37,6 +37,9 @@ try:
     assert os.path.exists(ascrc_file)
     ascds_env = Ska.Shell.getenv('source {} -r release'.format(ascrc_file), shell='tcsh')
     assert 'ASCDS_BIN' in ascds_env
+    cmd = 'mp_get_agasc -r 10 -d 20 -w 0.01'
+    # Run the command to check for bad status (which will throw exception)
+    Ska.Shell.run_shell(cmd, shell='bash', env=ascds_env)
 except Exception:
     ascds_env = None
 
