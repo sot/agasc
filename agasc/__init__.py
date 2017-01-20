@@ -1,5 +1,6 @@
 from .agasc import *
-from .version import version as __version__
+
+__version__ = '3.4'
 
 
 def test(*args, **kwargs):
