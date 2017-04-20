@@ -24,8 +24,8 @@ class InconsistentCatalogError(Exception):
 
 
 class RaDec(object):
-    def __init__(self):
-        pass
+    def __init__(self, agasc_file):
+        self.agasc_file = agasc_file
 
     @property
     def ra(self):
@@ -43,12 +43,13 @@ class RaDec(object):
         # Read the file of RA and DEC values (sorted on DEC):
         #  dec: DEC values
         #  ra: RA values
-        radecs = np.load(os.path.join(DATA_ROOT, 'ra_dec.npy'))
+        with tables_open_file(self.agasc_file) as h5:
+            radecs = h5.root.data[:][['RA', 'DEC']]
 
-        # Now copy to separate ndarrays for memory efficiency
-        return radecs['ra'].copy(), radecs['dec'].copy()
+            # Now copy to separate ndarrays for memory efficiency
+            return radecs['RA'].copy(), radecs['DEC'].copy()
 
-RA_DECS = RaDec()
+RA_DECS = None
 
 
 def sphere_dist(ra1, dec1, ra2, dec2):
@@ -131,6 +132,10 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
 
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
+
+    global RA_DECS
+    if RA_DECS is None:
+        RA_DECS = RaDec(agasc_file)
 
     idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - rad_pm, dec + rad_pm])
 
