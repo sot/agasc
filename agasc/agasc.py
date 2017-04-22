@@ -25,7 +25,11 @@ class InconsistentCatalogError(Exception):
 
 class RaDec(object):
     def __init__(self, agasc_file):
-        self.agasc_file = agasc_file
+        self._agasc_file = agasc_file
+
+    @property
+    def agasc_file(self):
+        return self._agasc_file
 
     @property
     def ra(self):
@@ -134,7 +138,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
     global RA_DECS
-    if RA_DECS is None:
+    if RA_DECS is None or RA_DECS.agasc_file != agasc_file:
         RA_DECS = RaDec(agasc_file)
 
     idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - rad_pm, dec + rad_pm])
