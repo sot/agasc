@@ -14,6 +14,7 @@ DATA_ROOT = ska_path('data', 'agasc')
 
 tables_open_file = getattr(tables, 'open_file', None) or tables.openFile
 
+DEFAULT_AGASC_FILE = os.path.join(DATA_ROOT, 'miniagasc.h5')
 
 class IdNotFound(LookupError):
     pass
@@ -53,7 +54,14 @@ class RaDec(object):
             # Now copy to separate ndarrays for memory efficiency
             return radecs['RA'].copy(), radecs['DEC'].copy()
 
-RA_DECS = None
+RA_DECS_CACHE = {DEFAULT_AGASC_FILE: RaDec(DEFAULT_AGASC_FILE)}
+
+
+def get_ra_decs(agasc_file):
+    agasc_file = os.path.abspath(agasc_file)
+    if agasc_file not in RA_DECS_CACHE:
+        RA_DECS_CACHE[agasc_file] = RaDec(agasc_file)
+    return RA_DECS_CACHE[agasc_file]
 
 
 def sphere_dist(ra1, dec1, ra2, dec2):
@@ -132,18 +140,16 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :returns: astropy Table of AGASC entries
     """
     if agasc_file is None:
-        agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
+        agasc_file = DEFAULT_AGASC_FILE
 
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
-    global RA_DECS
-    if RA_DECS is None or RA_DECS.agasc_file != agasc_file:
-        RA_DECS = RaDec(agasc_file)
+    ra_decs = get_ra_decs(agasc_file)
 
-    idx0, idx1 = np.searchsorted(RA_DECS.dec, [dec - rad_pm, dec + rad_pm])
+    idx0, idx1 = np.searchsorted(ra_decs.dec, [dec - rad_pm, dec + rad_pm])
 
-    dists = sphere_dist(ra, dec, RA_DECS.ra[idx0:idx1], RA_DECS.dec[idx0:idx1])
+    dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
     ok = dists <= rad_pm
 
     with tables_open_file(agasc_file) as h5:
@@ -196,7 +202,7 @@ def get_star(id, agasc_file=None, date=None):
     """
 
     if agasc_file is None:
-        agasc_file = os.path.join(DATA_ROOT, 'miniagasc.h5')
+        agasc_file = DEFAULT_AGASC_FILE
 
     with tables_open_file(agasc_file) as h5:
         tbl = h5.root.data
