@@ -20,7 +20,7 @@ def test_multi_agasc():
         middle = int(len(h5.root.data) / 2)
         stars1 = Table(h5.root.data[middle:middle+20])
         stars1.write(os.path.join(tempdir, 'stars1.h5'), path='data')
-        stars2 = Table(h5.root.data[middle + 20:middle + 40])
+        stars2 = Table(h5.root.data[middle + 20:middle + 60])
         stars2.write(os.path.join(tempdir, 'stars2.h5'), path='data')
 
     # Fetch all the stars from a custom agasc and make sure we have the right number of stars
