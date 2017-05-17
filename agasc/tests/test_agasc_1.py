@@ -1,4 +1,3 @@
-from __future__ import division
 import os
 import tables
 from ska_path import ska_path
@@ -17,7 +16,7 @@ def test_multi_agasc():
     # Make two custom agasc files from the miniagasc, using 20 stars from
     # around the middle of the table
     with tables_open_file(os.path.join(DATA_ROOT, 'miniagasc.h5')) as h5:
-        middle = int(len(h5.root.data) / 2)
+        middle = int(len(h5.root.data) // 2)
         stars1 = Table(h5.root.data[middle:middle+20])
         stars1.write(os.path.join(tempdir, 'stars1.h5'), path='data')
         stars2 = Table(h5.root.data[middle + 20:middle + 60])
