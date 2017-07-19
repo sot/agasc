@@ -191,7 +191,7 @@ def test_proper_motion():
     Test that the filtering in get_agasc_cone correctly expands the initial
     search radius and then does final filtering using PM-corrected positions.
     """
-    star = agasc.get_star(1180612288)  # High-PM star
+    star = agasc.get_star(1180612288, date='2017:001')  # High-PM star
     radius = 2.0 / 3600  # 5 arcsec
 
     stars = agasc.get_agasc_cone(star['RA'], star['DEC'], radius, date='2000:001')
