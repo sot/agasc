@@ -95,8 +95,17 @@ def add_pmcorr_columns(stars, date):
     # Compute the multiplicative factor to convert from the AGASC proper motion
     # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
     # is dyear * (degrees / milliarcsec)
-    agasc_equinox = DateTime(stars['EPOCH'], format='frac_year')
-    dyear = (DateTime(date) - agasc_equinox) / 365.25
+
+    # The dyear for proper motion is only relevent for stars that have not -9999 proper motion
+    # so set to zero for all stars by default
+    dyear = np.zeros(len(stars))
+    # For most of them, the epoch is fixed at 2000, so we don't need N calls to DateTime to
+    # figure that out
+    ok = ((stars['PM_DEC'] != -9999) | (stars['PM_RA'] != -9999)) & (stars['EPOCH'] == 2000.0)
+    dyear[ok] = (DateTime(date) - DateTime(2000, format='frac_year')) / 365.25
+    # For any other EPOCHs that have a proper motion correction, do them individually
+    ok = ((stars['PM_DEC'] != -9999) | (stars['PM_RA'] != -9999)) & (stars['EPOCH'] != 2000.0)
+    dyear[ok] = (DateTime(date) - DateTime(stars[ok]['EPOCH'], format='frac_year')) / 365.25
     pm_to_degrees = dyear / (3600. * 1000.)
 
     dec_pmcorr = np.where(stars['PM_DEC'] != -9999,
