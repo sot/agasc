@@ -107,7 +107,7 @@ def add_pmcorr_columns(stars, date):
     dyear[ok] = (DateTime(date) - DateTime(2000, format='frac_year')) / 365.25
     # For stars with proper motion correction but epoch != 2000, calculate individually.
     ok = has_pm & ~epoch_is_2000
-    dyear[ok] = (DateTime(date) - DateTime(stars[ok]['EPOCH'], format='frac_year')) / 365.25
+    dyear[ok] = (DateTime(date) - DateTime(stars['EPOCH'][ok], format='frac_year')) / 365.25
     pm_to_degrees = dyear / (3600. * 1000.)
 
     dec_pmcorr = np.where(stars['PM_DEC'] != -9999,
