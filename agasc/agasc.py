@@ -96,7 +96,7 @@ def add_pmcorr_columns(stars, date):
     # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
     # is dyear * (degrees / milliarcsec)
 
-    # The dyear for proper motion is only relevent for stars that have not -9999 proper motion
+    # The dyear for proper motion is only relevant for stars that have defined proper motion
     # so set to zero for all stars by default
     dyear = np.zeros(len(stars))
     # For most of them, the epoch is fixed at 2000, so we don't need N calls to DateTime to
