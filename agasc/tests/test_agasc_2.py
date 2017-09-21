@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Test that agasc.get_agasc_cone() gives the same answer as the ASCDS
 tool mp_get_agasc.  Note that mp_get_agasc gives incorrect results
