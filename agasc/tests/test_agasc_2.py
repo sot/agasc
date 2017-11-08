@@ -222,8 +222,8 @@ def test_add_pmcorr_is_consistent(agasc_id, date, ra_pmcorr, dec_pmcorr, label):
     Check that the proper-motion corrected position is consistent reference/regress values.
     """
     star = agasc.get_star(agasc_id, date=date)
-    assert np.isclose(star['RA_PMCORR'], ra_pmcorr)
-    assert np.isclose(star['DEC_PMCORR'], dec_pmcorr)
+    assert np.isclose(star['RA_PMCORR'], ra_pmcorr, rtol=0, atol=1e-5)
+    assert np.isclose(star['DEC_PMCORR'], dec_pmcorr, rtol=0, atol=1e-5)
 
 
 def mp_get_agascid(agasc_id):
