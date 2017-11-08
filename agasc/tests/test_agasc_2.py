@@ -26,7 +26,6 @@ import re
 
 import numpy as np
 import Ska.Shell
-from Chandra.Time import DateTime
 from astropy.io import ascii
 import pytest
 
@@ -213,24 +212,18 @@ def test_proper_motion():
     assert len(stars) == 0
 
 
-@pytest.mark.parametrize("agasc_id,label",
-                         [(1180612288, "high proper motion, epoch 2000"),
-                          (198451217, "epoch 1982 star"),
-                          (501219465, "epoch 1984 star")])
-def test_add_pmcorr_is_consistent(agasc_id, label):
+@pytest.mark.parametrize(
+    "agasc_id,date,ra_pmcorr,dec_pmcorr,label",
+    [(1180612288, '2020:001', 219.86433151831795, -60.831868007221289, "high proper motion, epoch 2000"),
+     (198451217, '2020:001', 247.89220668106938, 19.276605555555559, "epoch 1982 star"),
+     (501219465, '2020:001', 166.99897608782592, 52.82208000152103, "epoch 1984 star")])
+def test_add_pmcorr_is_consistent(agasc_id, date, ra_pmcorr, dec_pmcorr, label):
     """
-    Check that the proper-motion corrected position is consistent with the star proper-motion.
-    Do this by calculating the catalog proper motion values from the corrected position.
+    Check that the proper-motion corrected position is consistent reference/regress values.
     """
-    date = '2020:001'
     star = agasc.get_star(agasc_id, date=date)
-    dyear = DateTime(date).frac_year - star['EPOCH']
-    pm_to_degrees = dyear / (3600. * 1000.)
-    pm_dec = (star['DEC_PMCORR'] - star['DEC']) / pm_to_degrees
-    assert np.round(pm_dec) == star['PM_DEC']
-    ra_scale = np.cos(np.radians(star['DEC']))
-    pm_ra = (star['RA_PMCORR'] - star['RA']) * ra_scale / pm_to_degrees
-    assert np.round(pm_ra) == star['PM_RA']
+    assert np.isclose(star['RA_PMCORR'], ra_pmcorr)
+    assert np.isclose(star['DEC_PMCORR'], dec_pmcorr)
 
 
 def mp_get_agascid(agasc_id):
