@@ -213,6 +213,20 @@ def test_proper_motion():
     assert len(stars) == 0
 
 
+@pytest.mark.parametrize(
+    "agasc_id,date,ra_pmcorr,dec_pmcorr,label",
+    [(1180612288, '2020:001', 219.86433151831795, -60.831868007221289, "high proper motion, epoch 2000"),
+     (198451217, '2020:001', 247.89220668106938, 19.276605555555559, "epoch 1982 star"),
+     (501219465, '2020:001', 166.99897608782592, 52.82208000152103, "epoch 1984 star")])
+def test_add_pmcorr_is_consistent(agasc_id, date, ra_pmcorr, dec_pmcorr, label):
+    """
+    Check that the proper-motion corrected position is consistent reference/regress values.
+    """
+    star = agasc.get_star(agasc_id, date=date)
+    assert np.isclose(star['RA_PMCORR'], ra_pmcorr, rtol=0, atol=1e-5)
+    assert np.isclose(star['DEC_PMCORR'], dec_pmcorr, rtol=0, atol=1e-5)
+
+
 def mp_get_agascid(agasc_id):
     cmd = 'mp_get_agascid {!r}'.format(agasc_id)
     lines = Ska.Shell.tcsh(cmd, env=ascds_env)
