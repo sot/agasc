@@ -15,7 +15,11 @@ DATA_ROOT = ska_path('data', 'agasc')
 
 tables_open_file = getattr(tables, 'open_file', None) or tables.openFile
 
-DEFAULT_AGASC_FILE = os.path.join(DATA_ROOT, 'miniagasc.h5')
+if DATA_ROOT is not None and os.path.exists(DATA_ROOT):
+    DEFAULT_AGASC_FILE = os.path.join(DATA_ROOT, 'miniagasc.h5')
+else:
+    DEFAULT_AGASC_FILE = None
+
 
 class IdNotFound(LookupError):
     pass
@@ -55,7 +59,8 @@ class RaDec(object):
             # Now copy to separate ndarrays for memory efficiency
             return radecs['RA'].copy(), radecs['DEC'].copy()
 
-RA_DECS_CACHE = {DEFAULT_AGASC_FILE: RaDec(DEFAULT_AGASC_FILE)}
+if DEFAULT_AGASC_FILE is not None and os.path.exists(DEFAULT_AGASC_FILE):
+    RA_DECS_CACHE = {DEFAULT_AGASC_FILE: RaDec(DEFAULT_AGASC_FILE)}
 
 
 def get_ra_decs(agasc_file):
