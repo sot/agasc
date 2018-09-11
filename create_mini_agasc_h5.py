@@ -5,12 +5,12 @@ import Ska.Table
 from astropy.table import Table
 
 
-example_file = '/data/agasc1p6/agasc/n0000/0001.fit'
+example_file = '/proj/sot/ska/data/agasc1p7/agasc/n0000/0001.fit'
 dtype = Ska.Table.read_fits_table(example_file).dtype
 table_desc, bo = tables.descr_from_dtype(dtype)
 
 print 'Reading full agasc and selecting useable stars'
-h5 = tables.openFile('agasc1p6.h5', mode='r')
+h5 = tables.openFile('agasc1p7.h5', mode='r')
 tbl = h5.getNode("/", 'data')
 idxs = tbl.getWhereList("(MAG_ACA - (3.0 * MAG_ACA_ERR / 100.0)) < 11.5")
 stars = tbl.readCoordinates(idxs)
@@ -30,7 +30,7 @@ np.save('ra_dec.npy', out)
 print 'Creating miniagasc.h5 file'
 minih5 = tables.openFile('miniagasc.h5', mode='w')
 minitbl = minih5.createTable('/', 'data', table_desc,
-                             title='AGASC 1.6')
+                             title='AGASC 1.7')
 print 'Appending stars to miniagasc.h5 file'
 minitbl.append(stars)
 minitbl.flush()
