@@ -1,16 +1,27 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import argparse
+import re
+
 import numpy as np
 import tables
 import Ska.Table
 from astropy.table import Table
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--version',
+                    default='1p7',
+                    help='Version (e.g. 1p6 or 1p7, default=1p7')
+args = parser.parse_args()
 
-example_file = '/proj/sot/ska/data/agasc1p7/agasc/n0000/0001.fit'
+num_version = re.sub(r'p', '.', args.version)
+
+example_file = '/proj/sot/ska/data/agasc{}/agasc/n0000/0001.fit'.format(args.version)
 dtype = Ska.Table.read_fits_table(example_file).dtype
 table_desc, bo = tables.descr_from_dtype(dtype)
 
-print 'Reading full agasc and selecting useable stars'
-h5 = tables.openFile('agasc1p7.h5', mode='r')
+filename = 'agasc{}.h5'.format(args.version)
+print 'Reading full AGASC {} and selecting useable stars'.format(filename)
+h5 = tables.openFile(filename, mode='r')
 tbl = h5.getNode("/", 'data')
 idxs = tbl.getWhereList("(MAG_ACA - (3.0 * MAG_ACA_ERR / 100.0)) < 11.5")
 stars = tbl.readCoordinates(idxs)
@@ -20,18 +31,12 @@ print 'Sorting on Dec and re-ordering'
 idx = np.argsort(stars['DEC'])
 stars = stars.take(idx)
 
-ra = np.array(stars['RA'], dtype='f8')
-dec = np.array(stars['DEC'], dtype='f8')
-
-print 'Saving lightweight index ra_dec.npy'
-out = Table([ra, dec], names=('ra', 'dec'))
-np.save('ra_dec.npy', out)
-
 print 'Creating miniagasc.h5 file'
-minih5 = tables.openFile('miniagasc.h5', mode='w')
+filename = 'miniagasc_{}.h5'.format(args.version)
+minih5 = tables.openFile(filename, mode='w')
 minitbl = minih5.createTable('/', 'data', table_desc,
-                             title='AGASC 1.7')
-print 'Appending stars to miniagasc.h5 file'
+                             title='AGASC {}'.format(num_version))
+print 'Appending stars to {} file'.format(filename)
 minitbl.append(stars)
 minitbl.flush()
 
