@@ -22,11 +22,10 @@ The test consists of the following steps:
        of the comments cards for all fits files.
 """
 import numpy as np
-import tables
-import tables3_api
 from glob import glob
 import os
 from astropy.io import fits
+from astropy.table import Table
 import difflib
 import re
 
@@ -39,57 +38,48 @@ difflines = """!               THE AXAF GUIDE and ACQUISITION STAR CATALOG V1.6
 ! the AXAF Guide and Acquisition Star Catalog (AGASC) version 1.7
 ! V1.7 changes values for MAG_ACA, MAG_ACA_ERR, RSV1, RSV2 and RSV3""".split('\n')
 
-h5_fits = tables.openFile('agasc1p7_from_fits.h5', mode='r')
-h5_jupyter = tables.openFile('agasc1p7_from_jupyter.h5', mode='r')
-h5_1p6 = tables.openFile('/proj/sot/ska/data/agasc/agasc1p6.h5', mode='r')
+h5_fits = Table.read('agasc1p7_from_fits.h5', path='data')
+h5_jupyter = Table.read('agasc1p7_from_jupyter.h5', path='data')
+h5_1p6 = Table.read('/proj/sot/ska/data/agasc/agasc1p6.h5', path='data')
 
-assert np.all(h5_fits.root.data.colnames == h5_1p6.root.data.colnames)
-assert np.all(h5_fits.root.data.colnames == h5_jupyter.root.data.colnames)
+# Sort by AGASC_ID, and RA to account for the case of duplicate 154534513 star
+h5_fits.sort(['AGASC_ID', 'RA'])
+h5_jupyter.sort(['AGASC_ID', 'RA'])
+h5_1p6.sort(['AGASC_ID', 'RA'])
 
-colnames = h5_fits.root.data.colnames
+assert np.all(h5_fits.dtype.names == h5_1p6.dtype.names)
+assert np.all(h5_fits.dtype.names == h5_jupyter.dtype.names)
 
-ok = h5_fits.root.data.col('RSV3') == 0  # stars with no changes
+ok = h5_fits['RSV3'] == 0  # stars with no changes
 
-agasc_ids_fits = h5_fits.root.data.col('AGASC_ID')
-agasc_ids_jupyter = h5_jupyter.root.data.col('AGASC_ID')
-agasc_ids_1p6 = h5_1p6.root.data.col('AGASC_ID')
-
-idx = np.arange(len(agasc_ids_fits))
-
-id_map_jupyter = dict(zip(agasc_ids_jupyter, idx))
-id_map_1p6 = dict(zip(agasc_ids_1p6, idx))
-
-h5_jupyter_id_map = [id_map_jupyter[agasc_id] for agasc_id in agasc_ids_fits]
-h5_1p6_id_map = [id_map_1p6[agasc_id] for agasc_id in agasc_ids_fits]
-
-for col in colnames:
+for col in h5_fits.dtype.names:
     print "Processing column %s" % col
 
-    c_fits = h5_fits.root.data.col(col)
-
-    c_jupyter = h5_jupyter.root.data.col(col)
-    c_jupyter = c_jupyter[h5_jupyter_id_map]
-
-    c_1p6 = h5_1p6.root.data.col(col)
-    c_1p6 = c_1p6[h5_1p6_id_map]
+    c_fits = h5_fits[col]
+    c_jupyter = h5_jupyter[col]
+    c_1p6 = h5_1p6[col]
 
     # All values for all columns are identical between the V1.7 h5 files
     # from fits files and from jupyter notebook
+
     assert np.all(c_fits == c_jupyter)
 
-    if col not in ['RSV1', 'RSV2', 'RSV3', 'MAG_ACA', 'MAG_ACA_ERR']:
+    test_cols = ('RSV1', 'RSV2', 'RSV3', 'MAG_ACA', 'MAG_ACA_ERR')
+
+    if col in test_cols:
+        # We see only expected differences in MAG_ACA, MAG_ACA_ERR, RSV1-3
+        # between V1.7 and V1.6
+
+        assert np.all(c_fits[ok] == c_1p6[ok])
+
+        if col != 'MAG_ACA_ERR':
+            # because ~1% of stars that changed have unchanged MAG_ACA_ERR
+            assert np.all(c_fits[~ok] != c_1p6[~ok])
+    else:
         # All values for all columns except MAG_ACA, MAG_ACA_ERR, RSV1-3
         # are identical between V1.7 and V1.6
         assert np.all(c_fits == c_1p6)
-    else:
-        # We see only expected differences in MAG_ACA, MAG_ACA_ERR, RSV1-3
-        # between V1.7 and V1.6
-        assert np.all(c_fits[ok] == c_1p6[ok])
-        assert np.all(c_fits[~ok] != c_1p6[~ok])
 
-h5_fits.close()
-h5_jupyter.close()
-h5_1p6.close()
 
 # Diff of the comment cards for all V1.6 and V1.7 fits files
 AGASC_DIR_1p6 = '/proj/sot/ska/data/agasc1p6/agasc'
