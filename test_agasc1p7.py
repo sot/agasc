@@ -59,10 +59,15 @@ for col in h5_fits.dtype.names:
     c_jupyter = h5_jupyter[col]
     c_1p6 = h5_1p6[col]
 
-    # All values for all columns are identical between the V1.7 h5 files
-    # from fits files and from jupyter notebook
+    # All values for all columns, except the RSV1 column, are identical between
+    # the V1.7 h5 files from fits files and from jupyter notebook
 
-    assert np.all(c_fits == c_jupyter)
+    if col == 'RSV1':
+        # fits have RSV1 overwritten with -9999 for stars that did not change
+        assert np.all(c_fits[ok] == -9999)
+        assert np.all(c_fits[~ok] != -9999)
+    else:
+        assert np.all(c_fits == c_jupyter)
 
     test_cols = ('RSV1', 'RSV2', 'RSV3', 'MAG_ACA', 'MAG_ACA_ERR')
 
@@ -70,10 +75,13 @@ for col in h5_fits.dtype.names:
         # We see only expected differences in MAG_ACA, MAG_ACA_ERR, RSV1-3
         # between V1.7 and V1.6
 
-        assert np.all(c_fits[ok] == c_1p6[ok])
+        assert np.all(c_jupyter[ok] == c_1p6[ok])
+        if col != 'RSV1':
+            assert np.all(c_fits[ok] == c_1p6[ok])
 
         if col != 'MAG_ACA_ERR':
-            # because ~1% of stars that changed have unchanged MAG_ACA_ERR
+            # because ~1% of stars have MAG_ACA_ERR change that is too small to
+            # be reflected in the new h5 file where MAG_ACA_ERR is a small int
             assert np.all(c_fits[~ok] != c_1p6[~ok])
     else:
         # All values for all columns except MAG_ACA, MAG_ACA_ERR, RSV1-3
