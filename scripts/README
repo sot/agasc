@@ -1,0 +1,11 @@
+This directory contains scripts used to make the AGASC 1.7 FITS files
+from an h5 table created during calibration.
+
+The make_fits.py script uses the AGASC 1.6 fits files and a new h5 file to create a new
+file tree of FITS files for AGASC 1.7.
+
+The make_links.py script makes a tree of links that are more Windows/DOS friendly for use
+by the matlab tools.  This tree of links can be co-located or separate from the main file
+repository.
+
+Both scripts were run in a skare3 Python 3 environment.
