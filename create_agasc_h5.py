@@ -11,7 +11,7 @@ example_file = '/proj/sot/ska/data/agasc1p7/agasc/n0000/0001.fit'
 dtype = Ska.Table.read_fits_table(example_file).dtype
 table_desc, bo = tables.descr_from_dtype(dtype)
 #filters = tables.Filters(complevel=5, complib='zlib')
-h5 = tables.openFile('agasc1p7.h5', mode='w')
+h5 = tables.openFile('agasc1p7_from_fits.h5', mode='w')
 tbl = h5.createTable('/', 'data', table_desc,
                      title='AGASC 1.7')
 tbl.flush()
@@ -19,36 +19,15 @@ h5.flush()
 h5.close()
 
 AGASC_DIR = '/proj/sot/ska/data/agasc1p7/agasc'
-h5 = tables.openFile('agasc1p7.h5', mode='a')
+h5 = tables.openFile('agasc1p7_from_fits.h5', mode='a')
 tbl = h5.getNode('/', 'data')
-# for chunk in glob(os.path.join(AGASC_DIR, "?????")):
-for chunk in glob(os.path.join(AGASC_DIR, "n0000")):
-    for file in glob(os.path.join(chunk, "001?.fit")):
-#    for file in glob(os.path.join(chunk, "????.fit")):
+for chunk in glob(os.path.join(AGASC_DIR, "?????")):
+    for file in glob(os.path.join(chunk, "????.fit")):
         print "processing %s" % file
         stars = Ska.Table.read_table(file)
         tbl.append(stars)
         tbl.flush()
         h5.flush()
 
-print 'Sorting on Dec and re-ordering'
-idx = np.argsort(tbl.cols.DEC)
-tbl_sorted = tbl.take(idx)
-
-h5.flush()
-h5.close()
-
-h5 = tables.openFile('agasc1p7.h5', mode='w')
-tbl = h5.createTable('/', 'data', table_desc,
-                     title='AGASC 1.7')
-tbl.append(tbl_sorted)
-tbl.flush()
-
-print 'Creating indexes in agasc1p7.h5 file'
-tbl.cols.RA.createCSIndex()
-tbl.cols.DEC.createCSIndex()
-tbl.cols.AGASC_ID.createCSIndex()
-
-tbl.flush()
-h5.flush()
+# Creates unsorted agasc1p7_from_fits.file without indexes
 h5.close()
