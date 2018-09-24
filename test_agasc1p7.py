@@ -38,7 +38,7 @@ difflines = """!               THE AXAF GUIDE and ACQUISITION STAR CATALOG V1.6
 ! the AXAF Guide and Acquisition Star Catalog (AGASC) version 1.7
 ! V1.7 changes values for MAG_ACA, MAG_ACA_ERR, RSV1, RSV2 and RSV3""".split('\n')
 
-h5_fits = Table.read('agasc1p7_from_fits.h5', path='data')
+h5_fits = Table.read('agasc1p7_from_fits_indexed.h5', path='data')
 h5_jupyter = Table.read('agasc1p7_from_jupyter.h5', path='data')
 h5_1p6 = Table.read('/proj/sot/ska/data/agasc/agasc1p6.h5', path='data')
 
