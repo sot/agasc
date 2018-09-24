@@ -138,7 +138,7 @@ def test_agasc_conesearch(ra, dec):
     _test_agasc(ra, dec)
 
 
-def _test_agasc(ra, dec, radius=1.4, agasc_file=None):
+def _test_agasc(ra, dec, radius=1.4, agasc_file='/proj/sot/ska/data/agasc/miniagasc_1p6.h5'):
     stars1 = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file,
                                   date='2000:001')
     stars1.sort('AGASC_ID')
@@ -238,7 +238,7 @@ def mp_get_agascid(agasc_id):
 
 @pytest.mark.skipif('not HAS_KSH')
 @pytest.mark.skipif('ascds_env is None')
-def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file=None):
+def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file='/proj/sot/ska/data/agasc/miniagasc_1p6.h5'):
     ras, decs = random_ra_dec(npointings)
 
     for ra, dec in zip(ras, decs):
@@ -251,7 +251,7 @@ def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file=None):
         cone_stars.sort('AGASC_ID')
         for agasc_id in cone_stars['AGASC_ID'][:nstar_limit]:
             print('  agasc_id =', agasc_id)
-            star1 = agasc.get_star(agasc_id)
+            star1 = agasc.get_star(agasc_id, agasc_file=agasc_file)
             star2 = mp_get_agascid(agasc_id)
             for colname in AGASC_COLNAMES:
                 if star1[colname].dtype.kind == 'f':
