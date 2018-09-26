@@ -360,5 +360,5 @@ NAS8-39073. Information about Chandra and the Chandra X-ray Observatory
 Center may be found on the WWW at http://chandra.harvard.edu/ 
 Detailed information about the catalog and its construction can be
 obtained from the Chandra aspect web page at
-http://asc.harvard.edu/mta/ASPECT/ or by emailing:
+https://cxc.harvard.edu/mta/ASPECT/agasc1p7 or by emailing:
 aspect_help@cfa.harvard.edu
