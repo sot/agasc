@@ -1,10 +1,10 @@
 
 
-            THE AXAF GUIDE and ACQUISITION STAR CATALOG V1.6
+            THE AXAF GUIDE and ACQUISITION STAR CATALOG V1.7
                                                                 
              An all-sky astrometric and photometric catalog     
                  prepared for the operation of Chandra 
-                 (formerly AXAF). version 1.6 November 2004
+                 (formerly AXAF). version 1.7 September 2018
 
 
 
@@ -12,14 +12,14 @@
                    Introduction and General Comments           
                                                                 
 This table contains text (in ASCII 80 column format) summarizing the
-organization, format, and data in the AGASC1.6.  The content and data
-sources for the AGASC1.6 are also described.
+organization, format, and data in the AGASC1.7.  The content and data
+sources for the AGASC1.7 are also described.
 
 CONTENTS:
 	1. INTRODUCTION
 	2. ORGANIZATION OF THE DATA FILES
-	3. SUMMARY OF THE AGASC1.6 FORMAT
-	4. HISTORY OF THE AGASC version 1.6
+	3. SUMMARY OF THE AGASC1.7 FORMAT
+	4. HISTORY OF THE AGASC version 1.7
 		4.1 HST GSC
 		4.2 POSITIONS AND PROPER MOTIONS CATALOG (PPM)
 		4.3 TYCHO OUTPUT CATALOG (TYC)
@@ -38,8 +38,8 @@ The AXAF Guide and Acquisition Star Catalog (AGASC) is presented in
 this set of FITS (Flexible Image Transport System) files, and may
 be distributed in a variety of formats, including DAT (DDS format)
 or CD-ROM (compact disc, read only memory in ISO 9660 format).  This
-issue, Version 1.6, corresponds to the AGASC as completed 
-16 November 2004. 
+issue, Version 1.7, corresponds to the AGASC as completed 
+18 September 2018. 
 
 The primary source of data for the AGASC is the Guide Star Catalog
 (GSC) for the Hubble Space Telescope (HST), version 1.1.  The release
@@ -57,11 +57,10 @@ subset of 988,758 TYC stars contained updated star positions and proper
 motions for the epoch and equinox J2000.0, covering the entire sky.
 The proper motions are from new reductions of the Astrographic
 Catalogue combined with the positions in the Tycho Catalogue.
-The 5th and probably final catalog merged in AGASC for the current
-version is the Tycho-2 catalog, with 2.5 million stars 90% complete to
-V=11.5mag, and including proper motions from ACT and various other
-catalogs.  The major improvements incorporated into AGASC1.5 include
-the following:  
+The 5th catalog merged in AGASC was the Tycho-2 catalog, with 2.5
+million stars 90% complete to V=11.5mag, and including proper motions
+from ACT and various other catalogs.  The major improvements
+incorporated into AGASC1.5 include the following:  
 	(1) Repair of GSC1.1 star ID rollover problem in regions 3588,
 5706, and 7899.  
 	(2) Merge of Tycho-2 position, mag, and color data for 2.5
@@ -78,14 +77,19 @@ guide star.
 	(6) Update of CLASS code to denote galaxies identified
 from pre-release J<12.5 2MASS galaxy catalog.
 
-Version 1.6 is the third on orbit calibration of the AGASC. Using more 
+Version 1.6 was the third on orbit calibration of the AGASC. Using more 
 than 30000 aspect camera star observations from over the course of the 
-Chandra mission we are able to calculate the ACA response to a much
+Chandra mission we were able to calculate the ACA response to a much
 higher precision and over a broader band of star colors than previous
 calibrations. AGASC 1.5 was deemed to require improvement for Chandra
 flight operations after the discovery of a offset of up to 0.5 mags
 between the predicted AGASC magnitude and the observed ACA magnitude
-for red stars with a Tycho-2 color greater than 0.9. 
+for red stars with a Tycho-2 color greater than 0.9.
+
+Version 1.7 improves upon the 1.6 calibration (observed ACA magnitude
+and its error) for red stars by including the i magnitude information
+from the AAVSO (American Association of Variable Star Observers)
+Photometric All-Sky Survey (APASS) DR9.
 
                       2.   ORGANIZATION OF THE DATA FILES          
 
@@ -138,9 +142,9 @@ numbers XREF_IDx are included from the original x=1-6 catalogs we
 have matched.
 
 
-		3. SUMMARY OF THE AGASC1.6 FORMAT
+		3. SUMMARY OF THE AGASC1.7 FORMAT
 
-  Each FITS regions table in the AGASC1.6 consists of 3 parts, the
+  Each FITS regions table in the AGASC1.7 consists of 3 parts, the
 primary header, the table header, and the table data. The conventions
 for FITS Binary Tables are detailed in Cotton, Tody and Pence (1995,
 A&A, 113, 159), or at http://fits.nrao.edu/FITS.html
@@ -150,7 +154,7 @@ regions tables.  That length is 5x2880= 14400bytes. After these 14400
 bytes comes star data records. 
 
  The data for each star amounts to 122 bytes, in 47 data columns for
-AGASC1.5.  Default values are -9999 or 0 where no data are available.
+AGASC1.7.  Default values are -9999 or 0 where no data are available.
 Many columns require data; these have no default values.  Another 
 exception is COLOR1, whose default value is 0.7000 for most stars,
 or 1.5000 for stars with COLOR1 greater than 1.5000. Details on all
@@ -173,9 +177,9 @@ for each data item for each star are as follows:
 
 
 
-SUMMARY OF THE AGASC version 1.6 ENTRIES
+SUMMARY OF THE AGASC version 1.7 ENTRIES
 
- Each of the FITS regions files in the AGASC1.6 will contain the
+ Each of the FITS regions files in the AGASC1.7 will contain the
  following fields for each entry:
 
 
@@ -306,12 +310,12 @@ BYTES NAME - brief description
     color2_err.  The codes are the same as listed for pos_catid.
     Default value is 0.  
   
-4    RSV1 - Preliminary J-band magnitude of nearby 2MASS extended source.   
-     Default value of -9999.0 
+4    RSV1 - APASS V - i magnitude (COLOR3). Default value of -9999.
   
-2    RSV2 - short integer reserved for future use. Default value of -9999.
+2    RSV2 - APASS V magnitude. Default value of -9999.
   
-1    RSV3 - unsigned integer reserved for future use. Default value is 0.  
+1    RSV3 - unsigned integer indicating if the MAG_ACA and MAG_ACA_ERR
+    were updated compared to AGASC1.6 (1 == updated, 0 == not updated).  
 
 2    VAR - short integer code providing information on known or suspected
     variable stars.     Default value of -9999.
@@ -391,7 +395,7 @@ BYTES NAME - brief description
 
 
 
-		4. HISTORY OF THE AGASC version 1.6
+		4. HISTORY OF THE AGASC version 1.7
 
 The primary objective of the Chandra Aspect Camera Assembly (ACA) is to
 measure the image positions of selected target stars and fiducial
@@ -449,8 +453,8 @@ filters is normalized, the zeropoint for each filter was established
 by convolution of the bandpass with a mag=0 spectrum of type G0V
 (BD+26 3780 in the BPGS atlas, normalized to $V=0$). V and MAG_ACA mags
 are then derived for each spectral type (SpType), resulting in a
-V-MAG_ACA as a function of (B-V) color.  A newer calibration
-of ACA magnitude estimates for AGASC1.6 is described below.
+V-MAG_ACA as a function of (B-V) color.  Newer calibrations
+of ACA magnitude estimates for AGASC1.6 and AGASC1.7 are described below.
 
 In 1997, we merged the TYC with AGASC1.1 to form AGASC1.2 This merging
 was performed using the TYC ID codes TYC1 and TYC2, which are
@@ -500,6 +504,16 @@ stars with valid COLOR2 from Tycho-2.  MAG_ACA and MAG_ACA_ERR are
 unchanged from AGASC 1.5 for stars not meeting these criteria.  A
 seven node cubic spline was fit to the offset between the observed
 magnitudes and V-Band magnitudes for 30238 ACA star observations.
+
+In AGASC1.7, MAG_ACA is derived from V and BT-VT (COLOR2) and V-i
+(COLOR3) for all stars with valid COLOR2 from Tycho-2 and valid COLOR3
+from AAVSO (American Association of Variable Star Observers) Photometric
+All-Sky Survey (APASS) DR9.MAG_ACA and MAG_ACA_ERR are unchanged from
+AGASC1.6 for stars not meeting these criteria. A linear function was
+fit to the offset between the V-band magnitudes and the observed 
+magnitudes as a function of COLOR2 or COLOR3 for all ACA stars meeting
+the above criteria observed between the start of the mission and day
+2018:150.
 
 In early 2002, we merged in data from the Tycho-2 catalog, and
 Tycho-2 supplement-1, described further below.  Tycho-2 data
@@ -751,17 +765,29 @@ Massachusetts and the Infrared Processing and Analysis Center (JPL/
 Caltech). Funding is provided primarily by NASA and the NSF. 
 For information on 2MASS, see http://www.ipac.caltech.edu/2mass/
 
+4.8 AAVSO (American Association of Variable Star Observers) Photometric
+    All-Sky Survey (APASS)
+
+We make use of data from the AAVSO Photometric All Sky Survey, DR9,
+whose funding has been provided by the Robert Martin Ayers Sciences Fund
+and by the NSF under grant AST-1412587. We matched the AGASC catalog
+with the APASS catalog (2 arcsec search radius) and included a new color
+information, V - i aka COLOR3 (APASS) in AGASC 1.7. COLOR2 (Tycho)
+combined with COLOR3 (APASS) resulted in improved calibration of the
+red spoiler stars.
+
 
 			5. ACKNOWLEDGEMENTS
 
-The AXAF Guide and Acquisition Star Catalog version 1.6 was prepared
-from AGASC1.5 primarily by Brett Unks, Tom Aldcroft, and Rob Cameron, using code
-written by Brett Unks.  Thanks to the entire Star Selection and Aspect
-Working Group for its input in the development and testing of this
+The AXAF Guide and Acquisition Star Catalog version 1.7 was prepared
+from AGASC1.6 and AAVSO (American Association of Variable Star Observers)
+Photometric All-Sky Survey (APASS) DR9, primarily by Malgosia Sobolewska,
+Tom Aldcroft, and Jean Connelly. Thanks to the entire Star Selection and
+Aspect Working Group for its input in the development and testing of this
 catalog. The Chandra X-ray Center is supported through NASA Contract
-NAS8-39073. Information about Chandra and the Chandra X-ray
-Observatory Center may be found on the WWW at http://chandra.harvard.edu/ 
-Detailed information about the catalog and its construction
-can be obtained from the Chandra aspect web page at
+NAS8-39073. Information about Chandra and the Chandra X-ray Observatory
+Center may be found on the WWW at http://chandra.harvard.edu/ 
+Detailed information about the catalog and its construction can be
+obtained from the Chandra aspect web page at
 http://asc.harvard.edu/mta/ASPECT/ or by emailing:
 aspect_help@cfa.harvard.edu
