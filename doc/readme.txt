@@ -1,20 +1,20 @@
 
 
-            THE AXAF GUIDE and ACQUISITION STAR CATALOG V1.6
+            THE AXAF GUIDE and ACQUISITION STAR CATALOG V1.7
                                                                 
              An all-sky astrometric and photometric catalog     
                  prepared for the operation of Chandra 
-                 (formerly AXAF). version 1.6 November 2004
+                 (formerly AXAF). version 1.7 September 2018
 
                                                                       
     These files constitute the AXAF Guide and Acquisition Star Catalog
-    - Version 1.6, with an issue date of 16 November 2004
+    - Version 1.7, with an issue date of 18 September 2018
 
     The AXAF Guide and Acquisition Star Catalog (AGASC) was prepared
     by the AXAF Science Center (ASC), Smithsonian Astrophysical
     Observatory, 60 Garden St., Cambridge, MA 02138.              
 
-    AGASC1.6 may be provided in a variety of formats, including
+    AGASC1.7 may be provided in a variety of formats, including
     DAT tape CD-ROMs in the ISO 9660 format.
 
 
@@ -32,14 +32,14 @@ The AXAF Guide and Acquisition Star Catalog (AGASC) is presented in
 this set of FITS (Flexible Image Transport System) files, and may
 be distributed in a variety of formats, including DAT (DDS format)
 or CD-ROM (compact disc, read only memory in ISO 9660 format).  This
-issue, Version 1.6, corresponds to the AGASC as completed 16 November 2004. 
+issue, Version 1.7, corresponds to the AGASC as completed 18 September 2018.
 
-AGASC1.6 can be roughly considered as the superset of the best data
+AGASC1.7 can be roughly considered as the superset of the best data
 available for each of 18865968 listed stars, taken from the following
 catalogs: Tycho-2 and GSC-ACT.  Additional derived quantities are
 included that are useful for Chandra operations, primarily the
 expected magnitude in the Chandra Aspect Camera (Ball Aerospace &
-Technologies Corp).  Further details of AGASC1.6 history and
+Technologies Corp).  Further details of AGASC1.7 history and
 construction are elaborated in the comments.txt file of the table
 subdirectory.  
 
@@ -96,9 +96,9 @@ numbers XREF_IDx are included from the original x=1-6 catalogs we
 have matched.
 
 
-		3. SUMMARY OF THE AGASC1.6 FORMAT
+		3. SUMMARY OF THE AGASC1.7 FORMAT
 
-  Each FITS regions table in the AGASC1.6 consists of 3 parts, the
+  Each FITS regions table in the AGASC1.7 consists of 3 parts, the
 primary header, the table header, and the table data. The conventions
 for FITS Binary Tables are detailed in Cotton, Tody and Pence (1995,
 A&A, 113, 159), or at http://fits.nrao.edu/FITS.html
@@ -108,7 +108,7 @@ regions tables.  That length is 5x2880= 14400bytes. After these 14400
 bytes comes star data records. 
 
  The data for each star amounts to 122 bytes, in 47 data columns for
-AGASC1.6.  Default values are -9999 or 0 where no data are available.
+AGASC1.7.  Default values are -9999 or 0 where no data are available.
 Many columns require data; these have no default values.  Another 
 exception is COLOR1, whose default value is 0.7000 for most stars,
 or 1.5000 if COLOR1 for stars redder than 1.5000.  Details on all
@@ -132,9 +132,9 @@ for each data item for each star are as follows:
 
 
 
-SUMMARY OF THE AGASC version 1.5 ENTRIES
+SUMMARY OF THE AGASC version 1.7 ENTRIES
 
- Each of the FITS regions files in the AGASC1.5 will contain the
+ Each of the FITS regions files in the AGASC1.7 will contain the
  following fields for each entry:
 
 
@@ -257,19 +257,19 @@ BYTES NAME - brief description
     For Tycho catalogs, this is the Tycho BT-VT color.
     Default value of -9999.0
   
-2    COLOR2_ERR - short integer expressing the error in color2, iun
+2    COLOR2_ERR - short integer expressing the error in color2, in
     units of 0.01mag.    Default value of -9999.
   
 1    C2_CATID - unsigned integer identifying the source of color2 and
     color2_err.  The codes are the same as listed for pos_catid.
     Default value is 0.  
   
-4    RSV1 - Preliminary J-band magnitude of nearby 2MASS extended source.   
-     Default value of -9999.0 
+4    RSV1 - APASS V - i magnitude (COLOR3). Default value of -9999.
   
-2    RSV2 - short integer reserved for future use. Default value of -9999.
+2    RSV2 - APASS V magnitude. Default value of -9999.
   
-1    RSV3 - unsigned integer reserved for future use. Default value is 0.  
+1    RSV3 - unsigned integer indicating if the MAG_ACA and MAG_ACA_ERR
+    were updated compared to AGASC1.6 (1 == updated, 0 == not updated).  
 
 2    VAR - short integer code providing information on known or suspected
     variable stars.     Default value of -9999.
@@ -350,14 +350,15 @@ BYTES NAME - brief description
 
 			4. ACKNOWLEDGEMENTS
 
-The AXAF Guide and Acquisition Star Catalog version 1.6 was prepared
-from AGASC1.5 primarily by Brett Unks, Tom Aldcroft, and Rob Cameron, using code
-written by Brett Unks.  Thanks to the entire Star Selection and Aspect
-Working Group for its input in the development and testing of this
+The AXAF Guide and Acquisition Star Catalog version 1.7 was prepared
+from AGASC1.6 and AAVSO (American Association of Variable Star Observers)
+Photometric All-Sky Survey (APASS) DR9, primarily by Malgosia Sobolewska,
+Tom Aldcroft, and Jean Connelly. Thanks to the entire Star Selection and
+Aspect Working Group for its input in the development and testing of this
 catalog. The Chandra X-ray Center is supported through NASA Contract
-NAS8-39073. Information about Chandra and the Chandra X-ray
-Observatory Center may be found on the WWW at http://chandra.harvard.edu/ 
-Detailed information about the catalog and its construction
-can be obtained from the Chandra aspect web page at
-http://asc.harvard.edu/mta/ASPECT/ or by emailing:
+NAS8-39073. Information about Chandra and the Chandra X-ray Observatory
+Center may be found on the WWW at http://chandra.harvard.edu/ 
+Detailed information about the catalog and its construction can be
+obtained from the Chandra aspect web page at
+https://cxc.harvard.edu/mta/ASPECT/agasc1p7 or by emailing:
 aspect_help@cfa.harvard.edu
