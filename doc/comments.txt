@@ -509,11 +509,7 @@ In AGASC1.7, MAG_ACA is derived from V and BT-VT (COLOR2) and V-i
 (COLOR3) for all stars with valid COLOR2 from Tycho-2 and valid COLOR3
 from AAVSO (American Association of Variable Star Observers) Photometric
 All-Sky Survey (APASS) DR9. MAG_ACA and MAG_ACA_ERR are unchanged from
-AGASC1.6 for stars not meeting these criteria. A linear function was
-fit to the offset between the V-band magnitudes and the observed 
-magnitudes as a function of COLOR2 or COLOR3 for all ACA stars meeting
-the above criteria observed between the start of the mission and day
-2018:150.
+AGASC1.6 for stars not meeting these criteria.
 
 In early 2002, we merged in data from the Tycho-2 catalog, and
 Tycho-2 supplement-1, described further below.  Tycho-2 data
