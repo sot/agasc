@@ -508,7 +508,7 @@ magnitudes and V-Band magnitudes for 30238 ACA star observations.
 In AGASC1.7, MAG_ACA is derived from V and BT-VT (COLOR2) and V-i
 (COLOR3) for all stars with valid COLOR2 from Tycho-2 and valid COLOR3
 from AAVSO (American Association of Variable Star Observers) Photometric
-All-Sky Survey (APASS) DR9.MAG_ACA and MAG_ACA_ERR are unchanged from
+All-Sky Survey (APASS) DR9. MAG_ACA and MAG_ACA_ERR are unchanged from
 AGASC1.6 for stars not meeting these criteria. A linear function was
 fit to the offset between the V-band magnitudes and the observed 
 magnitudes as a function of COLOR2 or COLOR3 for all ACA stars meeting
