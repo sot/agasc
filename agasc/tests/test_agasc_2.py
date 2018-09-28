@@ -27,7 +27,8 @@ import re
 
 import numpy as np
 import Ska.Shell
-from astropy.io import ascii
+from astropy.io import ascii, fits
+from astropy.table import Table
 import pytest
 
 import agasc
@@ -98,6 +99,9 @@ RSV6 - short integer reserved for future use.  Default value of -9999.
 
 AGASC_COLNAMES = [line.split()[0] for line in AGASC_COL_DESCR.strip().splitlines()]
 
+# AGASC_FILE = '/proj/sot/ska/data/agasc/miniagasc_1p7.h5'
+AGASC_FILE = '/proj/sot/ska/data/agasc/miniagasc_1p6.h5'
+
 
 def random_ra_dec(nsample):
     x = np.random.uniform(-0.98, 0.98, size=nsample)
@@ -106,39 +110,44 @@ def random_ra_dec(nsample):
     return ras, decs
 
 
-def mp_get_agasc(ra, dec, radius):
-    cmd = 'mp_get_agasc -r {!r} -d {!r} -w {!r}'.format(ra, dec, radius * 1.5)
-    lines = Ska.Shell.tcsh(cmd, env=ascds_env)
-    dat = ascii.read(lines, Reader=ascii.NoHeader, names=AGASC_COLNAMES)
+def mp_get_agasc(ra, dec, radius=0.6):
+    test_file = 'test_file_ra_{}_dec_{}_radius_{}_1p6.fits'.format(ra, dec, radius)
+    if os.path.exists(test_file):
+        dat = Table.read(test_file)
+    else:
+        cmd = 'mp_get_agasc -r {!r} -d {!r} -w {!r}'.format(ra, dec, radius)
+        lines = Ska.Shell.tcsh(cmd, env=ascds_env)
+        dat = ascii.read(lines, Reader=ascii.NoHeader, names=AGASC_COLNAMES)
 
-    ok1 = agasc.sphere_dist(ra, dec, dat['RA'], dat['DEC']) <= radius
-    ok2 = dat['MAG_ACA'] - 3.0 * dat['MAG_ACA_ERR'] / 100.0 < 11.5
-    dat = dat[ok1 & ok2]
+        ok1 = agasc.sphere_dist(ra, dec, dat['RA'], dat['DEC']) <= radius
+        ok2 = dat['MAG_ACA'] - 3.0 * dat['MAG_ACA_ERR'] / 100.0 < 11.5
+        dat = dat[ok1 & ok2]
+
+        dat.write(test_file, format='fits')
 
     return dat
 
 
-def interactive_test_agasc(nsample=5, radius=1.4, agasc_file=None):
+def interactive_test_agasc(nsample=5, radius=0.6, agasc_file=AGASC_FILE):
     ras, decs = random_ra_dec(nsample)
     for ra, dec in zip(ras, decs):
         print(ra, dec)
-        _test_agasc(ra, dec, radius, agasc_file)
+        _test_agasc(ra, dec, radius, agasc_file=agasc_file)
+        
 
-
-ras, decs = random_ra_dec(2)
-ras = np.hstack([ras, [0., 180., 0.1, 180., 275.36476417402469]])
-decs = np.hstack([decs, [89.9, -89.9, 0.0, 0.0, 8.0999841645324135]])
+ras = np.hstack([0., 180., 0.1, 180., 275.36476417402469])
+decs = np.hstack([89.9, -89.9, 0.0, 0.0, 8.0999841645324135])
 # The (275.36, 8.09) coordinate fails unless date=2000:001 due to
 # mp_get_agasc not accounting for proper motion.
 
 
 @pytest.mark.skipif('ascds_env is None')
 @pytest.mark.parametrize("ra,dec", list(zip(ras, decs)))
-def test_agasc_conesearch(ra, dec):
-    _test_agasc(ra, dec)
+def test_agasc_conesearch(ra, dec, agasc_file=AGASC_FILE):
+    _test_agasc(ra, dec, agasc_file=agasc_file)
 
 
-def _test_agasc(ra, dec, radius=1.4, agasc_file=None):
+def _test_agasc(ra, dec, radius=0.6, agasc_file=AGASC_FILE):
     stars1 = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file,
                                   date='2000:001')
     stars1.sort('AGASC_ID')
@@ -243,7 +252,7 @@ def mp_get_agascid(agasc_id):
 
 @pytest.mark.skipif('not HAS_KSH')
 @pytest.mark.skipif('ascds_env is None')
-def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file=None):
+def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file=AGASC_FILE):
     ras, decs = random_ra_dec(npointings)
 
     for ra, dec in zip(ras, decs):
@@ -256,7 +265,7 @@ def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file=None):
         cone_stars.sort('AGASC_ID')
         for agasc_id in cone_stars['AGASC_ID'][:nstar_limit]:
             print('  agasc_id =', agasc_id)
-            star1 = agasc.get_star(agasc_id)
+            star1 = agasc.get_star(agasc_id, agasc_file=agasc_file)
             star2 = mp_get_agascid(agasc_id)
             for colname in AGASC_COLNAMES:
                 if star1[colname].dtype.kind == 'f':
