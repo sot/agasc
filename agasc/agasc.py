@@ -143,7 +143,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``
     columns, respectively.
 
-    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``
+    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``
 
     Example::
 
