@@ -80,10 +80,10 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     :returns: angular separation distance (deg)
     """
 
-    ra1 = np.radians(ra1)
-    ra2 = np.radians(ra2)
-    dec1 = np.radians(dec1)
-    dec2 = np.radians(dec2)
+    ra1 = np.radians(ra1).astype(np.float64)
+    ra2 = np.radians(ra2).astype(np.float64)
+    dec1 = np.radians(dec1).astype(np.float64)
+    dec2 = np.radians(dec2).astype(np.float64)
 
     numerator = numexpr.evaluate('sin((dec2 - dec1) / 2) ** 2 + '
                                  'cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2')

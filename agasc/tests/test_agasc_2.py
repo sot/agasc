@@ -187,6 +187,11 @@ def test_basic():
     assert np.allclose(stars['MAG_ACA'][:5], mags)
 
 
+def test_float16():
+    stars = agasc.get_agasc_cone(np.float16(219.90279), np.float16(-60.83358), .015)
+    assert stars['AGASC_ID'][0] == 1180612176
+
+
 def test_proper_motion():
     """
     Test that the filtering in get_agasc_cone correctly expands the initial
