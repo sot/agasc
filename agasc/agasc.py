@@ -9,6 +9,12 @@ from ska_path import ska_path
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
 
+import warnings
+warnings.filterwarnings(
+    'ignore',
+    message="using `oa_ndim == 0` when `op_axes` is NULL is deprecated.*",
+    category=DeprecationWarning)
+
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
 
 DATA_ROOT = ska_path('data', 'agasc')
