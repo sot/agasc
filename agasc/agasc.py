@@ -13,9 +13,8 @@ __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
 
 DATA_ROOT = ska_path('data', 'agasc')
 
-tables_open_file = getattr(tables, 'open_file', None) or tables.openFile
-
 DEFAULT_AGASC_FILE = os.path.join(DATA_ROOT, 'miniagasc.h5')
+
 
 class IdNotFound(LookupError):
     pass
@@ -23,6 +22,16 @@ class IdNotFound(LookupError):
 
 class InconsistentCatalogError(Exception):
     pass
+
+
+def tables_open_file(filename):
+    """
+    Open an HDF5 file using table, but allow for a Path object input.
+
+    :param filename: table file name (str, Path)
+    :returns: h5 handle
+    """
+    return tables.open_file(str(filename))
 
 
 class RaDec(object):

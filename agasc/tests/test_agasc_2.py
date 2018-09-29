@@ -24,10 +24,11 @@ from __future__ import print_function, division
 
 import os
 import re
+from pathlib import Path
 
 import numpy as np
 import Ska.Shell
-from astropy.io import ascii, fits
+from astropy.io import ascii
 from astropy.table import Table
 import pytest
 
@@ -99,8 +100,12 @@ RSV6 - short integer reserved for future use.  Default value of -9999.
 
 AGASC_COLNAMES = [line.split()[0] for line in AGASC_COL_DESCR.strip().splitlines()]
 
-# AGASC_FILE = '/proj/sot/ska/data/agasc/miniagasc_1p7.h5'
-AGASC_FILE = '/proj/sot/ska/data/agasc/miniagasc_1p6.h5'
+
+# TO DO: update to miniagasc.h5 when DS 10.7 gets released
+AGASC_FILE = Path(os.environ['SKA'], 'data', 'agasc', 'miniagasc_1p6.h5')
+HAS_AGASC_1P6 = AGASC_FILE.exists()
+
+TEST_DIR = Path(__file__).parent
 
 
 def random_ra_dec(nsample):
@@ -111,8 +116,8 @@ def random_ra_dec(nsample):
 
 
 def mp_get_agasc(ra, dec, radius=0.6):
-    test_file = 'test_file_ra_{}_dec_{}_radius_{}_1p6.fits'.format(ra, dec, radius)
-    if os.path.exists(test_file):
+    test_file = TEST_DIR / f'test_ra_{ra}_dec_{dec}_radius_{radius}_1p6.fits.gz'
+    if test_file.exists():
         dat = Table.read(test_file)
     else:
         cmd = 'mp_get_agasc -r {!r} -d {!r} -w {!r}'.format(ra, dec, radius)
@@ -123,7 +128,9 @@ def mp_get_agasc(ra, dec, radius=0.6):
         ok2 = dat['MAG_ACA'] - 3.0 * dat['MAG_ACA_ERR'] / 100.0 < 11.5
         dat = dat[ok1 & ok2]
 
-        dat.write(test_file, format='fits')
+        if os.environ.get('WRITE_AGASC_TEST_FILES'):
+            print(f'\nWriting {test_file}\n')
+            dat.write(test_file, format='fits')
 
     return dat
 
@@ -133,15 +140,15 @@ def interactive_test_agasc(nsample=5, radius=0.6, agasc_file=AGASC_FILE):
     for ra, dec in zip(ras, decs):
         print(ra, dec)
         _test_agasc(ra, dec, radius, agasc_file=agasc_file)
-        
 
-ras = np.hstack([0., 180., 0.1, 180., 275.36476417402469])
-decs = np.hstack([89.9, -89.9, 0.0, 0.0, 8.0999841645324135])
+
+ras = np.hstack([0., 180., 0.1, 180., 275.36])
+decs = np.hstack([89.9, -89.9, 0.0, 0.0, 8.09])
 # The (275.36, 8.09) coordinate fails unless date=2000:001 due to
 # mp_get_agasc not accounting for proper motion.
 
 
-@pytest.mark.skipif('ascds_env is None')
+@pytest.mark.skipif('not HAS_AGASC_1P6')
 @pytest.mark.parametrize("ra,dec", list(zip(ras, decs)))
 def test_agasc_conesearch(ra, dec, agasc_file=AGASC_FILE):
     _test_agasc(ra, dec, agasc_file=agasc_file)
