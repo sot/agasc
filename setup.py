@@ -15,6 +15,7 @@ setup(name='agasc',
       author_email='taldcroft@cfa.harvard.edu',
       url='http://cxc.harvard.edu/mta/ASPECT/tool_doc/agasc',
       packages=['agasc', 'agasc.tests'],
+      package_data={'agasc.tests': ['data/*']},
       tests_require=['pytest'],
       cmdclass=cmdclass,
       )

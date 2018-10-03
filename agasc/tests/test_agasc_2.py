@@ -20,14 +20,14 @@ Comprehensive test (takes a while):
 >>> interactive_test_agasc(nsample=100) # installed  (/proj/sot/ska/data/agasc/miniagasc.h5)
 """
 
-from __future__ import print_function, division
-
 import os
 import re
+from pathlib import Path
 
 import numpy as np
 import Ska.Shell
 from astropy.io import ascii
+from astropy.table import Table
 import pytest
 
 import agasc
@@ -41,8 +41,11 @@ try:
     cmd = 'mp_get_agasc -r 10 -d 20 -w 0.01'
     # Run the command to check for bad status (which will throw exception)
     Ska.Shell.run_shell(cmd, shell='bash', env=ascds_env)
+    match = re.search(r'agasc([p0-9]+)', ascds_env['ASCDS_AGASC'])
+    DS_AGASC_VERSION = match.group(1)
 except Exception:
     ascds_env = None
+    DS_AGASC_VERSION = None
 
 HAS_KSH = os.path.exists('/bin/ksh')  # dependency of mp_get_agascid
 
@@ -99,51 +102,90 @@ RSV6 - short integer reserved for future use.  Default value of -9999.
 AGASC_COLNAMES = [line.split()[0] for line in AGASC_COL_DESCR.strip().splitlines()]
 
 
-def random_ra_dec(nsample):
-    x = np.random.uniform(-0.98, 0.98, size=nsample)
-    ras = 360 * np.random.random(nsample)
-    decs = np.degrees(np.arcsin(x))
-    return ras, decs
+TEST_RADIUS = 0.6  # standard testing radius
+TEST_DIR = Path(__file__).parent
+DATA_DIR = Path(os.environ['SKA'], 'data', 'agasc')
+AGASC_FILE = {}
+AGASC_FILE['1p6'] = DATA_DIR / 'miniagasc_1p6.h5'
+AGASC_FILE['1p7'] = DATA_DIR / 'miniagasc.h5'  # Latest release
+
+# Whether to test DS AGASC vs. agasc package HDF5 files
+TEST_ASCDS = DS_AGASC_VERSION is not None and AGASC_FILE[DS_AGASC_VERSION].exists()
 
 
-def mp_get_agasc(ra, dec, radius):
-    cmd = 'mp_get_agasc -r {!r} -d {!r} -w {!r}'.format(ra, dec, radius * 1.5)
+def get_ds_agasc_cone(ra, dec):
+    cmd = 'mp_get_agasc -r {!r} -d {!r} -w {!r}'.format(ra, dec, TEST_RADIUS)
     lines = Ska.Shell.tcsh(cmd, env=ascds_env)
     dat = ascii.read(lines, Reader=ascii.NoHeader, names=AGASC_COLNAMES)
 
-    ok1 = agasc.sphere_dist(ra, dec, dat['RA'], dat['DEC']) <= radius
+    ok1 = agasc.sphere_dist(ra, dec, dat['RA'], dat['DEC']) <= TEST_RADIUS
     ok2 = dat['MAG_ACA'] - 3.0 * dat['MAG_ACA_ERR'] / 100.0 < 11.5
     dat = dat[ok1 & ok2]
+
+    if os.environ.get('WRITE_AGASC_TEST_FILES'):
+        version = DS_AGASC_VERSION
+        test_file = get_test_file(ra, dec, version)
+        print(f'\nWriting {test_file} based on mp_get_agasc\n')
+        dat.write(test_file, format='fits')
 
     return dat
 
 
-def interactive_test_agasc(nsample=5, radius=1.4, agasc_file=None):
-    ras, decs = random_ra_dec(nsample)
-    for ra, dec in zip(ras, decs):
-        print(ra, dec)
-        _test_agasc(ra, dec, radius, agasc_file)
+def get_test_file(ra, dec, version):
+    return TEST_DIR / 'data' / f'ref_ra_{ra}_dec_{dec}_{version}.fits.gz'
 
 
-ras, decs = random_ra_dec(2)
-ras = np.hstack([ras, [0., 180., 0.1, 180., 275.36476417402469]])
-decs = np.hstack([decs, [89.9, -89.9, 0.0, 0.0, 8.0999841645324135]])
+def get_reference_agasc_values(ra, dec, version='1p7'):
+    dat = Table.read(get_test_file(ra, dec, version))
+    return dat
+
+
+RAS = np.hstack([0., 180., 0.1, 180., 275.36])
+DECS = np.hstack([89.9, -89.9, 0.0, 0.0, 8.09])
 # The (275.36, 8.09) coordinate fails unless date=2000:001 due to
 # mp_get_agasc not accounting for proper motion.
 
 
-@pytest.mark.skipif('ascds_env is None')
-@pytest.mark.parametrize("ra,dec", list(zip(ras, decs)))
-def test_agasc_conesearch(ra, dec):
-    _test_agasc(ra, dec)
+@pytest.mark.parametrize("version", ['1p6', '1p7'])
+@pytest.mark.parametrize("ra,dec", list(zip(RAS, DECS)))
+def test_agasc_conesearch(ra, dec, version):
+    """
+    Compare results of get_agasc_cone to package reference data stored in
+    FITS files.
+    """
+    try:
+        ref_stars = get_reference_agasc_values(ra, dec, version=version)
+    except FileNotFoundError:
+        if os.environ.get('WRITE_AGASC_TEST_FILES'):
+            ref_stars = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
+                                             agasc_file=AGASC_FILE[version],
+                                             date='2000:001')
+            test_file = get_test_file(ra, dec, version)
+            print(f'\nWriting {test_file} based on miniagasc\n')
+            ref_stars.write(test_file, format='fits')
+        pytest.skip('Reference data unavailable')
+
+    _test_agasc(ra, dec, ref_stars, version)
 
 
-def _test_agasc(ra, dec, radius=1.4, agasc_file=None):
-    stars1 = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file,
+@pytest.mark.skipif('not TEST_ASCDS')
+@pytest.mark.parametrize("ra,dec", list(zip(RAS, DECS)))
+def test_against_ds_agasc(ra, dec):
+    """
+    Compare results of get_agasc_cone to the same star field retrieved from
+    the DS command line tool mp_get_agasc.
+    """
+    ref_stars = get_ds_agasc_cone(ra, dec)
+    _test_agasc(ra, dec, ref_stars, version=DS_AGASC_VERSION)
+
+
+def _test_agasc(ra, dec, ref_stars, version='1p7'):
+    stars1 = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
+                                  agasc_file=AGASC_FILE[version],
                                   date='2000:001')
     stars1.sort('AGASC_ID')
 
-    stars2 = mp_get_agasc(ra, dec, radius)
+    stars2 = ref_stars.copy()
     stars2.sort('AGASC_ID')
 
     # First make sure that the common stars are identical
@@ -220,9 +262,9 @@ def test_proper_motion():
 
 @pytest.mark.parametrize(
     "agasc_id,date,ra_pmcorr,dec_pmcorr,label",
-    [(1180612288, '2020:001', 219.86433151831795, -60.831868007221289, "high proper motion, epoch 2000"),
-     (198451217, '2020:001', 247.89220668106938, 19.276605555555559, "epoch 1982 star"),
-     (501219465, '2020:001', 166.99897608782592, 52.82208000152103, "epoch 1984 star")])
+    [(1180612288, '2020:001', 219.864331, -60.831868, "high proper motion, epoch 2000"),
+     (198451217, '2020:001', 247.892206, 19.276605, "epoch 1982 star"),
+     (501219465, '2020:001', 166.998976, 52.822080, "epoch 1984 star")])
 def test_add_pmcorr_is_consistent(agasc_id, date, ra_pmcorr, dec_pmcorr, label):
     """
     Check that the proper-motion corrected position is consistent reference/regress values.
@@ -242,24 +284,21 @@ def mp_get_agascid(agasc_id):
 
 
 @pytest.mark.skipif('not HAS_KSH')
-@pytest.mark.skipif('ascds_env is None')
-def test_agasc_id(radius=0.2, npointings=2, nstar_limit=5, agasc_file=None):
-    ras, decs = random_ra_dec(npointings)
+@pytest.mark.skipif('not TEST_ASCDS')
+@pytest.mark.parametrize("ra,dec", list(zip(RAS[:2], DECS[:2])))
+def test_agasc_id(ra, dec, radius=0.2, nstar_limit=5):
+    agasc_file = AGASC_FILE[DS_AGASC_VERSION]
 
-    for ra, dec in zip(ras, decs):
-        print('ra, dec =', ra, dec)
-        cone_stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file)
+    print('ra, dec =', ra, dec)
+    stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file)
+    stars.sort('AGASC_ID')
 
-        if len(cone_stars) == 0:
-            return
-
-        cone_stars.sort('AGASC_ID')
-        for agasc_id in cone_stars['AGASC_ID'][:nstar_limit]:
-            print('  agasc_id =', agasc_id)
-            star1 = agasc.get_star(agasc_id)
-            star2 = mp_get_agascid(agasc_id)
-            for colname in AGASC_COLNAMES:
-                if star1[colname].dtype.kind == 'f':
-                    assert np.all(np.allclose(star1[colname], star2[colname]))
-                else:
-                    assert star1[colname] == star2[colname]
+    for agasc_id in stars['AGASC_ID'][:nstar_limit]:
+        print('  agasc_id =', agasc_id)
+        star1 = agasc.get_star(agasc_id, agasc_file=agasc_file)
+        star2 = mp_get_agascid(agasc_id)
+        for colname in AGASC_COLNAMES:
+            if star1[colname].dtype.kind == 'f':
+                assert np.all(np.allclose(star1[colname], star2[colname]))
+            else:
+                assert star1[colname] == star2[colname]
