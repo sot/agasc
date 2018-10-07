@@ -12,14 +12,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--version',
                     default='1p7',
                     help='Version (e.g. 1p6 or 1p7, default=1p7')
-parser.add_argument('--include-near-neighbors',
-                    default=True,
-                    action='store_false',
-                    help='Include near neighbor stars')
-parser.add_argument('--exclude-rarely-used-cols',
-                    default=True,
-                    action='store_false',
-                    help='Exclude columns that are rarely used in operations')
+parser.add_argument('--ignore-near-neighbors',
+                    action='store_true',
+                    help='Ignore near neighbor stars')
+parser.add_argument('--include-rarely-used-cols',
+                    action='store_true',
+                    help='Include columns that are rarely used in operations')
 args = parser.parse_args()
 
 num_version = re.sub(r'p', '.', args.version)
@@ -36,7 +34,7 @@ ok = stars['MAG_ACA'] - 3.0 * stars['MAG_ACA_ERR'] / 100.0 < 11.5
 
 # Put back near-neighbor stars that got cut by above mag filter. This file
 # is made with create_near_neighbor_ids.py.
-if args.include_near_neighbors:
+if not args.ignore_near_neighbors:
     near_file = 'near_neighbor_ids_{}.fits.gz'.format(args.version)
     near_table = Table.read(near_file, format='fits')
     near_ids = set(near_table['near_id'])
@@ -49,7 +47,7 @@ if args.include_near_neighbors:
 print 'Filtering from {} to {} stars'.format(len(stars), np.count_nonzero(ok))
 stars = stars[ok]
 
-if args.exclude_rarely_used_cols:
+if not args.include_rarely_used_cols:
     print 'Excluding rarely used columns'
     excludes = ['PLX', 'PLX_ERR', 'PLX_CATID',
                 'ACQQ1', 'ACQQ2', 'ACQQ3', 'ACQQ4', 'ACQQ5', 'ACQQ6',
