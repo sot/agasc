@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from .agasc import *
 
-__version__ = '4.6'
+__version__ = '4.7'
 
 
 def test(*args, **kwargs):
