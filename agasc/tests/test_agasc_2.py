@@ -159,7 +159,7 @@ def test_agasc_conesearch(ra, dec, version):
         if os.environ.get('WRITE_AGASC_TEST_FILES'):
             ref_stars = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
                                              agasc_file=AGASC_FILE[version],
-                                             date='2000:001')
+                                             date='2000:001', fix_color1=False)
             test_file = get_test_file(ra, dec, version)
             print(f'\nWriting {test_file} based on miniagasc\n')
             ref_stars.write(test_file, format='fits')
@@ -182,7 +182,7 @@ def test_against_ds_agasc(ra, dec):
 def _test_agasc(ra, dec, ref_stars, version='1p7'):
     stars1 = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
                                   agasc_file=AGASC_FILE[version],
-                                  date='2000:001')
+                                  date='2000:001', fix_color1=False)
     stars1.sort('AGASC_ID')
 
     stars2 = ref_stars.copy()
@@ -290,12 +290,13 @@ def test_agasc_id(ra, dec, radius=0.2, nstar_limit=5):
     agasc_file = AGASC_FILE[DS_AGASC_VERSION]
 
     print('ra, dec =', ra, dec)
-    stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file)
+    stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file,
+                                 fix_color1=False)
     stars.sort('AGASC_ID')
 
     for agasc_id in stars['AGASC_ID'][:nstar_limit]:
         print('  agasc_id =', agasc_id)
-        star1 = agasc.get_star(agasc_id, agasc_file=agasc_file)
+        star1 = agasc.get_star(agasc_id, agasc_file=agasc_file, fix_color1=False)
         star2 = mp_get_agascid(agasc_id)
         for colname in AGASC_COLNAMES:
             if star1[colname].dtype.kind == 'f':

@@ -101,6 +101,35 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     return np.degrees(dists)
 
 
+def update_color1_column(stars):
+    """
+    For any stars which have a V-I color (RSV3 > 0) and COLOR1 == 1.5
+    then set COLOR1 = COLOR2 * 0.850.  For such stars the MAG_ACA / MAG_ACA_ERR
+    values are reliable and they should not be flagged with a COLOR1 = 1.5,
+    which generally implies to downstream tools that the mag is unreliable.
+
+    Also ensure that COLOR2 values that happen to be exactly 1.5 are shifted a bit.
+
+    The 0.850 factor is because COLOR1 = B-V while COLOR2 = BT-VT.  See
+    https://heasarc.nasa.gov/W3Browse/all/tycho2.html for a reminder of the
+    scaling between the two.
+
+    This updates ``stars`` in place.
+    """
+    # Select red stars that have a reliable mag in AGASC 1.7 and later.
+    color15 = np.isclose(stars['COLOR1'], 1.5) & (stars['RSV3'] > 0)
+    new_color1 = stars['COLOR2'][color15] * 0.850
+
+    if len(new_color1) > 0:
+        # Ensure no new COLOR1 are within 0.001 of 1.5, so downstream tests of
+        # COLOR1 == 1.5 or np.isclose(COLOR1, 1.5) will not accidentally succeed.
+        fix15 = np.isclose(new_color1, 1.5, rtol=0, atol=0.0005)
+        new_color1[fix15] = 1.499  # Insignificantly different from 1.50
+
+        # For stars with a reliable mag, now COLOR1 is really the B-V color.
+        stars['COLOR1'][color15] = new_color1
+
+
 def add_pmcorr_columns(stars, date):
     # Compute the multiplicative factor to convert from the AGASC proper motion
     # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
@@ -134,7 +163,7 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True):
+                   pm_filter=True, fix_color1=True):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -157,6 +186,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param date: Date for proper motion (default=Now)
     :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
     :param pm_filter: Use PM-corrected positions in filtering
+    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
 
     :returns: astropy Table of AGASC entries
     """
@@ -177,6 +207,8 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
     add_pmcorr_columns(stars, date)
+    if fix_color1:
+        update_color1_column(stars)
 
     # Final filtering using proper-motion corrected positions
     if pm_filter:
@@ -187,7 +219,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     return stars
 
 
-def get_star(id, agasc_file=None, date=None):
+def get_star(id, agasc_file=None, date=None, fix_color1=True):
     """
     Get AGASC catalog entry for star with requested id.
 
@@ -219,6 +251,7 @@ def get_star(id, agasc_file=None, date=None):
 
     :param id: AGASC id
     :param date: Date for proper motion (default=Now)
+    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
     :returns: astropy Table Row of entry for id
     """
 
@@ -239,5 +272,7 @@ def get_star(id, agasc_file=None, date=None):
 
     t = Table(id_rows)
     add_pmcorr_columns(t, date)
+    if fix_color1:
+        update_color1_column(t)
 
     return t[0]
