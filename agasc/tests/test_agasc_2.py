@@ -303,3 +303,28 @@ def test_agasc_id(ra, dec, radius=0.2, nstar_limit=5):
                 assert np.all(np.allclose(star1[colname], star2[colname]))
             else:
                 assert star1[colname] == star2[colname]
+
+
+def test_proseco_agasc_1p7():
+    proseco_file = DATA_DIR / 'proseco_agasc_1p7.h5'
+    if not proseco_file.exists():
+        pytest.skip(f'No proseco agasc file {proseco_file} found')
+
+    # Stars looking toward galactic center (dense!)
+    p_stars = agasc.get_agasc_cone(-266, -29, 3,
+                                   agasc_file=proseco_file, date='2000:001')
+    m_stars = agasc.get_agasc_cone(-266, -29, 3,
+                                   agasc_file=AGASC_FILE['1p7'], date='2000:001')
+
+    # Every miniagasc_1p7 star is in proseco_agasc_1p7
+    m_ids = m_stars['AGASC_ID']
+    p_ids = p_stars['AGASC_ID']
+    assert set(m_ids) < set(p_ids)
+
+    # Values are exactly the same
+    p_id_map = {p_ids[idx]: idx for idx in np.arange(len(p_ids))}
+    for m_star in m_stars:
+        m_id = m_star['AGASC_ID']
+        p_star = p_stars[p_id_map[m_id]]
+        for name in p_star.colnames:
+            assert p_star[name] == m_star[name]

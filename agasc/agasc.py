@@ -260,8 +260,7 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True):
 
     with tables_open_file(agasc_file) as h5:
         tbl = h5.root.data
-        tbl_read_where = getattr(tbl, 'read_where', None) or tbl.readWhere
-        id_rows = tbl_read_where('(AGASC_ID == {})'.format(id))
+        id_rows = tbl.read_where('(AGASC_ID == {})'.format(id))
 
     if len(id_rows) > 1:
         raise InconsistentCatalogError(
