@@ -51,7 +51,7 @@ copyright = u'2013, Jean Connelly, Tom Aldcroft'
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-from agasc.version import version as release
+from agasc import __version__ as release
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
 
