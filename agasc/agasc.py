@@ -1,19 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
+from pathlib import Path
 
 import numpy as np
 import numexpr
 import tables
 
-from ska_path import ska_path
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
 
-__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star']
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars']
 
-DATA_ROOT = ska_path('data', 'agasc')
-
-DEFAULT_AGASC_FILE = os.path.join(DATA_ROOT, 'miniagasc.h5')
+DATA_ROOT = Path(os.environ['SKA'], 'data', 'agasc')
+DEFAULT_AGASC_FILE = str(DATA_ROOT / 'miniagasc.h5')
 
 
 class IdNotFound(LookupError):
@@ -135,20 +134,15 @@ def add_pmcorr_columns(stars, date):
     # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
     # is dyear * (degrees / milliarcsec)
 
-    # The dyear for proper motion is only relevant for stars that have defined proper motion
-    # so set to zero for all stars by default
-    dyear = np.zeros(len(stars))
-    has_pm = (stars['PM_DEC'] != -9999) | (stars['PM_RA'] != -9999)
-    # For most of them, the epoch is fixed at 2000, so we don't need N calls to DateTime to
-    # figure that out
-    epoch_is_2000 = (stars['EPOCH'] == 2000.0)
-    ok = has_pm & epoch_is_2000
-    dyear[ok] = (DateTime(date) - DateTime(2000, format='frac_year')) / 365.25
-    # For stars with proper motion correction but epoch != 2000, calculate individually.
-    ok = has_pm & ~epoch_is_2000
-    dyear[ok] = (DateTime(date) - DateTime(stars['EPOCH'][ok], format='frac_year')) / 365.25
-    pm_to_degrees = dyear / (3600. * 1000.)
+    if np.asarray(date).shape == ():
+        dates = DateTime(date)
+    else:
+        dates = DateTime(np.broadcast_to(date, len(stars)))
+    # Compute delta year.  stars['EPOCH'] is Column, float32. Need to coerce to
+    # ndarray float64 for consistent results between scalar and array cases.
+    dyear = dates.frac_year - stars['EPOCH'].view(np.ndarray).astype(np.float64)
 
+    pm_to_degrees = dyear / (3600. * 1000.)
     dec_pmcorr = np.where(stars['PM_DEC'] != -9999,
                           stars['DEC'] + stars['PM_DEC'] * pm_to_degrees,
                           stars['DEC'])
@@ -275,3 +269,77 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True):
         update_color1_column(t)
 
     return t[0]
+
+
+def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
+    """
+    Get AGASC catalog entries for star ``ids`` at ``dates``.
+
+    The input ``ids`` and ``dates`` are broadcast together for the output shape
+    (though note that the result is flattened in the end). If both are scalar
+    inputs then the output is a Table Row, otherwise the output is a Table.
+
+    Unlike the similar ``get_star`` function, this adds a ``DATE`` column
+    indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
+    are computed.
+
+    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``
+
+    Example::
+      >>> import agasc
+      >>> star = agasc.get_stars(636629880)
+      >>> for name in star.colnames:
+      ...     print '{:12s} : {}'.format(name, star[name])
+      AGASC_ID     : 636629880
+      RA           : 125.64184
+      DEC          : -4.23235
+      POS_ERR      : 300
+      POS_CATID    : 6
+      EPOCH        : 1983.0
+      PM_RA        : -9999
+      PM_DEC       : -9999
+      PM_CATID     : 0
+      PLX          : -9999
+      PLX_ERR      : -9999
+      PLX_CATID    : 0
+      MAG_ACA      : 12.1160011292
+      MAG_ACA_ERR  : 45
+      CLASS        : 0
+      MAG          : 13.2700004578
+      ...
+
+    :param ids: AGASC ids (scalar or array)
+    :param dates: Dates for proper motion (scalar or array) (default=Now)
+    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
+    :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input
+    """
+
+    if agasc_file is None:
+        agasc_file = DEFAULT_AGASC_FILE
+
+    rows = []
+    dates = DateTime(dates).date
+
+    with tables.open_file(agasc_file) as h5:
+        tbl = h5.root.data
+        ids, dates = np.broadcast_arrays(ids, dates)
+        for id, date in zip(np.atleast_1d(ids), np.atleast_1d(dates)):
+            id_rows = tbl.read_where('(AGASC_ID == {})'.format(id))
+
+            if len(id_rows) > 1:
+                raise InconsistentCatalogError(
+                    f'More than one entry found for {id} in AGASC')
+
+            if id_rows is None or len(id_rows) == 0:
+                raise IdNotFound(f'No entry found for {id} in AGASC')
+
+            rows.append(id_rows[0])
+
+    t = Table(np.vstack(rows).flatten())
+
+    add_pmcorr_columns(t, dates)
+    if fix_color1:
+        update_color1_column(t)
+    t['DATE'] = dates
+
+    return t if ids.shape else t[0]

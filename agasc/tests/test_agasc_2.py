@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 import Ska.Shell
 from astropy.io import ascii
-from astropy.table import Table
+from astropy.table import Table, Row
 import pytest
 
 import agasc
@@ -227,6 +227,33 @@ def test_basic():
     mags = [-0.663, -0.576, -0.373, 0.53, 0.667]
     assert np.allclose(stars['AGASC_ID'][:5], agasc_ids)
     assert np.allclose(stars['MAG_ACA'][:5], mags)
+
+
+def test_get_stars1():
+    # First check that get_stars() gives the same as get_star for the scalar case
+    star1 = agasc.get_star(1180612288, date='2019:001')
+    star2 = agasc.get_stars(1180612288, dates='2019:001')
+    assert isinstance(star2, Row)
+    for name in star1.colnames:
+        assert star1[name] == star2[name]
+
+
+def test_get_stars2():
+    """get_stars() broadcasts ids"""
+    star0 = agasc.get_star(1180612288, date='2010:001')
+    star1 = agasc.get_star(1180612288, date='2019:001')
+    star2 = agasc.get_stars(1180612288, dates=['2010:001', '2019:001'])
+
+    for name in star1.colnames:
+        assert star0[name] == star2[0][name]
+        assert star1[name] == star2[1][name]
+
+
+def test_get_stars3():
+    agasc_ids = [1180612176, 1180612296, 1180612184, 1180612288, 1180612192]
+    mags = [-0.663, -0.576, -0.373, 0.53, 0.667]
+    stars = agasc.get_stars(agasc_ids)
+    assert np.allclose(stars['MAG_ACA'], mags)
 
 
 def test_float16():
