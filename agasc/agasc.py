@@ -63,6 +63,7 @@ class RaDec(object):
             # Now copy to separate ndarrays for memory efficiency
             return radecs['RA'].copy(), radecs['DEC'].copy()
 
+
 RA_DECS_CACHE = {DEFAULT_AGASC_FILE: RaDec(DEFAULT_AGASC_FILE)}
 
 
@@ -93,7 +94,7 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     dec1 = np.radians(dec1).astype(np.float64)
     dec2 = np.radians(dec2).astype(np.float64)
 
-    numerator = numexpr.evaluate('sin((dec2 - dec1) / 2) ** 2 + '
+    numerator = numexpr.evaluate('sin((dec2 - dec1) / 2) ** 2 + '  # noqa
                                  'cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2')
 
     dists = numexpr.evaluate('2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)')
@@ -130,14 +131,24 @@ def update_color1_column(stars):
 
 
 def add_pmcorr_columns(stars, date):
-    # Compute the multiplicative factor to convert from the AGASC proper motion
-    # field to degrees.  The AGASC PM is specified in milliarcsecs / year, so this
-    # is dyear * (degrees / milliarcsec)
+    """Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table ``stars``.
 
+    This computes the PM-corrected RA and Dec of all ``stars`` using the supplied
+    ``date``, which may be a scalar or an array-valued object (np.array or list).
+
+    The ``stars`` table is updated in-place.
+
+    :param stars: astropy Table of stars from the AGASC
+    :param date: scalar, list, array of date(s) in DateTime-compatible format
+    :returns: None
+    """
+    # Convert date to DateTime ensuring it can broadcast to stars table. Since
+    # DateTime is slow keep it as a scalar if possible.
     if np.asarray(date).shape == ():
         dates = DateTime(date)
     else:
         dates = DateTime(np.broadcast_to(date, len(stars)))
+
     # Compute delta year.  stars['EPOCH'] is Column, float32. Need to coerce to
     # ndarray float64 for consistent results between scalar and array cases.
     dyear = dates.frac_year - stars['EPOCH'].view(np.ndarray).astype(np.float64)
