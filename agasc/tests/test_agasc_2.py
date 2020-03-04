@@ -33,8 +33,8 @@ import pytest
 import agasc
 
 # See if we can get to ASCDS environment and mp_get_agasc
-ascrc_file = '{}/.ascrc'.format(os.environ['HOME'])
 try:
+    ascrc_file = '{}/.ascrc'.format(os.environ['HOME'])
     assert os.path.exists(ascrc_file)
     ascds_env = Ska.Shell.getenv('source {} -r release'.format(ascrc_file), shell='tcsh')
     assert 'ASCDS_BIN' in ascds_env
