@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>agasc.agasc &#8212; Agasc 4.8.2.dev7+gccfa310 documentation</title>
+    <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../index.html"><span id="logotext1">Ska!</span><span id="logotext2">agasc</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1"></span><span id="logotext2"></span>
+    </a></li>
+    <li><a title="General Index" href="../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../index.html">Agasc 4.8.2.dev7+gccfa310 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for agasc.agasc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numexpr</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+
+<span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sphere_dist&#39;</span><span class="p">,</span> <span class="s1">&#39;get_agasc_cone&#39;</span><span class="p">,</span> <span class="s1">&#39;get_star&#39;</span><span class="p">,</span> <span class="s1">&#39;get_stars&#39;</span><span class="p">]</span>
+
+<span class="n">DATA_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SKA&#39;</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;agasc&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_AGASC_FILE</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">DATA_ROOT</span> <span class="o">/</span> <span class="s1">&#39;miniagasc.h5&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">IdNotFound</span><span class="p">(</span><span class="ne">LookupError</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">InconsistentCatalogError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">tables_open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Open an HDF5 file using table, but allow for a Path object input.</span>
+
+<span class="sd">    :param filename: table file name (str, Path)</span>
+<span class="sd">    :returns: h5 handle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">RaDec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_agasc_file</span> <span class="o">=</span> <span class="n">agasc_file</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">agasc_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agasc_file</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ra&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ra_dec</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_dec&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ra_dec</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span>
+
+    <span class="k">def</span> <span class="nf">read_ra_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Read the file of RA and DEC values (sorted on DEC):</span>
+        <span class="c1">#  dec: DEC values</span>
+        <span class="c1">#  ra: RA values</span>
+        <span class="k">with</span> <span class="n">tables_open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+            <span class="n">radecs</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[:][[</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC&#39;</span><span class="p">]]</span>
+
+            <span class="c1"># Now copy to separate ndarrays for memory efficiency</span>
+            <span class="k">return</span> <span class="n">radecs</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">radecs</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+
+<span class="n">RA_DECS_CACHE</span> <span class="o">=</span> <span class="p">{</span><span class="n">DEFAULT_AGASC_FILE</span><span class="p">:</span> <span class="n">RaDec</span><span class="p">(</span><span class="n">DEFAULT_AGASC_FILE</span><span class="p">)}</span>
+
+
+<span class="k">def</span> <span class="nf">get_ra_decs</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">):</span>
+    <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">agasc_file</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RA_DECS_CACHE</span><span class="p">:</span>
+        <span class="n">RA_DECS_CACHE</span><span class="p">[</span><span class="n">agasc_file</span><span class="p">]</span> <span class="o">=</span> <span class="n">RaDec</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">RA_DECS_CACHE</span><span class="p">[</span><span class="n">agasc_file</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="sphere_dist"><a class="viewcode-back" href="../../index.html#agasc.agasc.sphere_dist">[docs]</a><span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Haversine formula for angular distance on a sphere: more stable at poles.</span>
+<span class="sd">    This version uses arctan instead of arcsin and thus does better with sign</span>
+<span class="sd">    conventions.  This uses numexpr to speed expression evaluation by a factor</span>
+<span class="sd">    of 2 to 3.</span>
+
+<span class="sd">    :param ra1: first RA (deg)</span>
+<span class="sd">    :param dec1: first Dec (deg)</span>
+<span class="sd">    :param ra2: second RA (deg)</span>
+<span class="sd">    :param dec2: second Dec (deg)</span>
+
+<span class="sd">    :returns: angular separation distance (deg)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ra1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ra1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ra2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ra2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">dec1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dec1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">dec2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dec2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="n">numerator</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s1">&#39;sin((dec2 - dec1) / 2) ** 2 + &#39;</span>  <span class="c1"># noqa</span>
+                                 <span class="s1">&#39;cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2&#39;</span><span class="p">)</span>
+
+    <span class="n">dists</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s1">&#39;2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">update_color1_column</span><span class="p">(</span><span class="n">stars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For any stars which have a V-I color (RSV3 &gt; 0) and COLOR1 == 1.5</span>
+<span class="sd">    then set COLOR1 = COLOR2 * 0.850.  For such stars the MAG_ACA / MAG_ACA_ERR</span>
+<span class="sd">    values are reliable and they should not be flagged with a COLOR1 = 1.5,</span>
+<span class="sd">    which generally implies to downstream tools that the mag is unreliable.</span>
+
+<span class="sd">    Also ensure that COLOR2 values that happen to be exactly 1.5 are shifted a bit.</span>
+
+<span class="sd">    The 0.850 factor is because COLOR1 = B-V while COLOR2 = BT-VT.  See</span>
+<span class="sd">    https://heasarc.nasa.gov/W3Browse/all/tycho2.html for a reminder of the</span>
+<span class="sd">    scaling between the two.</span>
+
+<span class="sd">    This updates ``stars`` in place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Select red stars that have a reliable mag in AGASC 1.7 and later.</span>
+    <span class="n">color15</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RSV3&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">new_color1</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR2&#39;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.850</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_color1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Ensure no new COLOR1 are within 0.001 of 1.5, so downstream tests of</span>
+        <span class="c1"># COLOR1 == 1.5 or np.isclose(COLOR1, 1.5) will not accidentally succeed.</span>
+        <span class="n">fix15</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">new_color1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.0005</span><span class="p">)</span>
+        <span class="n">new_color1</span><span class="p">[</span><span class="n">fix15</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.499</span>  <span class="c1"># Insignificantly different from 1.50</span>
+
+        <span class="c1"># For stars with a reliable mag, now COLOR1 is really the B-V color.</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_color1</span>
+
+
+<span class="k">def</span> <span class="nf">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table ``stars``.</span>
+
+<span class="sd">    This computes the PM-corrected RA and Dec of all ``stars`` using the supplied</span>
+<span class="sd">    ``date``, which may be a scalar or an array-valued object (np.array or list).</span>
+
+<span class="sd">    The ``stars`` table is updated in-place.</span>
+
+<span class="sd">    :param stars: astropy Table of stars from the AGASC</span>
+<span class="sd">    :param date: scalar, list, array of date(s) in DateTime-compatible format</span>
+<span class="sd">    :returns: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert date to DateTime ensuring it can broadcast to stars table. Since</span>
+    <span class="c1"># DateTime is slow keep it as a scalar if possible.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dates</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stars</span><span class="p">)))</span>
+
+    <span class="c1"># Compute delta year.  stars[&#39;EPOCH&#39;] is Column, float32. Need to coerce to</span>
+    <span class="c1"># ndarray float64 for consistent results between scalar and array cases.</span>
+    <span class="n">dyear</span> <span class="o">=</span> <span class="n">dates</span><span class="o">.</span><span class="n">frac_year</span> <span class="o">-</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;EPOCH&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="n">pm_to_degrees</span> <span class="o">=</span> <span class="n">dyear</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3600.</span> <span class="o">*</span> <span class="mf">1000.</span><span class="p">)</span>
+    <span class="n">dec_pmcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_DEC&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+                          <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_DEC&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_to_degrees</span><span class="p">,</span>
+                          <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">])</span>
+    <span class="n">ra_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]))</span>
+    <span class="n">ra_pmcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_RA&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+                         <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_RA&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_to_degrees</span> <span class="o">/</span> <span class="n">ra_scale</span><span class="p">,</span>
+                         <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Add the proper-motion corrected columns to table using astropy.table.Table</span>
+    <span class="n">stars</span><span class="o">.</span><span class="n">add_columns</span><span class="p">([</span><span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ra_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;RA_PMCORR&#39;</span><span class="p">),</span>
+                       <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dec_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;DEC_PMCORR&#39;</span><span class="p">)])</span>
+
+
+<div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../index.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.</span>
+
+<span class="sd">    The star positions are corrected for proper motion using the ``date``</span>
+<span class="sd">    argument, which defaults to the current date if not supplied.  The</span>
+<span class="sd">    corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``</span>
+<span class="sd">    columns, respectively.</span>
+
+<span class="sd">    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">      &gt;&gt;&gt; import agasc</span>
+<span class="sd">      &gt;&gt;&gt; stars = agasc.get_agasc_cone(10.0, 20.0, 1.5)</span>
+<span class="sd">      &gt;&gt;&gt; plt.plot(stars[&#39;RA&#39;], stars[&#39;DEC&#39;], &#39;.&#39;)</span>
+
+<span class="sd">    :param ra: RA (deg)</span>
+<span class="sd">    :param dec: Declination (deg)</span>
+<span class="sd">    :param radius: Cone search radius (deg)</span>
+<span class="sd">    :param date: Date for proper motion (default=Now)</span>
+<span class="sd">    :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)</span>
+<span class="sd">    :param pm_filter: Use PM-corrected positions in filtering</span>
+<span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color</span>
+
+<span class="sd">    :returns: astropy Table of AGASC entries</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">agasc_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">DEFAULT_AGASC_FILE</span>
+
+    <span class="c1"># Possibly expand initial radius to allow for slop due proper motion</span>
+    <span class="n">rad_pm</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.1</span> <span class="k">if</span> <span class="n">pm_filter</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="n">ra_decs</span> <span class="o">=</span> <span class="n">get_ra_decs</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
+
+    <span class="n">idx0</span><span class="p">,</span> <span class="n">idx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ra_decs</span><span class="o">.</span><span class="n">dec</span><span class="p">,</span> <span class="p">[</span><span class="n">dec</span> <span class="o">-</span> <span class="n">rad_pm</span><span class="p">,</span> <span class="n">dec</span> <span class="o">+</span> <span class="n">rad_pm</span><span class="p">])</span>
+
+    <span class="n">dists</span> <span class="o">=</span> <span class="n">sphere_dist</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">ra_decs</span><span class="o">.</span><span class="n">ra</span><span class="p">[</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">],</span> <span class="n">ra_decs</span><span class="o">.</span><span class="n">dec</span><span class="p">[</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">])</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">&lt;=</span> <span class="n">rad_pm</span>
+
+    <span class="k">with</span> <span class="n">tables_open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="n">stars</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">][</span><span class="n">ok</span><span class="p">],</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fix_color1</span><span class="p">:</span>
+        <span class="n">update_color1_column</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span>
+
+    <span class="c1"># Final filtering using proper-motion corrected positions</span>
+    <span class="k">if</span> <span class="n">pm_filter</span><span class="p">:</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="n">sphere_dist</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA_PMCORR&#39;</span><span class="p">],</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC_PMCORR&#39;</span><span class="p">])</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">&lt;=</span> <span class="n">radius</span>
+        <span class="n">stars</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">stars</span></div>
+
+
+<div class="viewcode-block" id="get_star"><a class="viewcode-back" href="../../index.html#agasc.agasc.get_star">[docs]</a><span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get AGASC catalog entry for star with requested id.</span>
+
+<span class="sd">    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``</span>
+
+<span class="sd">    Example::</span>
+
+<span class="sd">      &gt;&gt;&gt; import agasc</span>
+<span class="sd">      &gt;&gt;&gt; star = agasc.get_star(636629880)</span>
+<span class="sd">      &gt;&gt;&gt; for name in star.colnames:</span>
+<span class="sd">      ...     print &#39;{:12s} : {}&#39;.format(name, star[name])</span>
+<span class="sd">      AGASC_ID     : 636629880</span>
+<span class="sd">      RA           : 125.64184</span>
+<span class="sd">      DEC          : -4.23235</span>
+<span class="sd">      POS_ERR      : 300</span>
+<span class="sd">      POS_CATID    : 6</span>
+<span class="sd">      EPOCH        : 1983.0</span>
+<span class="sd">      PM_RA        : -9999</span>
+<span class="sd">      PM_DEC       : -9999</span>
+<span class="sd">      PM_CATID     : 0</span>
+<span class="sd">      PLX          : -9999</span>
+<span class="sd">      PLX_ERR      : -9999</span>
+<span class="sd">      PLX_CATID    : 0</span>
+<span class="sd">      MAG_ACA      : 12.1160011292</span>
+<span class="sd">      MAG_ACA_ERR  : 45</span>
+<span class="sd">      CLASS        : 0</span>
+<span class="sd">      MAG          : 13.2700004578</span>
+<span class="sd">      ...</span>
+
+<span class="sd">    :param id: AGASC id</span>
+<span class="sd">    :param date: Date for proper motion (default=Now)</span>
+<span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
+<span class="sd">    :returns: astropy Table Row of entry for id</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">agasc_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">DEFAULT_AGASC_FILE</span>
+
+    <span class="k">with</span> <span class="n">tables_open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s1">&#39;(AGASC_ID == </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InconsistentCatalogError</span><span class="p">(</span>
+            <span class="s2">&quot;More than one entry found for </span><span class="si">{}</span><span class="s2"> in AGASC&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">id_rows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">()</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span>
+    <span class="n">add_pmcorr_columns</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fix_color1</span><span class="p">:</span>
+        <span class="n">update_color1_column</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../index.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get AGASC catalog entries for star ``ids`` at ``dates``.</span>
+
+<span class="sd">    The input ``ids`` and ``dates`` are broadcast together for the output shape</span>
+<span class="sd">    (though note that the result is flattened in the end). If both are scalar</span>
+<span class="sd">    inputs then the output is a Table Row, otherwise the output is a Table.</span>
+
+<span class="sd">    Unlike the similar ``get_star`` function, this adds a ``DATE`` column</span>
+<span class="sd">    indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)</span>
+<span class="sd">    are computed.</span>
+
+<span class="sd">    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``</span>
+
+<span class="sd">    Example::</span>
+<span class="sd">      &gt;&gt;&gt; import agasc</span>
+<span class="sd">      &gt;&gt;&gt; star = agasc.get_stars(636629880)</span>
+<span class="sd">      &gt;&gt;&gt; for name in star.colnames:</span>
+<span class="sd">      ...     print &#39;{:12s} : {}&#39;.format(name, star[name])</span>
+<span class="sd">      AGASC_ID     : 636629880</span>
+<span class="sd">      RA           : 125.64184</span>
+<span class="sd">      DEC          : -4.23235</span>
+<span class="sd">      POS_ERR      : 300</span>
+<span class="sd">      POS_CATID    : 6</span>
+<span class="sd">      EPOCH        : 1983.0</span>
+<span class="sd">      PM_RA        : -9999</span>
+<span class="sd">      PM_DEC       : -9999</span>
+<span class="sd">      PM_CATID     : 0</span>
+<span class="sd">      PLX          : -9999</span>
+<span class="sd">      PLX_ERR      : -9999</span>
+<span class="sd">      PLX_CATID    : 0</span>
+<span class="sd">      MAG_ACA      : 12.1160011292</span>
+<span class="sd">      MAG_ACA_ERR  : 45</span>
+<span class="sd">      CLASS        : 0</span>
+<span class="sd">      MAG          : 13.2700004578</span>
+<span class="sd">      ...</span>
+
+<span class="sd">    :param ids: AGASC ids (scalar or array)</span>
+<span class="sd">    :param dates: Dates for proper motion (scalar or array) (default=Now)</span>
+<span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
+<span class="sd">    :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">agasc_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">DEFAULT_AGASC_FILE</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">dates</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
+
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">ids</span><span class="p">,</span> <span class="n">dates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_arrays</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">date</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">dates</span><span class="p">)):</span>
+            <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s1">&#39;(AGASC_ID == </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InconsistentCatalogError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;More than one entry found for </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1"> in AGASC&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">id_rows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No entry found for </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1"> in AGASC&#39;</span><span class="p">)</span>
+
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">id_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+    <span class="n">add_pmcorr_columns</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dates</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fix_color1</span><span class="p">:</span>
+        <span class="n">update_color1_column</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">t</span><span class="p">[</span><span class="s1">&#39;DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dates</span>
+
+    <span class="k">return</span> <span class="n">t</span> <span class="k">if</span> <span class="n">ids</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
