@@ -19,7 +19,6 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
 import agasc
-print "Agasc module file is {}".format(os.path.abspath(agasc.__file__))
 
 # -- General configuration -----------------------------------------------------
 
