@@ -6,6 +6,14 @@ try:
 except ImportError:
     cmdclass = {}
 
+
+entry_points = {
+    'console_scripts': [
+        'agasc-mag-estimate-report=agasc.scripts.mag_estimate_report:main',
+        'agasc-mag-supplement-update=agasc.scripts.update_mag_supplement:main',
+    ]
+}
+
 setup(name='agasc',
       use_scm_version=True,
       setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
@@ -17,4 +25,5 @@ setup(name='agasc',
       package_data={'agasc.tests': ['data/*']},
       tests_require=['pytest'],
       cmdclass=cmdclass,
+      entry_points=entry_points,
       )
