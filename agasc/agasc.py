@@ -7,12 +7,16 @@ import numexpr
 import tables
 
 from Chandra.Time import DateTime
-from astropy.table import Table, Column
+from astropy.table import Table, Column, join
 
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars']
 
 DATA_ROOT = Path(os.environ['SKA'], 'data', 'agasc')
 DEFAULT_AGASC_FILE = str(DATA_ROOT / 'miniagasc.h5')
+DEFAULT_SUPPLEMENT_FILE = str(DATA_ROOT / 'agasc_supplement.h5')
+
+MAG_SOURCE_AGASC = 0
+MAG_SOURCE_SUPPLEMENT = 1
 
 
 class IdNotFound(LookupError):
@@ -168,7 +172,7 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True, fix_color1=True):
+                   pm_filter=True, fix_color1=True, supplement_file=None):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -221,10 +225,12 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         ok = dists <= radius
         stars = stars[ok]
 
+    stars = _add_supplement(stars, supplement_file)
+
     return stars
 
 
-def get_star(id, agasc_file=None, date=None, fix_color1=True):
+def get_star(id, agasc_file=None, date=None, fix_color1=True, supplement_file=None):
     """
     Get AGASC catalog entry for star with requested id.
 
@@ -279,10 +285,12 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True):
     if fix_color1:
         update_color1_column(t)
 
+    t = _add_supplement(t, supplement_file)
+
     return t[0]
 
 
-def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
+def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, supplement_file=None):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
@@ -331,7 +339,7 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
     rows = []
     dates = DateTime(dates).date
 
-    with tables.open_file(agasc_file) as h5:
+    with tables_open_file(agasc_file) as h5:
         tbl = h5.root.data
         ids, dates = np.broadcast_arrays(ids, dates)
         for id, date in zip(np.atleast_1d(ids), np.atleast_1d(dates)):
@@ -353,4 +361,42 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
         update_color1_column(t)
     t['DATE'] = dates
 
+    t = _add_supplement(t, supplement_file)
+
     return t if ids.shape else t[0]
+
+
+def _add_supplement(table, supplement_file=None):
+    """
+    Add information from AGASC supplement.
+
+    :param table: astropy.table.Table
+    :param supplement_file: str.
+        Location of the supplement file.
+        (default: $DATA/agasc/agasc_supplement.h5)
+    :return: astropy.table.Table
+    """
+
+    if supplement_file is None:
+        supplement_file = DEFAULT_SUPPLEMENT_FILE
+
+    with tables_open_file(supplement_file) as h5:
+        supplement_mags = Table(h5.root.mags[:])
+        supplement_mags.rename_columns(['agasc_id', 'mag_aca', 'mag_aca_err'],
+                                       ['AGASC_ID', 'MAG_EST', 'MAG_EST_ERR'])
+
+        table = join(table,
+                     supplement_mags[['AGASC_ID', 'MAG_EST', 'MAG_EST_ERR']],
+                     join_type='left')
+        table['MAG_EST_ERR'] *= 100
+
+        # as a result of the join operation, if there are missing values, there will be a mask
+        if hasattr(table['MAG_EST'], 'mask'):
+            # fill missing values from catalog mags
+            table['MAG_EST_SOURCE'] = MAG_SOURCE_SUPPLEMENT
+            table['MAG_EST_SOURCE'][table['MAG_EST_ERR'].mask] = MAG_SOURCE_AGASC
+            table['MAG_EST_ERR'][table['MAG_EST_ERR'].mask] = table['MAG_ACA_ERR'][table['MAG_EST'].mask]
+            table['MAG_EST'][table['MAG_EST'].mask] = table['MAG_ACA'][table['MAG_EST'].mask]
+        else:
+            table['MAG_EST_SOURCE'] = MAG_SOURCE_AGASC
+        return table
