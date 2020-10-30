@@ -10,7 +10,7 @@ except ImportError:
 entry_points = {
     'console_scripts': [
         'agasc-mag-estimate-report=agasc.scripts.mag_estimate_report:main',
-        'agasc-mag-supplement-update=agasc.scripts.update_mag_supplement:main',
+        'agasc-supplement-update=agasc.scripts.update_mag_supplement:main',
     ]
 }
 
@@ -21,7 +21,7 @@ setup(name='agasc',
       author='Jean Connelly, Tom Aldcroft',
       author_email='taldcroft@cfa.harvard.edu',
       url='http://cxc.harvard.edu/mta/ASPECT/tool_doc/agasc',
-      packages=['agasc', 'agasc.tests'],
+      packages=['agasc', 'agasc.tests', 'agasc.scripts'],
       package_data={'agasc.tests': ['data/*']},
       tests_require=['pytest'],
       cmdclass=cmdclass,
