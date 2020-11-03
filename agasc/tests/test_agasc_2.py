@@ -355,3 +355,63 @@ def test_proseco_agasc_1p7():
         p_star = p_stars[p_id_map[m_id]]
         for name in p_star.colnames:
             assert p_star[name] == m_star[name]
+
+
+def test_supplement_get_agasc_cone():
+    ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
+    stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
+    stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_mag_est=True)
+    ok = stars2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
+
+    change_names = ['MAG_CATID', 'COLOR1', 'MAG_ACA', 'MAG_ACA_ERR']
+    for name in set(stars1.colnames) - set(change_names):
+        assert np.all(stars1[name] == stars2[name])
+
+    assert not np.any(stars1['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT)
+
+    # At least 35 stars in this field observed
+    assert np.count_nonzero(ok) >= 35
+
+    # At least 7 color=1.5 stars converted to 1.49 (note: total of 23 color=1.5
+    # stars in this field)
+    assert np.count_nonzero(stars1['COLOR1'][ok] == 1.49) == 0
+    assert np.count_nonzero(stars1['COLOR1'][ok] == 1.50) >= 7
+    assert np.count_nonzero(stars2['COLOR1'][ok] == 1.49) >= 7
+    assert np.count_nonzero(stars2['COLOR1'][ok] == 1.50) == 0
+
+    assert np.all(stars2['MAG_ACA_ERR'][ok] != stars1['MAG_ACA_ERR'][ok])
+    assert np.all(stars2['MAG_ACA'][ok] != stars1['MAG_ACA'][ok])
+
+    assert np.all(stars2['MAG_ACA_ERR'][~ok] == stars1['MAG_ACA_ERR'][~ok])
+    assert np.all(stars2['MAG_ACA'][~ok] == stars1['MAG_ACA'][~ok])
+
+
+def test_supplement_get_star():
+    agasc_id = 58720672
+    star1 = agasc.get_star(agasc_id)
+    star2 = agasc.get_star(agasc_id, use_mag_est=True)
+    assert star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT
+    assert star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
+
+    assert star1['AGASC_ID'] == star2['AGASC_ID']
+
+    assert np.isclose(star1['COLOR1'], 1.50)
+    assert np.isclose(star2['COLOR1'], 1.49)
+
+    assert star2['MAG_ACA'] != star1['MAG_ACA']
+    assert star2['MAG_ACA_ERR'] != star1['MAG_ACA_ERR']
+
+
+def test_supplement_get_stars():
+    agasc_ids = [58720672, 670303120]
+    star1 = agasc.get_stars(agasc_ids)
+    star2 = agasc.get_stars(agasc_ids, use_mag_est=True)
+    assert np.all(star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT)
+    assert np.all(star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT)
+
+    assert np.all(star1['AGASC_ID'] == star2['AGASC_ID'])
+
+    assert np.allclose(star1['COLOR1'], [1.5, 0.24395067])
+    assert np.allclose(star2['COLOR1'], [1.49, 0.24395067])
+
+    assert np.all(star2['MAG_ACA'] != star1['MAG_ACA'])
