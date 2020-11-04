@@ -164,8 +164,8 @@ def test_agasc_conesearch(ra, dec, version):
             print(f'\nWriting {test_file} based on miniagasc\n')
             ref_stars.write(test_file, format='fits')
         pytest.skip('Reference data unavailable')
-
-    _test_agasc(ra, dec, ref_stars, version)
+    else:
+        _test_agasc(ra, dec, ref_stars, version)
 
 
 @pytest.mark.skipif('not TEST_ASCDS')
