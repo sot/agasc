@@ -47,16 +47,6 @@ class InconsistentCatalogError(Exception):
     pass
 
 
-def tables_open_file(filename):
-    """
-    Open an HDF5 file using table, but allow for a Path object input.
-
-    :param filename: table file name (str, Path)
-    :returns: h5 handle
-    """
-    return tables.open_file(str(filename))
-
-
 class RaDec(object):
     def __init__(self, agasc_file):
         self._agasc_file = agasc_file
@@ -81,7 +71,7 @@ class RaDec(object):
         # Read the file of RA and DEC values (sorted on DEC):
         #  dec: DEC values
         #  ra: RA values
-        with tables_open_file(self.agasc_file) as h5:
+        with tables.open_file(self.agasc_file) as h5:
             radecs = h5.root.data[:][['RA', 'DEC']]
 
             # Now copy to separate ndarrays for memory efficiency
@@ -240,7 +230,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
     ok = dists <= rad_pm
 
-    with tables_open_file(agasc_file) as h5:
+    with tables.open_file(agasc_file) as h5:
         stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
     add_pmcorr_columns(stars, date)
@@ -306,7 +296,7 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_mag_est=False)
     if agasc_file is None:
         agasc_file = DEFAULT_AGASC_FILE
 
-    with tables_open_file(agasc_file) as h5:
+    with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
         id_rows = tbl.read_where('(AGASC_ID == {})'.format(id))
 
@@ -385,7 +375,7 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_mag_est=Fal
     rows = []
     dates = DateTime(dates).date
 
-    with tables_open_file(agasc_file) as h5:
+    with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
         ids, dates = np.broadcast_arrays(ids, dates)
         for id, date in zip(np.atleast_1d(ids), np.atleast_1d(dates)):
