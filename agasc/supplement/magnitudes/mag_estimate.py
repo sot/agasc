@@ -697,7 +697,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     :return: dict
         dictionary with stats
     """
-    min_mag_obs_err = 0.3
+    min_mag_obs_err = 0.03
     if not obs_status_override:
         obs_status_override = {}
 
