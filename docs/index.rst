@@ -15,3 +15,11 @@ AGASC Catalog Description and History
 .. toctree::
 
    api
+
+Topics For Maintainers
+----------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   supplement
