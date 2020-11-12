@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Update Magnitude Statistics.
+Produce reports of the magnitude supplement.
 """
 
 import os

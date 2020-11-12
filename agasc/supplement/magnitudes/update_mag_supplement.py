@@ -19,8 +19,8 @@ from astropy import time, units as u
 def level0_archive_time_range():
     """
     Return the time range covered by mica archive aca_l0 files.
-    :return: tuple
-        of CxoTime
+
+    :return: tuple of CxoTime
     """
     import sqlite3
     import os
