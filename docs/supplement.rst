@@ -25,7 +25,7 @@ Scripts
    :prog: agasc-mag-estimate-report
 
 Magnitude Supplement API
-----
+-------------------------
 
 .. automodule:: agasc.supplement.magnitudes.mag_estimate
    :members:
