@@ -257,8 +257,16 @@ following fields for each entry::
             22  1.00  PPM B mag
 
     1    MAG_CATID - unsigned integer identifying the source of the
-        mag, mag_err, and mag_band.  Codes are the same as listed for
-        There is no default value.
+        mag, mag_err, and mag_band.  Codes are as follows:
+
+            0 - no associated catalog
+            1 - GSC1.1
+            2 - PPM
+            3 - Tycho Output Catalog (Tycho-1)
+            4 - ACT
+            5 - Tycho-2
+            6 - GSC-ACT
+          128 - Chandra ACA estimated magnitude (only via agasc package query)
 
     4    COLOR1 - float variable expressing the cataloged or estimated B-V color,
         used for mag_aca, in mag.  If no colors are available, the default
