@@ -5,14 +5,38 @@ from pathlib import Path
 import numpy as np
 import numexpr
 import tables
+import warnings
 
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
+from ska_helpers.utils import LazyDict
 
-__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars']
+
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars', 'MAG_CATID_SUPPLEMENT']
 
 DATA_ROOT = Path(os.environ['SKA'], 'data', 'agasc')
 DEFAULT_AGASC_FILE = str(DATA_ROOT / 'miniagasc.h5')
+DEFAULT_SUPPLEMENT_FILE = str(DATA_ROOT / 'agasc_supplement.h5')
+
+MAG_CATID_SUPPLEMENT = 128
+
+
+def load_supplement():
+    supplement = {}
+    with tables.open_file(DEFAULT_SUPPLEMENT_FILE) as h5:
+        try:
+            stars = h5.root.mags
+        except tables.NoSuchNodeError:
+            warnings.warn('No observed star magnitude data in agasc_supplement.h5')
+        else:
+            for star in stars:
+                # Use Python int for key not numpy.int32
+                supplement[int(star['agasc_id'])] = (star['mag_aca'], star['mag_aca_err'])
+
+    return supplement
+
+
+SUPPLEMENT = LazyDict(load_supplement)
 
 
 class IdNotFound(LookupError):
@@ -21,16 +45,6 @@ class IdNotFound(LookupError):
 
 class InconsistentCatalogError(Exception):
     pass
-
-
-def tables_open_file(filename):
-    """
-    Open an HDF5 file using table, but allow for a Path object input.
-
-    :param filename: table file name (str, Path)
-    :returns: h5 handle
-    """
-    return tables.open_file(str(filename))
 
 
 class RaDec(object):
@@ -57,7 +71,7 @@ class RaDec(object):
         # Read the file of RA and DEC values (sorted on DEC):
         #  dec: DEC values
         #  ra: RA values
-        with tables_open_file(self.agasc_file) as h5:
+        with tables.open_file(self.agasc_file) as h5:
             radecs = h5.root.data[:][['RA', 'DEC']]
 
             # Now copy to separate ndarrays for memory efficiency
@@ -168,7 +182,7 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True, fix_color1=True):
+                   pm_filter=True, fix_color1=True, use_mag_est=False):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -176,6 +190,13 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     argument, which defaults to the current date if not supplied.  The
     corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``
     columns, respectively.
+
+    If ``use_mag_est`` is ``True``, then stars with available mag estimates in
+    the AGASC supplement are updated in-place in the output ``stars`` Table:
+
+    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
+    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
+    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
 
     The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``
 
@@ -192,6 +213,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
     :param pm_filter: Use PM-corrected positions in filtering
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
+    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)
 
     :returns: astropy Table of AGASC entries
     """
@@ -208,7 +230,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
     ok = dists <= rad_pm
 
-    with tables_open_file(agasc_file) as h5:
+    with tables.open_file(agasc_file) as h5:
         stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
     add_pmcorr_columns(stars, date)
@@ -221,12 +243,22 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         ok = dists <= radius
         stars = stars[ok]
 
+    if use_mag_est:
+        update_mags_from_supplement(stars)
+
     return stars
 
 
-def get_star(id, agasc_file=None, date=None, fix_color1=True):
+def get_star(id, agasc_file=None, date=None, fix_color1=True, use_mag_est=False):
     """
     Get AGASC catalog entry for star with requested id.
+
+    If ``use_mag_est`` is ``True``, then stars with available mag estimates in
+    the AGASC supplement are updated in-place in the output star entry.
+
+    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
+    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
+    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
 
     The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``
 
@@ -257,13 +289,14 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True):
     :param id: AGASC id
     :param date: Date for proper motion (default=Now)
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
+    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)
     :returns: astropy Table Row of entry for id
     """
 
     if agasc_file is None:
         agasc_file = DEFAULT_AGASC_FILE
 
-    with tables_open_file(agasc_file) as h5:
+    with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
         id_rows = tbl.read_where('(AGASC_ID == {})'.format(id))
 
@@ -279,10 +312,13 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True):
     if fix_color1:
         update_color1_column(t)
 
+    if use_mag_est:
+        update_mags_from_supplement(t)
+
     return t[0]
 
 
-def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
+def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_mag_est=False):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
@@ -293,6 +329,13 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
     Unlike the similar ``get_star`` function, this adds a ``DATE`` column
     indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
     are computed.
+
+    If ``use_mag_est`` is ``True``, then stars with available mag estimates in
+    the AGASC supplement are updated in-place in the output ``stars`` Table:
+
+    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
+    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
+    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
 
     The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``
 
@@ -322,6 +365,7 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
     :param ids: AGASC ids (scalar or array)
     :param dates: Dates for proper motion (scalar or array) (default=Now)
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
+    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)
     :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input
     """
 
@@ -353,4 +397,29 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True):
         update_color1_column(t)
     t['DATE'] = dates
 
+    if use_mag_est:
+        update_mags_from_supplement(t)
+
     return t if ids.shape else t[0]
+
+
+def update_mags_from_supplement(stars):
+    """Overwrite mag and color1 information from AGASC supplement in ``stars``.
+
+    Stars with available mag estimates in the supplement are updated in-place in
+    the ``stars`` Table. The catalog ID is set to ``MAG_CATID_SUPPLEMENT`` (128).
+    Where COLOR1 is 0.7 or 1.5 it is changed to 0.69 or 1.49 respectively.
+
+    :param stars: astropy.table.Table of stars
+    """
+    for idx, agasc_id in enumerate(stars['AGASC_ID']):
+        agasc_id = int(agasc_id)
+        if agasc_id in SUPPLEMENT:
+            mag_est, mag_est_err = SUPPLEMENT[agasc_id]
+            stars['MAG_ACA'][idx] = mag_est
+            # Mag err is stored as int16 in units of 0.01 mag. Use same convention here.
+            stars['MAG_ACA_ERR'][idx] = round(mag_est_err * 100)
+            stars['MAG_CATID'][idx] = MAG_CATID_SUPPLEMENT
+            color1 = stars['COLOR1'][idx]
+            if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
+                stars['COLOR1'][idx] = color1 - 0.01
