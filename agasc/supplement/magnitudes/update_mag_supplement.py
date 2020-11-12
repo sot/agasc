@@ -224,7 +224,7 @@ def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
         ]
     outliers_new['mag_aca'] = outliers_new['mag_obs']
     outliers_new['mag_aca_err'] = outliers_new['mag_obs_err']
-    names = ['agasc_id', 'color', 'mag_aca', 'mag_aca_err', 'last_obs_time']
+    names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
     outliers_new = outliers_new[names].as_array()
 
     if os.path.exists(filename):
