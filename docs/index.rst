@@ -3,8 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Agasc's documentation!
-=================================
+AGASC Catalog Description and History
+-------------------------------------
+.. toctree::
+   :maxdepth: 2
 
-.. automodule:: agasc.agasc
-   :members:
+   catalog-description
+
+``agasc`` package API documentation
+-----------------------------------
+.. toctree::
+
+   api
