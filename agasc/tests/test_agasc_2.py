@@ -383,7 +383,13 @@ def test_supplement_get_agasc_cone():
     assert np.count_nonzero(stars2['COLOR1'][ok] == 1.49) >= 7
     assert np.count_nonzero(stars2['COLOR1'][ok] == 1.50) == 0
 
-    assert np.all(stars2['MAG_ACA_ERR'][ok] != stars1['MAG_ACA_ERR'][ok])
+    # For the stars that have updated data for the supplement, confirm they don't
+    # have all the same values for MAG_ACA_ERR as the catalog values.  Note this
+    # is an integer column.
+    assert np.any(stars2['MAG_ACA_ERR'][ok] != stars1['MAG_ACA_ERR'][ok])
+
+    # Similarly, in this set the stars with updated magnitudes are different from
+    # the catalog values.
     assert np.all(stars2['MAG_ACA'][ok] != stars1['MAG_ACA'][ok])
 
     assert np.all(stars2['MAG_ACA_ERR'][~ok] == stars1['MAG_ACA_ERR'][~ok])
