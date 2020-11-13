@@ -27,7 +27,7 @@ def load_supplement():
         try:
             stars = h5.root.mags
         except tables.NoSuchNodeError:
-            warnings.warn('No observed star magnitude data in agasc_supplement.h5')
+            pass # Will warn on this in future when mags in supplement are used
         else:
             for star in stars:
                 # Use Python int for key not numpy.int32
