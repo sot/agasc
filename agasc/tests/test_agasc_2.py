@@ -47,6 +47,9 @@ except Exception:
     ascds_env = None
     DS_AGASC_VERSION = None
 
+
+HAS_MAGS_IN_SUPPLEMENT = any(agasc.agasc.SUPPLEMENT)
+
 HAS_KSH = os.path.exists('/bin/ksh')  # dependency of mp_get_agascid
 
 AGASC_COL_DESCR = """
@@ -357,6 +360,7 @@ def test_proseco_agasc_1p7():
             assert p_star[name] == m_star[name]
 
 
+@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
     stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
@@ -386,6 +390,7 @@ def test_supplement_get_agasc_cone():
     assert np.all(stars2['MAG_ACA'][~ok] == stars1['MAG_ACA'][~ok])
 
 
+@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
 def test_supplement_get_star():
     agasc_id = 58720672
     star1 = agasc.get_star(agasc_id)
@@ -402,6 +407,7 @@ def test_supplement_get_star():
     assert star2['MAG_ACA_ERR'] != star1['MAG_ACA_ERR']
 
 
+@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
     star1 = agasc.get_stars(agasc_ids)
