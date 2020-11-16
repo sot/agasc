@@ -448,8 +448,8 @@ def do(args):
                 'up': '..',
                 'next': f'../{(t + week).date[:8]}/index.html'
             }
-            report = msr.MagStatsReport(agasc_stats, obs_stats,
-                                        directory=os.path.join('weekly_reports', f'{t.date[:8]}'))
+            report = msr.MagEstimateReport(agasc_stats, obs_stats,
+                                           directory=os.path.join('weekly_reports', f'{t.date[:8]}'))
             report.multi_star_html(filename='index.html',
                                    sections=sections,
                                    updated_stars=updated_stars,

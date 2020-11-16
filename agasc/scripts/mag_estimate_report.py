@@ -65,9 +65,9 @@ def main():
         directory = args.out_dir
         nav_links = None
 
-    msr = mag_estimate_report.MagStatsReport(agasc_stats,
-                                             obs_stats,
-                                             directory=directory)
+    msr = mag_estimate_report.MagEstimateReport(agasc_stats,
+                                                obs_stats,
+                                                directory=directory)
     msr.multi_star_html(sections=sections, tstart=args.start, tstop=args.stop,
                         filename='index.html',
                         nav_links=nav_links)
