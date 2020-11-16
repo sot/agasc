@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import jinja2
 from agasc.supplement.magnitudes import mag_estimate
 from astropy import table
@@ -16,7 +16,7 @@ class MagEstimateReport:
     def __init__(self, agasc_stats, obs_stats, directory='./mag_estimates_reports'):
         self.agasc_stats = agasc_stats
         self.obs_stats = obs_stats
-        self.directory = directory
+        self.directory = Path(directory)
 
     def single_star_html(self, agasc_id, directory,
                          static_dir='https://cxc.cfa.harvard.edu/mta/ASPECT/www_resources',
@@ -26,8 +26,9 @@ class MagEstimateReport:
 
         star_template = jinja2.Template(STAR_REPORT_BOOTSTRAP)
 
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        directory = Path(directory)
+        if not directory.exists():
+            directory.mkdir(parents=True)
 
         o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
         if len(o) == 0:
@@ -63,14 +64,14 @@ class MagEstimateReport:
                          'outside_markers': True
                          })
             args.append({'type': 'flags', 'obsid': obsid})
-        fig = self.plot_set(agasc_id, args=args, filename=os.path.join(directory, f'mag_stats.png'))
+        fig = self.plot_set(agasc_id, args=args, filename=directory / 'mag_stats.png')
         plt.close(fig)
 
-        with open(os.path.join(directory, 'index.html'), 'w') as out:
+        with open(directory / 'index.html', 'w') as out:
             out.write(star_template.render(agasc_stats=s,
                                            obs_stats=o.as_array(),
                                            static_dir=static_dir))
-        return os.path.join(directory, 'index.html')
+        return directory / 'index.html'
 
     def multi_star_html(self, sections=None, updated_stars=None, fails=(),
                         tstart=None, tstop=None, report_date=None,
@@ -162,17 +163,14 @@ class MagEstimateReport:
         star_reports = {}
         for agasc_id in np.atleast_1d(agasc_ids):
             try:
-                dirname = os.path.join(self.directory,
-                                       'stars',
-                                       f'{agasc_id//1e7:03.0f}',
-                                       f'{agasc_id:.0f}')
+                dirname = self.directory / 'stars' / f'{agasc_id//1e7:03.0f}' / f'{agasc_id:.0f}'
                 if make_single_reports:
                     self.single_star_html(
                         agasc_id,
                         directory=dirname,
                         highlight_obs=highlight_obs
                     )
-                if os.path.exists(dirname):
+                if dirname.exists():
                     star_reports[agasc_id] = dirname
             except mag_estimate.MagStatsException:
                 pass
@@ -185,11 +183,11 @@ class MagEstimateReport:
                                                    section['stars'])].as_array()
 
         # this is a hack
-        star_reports = {i: os.path.relpath(star_reports[i], self.directory) for i in star_reports}
+        star_reports = {i: str(star_reports[i].relative_to(self.directory)) for i in star_reports}
         # make report
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
-        with open(os.path.join(self.directory, filename), 'w') as out:
+        if not self.directory.exists():
+            self.directory.mkdir(parents=True)
+        with open(self.directory / filename, 'w') as out:
             out.write(run_template.render(info=info,
                                           sections=sections,
                                           failures=fails,

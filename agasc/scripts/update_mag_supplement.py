@@ -7,6 +7,8 @@ Update Magnitude Statistics.
 import argparse
 import logging
 from agasc.supplement.magnitudes import update_mag_supplement
+import pathlib
+import os
 
 
 def parser():
@@ -26,6 +28,12 @@ def parser():
     parse.add_argument('--email', help='Email to report errors.')
     parse.add_argument('--report', help='Generate HTML report for the period covered',
                        action='store_true', default=False)
+    parse.add_argument('--output-dir',
+                       help='Directory where to place the supplement',
+                       default='$SKA/data/agasc')
+    parse.add_argument('--reports-dir',
+                       help='Directory where to place reports',
+                       default='$SKA/www/agasc_supplement_reports/weekly')
     parse.add_argument('--multi-process', help="Use multi-processing to accelerate run",
                        action='store_true', default=False)
     parse.add_argument('--log-level',
@@ -37,6 +45,9 @@ def parser():
 def main():
     the_parser = parser()
     args = the_parser.parse_args()
+
+    args.output_dir = pathlib.Path(os.path.expandvars(args.output_dir))
+    args.reports_dir = pathlib.Path(os.path.expandvars(args.reports_dir))
 
     logging.basicConfig(level=args.log_level.upper(),
                         format='%(message)s')

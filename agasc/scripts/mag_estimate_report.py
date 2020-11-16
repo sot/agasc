@@ -7,8 +7,9 @@ Produce reports of the magnitude supplement.
 import os
 import argparse
 import numpy as np
+import pathlib
 from astropy import table, time, units as u
-from cxotime import CxoTime
+from cxotime import CxoTime, units
 
 from agasc.supplement.magnitudes import mag_estimate_report
 
@@ -19,7 +20,9 @@ def parser():
                                        ' CxoTime-compatible time stamp.')
     parse.add_argument('--stop', help='Time to stop processing new observations.'
                                       ' CxoTime-compatible time stamp.')
-    parse.add_argument('--out-dir', default=f'./mag_stats_report',
+    parse.add_argument('--input-dir', default='$SKA/data/agasc',
+                       help='Directory containing mag-stats files')
+    parse.add_argument('--output-dir', default=f'$SKA/www/agasc_supplement_reports/suspect',
                        help='Output directory')
     parse.add_argument('--obs-stats', default=f'mag_stats_obsid.fits',
                        help='FITS file with mag-stats for all observations')
@@ -33,13 +36,21 @@ def parser():
 def main():
     args = parser().parse_args()
 
+    args.output_dir = pathlib.Path(os.path.expandvars(args.output_dir))
+    args.input_dir = pathlib.Path(os.path.expandvars(args.input_dir))
+    args.obs_stats = args.input_dir / args.obs_stats
+    args.agasc_stats = args.input_dir / args.agasc_stats
+
     agasc_stats = table.Table.read(args.agasc_stats)
     agasc_stats.convert_bytestring_to_unicode()
     obs_stats = table.Table.read(args.obs_stats)
     obs_stats.convert_bytestring_to_unicode()
 
     args.start = CxoTime(args.start)
-    args.stop = CxoTime(args.stop)
+    if args.stop is None:
+        args.stop = args.start - 90 * units.day
+    else:
+        args.stop = CxoTime(args.stop)
 
     t = (obs_stats['mp_starcat_time'])
     ok = (t < args.stop) & (t > args.start) & ~obs_stats['obs_ok']
@@ -54,7 +65,7 @@ def main():
 
     if args.weekly_report:
         t = CxoTime(args.stop)
-        directory = os.path.join(args.out_dir, f'{t.date[:8]}')
+        directory = args.output_dir / t.date[:8]
         week = time.TimeDelta(7*u.day)
         nav_links = {
             'previous': f'../{(t - week).date[:8]}',
@@ -62,7 +73,7 @@ def main():
             'next': f'../{(t + week).date[:8]}'
         }
     else:
-        directory = args.out_dir
+        directory = args.output_dir
         nav_links = None
 
     msr = mag_estimate_report.MagEstimateReport(agasc_stats,

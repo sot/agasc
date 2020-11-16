@@ -176,21 +176,21 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
     :return:
     """
     if agasc_stats is not None and len(agasc_stats):
-        filename = os.path.join(outdir, f'mag_stats_agasc.fits')
-        if os.path.exists(filename):
+        filename = outdir / 'mag_stats_agasc.fits'
+        if filename.exists():
             agasc_stats = _update_table(table.Table.read(filename), agasc_stats,
                                         keys=['agasc_id'])
             os.remove(filename)
         agasc_stats.write(filename)
     if obs_stats is not None and len(obs_stats):
-        filename = os.path.join(outdir, f'mag_stats_obsid.fits')
-        if os.path.exists(filename):
+        filename = outdir / 'mag_stats_obsid.fits'
+        if filename.exists():
             obs_stats = _update_table(table.Table.read(filename), obs_stats,
                                       keys=['agasc_id', 'obsid', 'timeline_id'])
             os.remove(filename)
         obs_stats.write(filename)
     if len(fails):
-        filename = os.path.join(outdir, f'mag_stats_fails.pkl')
+        filename = outdir / 'mag_stats_fails.pkl'
         with open(filename, 'wb') as out:
             pickle.dump(fails, out)
 
@@ -227,7 +227,7 @@ def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
     names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
     outliers_new = outliers_new[names].as_array()
 
-    if os.path.exists(filename):
+    if filename.exists():
         # I could do what follows directly in place, but the table is not that large.
         with tables.File(filename, 'r') as h5:
             outliers_current = h5.root.mags[:]
@@ -276,7 +276,7 @@ def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
                                         ('ok', bool),
                                         ('comments', '<U80')]).as_array()
 
-    mode = 'r+' if os.path.exists(filename) else 'w'
+    mode = 'r+' if filename.exists() else 'w'
     with tables.File(filename, mode) as h5:
         if 'mags' in h5.root:
             h5.remove_node('/mags')
@@ -294,7 +294,7 @@ def do(args):
     # as ascii. It displays a warning which I want to avoid:
     warnings.filterwarnings("ignore", category=tables.exceptions.FlavorWarning)
 
-    filename = f'agasc_supplement.h5'
+    filename = args.output_dir / 'agasc_supplement.h5'
 
     if args.multi_process:
         get_stats = partial(get_agasc_id_stats_pool, batch_size=10)
@@ -354,7 +354,7 @@ def do(args):
     # find the ones already in the supplement, and drop the ones for which supplement.last_obs_time
     # is equal or larger than stars_obs.mp_starcat_time
     obs_status = {}
-    if os.path.exists(filename):
+    if filename.exists():
         with tables.File(filename, 'r') as h5:
             outliers_current = h5.root.mags[:]
             times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
@@ -410,7 +410,11 @@ def do(args):
         f'  {len(failed_obs)} failed observations,'
         f'  {len(failed_global)} global errors'
     )
-    update_mag_stats(obs_stats, agasc_stats, fails)
+
+    if not args.output_dir.exists():
+        args.output_dir.mkdir(parents=True)
+
+    update_mag_stats(obs_stats, agasc_stats, fails, args.output_dir)
     if agasc_stats is not None and len(agasc_stats):
         new_stars, updated_stars = update_supplement(agasc_stats,
                                                      filename=filename, obs_status=obs_status)
@@ -449,7 +453,7 @@ def do(args):
                 'next': f'../{(t + week).date[:8]}/index.html'
             }
             report = msr.MagEstimateReport(agasc_stats, obs_stats,
-                                           directory=os.path.join('weekly_reports', f'{t.date[:8]}'))
+                                           directory=args.reports_dir / f'{t.date[:8]}')
             report.multi_star_html(filename='index.html',
                                    sections=sections,
                                    updated_stars=updated_stars,
