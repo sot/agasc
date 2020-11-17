@@ -22,7 +22,7 @@ def parser():
                                       ' CxoTime-compatible time stamp.')
     parse.add_argument('--input-dir', default='$SKA/data/agasc',
                        help='Directory containing mag-stats files')
-    parse.add_argument('--output-dir', default=f'$SKA/www/agasc_supplement_reports/suspect',
+    parse.add_argument('--output-dir', default=f'$SKA/www/ASPECT/agasc/supplement_reports/suspect',
                        help='Output directory')
     parse.add_argument('--obs-stats', default=f'mag_stats_obsid.fits',
                        help='FITS file with mag-stats for all observations')
