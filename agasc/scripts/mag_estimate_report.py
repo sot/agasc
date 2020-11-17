@@ -17,18 +17,24 @@ from agasc.supplement.magnitudes import mag_estimate_report
 def parser():
     parse = argparse.ArgumentParser(description=__doc__)
     parse.add_argument('--start', help='Time to start processing new observations.'
-                                       ' CxoTime-compatible time stamp.')
+                                       ' CxoTime-compatible time stamp.'
+                                       ' Default: now - 90 days')
     parse.add_argument('--stop', help='Time to stop processing new observations.'
-                                      ' CxoTime-compatible time stamp.')
+                                      ' CxoTime-compatible time stamp.'
+                                      ' Default: now')
     parse.add_argument('--input-dir', default='$SKA/data/agasc',
-                       help='Directory containing mag-stats files')
-    parse.add_argument('--output-dir', default=f'$SKA/www/ASPECT/agasc/supplement_reports/suspect',
-                       help='Output directory')
-    parse.add_argument('--obs-stats', default=f'mag_stats_obsid.fits',
-                       help='FITS file with mag-stats for all observations')
-    parse.add_argument('--agasc-stats', default=f'mag_stats_agasc.fits',
-                       help='FITS file with mag-stats for all observed AGASC stars')
-    parse.add_argument('--weekly-report', help="Add links to navigate weekly reports",
+                       help='Directory containing mag-stats files. Default: $SKA/data/agasc')
+    parse.add_argument('--output-dir', default='$SKA/www/ASPECT/agasc/supplement_reports/suspect',
+                       help='Output directory.'
+                            ' Default: $SKA/www/ASPECT/agasc/supplement_reports/suspect')
+    parse.add_argument('--obs-stats', default='mag_stats_obsid.fits',
+                       help='FITS file with mag-stats for all observations.'
+                            ' Default: mag_stats_obsid.fits')
+    parse.add_argument('--agasc-stats', default='mag_stats_agasc.fits',
+                       help='FITS file with mag-stats for all observed AGASC stars.'
+                            ' Default: mag_stats_agasc.fits')
+    parse.add_argument('--weekly-report',
+                       help="Add links to navigate weekly reports.",
                        action='store_true', default=False)
     return parse
 

@@ -16,10 +16,12 @@ def parser():
     parse.add_argument('--agasc-id-file', help='File containing a list of AGASC IDs, one per line.')
     parse.add_argument('--start',
                        help='Include only stars observed after this time.'
-                            ' CxoTime-compatible time stamp.')
+                            ' CxoTime-compatible time stamp.'
+                            ' Default: now - 14 days.')
     parse.add_argument('--stop',
                        help='Include only stars observed before this time.'
-                            ' CxoTime-compatible time stamp.')
+                            ' CxoTime-compatible time stamp.'
+                            ' Default: now.')
     parse.add_argument('--whole-history',
                        help='Include all star observations.')
     parse.add_argument('--obs-status-override', help='YAML file with observation status.')
@@ -28,15 +30,18 @@ def parser():
     parse.add_argument('--status', help='Status to override.')
     parse.add_argument('--comments', help='Comments for status override.', default='')
     parse.add_argument('--email', help='Email to report errors.')
-    parse.add_argument('--report', help='Generate HTML report for the period covered',
+    parse.add_argument('--report',
+                       help='Generate HTML report for the period covered. Default: False',
                        action='store_true', default=False)
     parse.add_argument('--output-dir',
-                       help='Directory where to place the supplement',
+                       help='Directory where to place the supplement. Default: .',
                        default='.')
     parse.add_argument('--reports-dir',
-                       help='Directory where to place reports',
+                       help='Directory where to place reports.'
+                            ' Default: $SKA/www/ASPECT/agasc/supplement_reports/weekly.',
                        default='$SKA/www/ASPECT/agasc/supplement_reports/weekly')
-    parse.add_argument('--multi-process', help="Use multi-processing to accelerate run",
+    parse.add_argument('--multi-process',
+                       help="Use multi-processing to accelerate run.",
                        action='store_true', default=False)
     parse.add_argument('--log-level',
                        default='info',
