@@ -32,7 +32,7 @@ def parser():
                        action='store_true', default=False)
     parse.add_argument('--output-dir',
                        help='Directory where to place the supplement',
-                       default='$SKA/data/agasc')
+                       default='.')
     parse.add_argument('--reports-dir',
                        help='Directory where to place reports',
                        default='$SKA/www/agasc_supplement_reports/weekly')
