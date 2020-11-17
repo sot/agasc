@@ -136,8 +136,8 @@ class MagEstimateReport:
             agasc_stats = table.join(agasc_stats, new_obs[['agasc_id', 'n_obs_bad_new']],
                                      keys=['agasc_id'])
 
-            assert (np.all(np.in1d(agasc_stats['agasc_id'], all_agasc_ids)),
-                    'Not all AGASC IDs are in new obs.')
+            assert np.all(np.in1d(agasc_stats['agasc_id'], all_agasc_ids)
+                          ), 'Not all AGASC IDs are in new obs.'
 
         # add some extra fields
         if len(agasc_stats):
