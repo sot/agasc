@@ -302,32 +302,39 @@ def do(args):
         get_stats = get_agasc_id_stats
     star_obs_catalogs.load(args.stop)
 
-    # first, get list of AGASC IDs from file, from start/stop or take all observations.
+    # set the list of AGASC IDs from file if specified. If not, it will include all.
+    agasc_ids = None
     if args.agasc_id_file:
         with open(args.agasc_id_file, 'r') as f:
             agasc_ids = [int(l.strip()) for l in f.readlines()]
             agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
-    elif args.start:
+
+    # set start/stop times
+    if args.whole_history:
+        if args.start:
+            logging.warning('Ignoring --start argument from commant line (--whole-history)')
+        if args.stop:
+            logging.warning('Ignoring --stop argument from commant line (--whole-history)')
+        args.start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
+        args.stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
+        if agasc_ids is None:
+            agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
+    else:
         if not args.stop:
             args.stop = CxoTime.now().date
         else:
             args.stop = CxoTime(args.stop).date
-        args.start = CxoTime(args.start).date
-        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= args.start) &
-                       (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= args.stop))
-        agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
-    else:
-        agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
+        if not args.start:
+            args.start = CxoTime(args.stop) - 14 * u.day
+        if agasc_ids is None:
+            obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= args.start) &
+                           (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= args.stop))
+            agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
+
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
         np.in1d(star_obs_catalogs.STARS_OBS['agasc_id'], agasc_ids)
     ]
-
-    # default values for start/stop cover all the observations
-    if args.start is None:
-        args.start = CxoTime(stars_obs['mp_starcat_time']).min().date
-    if args.stop is None:
-        args.stop = CxoTime(stars_obs['mp_starcat_time']).max().date
 
     # exclude/include an ad-hoc list of observations
     obs_status_override = {}

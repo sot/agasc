@@ -46,11 +46,11 @@ def main():
     obs_stats = table.Table.read(args.obs_stats)
     obs_stats.convert_bytestring_to_unicode()
 
-    args.start = CxoTime(args.start)
-    if args.stop is None:
-        args.stop = args.start - 90 * units.day
+    args.stop = CxoTime(args.stop)
+    if args.start is None:
+        args.start = args.stop - 90 * units.day
     else:
-        args.stop = CxoTime(args.stop)
+        args.start = CxoTime(args.start)
 
     t = (obs_stats['mp_starcat_time'])
     ok = (t < args.stop) & (t > args.start) & ~obs_stats['obs_ok']

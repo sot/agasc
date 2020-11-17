@@ -15,11 +15,13 @@ def parser():
     parse = argparse.ArgumentParser(description=__doc__)
     parse.add_argument('--agasc-id-file', help='File containing a list of AGASC IDs, one per line.')
     parse.add_argument('--start',
-                       help='Time to start processing new observations.'
+                       help='Include only stars observed after this time.'
                             ' CxoTime-compatible time stamp.')
     parse.add_argument('--stop',
-                       help='Time to stop processing new observations.'
+                       help='Include only stars observed before this time.'
                             ' CxoTime-compatible time stamp.')
+    parse.add_argument('--whole-history',
+                       help='Include all star observations.')
     parse.add_argument('--obs-status-override', help='YAML file with observation status.')
     parse.add_argument('--obs', help='Observation ID for status override.')
     parse.add_argument('--agasc-id', help='AGASC ID for status override.')
