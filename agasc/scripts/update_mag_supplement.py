@@ -38,8 +38,8 @@ def parser():
                        default='.')
     parse.add_argument('--reports-dir',
                        help='Directory where to place reports.'
-                            ' Default: $SKA/www/ASPECT/agasc/supplement_reports/weekly.',
-                       default='$SKA/www/ASPECT/agasc/supplement_reports/weekly')
+                            ' Default: supplement_reports/weekly.',
+                       default='supplement_reports/weekly')
     parse.add_argument('--multi-process',
                        help="Use multi-processing to accelerate run.",
                        action='store_true', default=False)
