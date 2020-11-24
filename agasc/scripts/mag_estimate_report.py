@@ -24,9 +24,9 @@ def parser():
                                       ' Default: now')
     parse.add_argument('--input-dir', default='$SKA/data/agasc',
                        help='Directory containing mag-stats files. Default: $SKA/data/agasc')
-    parse.add_argument('--output-dir', default='$SKA/www/ASPECT/agasc/supplement_reports/suspect',
+    parse.add_argument('--output-dir', default='supplement_reports/suspect',
                        help='Output directory.'
-                            ' Default: $SKA/www/ASPECT/agasc/supplement_reports/suspect')
+                            ' Default: supplement_reports/suspect')
     parse.add_argument('--obs-stats', default='mag_stats_obsid.fits',
                        help='FITS file with mag-stats for all observations.'
                             ' Default: mag_stats_obsid.fits')
