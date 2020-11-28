@@ -38,8 +38,7 @@ def parser():
                        default='.')
     parse.add_argument('--reports-dir',
                        help='Directory where to place reports.'
-                            ' Default: supplement_reports/weekly.',
-                       default='supplement_reports/weekly')
+                            ' Default: <output_dir>/supplement_reports/weekly.')
     parse.add_argument('--multi-process',
                        help="Use multi-processing to accelerate run.",
                        action='store_true', default=False)
@@ -54,7 +53,10 @@ def main():
     args = the_parser.parse_args()
 
     args.output_dir = pathlib.Path(os.path.expandvars(args.output_dir))
-    args.reports_dir = pathlib.Path(os.path.expandvars(args.reports_dir))
+    if args.reports_dir is None:
+        args.reports_dir = args.output_dir / 'supplement_reports' / 'weekly'
+    else:
+        args.reports_dir = pathlib.Path(os.path.expandvars(args.reports_dir))
 
     logging.basicConfig(level=args.log_level.upper(),
                         format='%(message)s')
