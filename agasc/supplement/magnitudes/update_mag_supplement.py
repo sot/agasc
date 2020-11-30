@@ -459,16 +459,29 @@ def do(args):
                 'up': '..',
                 'next': f'../{(t + week).date[:8]}/index.html'
             }
-            report = msr.MagEstimateReport(agasc_stats, obs_stats,
-                                           directory=args.reports_dir / f'{t.date[:8]}')
-            report.multi_star_html(filename='index.html',
-                                   sections=sections,
-                                   updated_stars=updated_stars,
-                                   fails=fails,
-                                   report_date=CxoTime.now().date,
-                                   tstart=args.start,
-                                   tstop=args.stop,
-                                   nav_links=nav_links,
-                                   include_all_stars=True)
+
+            directory = args.reports_dir / f'{t.date[:8]}'
+            multi_star_html_args = dict(
+                filename='index.html',
+                sections=sections,
+                updated_stars=updated_stars,
+                fails=fails,
+                report_date=CxoTime.now().date,
+                tstart=args.start,
+                tstop=args.stop,
+                nav_links=nav_links,
+                include_all_stars=True
+            )
+            try:
+                report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
+                report.multi_star_html(**multi_star_html_args)
+            except Exception as e:
+                logging.error(f'Exception when creating report: {e}')
+                multi_star_html_args['directory'] = directory
+                failure_file = args.output_dir / f'failed_report_{t.date[:8]}.pkl'
+                with open(failure_file, 'wb') as fh:
+                    pickle.dump(multi_star_html_args, fh)
+                logging.error(f'Intermediate data saved in {failure_file}')
+
     now = datetime.datetime.now()
     logging.info(f"done at {now}")
