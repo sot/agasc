@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import jinja2
 from agasc.supplement.magnitudes import mag_estimate
 from astropy import table
@@ -16,7 +16,7 @@ class MagEstimateReport:
     def __init__(self, agasc_stats, obs_stats, directory='./mag_estimates_reports'):
         self.agasc_stats = agasc_stats
         self.obs_stats = obs_stats
-        self.directory = directory
+        self.directory = Path(directory)
 
     def single_star_html(self, agasc_id, directory,
                          static_dir='https://cxc.cfa.harvard.edu/mta/ASPECT/www_resources',
@@ -26,8 +26,9 @@ class MagEstimateReport:
 
         star_template = jinja2.Template(STAR_REPORT_BOOTSTRAP)
 
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        directory = Path(directory)
+        if not directory.exists():
+            directory.mkdir(parents=True)
 
         o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
         if len(o) == 0:
@@ -63,14 +64,14 @@ class MagEstimateReport:
                          'outside_markers': True
                          })
             args.append({'type': 'flags', 'obsid': obsid})
-        fig = self.plot_set(agasc_id, args=args, filename=os.path.join(directory, f'mag_stats.png'))
+        fig = self.plot_set(agasc_id, args=args, filename=directory / 'mag_stats.png')
         plt.close(fig)
 
-        with open(os.path.join(directory, 'index.html'), 'w') as out:
+        with open(directory / 'index.html', 'w') as out:
             out.write(star_template.render(agasc_stats=s,
                                            obs_stats=o.as_array(),
                                            static_dir=static_dir))
-        return os.path.join(directory, 'index.html')
+        return directory / 'index.html'
 
     def multi_star_html(self, sections=None, updated_stars=None, fails=(),
                         tstart=None, tstop=None, report_date=None,
@@ -117,62 +118,67 @@ class MagEstimateReport:
         # this turns all None into '' in a new list of failures
         fails = [{k: '' if v is None else v for k, v in f.items()} for i, f in enumerate(fails)]
 
-        # check how many observations were added in this run, and how many of those are ok
-        new_obs = self.obs_stats[(self.obs_stats['mp_starcat_time'] >= info["tstart"]) &
-                            (self.obs_stats['mp_starcat_time'] <= info["tstop"])]. \
-            group_by('agasc_id')[['agasc_id', 'obsid', 'obs_ok']]. \
-            groups.aggregate(np.count_nonzero)[['agasc_id', 'obsid', 'obs_ok']]
-        new_obs['n_obs_bad_new'] = new_obs['obsid'] - new_obs['obs_ok']
-
-        # add some extra fields
         agasc_stats = self.agasc_stats.copy()
-        if len(agasc_stats) == 0:
-            return [], []
-        all_agasc_ids = np.unique(np.concatenate([
-            new_obs['agasc_id'],
-            [f['agasc_id'] for f in fails]
-        ]))
 
-        assert np.all(np.in1d(agasc_stats['agasc_id'], all_agasc_ids)), 'Not all AGASC IDs are in new obs.'
-        agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
-        agasc_stats['flag'] = '          '
-        if len(agasc_stats):
+        # check how many observations were added in this run, and how many of those are ok
+        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"]) &
+                        (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
+        if np.any(new_obs_mask):
+            new_obs = self.obs_stats[new_obs_mask]. \
+                group_by('agasc_id')[['agasc_id', 'obsid', 'obs_ok']]. \
+                groups.aggregate(np.count_nonzero)[['agasc_id', 'obsid', 'obs_ok']]
+            new_obs['n_obs_bad_new'] = new_obs['obsid'] - new_obs['obs_ok']
+
+            all_agasc_ids = np.unique(np.concatenate([
+                new_obs['agasc_id'],
+                [f['agasc_id'] for f in fails]
+            ]))
             agasc_stats = table.join(agasc_stats, new_obs[['agasc_id', 'n_obs_bad_new']],
                                      keys=['agasc_id'])
-        tooltips = {
-            'warning': 'At least one bad observation',
-            'danger': 'At least one new bad observation'
-        }
-        agasc_stats['flag'][:] = ''
-        agasc_stats['flag'][agasc_stats['n_obs_bad'] > 0] = 'warning'
-        agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
-        agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
-        agasc_stats['sigma'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])/agasc_stats['mag_aca_err']
-        agasc_stats['new'] = True
-        agasc_stats['new'][np.in1d(agasc_stats['agasc_id'], updated_star_ids)] = False
-        agasc_stats['update_mag_aca'] = np.nan
-        agasc_stats['update_mag_aca_err'] = np.nan
-        agasc_stats['last_obs'] = CxoTime(agasc_stats['last_obs_time']).date
+
+            assert np.all(np.in1d(agasc_stats['agasc_id'], all_agasc_ids)
+                          ), 'Not all AGASC IDs are in new obs.'
+
+        # add some extra fields
+        if len(agasc_stats):
+            if not 'n_obs_bad_new' in agasc_stats.colnames:
+                agasc_stats['n_obs_bad_new'] = 0
+            agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
+            agasc_stats['flag'] = '          '
+            agasc_stats['flag'][:] = ''
+            agasc_stats['flag'][agasc_stats['n_obs_bad'] > 0] = 'warning'
+            agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
+            agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
+            agasc_stats['sigma'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])/agasc_stats['mag_aca_err']
+            agasc_stats['new'] = True
+            agasc_stats['new'][np.in1d(agasc_stats['agasc_id'], updated_star_ids)] = False
+            agasc_stats['update_mag_aca'] = np.nan
+            agasc_stats['update_mag_aca_err'] = np.nan
+            agasc_stats['last_obs'] = CxoTime(agasc_stats['last_obs_time']).date
+
         if len(updated_stars):
             agasc_stats['update_mag_aca'][np.in1d(agasc_stats['agasc_id'], updated_star_ids)] = \
                 updated_stars['mag_aca']
             agasc_stats['update_mag_aca_err'][np.in1d(agasc_stats['agasc_id'], updated_star_ids)] =\
                 updated_stars['mag_aca_err']
+
+        tooltips = {
+            'warning': 'At least one bad observation',
+            'danger': 'At least one new bad observation'
+        }
+
         # make all individual star reports
         star_reports = {}
         for agasc_id in np.atleast_1d(agasc_ids):
             try:
-                dirname = os.path.join(self.directory,
-                                       'stars',
-                                       f'{agasc_id//1e7:03.0f}',
-                                       f'{agasc_id:.0f}')
+                dirname = self.directory / 'stars' / f'{agasc_id//1e7:03.0f}' / f'{agasc_id:.0f}'
                 if make_single_reports:
                     self.single_star_html(
                         agasc_id,
                         directory=dirname,
                         highlight_obs=highlight_obs
                     )
-                if os.path.exists(dirname):
+                if dirname.exists():
                     star_reports[agasc_id] = dirname
             except mag_estimate.MagStatsException:
                 pass
@@ -185,11 +191,11 @@ class MagEstimateReport:
                                                    section['stars'])].as_array()
 
         # this is a hack
-        star_reports = {i: os.path.relpath(star_reports[i], self.directory) for i in star_reports}
+        star_reports = {i: str(star_reports[i].relative_to(self.directory)) for i in star_reports}
         # make report
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
-        with open(os.path.join(self.directory, filename), 'w') as out:
+        if not self.directory.exists():
+            self.directory.mkdir(parents=True)
+        with open(self.directory / filename, 'w') as out:
             out.write(run_template.render(info=info,
                                           sections=sections,
                                           failures=fails,

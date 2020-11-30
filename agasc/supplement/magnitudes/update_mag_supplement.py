@@ -176,21 +176,21 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
     :return:
     """
     if agasc_stats is not None and len(agasc_stats):
-        filename = os.path.join(outdir, f'mag_stats_agasc.fits')
-        if os.path.exists(filename):
+        filename = outdir / 'mag_stats_agasc.fits'
+        if filename.exists():
             agasc_stats = _update_table(table.Table.read(filename), agasc_stats,
                                         keys=['agasc_id'])
             os.remove(filename)
         agasc_stats.write(filename)
     if obs_stats is not None and len(obs_stats):
-        filename = os.path.join(outdir, f'mag_stats_obsid.fits')
-        if os.path.exists(filename):
+        filename = outdir / 'mag_stats_obsid.fits'
+        if filename.exists():
             obs_stats = _update_table(table.Table.read(filename), obs_stats,
                                       keys=['agasc_id', 'obsid', 'timeline_id'])
             os.remove(filename)
         obs_stats.write(filename)
     if len(fails):
-        filename = os.path.join(outdir, f'mag_stats_fails.pkl')
+        filename = outdir / 'mag_stats_fails.pkl'
         with open(filename, 'wb') as out:
             pickle.dump(fails, out)
 
@@ -227,7 +227,7 @@ def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
     names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
     outliers_new = outliers_new[names].as_array()
 
-    if os.path.exists(filename):
+    if filename.exists():
         # I could do what follows directly in place, but the table is not that large.
         with tables.File(filename, 'r') as h5:
             outliers_current = h5.root.mags[:]
@@ -276,7 +276,7 @@ def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
                                         ('ok', bool),
                                         ('comments', '<U80')]).as_array()
 
-    mode = 'r+' if os.path.exists(filename) else 'w'
+    mode = 'r+' if filename.exists() else 'w'
     with tables.File(filename, mode) as h5:
         if 'mags' in h5.root:
             h5.remove_node('/mags')
@@ -294,7 +294,7 @@ def do(args):
     # as ascii. It displays a warning which I want to avoid:
     warnings.filterwarnings("ignore", category=tables.exceptions.FlavorWarning)
 
-    filename = f'agasc_supplement.h5'
+    filename = args.output_dir / 'agasc_supplement.h5'
 
     if args.multi_process:
         get_stats = partial(get_agasc_id_stats_pool, batch_size=10)
@@ -302,32 +302,39 @@ def do(args):
         get_stats = get_agasc_id_stats
     star_obs_catalogs.load(args.stop)
 
-    # first, get list of AGASC IDs from file, from start/stop or take all observations.
+    # set the list of AGASC IDs from file if specified. If not, it will include all.
+    agasc_ids = None
     if args.agasc_id_file:
         with open(args.agasc_id_file, 'r') as f:
             agasc_ids = [int(l.strip()) for l in f.readlines()]
             agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
-    elif args.start:
+
+    # set start/stop times
+    if args.whole_history:
+        if args.start:
+            logging.warning('Ignoring --start argument from commant line (--whole-history)')
+        if args.stop:
+            logging.warning('Ignoring --stop argument from commant line (--whole-history)')
+        args.start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
+        args.stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
+        if agasc_ids is None:
+            agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
+    else:
         if not args.stop:
             args.stop = CxoTime.now().date
         else:
             args.stop = CxoTime(args.stop).date
-        args.start = CxoTime(args.start).date
-        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= args.start) &
-                       (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= args.stop))
-        agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
-    else:
-        agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
+        if not args.start:
+            args.start = CxoTime(args.stop) - 14 * u.day
+        if agasc_ids is None:
+            obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= args.start) &
+                           (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= args.stop))
+            agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
+
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
         np.in1d(star_obs_catalogs.STARS_OBS['agasc_id'], agasc_ids)
     ]
-
-    # default values for start/stop cover all the observations
-    if args.start is None:
-        args.start = CxoTime(stars_obs['mp_starcat_time']).min().date
-    if args.stop is None:
-        args.stop = CxoTime(stars_obs['mp_starcat_time']).max().date
 
     # exclude/include an ad-hoc list of observations
     obs_status_override = {}
@@ -354,7 +361,7 @@ def do(args):
     # find the ones already in the supplement, and drop the ones for which supplement.last_obs_time
     # is equal or larger than stars_obs.mp_starcat_time
     obs_status = {}
-    if os.path.exists(filename):
+    if filename.exists():
         with tables.File(filename, 'r') as h5:
             outliers_current = h5.root.mags[:]
             times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
@@ -410,7 +417,11 @@ def do(args):
         f'  {len(failed_obs)} failed observations,'
         f'  {len(failed_global)} global errors'
     )
-    update_mag_stats(obs_stats, agasc_stats, fails)
+
+    if not args.output_dir.exists():
+        args.output_dir.mkdir(parents=True)
+
+    update_mag_stats(obs_stats, agasc_stats, fails, args.output_dir)
     if agasc_stats is not None and len(agasc_stats):
         new_stars, updated_stars = update_supplement(agasc_stats,
                                                      filename=filename, obs_status=obs_status)
@@ -448,8 +459,8 @@ def do(args):
                 'up': '..',
                 'next': f'../{(t + week).date[:8]}/index.html'
             }
-            report = msr.MagStatsReport(agasc_stats, obs_stats,
-                                        directory=os.path.join('weekly_reports', f'{t.date[:8]}'))
+            report = msr.MagEstimateReport(agasc_stats, obs_stats,
+                                           directory=args.reports_dir / f'{t.date[:8]}')
             report.multi_star_html(filename='index.html',
                                    sections=sections,
                                    updated_stars=updated_stars,
