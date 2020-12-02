@@ -11,6 +11,7 @@ entry_points = {
     'console_scripts': [
         'agasc-mag-estimate-report=agasc.scripts.mag_estimate_report:main',
         'agasc-supplement-update=agasc.scripts.update_mag_supplement:main',
+        'agasc-supplement-bad-star=agasc.scripts.add_bad_star:main',
     ]
 }
 
