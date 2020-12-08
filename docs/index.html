@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Agasc’s documentation! &#8212; Agasc 4.8.2.dev8+g0d43c37 documentation</title>
+    <title>AGASC Catalog Description and History &#8212; Agasc 4.10.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -18,6 +18,7 @@
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="THE AXAF Guide and Acquisition Star Catalog V1.7" href="catalog-description.html" />
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 
   </head><body>
@@ -46,8 +47,13 @@
 <div class="related">
     <h3>Navigation</h3>
     <ul>
+      <li class="right">
+	<a href="catalog-description.html" title="THE AXAF Guide and Acquisition Star Catalog V1.7">
+	  next &raquo;
+	</a>
+      </li>
       <li>
-	<a href="#">Agasc 4.8.2.dev8+g0d43c37 documentation</a>
+	<a href="#">Agasc 4.10.1 documentation</a>
 	 &#187;
       </li>
       
@@ -61,157 +67,40 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-agasc.agasc">
-<span id="welcome-to-agasc-s-documentation"></span><h1>Welcome to Agasc’s documentation!<a class="headerlink" href="#module-agasc.agasc" title="Permalink to this headline">¶</a></h1>
-<dl class="py function">
-<dt id="agasc.agasc.get_agasc_cone">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_agasc_cone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra</span></em>, <em class="sig-param"><span class="n">dec</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pm_filter</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get AGASC catalog entries within <code class="docutils literal notranslate"><span class="pre">radius</span></code> degrees of <code class="docutils literal notranslate"><span class="pre">ra</span></code>, <code class="docutils literal notranslate"><span class="pre">dec</span></code>.</p>
-<p>The star positions are corrected for proper motion using the <code class="docutils literal notranslate"><span class="pre">date</span></code>
-argument, which defaults to the current date if not supplied.  The
-corrected positions are available in the <code class="docutils literal notranslate"><span class="pre">RA_PMCORR</span></code> and <code class="docutils literal notranslate"><span class="pre">DEC_PMCORR</span></code>
-columns, respectively.</p>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/miniagasc.h5</span></code></p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">stars</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_agasc_cone</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">],</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
-</pre></div>
+  <div class="section" id="agasc-catalog-description-and-history">
+<h1>AGASC Catalog Description and History<a class="headerlink" href="#agasc-catalog-description-and-history" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="catalog-description.html">THE AXAF Guide and Acquisition Star Catalog V1.7</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="catalog-description.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catalog-description.html#organization-of-the-fits-data-files">Organization of the FITS Data Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catalog-description.html#summary-of-the-agasc1-7-format">Summary of the AGASC1.7 Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catalog-description.html#history-of-the-agasc-version-1-7">History of the AGASC Version 1.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="catalog-description.html#acknowledgements">Acknowledgements</a></li>
+</ul>
+</li>
+</ul>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ra</strong> – RA (deg)</p></li>
-<li><p><strong>dec</strong> – Declination (deg)</p></li>
-<li><p><strong>radius</strong> – Cone search radius (deg)</p></li>
-<li><p><strong>date</strong> – Date for proper motion (default=Now)</p></li>
-<li><p><strong>agasc_file</strong> – Mini-agasc HDF5 file sorted by Dec (optional)</p></li>
-<li><p><strong>pm_filter</strong> – Use PM-corrected positions in filtering</p></li>
-<li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>astropy Table of AGASC entries</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="agasc.agasc.get_star">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_star</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_star" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get AGASC catalog entry for star with requested id.</p>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">/proj/sot/ska/data/agasc/miniagasc.h5</span></code></p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_star</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">star</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
-<span class="go">AGASC_ID     : 636629880</span>
-<span class="go">RA           : 125.64184</span>
-<span class="go">DEC          : -4.23235</span>
-<span class="go">POS_ERR      : 300</span>
-<span class="go">POS_CATID    : 6</span>
-<span class="go">EPOCH        : 1983.0</span>
-<span class="go">PM_RA        : -9999</span>
-<span class="go">PM_DEC       : -9999</span>
-<span class="go">PM_CATID     : 0</span>
-<span class="go">PLX          : -9999</span>
-<span class="go">PLX_ERR      : -9999</span>
-<span class="go">PLX_CATID    : 0</span>
-<span class="go">MAG_ACA      : 12.1160011292</span>
-<span class="go">MAG_ACA_ERR  : 45</span>
-<span class="go">CLASS        : 0</span>
-<span class="go">MAG          : 13.2700004578</span>
-<span class="gp">...</span>
-</pre></div>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>id</strong> – AGASC id</p></li>
-<li><p><strong>date</strong> – Date for proper motion (default=Now)</p></li>
-<li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p></li>
+<div class="section" id="agasc-package-api-documentation">
+<h1><code class="docutils literal notranslate"><span class="pre">agasc</span></code> package API documentation<a class="headerlink" href="#agasc-package-api-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>astropy Table Row of entry for id</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="agasc.agasc.get_stars">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_stars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ids</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dates</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_stars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_stars" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get AGASC catalog entries for star <code class="docutils literal notranslate"><span class="pre">ids</span></code> at <code class="docutils literal notranslate"><span class="pre">dates</span></code>.</p>
-<p>The input <code class="docutils literal notranslate"><span class="pre">ids</span></code> and <code class="docutils literal notranslate"><span class="pre">dates</span></code> are broadcast together for the output shape
-(though note that the result is flattened in the end). If both are scalar
-inputs then the output is a Table Row, otherwise the output is a Table.</p>
-<p>Unlike the similar <code class="docutils literal notranslate"><span class="pre">get_star</span></code> function, this adds a <code class="docutils literal notranslate"><span class="pre">DATE</span></code> column
-indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
-are computed.</p>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/miniagasc.h5</span></code></p>
-<dl>
-<dt>Example::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_stars</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">star</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
-<span class="go">AGASC_ID     : 636629880</span>
-<span class="go">RA           : 125.64184</span>
-<span class="go">DEC          : -4.23235</span>
-<span class="go">POS_ERR      : 300</span>
-<span class="go">POS_CATID    : 6</span>
-<span class="go">EPOCH        : 1983.0</span>
-<span class="go">PM_RA        : -9999</span>
-<span class="go">PM_DEC       : -9999</span>
-<span class="go">PM_CATID     : 0</span>
-<span class="go">PLX          : -9999</span>
-<span class="go">PLX_ERR      : -9999</span>
-<span class="go">PLX_CATID    : 0</span>
-<span class="go">MAG_ACA      : 12.1160011292</span>
-<span class="go">MAG_ACA_ERR  : 45</span>
-<span class="go">CLASS        : 0</span>
-<span class="go">MAG          : 13.2700004578</span>
-<span class="gp">...</span>
-</pre></div>
 </div>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ids</strong> – AGASC ids (scalar or array)</p></li>
-<li><p><strong>dates</strong> – Dates for proper motion (scalar or array) (default=Now)</p></li>
-<li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p></li>
+</div>
+<div class="section" id="topics-for-maintainers">
+<h1>Topics For Maintainers<a class="headerlink" href="#topics-for-maintainers" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="supplement.html">Updating the AGASC Supplement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supplement.html#scripts">Scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supplement.html#module-agasc.supplement.magnitudes.mag_estimate">Magnitude Supplement API</a></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>astropy Table of AGASC entries, or Table Row of one entry for scalar input</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="agasc.agasc.sphere_dist">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">sphere_dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra1</span></em>, <em class="sig-param"><span class="n">dec1</span></em>, <em class="sig-param"><span class="n">ra2</span></em>, <em class="sig-param"><span class="n">dec2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#sphere_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.sphere_dist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Haversine formula for angular distance on a sphere: more stable at poles.
-This version uses arctan instead of arcsin and thus does better with sign
-conventions.  This uses numexpr to speed expression evaluation by a factor
-of 2 to 3.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ra1</strong> – first RA (deg)</p></li>
-<li><p><strong>dec1</strong> – first Dec (deg)</p></li>
-<li><p><strong>ra2</strong> – second RA (deg)</p></li>
-<li><p><strong>dec2</strong> – second Dec (deg)</p></li>
+</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>angular separation distance (deg)</p>
-</dd>
-</dl>
-</dd></dl>
-
+</div>
 </div>
 
 
@@ -222,10 +111,15 @@ of 2 to 3.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">Welcome to Agasc’s documentation!</a></li>
+<li><a class="reference internal" href="#">AGASC Catalog Description and History</a></li>
+<li><a class="reference internal" href="#agasc-package-api-documentation"><code class="docutils literal notranslate"><span class="pre">agasc</span></code> package API documentation</a></li>
+<li><a class="reference internal" href="#topics-for-maintainers">Topics For Maintainers</a></li>
 </ul>
 
 
+  <h4>Next topic</h4>
+  <p class="topless"><a href="catalog-description.html"
+                        title="next chapter">THE AXAF Guide and Acquisition Star Catalog V1.7</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">

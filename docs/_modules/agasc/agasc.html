@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>agasc.agasc &#8212; Agasc 4.8.2.dev8+g0d43c37 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.10.1 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.8.2.dev8+g0d43c37 documentation</a>
+	<a href="../../index.html">Agasc 4.10.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -70,14 +70,38 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numexpr</span>
 <span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
 <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">ska_helpers.utils</span> <span class="kn">import</span> <span class="n">LazyDict</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sphere_dist&#39;</span><span class="p">,</span> <span class="s1">&#39;get_agasc_cone&#39;</span><span class="p">,</span> <span class="s1">&#39;get_star&#39;</span><span class="p">,</span> <span class="s1">&#39;get_stars&#39;</span><span class="p">]</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sphere_dist&#39;</span><span class="p">,</span> <span class="s1">&#39;get_agasc_cone&#39;</span><span class="p">,</span> <span class="s1">&#39;get_star&#39;</span><span class="p">,</span> <span class="s1">&#39;get_stars&#39;</span><span class="p">,</span> <span class="s1">&#39;MAG_CATID_SUPPLEMENT&#39;</span><span class="p">]</span>
 
 <span class="n">DATA_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SKA&#39;</span><span class="p">],</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;agasc&#39;</span><span class="p">)</span>
 <span class="n">DEFAULT_AGASC_FILE</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">DATA_ROOT</span> <span class="o">/</span> <span class="s1">&#39;miniagasc.h5&#39;</span><span class="p">)</span>
+<span class="n">DEFAULT_SUPPLEMENT_FILE</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">DATA_ROOT</span> <span class="o">/</span> <span class="s1">&#39;agasc_supplement.h5&#39;</span><span class="p">)</span>
+
+<span class="n">MAG_CATID_SUPPLEMENT</span> <span class="o">=</span> <span class="mi">128</span>
+
+
+<span class="k">def</span> <span class="nf">load_supplement</span><span class="p">():</span>
+    <span class="n">supplement</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">DEFAULT_SUPPLEMENT_FILE</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stars</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mags</span>
+        <span class="k">except</span> <span class="n">tables</span><span class="o">.</span><span class="n">NoSuchNodeError</span><span class="p">:</span>
+            <span class="k">pass</span> <span class="c1"># Will warn on this in future when mags in supplement are used</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">star</span> <span class="ow">in</span> <span class="n">stars</span><span class="p">:</span>
+                <span class="c1"># Use Python int for key not numpy.int32</span>
+                <span class="n">supplement</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">star</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])]</span> <span class="o">=</span> <span class="p">(</span><span class="n">star</span><span class="p">[</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">],</span> <span class="n">star</span><span class="p">[</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">supplement</span>
+
+
+<span class="n">SUPPLEMENT</span> <span class="o">=</span> <span class="n">LazyDict</span><span class="p">(</span><span class="n">load_supplement</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">IdNotFound</span><span class="p">(</span><span class="ne">LookupError</span><span class="p">):</span>
@@ -86,16 +110,6 @@
 
 <span class="k">class</span> <span class="nc">InconsistentCatalogError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
-
-
-<span class="k">def</span> <span class="nf">tables_open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Open an HDF5 file using table, but allow for a Path object input.</span>
-
-<span class="sd">    :param filename: table file name (str, Path)</span>
-<span class="sd">    :returns: h5 handle</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
 
 <span class="k">class</span> <span class="nc">RaDec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -122,7 +136,7 @@
         <span class="c1"># Read the file of RA and DEC values (sorted on DEC):</span>
         <span class="c1">#  dec: DEC values</span>
         <span class="c1">#  ra: RA values</span>
-        <span class="k">with</span> <span class="n">tables_open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
             <span class="n">radecs</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[:][[</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC&#39;</span><span class="p">]]</span>
 
             <span class="c1"># Now copy to separate ndarrays for memory efficiency</span>
@@ -139,7 +153,7 @@
     <span class="k">return</span> <span class="n">RA_DECS_CACHE</span><span class="p">[</span><span class="n">agasc_file</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="sphere_dist"><a class="viewcode-back" href="../../index.html#agasc.agasc.sphere_dist">[docs]</a><span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
+<div class="viewcode-block" id="sphere_dist"><a class="viewcode-back" href="../../api.html#agasc.agasc.sphere_dist">[docs]</a><span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Haversine formula for angular distance on a sphere: more stable at poles.</span>
 <span class="sd">    This version uses arctan instead of arcsin and thus does better with sign</span>
@@ -232,8 +246,8 @@
                        <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dec_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;DEC_PMCORR&#39;</span><span class="p">)])</span>
 
 
-<div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../index.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_mag_est</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.</span>
 
@@ -241,6 +255,13 @@
 <span class="sd">    argument, which defaults to the current date if not supplied.  The</span>
 <span class="sd">    corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``</span>
 <span class="sd">    columns, respectively.</span>
+
+<span class="sd">    If ``use_mag_est`` is ``True``, then stars with available mag estimates in</span>
+<span class="sd">    the AGASC supplement are updated in-place in the output ``stars`` Table:</span>
+
+<span class="sd">    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.</span>
+<span class="sd">    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).</span>
+<span class="sd">    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.</span>
 
 <span class="sd">    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``</span>
 
@@ -257,6 +278,7 @@
 <span class="sd">    :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)</span>
 <span class="sd">    :param pm_filter: Use PM-corrected positions in filtering</span>
 <span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color</span>
+<span class="sd">    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)</span>
 
 <span class="sd">    :returns: astropy Table of AGASC entries</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -273,7 +295,7 @@
     <span class="n">dists</span> <span class="o">=</span> <span class="n">sphere_dist</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">ra_decs</span><span class="o">.</span><span class="n">ra</span><span class="p">[</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">],</span> <span class="n">ra_decs</span><span class="o">.</span><span class="n">dec</span><span class="p">[</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">])</span>
     <span class="n">ok</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">&lt;=</span> <span class="n">rad_pm</span>
 
-    <span class="k">with</span> <span class="n">tables_open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">stars</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">][</span><span class="n">ok</span><span class="p">],</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="n">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
@@ -286,12 +308,22 @@
         <span class="n">ok</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">&lt;=</span> <span class="n">radius</span>
         <span class="n">stars</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
 
+    <span class="k">if</span> <span class="n">use_mag_est</span><span class="p">:</span>
+        <span class="n">update_mags_from_supplement</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">stars</span></div>
 
 
-<div class="viewcode-block" id="get_star"><a class="viewcode-back" href="../../index.html#agasc.agasc.get_star">[docs]</a><span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="get_star"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_star">[docs]</a><span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_mag_est</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entry for star with requested id.</span>
+
+<span class="sd">    If ``use_mag_est`` is ``True``, then stars with available mag estimates in</span>
+<span class="sd">    the AGASC supplement are updated in-place in the output star entry.</span>
+
+<span class="sd">    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.</span>
+<span class="sd">    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).</span>
+<span class="sd">    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.</span>
 
 <span class="sd">    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``</span>
 
@@ -322,13 +354,14 @@
 <span class="sd">    :param id: AGASC id</span>
 <span class="sd">    :param date: Date for proper motion (default=Now)</span>
 <span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
+<span class="sd">    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)</span>
 <span class="sd">    :returns: astropy Table Row of entry for id</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">agasc_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">DEFAULT_AGASC_FILE</span>
 
-    <span class="k">with</span> <span class="n">tables_open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span>
         <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s1">&#39;(AGASC_ID == </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
 
@@ -344,10 +377,13 @@
     <span class="k">if</span> <span class="n">fix_color1</span><span class="p">:</span>
         <span class="n">update_color1_column</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">use_mag_est</span><span class="p">:</span>
+        <span class="n">update_mags_from_supplement</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../index.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_mag_est</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries for star ``ids`` at ``dates``.</span>
 
@@ -358,6 +394,13 @@
 <span class="sd">    Unlike the similar ``get_star`` function, this adds a ``DATE`` column</span>
 <span class="sd">    indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)</span>
 <span class="sd">    are computed.</span>
+
+<span class="sd">    If ``use_mag_est`` is ``True``, then stars with available mag estimates in</span>
+<span class="sd">    the AGASC supplement are updated in-place in the output ``stars`` Table:</span>
+
+<span class="sd">    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.</span>
+<span class="sd">    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).</span>
+<span class="sd">    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.</span>
 
 <span class="sd">    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``</span>
 
@@ -387,6 +430,7 @@
 <span class="sd">    :param ids: AGASC ids (scalar or array)</span>
 <span class="sd">    :param dates: Dates for proper motion (scalar or array) (default=Now)</span>
 <span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
+<span class="sd">    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)</span>
 <span class="sd">    :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -418,7 +462,32 @@
         <span class="n">update_color1_column</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
     <span class="n">t</span><span class="p">[</span><span class="s1">&#39;DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dates</span>
 
+    <span class="k">if</span> <span class="n">use_mag_est</span><span class="p">:</span>
+        <span class="n">update_mags_from_supplement</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">t</span> <span class="k">if</span> <span class="n">ids</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<span class="k">def</span> <span class="nf">update_mags_from_supplement</span><span class="p">(</span><span class="n">stars</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Overwrite mag and color1 information from AGASC supplement in ``stars``.</span>
+
+<span class="sd">    Stars with available mag estimates in the supplement are updated in-place in</span>
+<span class="sd">    the ``stars`` Table. The catalog ID is set to ``MAG_CATID_SUPPLEMENT`` (128).</span>
+<span class="sd">    Where COLOR1 is 0.7 or 1.5 it is changed to 0.69 or 1.49 respectively.</span>
+
+<span class="sd">    :param stars: astropy.table.Table of stars</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;AGASC_ID&#39;</span><span class="p">]):</span>
+        <span class="n">agasc_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">agasc_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">SUPPLEMENT</span><span class="p">:</span>
+            <span class="n">mag_est</span><span class="p">,</span> <span class="n">mag_est_err</span> <span class="o">=</span> <span class="n">SUPPLEMENT</span><span class="p">[</span><span class="n">agasc_id</span><span class="p">]</span>
+            <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;MAG_ACA&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">mag_est</span>
+            <span class="c1"># Mag err is stored as int16 in units of 0.01 mag. Use same convention here.</span>
+            <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;MAG_ACA_ERR&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">mag_est_err</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;MAG_CATID&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">MAG_CATID_SUPPLEMENT</span>
+            <span class="n">color1</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">):</span>
+                <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">color1</span> <span class="o">-</span> <span class="mf">0.01</span>
 </pre></div>
 
             <div class="clearer"></div>
