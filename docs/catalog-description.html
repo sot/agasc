@@ -1,0 +1,867 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE AXAF Guide and Acquisition Star Catalog V1.7 &#8212; Agasc 4.10.2 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API documentation" href="api.html" />
+    <link rel="prev" title="AGASC Catalog Description and History" href="index.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska!</span><span id="logotext2">agasc</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="api.html" title="API documentation">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="index.html" title="AGASC Catalog Description and History">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">Agasc 4.10.2 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>THE AXAF Guide and Acquisition Star Catalog V1.7</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-axaf-guide-and-acquisition-star-catalog-v1-7">
+<h1>THE AXAF Guide and Acquisition Star Catalog V1.7<a class="headerlink" href="#the-axaf-guide-and-acquisition-star-catalog-v1-7" title="Permalink to this headline">¶</a></h1>
+<p>An all-sky astrometric and photometric catalog
+prepared for the operation of Chandra
+(formerly AXAF). version 1.7 September 2018</p>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The AXAF Guide and Acquisition Star Catalog (AGASC) is presented in
+this set of FITS (Flexible Image Transport System) files, and may
+be distributed in a variety of formats, including DAT (DDS format)
+or CD-ROM (compact disc, read only memory in ISO 9660 format).  This
+issue, Version 1.7, corresponds to the AGASC as completed
+18 September 2018.</p>
+<p>The primary source of data for the AGASC is the Guide Star Catalog
+(GSC) for the Hubble Space Telescope (HST), version 1.1.  The release
+number of AGASC will remain at 1 unless a different base catalog is
+incorporated to reach to fainter magnitudes.  Historically, the
+second catalog to be merged into AGASC1.1 was the Positions and Proper
+Motions (PPM) Catalog.  The latter provides magnitudes, stellar types,
+and proper motions for stars brighter than about V=12, but is far from
+complete across the sky.  The third catalog merged into AGASC1.3 is
+the Tycho Output Catalog (Tycho-1) from the Tycho star mapper on the
+Hipparcos satellite.  Tycho-1 provided high precisions astrometric and
+photometric data for 1,058,332 stars, nearly complete
+to V=10.5.  The fourth catalog was the ACT Reference Catalog. This
+subset of 988,758 TYC stars contained updated star positions and proper
+motions for the epoch and equinox J2000.0, covering the entire sky.
+The proper motions are from new reductions of the Astrographic
+Catalogue combined with the positions in the Tycho Catalogue.
+The 5th catalog merged in AGASC was the Tycho-2 catalog, with 2.5
+million stars 90% complete to V=11.5mag, and including proper motions
+from ACT and various other catalogs.  The major improvements
+incorporated into AGASC1.5 include the following:</p>
+<ol class="arabic simple">
+<li><p>Repair of GSC1.1 star ID rollover problem in regions 3588, 5706, and 7899.</p></li>
+<li><p>Merge of Tycho-2 position, mag, and color data for 2.5 million stars.</p></li>
+<li><p>Recalibration of the estimated ACA magnitudes (MAG_ACA)
+and their errors (MAG_ACA_ERR) based on 1939 stars observed by the
+Chandra Aspect Camera Assembly (ACA) between 1999-Sep to 2000-Oct.</p></li>
+<li><p>Update of remaining GSC1.1 positions by positions from
+the GSC-ACT catalog, reducing the systematic astrometric errors of
+faint GSC1.1 stars by about a factor of two.</p></li>
+<li><p>Update of spoiler codes provides a more sophisticated
+measure of the effect of nearby stars on the best-fit centroid of a
+guide star.</p></li>
+<li><p>Update of CLASS code to denote galaxies identified
+from pre-release J&lt;12.5 2MASS galaxy catalog.</p></li>
+</ol>
+<p>Version 1.6 was the third on orbit calibration of the AGASC. Using more
+than 30000 aspect camera star observations from over the course of the
+Chandra mission we were able to calculate the ACA response to a much
+higher precision and over a broader band of star colors than previous
+calibrations. AGASC 1.5 was deemed to require improvement for Chandra
+flight operations after the discovery of a offset of up to 0.5 mags
+between the predicted AGASC magnitude and the observed ACA magnitude
+for red stars with a Tycho-2 color greater than 0.9.</p>
+<p>Version 1.7 improves upon the 1.6 calibration (observed ACA magnitude
+and its error) for red stars by including the i magnitude information
+from the AAVSO (American Association of Variable Star Observers)
+Photometric All-Sky Survey (APASS) DR9.</p>
+</div>
+<div class="section" id="organization-of-the-fits-data-files">
+<h2>Organization of the FITS Data Files<a class="headerlink" href="#organization-of-the-fits-data-files" title="Permalink to this headline">¶</a></h2>
+<p>The top directory includes the files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">----------------------------------------------------------------</span>
+<span class="n">readme</span><span class="o">.</span><span class="n">txt</span>    <span class="o">-</span> <span class="n">Introduction</span><span class="o">.</span> <span class="n">ASCII</span>
+<span class="n">agasc</span>         <span class="o">-</span> <span class="n">Directory</span> <span class="k">for</span> <span class="n">AGASC</span> <span class="n">FITS</span> <span class="n">region</span> <span class="n">files</span><span class="o">.</span>
+<span class="n">tables</span>        <span class="o">-</span> <span class="n">Directory</span> <span class="k">for</span> <span class="n">AGASC</span> <span class="n">supporting</span> <span class="n">tables</span><span class="o">.</span>
+<span class="o">----------------------------------------------------------------</span>
+</pre></div>
+</div>
+<p>In the tables subdirectory are these tables:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">----------------------------------------------------</span>
+<span class="n">comments</span><span class="o">.</span><span class="n">txt</span>  <span class="o">-</span> <span class="n">Introduction</span> <span class="ow">and</span> <span class="n">general</span> <span class="n">comments</span><span class="o">.</span> <span class="n">ASCII</span>
+<span class="n">regions</span>       <span class="o">-</span> <span class="n">Boundaries</span> <span class="n">of</span> <span class="n">GSC</span> <span class="n">regions</span><span class="o">.</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">table</span>
+<span class="n">lg_reg_x</span>      <span class="o">-</span> <span class="n">Index</span> <span class="n">to</span> <span class="n">large</span> <span class="n">regions</span><span class="o">.</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">table</span>
+<span class="n">sm_reg_x</span>      <span class="o">-</span> <span class="n">Index</span> <span class="n">to</span> <span class="n">small</span> <span class="n">regions</span><span class="o">.</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">table</span>
+<span class="n">neighbors</span>     <span class="o">-</span> <span class="n">Index</span> <span class="n">of</span> <span class="n">regions</span> <span class="n">whose</span> <span class="n">boundaries</span> <span class="n">are</span> <span class="n">within</span> <span class="mi">1</span><span class="n">deg</span> <span class="ow">or</span>
+                <span class="n">of</span> <span class="n">the</span> <span class="n">boundaries</span> <span class="n">of</span> <span class="n">each</span> <span class="n">small</span> <span class="n">region</span><span class="o">.</span> <span class="n">ASCII</span>
+<span class="n">boundaryfile</span>  <span class="o">-</span> <span class="n">Index</span> <span class="n">of</span> <span class="n">RA</span> <span class="ow">and</span> <span class="n">DEC</span> <span class="n">limits</span> <span class="k">for</span> <span class="n">each</span> <span class="n">small</span> <span class="n">region</span><span class="p">,</span> <span class="ow">in</span>
+                <span class="n">decimal</span> <span class="n">degrees</span><span class="o">.</span> <span class="n">ASCII</span>
+<span class="n">offset_lookup</span><span class="o">.</span><span class="n">fits</span>
+                <span class="o">-</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">lookup</span> <span class="n">table</span> <span class="n">of</span> <span class="n">the</span> <span class="n">predicted</span> <span class="n">ACA</span> <span class="n">centroid</span>
+                <span class="n">offsets</span> <span class="p">(</span><span class="ow">in</span> <span class="n">arcsec</span><span class="p">)</span> <span class="n">caused</span> <span class="n">by</span> <span class="n">a</span> <span class="n">star</span> <span class="n">of</span> <span class="n">brightness</span>
+                <span class="n">difference</span> <span class="n">dm</span><span class="p">,</span> <span class="ow">and</span> <span class="n">radial</span> <span class="n">positional</span> <span class="n">separation</span> <span class="n">dr</span><span class="o">.</span>
+<span class="n">outfilemap</span>    <span class="o">-</span> <span class="n">full</span> <span class="n">path</span> <span class="n">beginning</span> <span class="k">with</span> <span class="n">large</span> <span class="n">region</span> <span class="k">for</span> <span class="n">each</span>
+                <span class="n">small</span> <span class="n">region</span><span class="o">.</span> <span class="n">ASCII</span>
+<span class="o">----------------------------------------------------</span>
+</pre></div>
+</div>
+<p>As a result of merging of the GSC1.1 with the PPM and with the TYC,
+and for expected merges with other catalogs in the future, we have
+extended the AGASC format to include new information and references.
+Published data include position, proper motion, epoch, parallax, a
+magnitude, up to 2 colors, multiplicity and variability flags, and
+source catalog IDs.  Cross-references are included separately for 1)
+position 2) mag 3) color 4) proper motion (p.m.), 5) parallax, and 6)
+variability. Derived data include MAG_ACA, MAG_ACA_ERR, a high
+p.m. flag ASPQ2, and spoiler star codes ASPQ1, and ASPQQ1-6, which
+potentially relieve the Star Selection Algorithm (SSA) of such
+computations.</p>
+<p>The AGASC stars are grouped with regions tables, as in the original
+HST GSC.  The AGASC consists of about 9537 regions tables containing
+about 2,000 objects each.  These will remain in FITS BINTABLE format,
+with the directory structure described in FITS TABLE format.  Stars
+from constituent catalogs that were not matched to the original GSC1.1
+are included within the appropriate regions table based on region
+boundaries in RA and DEC. Cross-references to the original star ID
+numbers XREF_IDx are included from the original x=1-6 catalogs we
+have matched.</p>
+</div>
+<div class="section" id="summary-of-the-agasc1-7-format">
+<h2>Summary of the AGASC1.7 Format<a class="headerlink" href="#summary-of-the-agasc1-7-format" title="Permalink to this headline">¶</a></h2>
+<p>Each FITS regions table in the AGASC1.7 consists of 3 parts, the
+primary header, the table header, and the table data. The conventions
+for FITS Binary Tables are detailed in Cotton, Tody and Pence (1995,
+A&amp;A, 113, 159), or at <a class="reference external" href="http://fits.nrao.edu/FITS.html">http://fits.nrao.edu/FITS.html</a></p>
+<p>The length of the header information is the same for all the AGASC
+regions tables.  That length is 5x2880= 14400bytes. After these 14400
+bytes comes star data records.</p>
+<p>The data for each star amounts to 122 bytes, in 47 data columns for
+AGASC1.7.  Default values are -9999 or 0 where no data are available.
+Many columns require data; these have no default values.  Another
+exception is COLOR1, whose default value is 0.7000 for most stars,
+or 1.5000 for stars with COLOR1 greater than 1.5000. Details on all
+columns and their defaults below.</p>
+<p>The FITS format data types and byte-lengths (8 bits to a byte) used
+for each data item for each star are as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fmt</span>    <span class="nb">bytes</span> <span class="n">fields</span>  <span class="n">tot</span>      <span class="nb">type</span>                       <span class="nb">range</span>
+<span class="o">---------------------------------------------------------------</span>
+<span class="n">A</span>        <span class="mi">1</span>     <span class="mi">0</span>     <span class="mi">0</span>        <span class="n">character</span>               <span class="o">-</span><span class="mi">128</span> <span class="o">-</span> <span class="mi">127</span>
+<span class="n">B</span>        <span class="mi">1</span>     <span class="mi">8</span>     <span class="mi">8</span>        <span class="n">unsigned</span> <span class="n">integer</span>           <span class="mi">0</span> <span class="o">-</span> <span class="mi">255</span>
+<span class="n">I</span>        <span class="mi">2</span>     <span class="mi">25</span>    <span class="mi">50</span>       <span class="n">short</span> <span class="n">integer</span>         <span class="o">-</span><span class="mi">32768</span> <span class="o">-</span> <span class="mi">32767</span>
+<span class="n">J</span>        <span class="mi">4</span>     <span class="mi">6</span>     <span class="mi">24</span>       <span class="n">long</span> <span class="n">integer</span>     <span class="o">-</span><span class="mi">2147483648</span> <span class="o">-</span> <span class="mi">2147483647</span>
+<span class="n">E</span>        <span class="mi">4</span>     <span class="mi">6</span>     <span class="mi">24</span>       <span class="nb">float</span> <span class="n">variable</span>  <span class="o">-</span><span class="mf">9.22337e+18</span> <span class="o">-</span> <span class="mf">9.22337e+18</span>
+<span class="n">D</span>        <span class="mi">8</span>     <span class="mi">2</span>     <span class="mi">16</span>       <span class="n">double</span> <span class="n">variable</span> <span class="o">-</span><span class="mf">1.70141e+38</span> <span class="o">-</span> <span class="mf">1.70141e+38</span>
+<span class="o">----------------------------------------------------------------</span>
+                     <span class="mi">122</span> <span class="nb">bytes</span> <span class="n">per</span> <span class="n">star</span>
+</pre></div>
+</div>
+<div class="section" id="summary-of-the-agasc-version-1-7-entries">
+<h3>Summary of the AGASC Version 1.7 Entries<a class="headerlink" href="#summary-of-the-agasc-version-1-7-entries" title="Permalink to this headline">¶</a></h3>
+<p>Each of the FITS regions files in the AGASC1.7 will contain the
+following fields for each entry:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BYTES</span> <span class="n">NAME</span> <span class="o">-</span> <span class="n">brief</span> <span class="n">description</span>
+
+<span class="mi">4</span>    <span class="n">AGASC_ID</span> <span class="o">-</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">used</span> <span class="k">for</span> <span class="n">identification</span><span class="o">.</span>
+    <span class="n">Currently</span> <span class="n">a</span> <span class="n">binary</span><span class="o">-</span><span class="n">packing</span> <span class="n">of</span> <span class="n">the</span> <span class="n">region</span> <span class="n">number</span><span class="p">,</span> <span class="n">Hubble</span> <span class="n">GSC</span> <span class="n">star</span>
+    <span class="n">number</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Tycho</span> <span class="n">Output</span> <span class="n">Catalog</span> <span class="n">identifier</span> <span class="n">TYC3</span><span class="o">.</span>
+    <span class="n">No</span> <span class="n">default</span> <span class="n">value</span> <span class="p">(</span><span class="n">must</span> <span class="n">have</span> <span class="n">an</span> <span class="n">entry</span><span class="p">)</span><span class="o">.</span>
+
+<span class="mi">8</span>    <span class="n">RA</span> <span class="o">-</span> <span class="n">double</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">right</span> <span class="n">ascension</span> <span class="ow">in</span> <span class="n">decimal</span> <span class="n">degrees</span><span class="o">.</span>
+    <span class="n">No</span> <span class="n">default</span> <span class="n">value</span> <span class="p">(</span><span class="n">must</span> <span class="n">have</span> <span class="n">an</span> <span class="n">entry</span><span class="p">)</span><span class="o">.</span>
+
+<span class="mi">8</span>    <span class="n">DEC</span> <span class="o">-</span> <span class="n">double</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">declination</span> <span class="ow">in</span> <span class="n">decimal</span> <span class="n">degrees</span><span class="o">.</span>
+    <span class="n">No</span> <span class="n">default</span> <span class="n">value</span> <span class="p">(</span><span class="n">must</span> <span class="n">have</span> <span class="n">an</span> <span class="n">entry</span><span class="p">)</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">POS_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">value</span> <span class="n">of</span> <span class="n">position</span> <span class="n">uncertainty</span><span class="p">,</span> <span class="ow">in</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mi">9999</span> <span class="n">indicates</span> <span class="n">no</span> <span class="n">error</span> <span class="n">available</span><span class="p">,</span> <span class="ow">or</span> <span class="n">POS_ERR</span><span class="o">&gt;</span><span class="mf">32767.</span>
+
+<span class="mi">1</span>    <span class="n">POS_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
+    <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="ow">and</span> <span class="n">pos_err</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+        <span class="mi">0</span> <span class="o">-</span> <span class="n">no</span> <span class="n">associated</span> <span class="n">catalog</span>
+        <span class="mi">1</span> <span class="o">-</span> <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span>
+        <span class="mi">2</span> <span class="o">-</span> <span class="n">PPM</span>
+        <span class="mi">3</span> <span class="o">-</span> <span class="n">Tycho</span> <span class="n">Output</span> <span class="n">Catalog</span> <span class="p">(</span><span class="n">Tycho</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="mi">4</span> <span class="o">-</span> <span class="n">ACT</span>
+        <span class="mi">5</span> <span class="o">-</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span>
+        <span class="mi">6</span> <span class="o">-</span> <span class="n">GSC</span><span class="o">-</span><span class="n">ACT</span>
+
+<span class="mi">4</span>    <span class="n">EPOCH</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">epoch</span> <span class="n">of</span> <span class="n">the</span> <span class="n">ra</span> <span class="ow">and</span> <span class="n">dec</span>
+    <span class="n">measurements</span><span class="o">.</span> <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.0</span>
+
+<span class="mi">2</span>    <span class="n">PM_RA</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">proper</span> <span class="n">motion</span> <span class="ow">in</span> <span class="n">ra</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
+    <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span> <span class="n">per</span> <span class="n">year</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">PM_DEC</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">proper</span> <span class="n">motion</span> <span class="ow">in</span> <span class="n">dec</span> <span class="ow">in</span> <span class="n">units</span>
+    <span class="n">of</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span> <span class="n">per</span> <span class="n">year</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">1</span>    <span class="n">PM_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
+    <span class="n">pm_ra</span> <span class="ow">and</span> <span class="n">pm_dec</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+
+<span class="mi">2</span>    <span class="n">PLX</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">parallax</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
+    <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">PLX_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">parallax</span> <span class="n">error</span>
+    <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">1</span>    <span class="n">PLX_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
+    <span class="n">pm_ra</span> <span class="ow">and</span> <span class="n">pm_dec</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+
+<span class="mi">4</span>    <span class="n">MAG_ACA</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">calculated</span> <span class="n">magnitude</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">AXAF</span>
+    <span class="n">ACA</span> <span class="n">bandpass</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span> <span class="n">magnitude</span><span class="o">.</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">MAG_ACA_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">uncertainty</span> <span class="n">of</span> <span class="n">mag_aca</span> <span class="ow">in</span>
+    <span class="n">units</span> <span class="n">of</span> <span class="mf">0.01</span><span class="n">mag</span><span class="o">.</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">CLASS</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">identifying</span> <span class="n">classification</span> <span class="n">of</span> <span class="n">entry</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
+        <span class="mi">0</span> <span class="o">-</span> <span class="n">star</span>
+        <span class="mi">1</span> <span class="o">-</span> <span class="n">galaxy</span>
+        <span class="mi">2</span> <span class="o">-</span> <span class="n">blend</span> <span class="ow">or</span> <span class="n">member</span> <span class="n">of</span> <span class="n">incorrectly</span> <span class="n">resolved</span> <span class="n">blend</span><span class="o">.</span>
+        <span class="mi">3</span> <span class="o">-</span> <span class="n">non</span><span class="o">-</span><span class="n">star</span>
+        <span class="mi">5</span> <span class="o">-</span> <span class="n">potential</span> <span class="n">artifact</span>
+        <span class="mi">6</span> <span class="o">-</span> <span class="n">known</span> <span class="n">multiple</span> <span class="n">system</span>
+        <span class="mi">7</span> <span class="o">-</span> <span class="n">close</span> <span class="n">to</span> <span class="n">galaxy</span> <span class="ow">or</span> <span class="n">other</span> <span class="n">extended</span> <span class="nb">object</span>
+
+    <span class="n">Note</span> <span class="n">that</span> <span class="n">code</span> <span class="mi">1</span> <span class="ow">is</span> <span class="n">used</span> <span class="n">only</span> <span class="k">for</span> <span class="n">a</span> <span class="n">few</span> <span class="n">hand</span><span class="o">-</span><span class="n">entered</span> <span class="n">errata</span> <span class="ow">in</span>
+    <span class="ow">or</span> <span class="k">for</span> <span class="n">galaxies</span> <span class="k">with</span> <span class="n">matches</span> <span class="n">to</span> <span class="n">preliminary</span> <span class="mi">2</span><span class="n">MASS</span> <span class="n">galaxy</span> <span class="n">catalog</span><span class="o">.</span>
+    <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span> <span class="n">galaxies</span>   <span class="n">successfully</span> <span class="n">processed</span> <span class="n">by</span> <span class="n">the</span> <span class="n">STSci</span> <span class="n">software</span> <span class="n">have</span>
+    <span class="n">a</span> <span class="n">classification</span> <span class="n">of</span> <span class="mi">3</span> <span class="p">(</span><span class="n">non</span><span class="o">-</span><span class="n">stellar</span><span class="p">)</span><span class="o">.</span>
+
+<span class="mi">4</span>    <span class="n">MAG</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">magnitude</span><span class="p">,</span> <span class="ow">in</span> <span class="n">mags</span><span class="o">.</span>  <span class="n">Spectral</span>
+    <span class="n">band</span> <span class="k">for</span> <span class="n">which</span> <span class="n">magnitude</span> <span class="ow">is</span> <span class="n">derived</span> <span class="ow">is</span> <span class="n">summarized</span> <span class="ow">in</span> <span class="n">entry</span> <span class="n">MAG_BAND</span><span class="o">.</span>
+    <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">MAG_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">value</span> <span class="n">of</span> <span class="n">magnitude</span> <span class="n">uncertainty</span><span class="p">,</span> <span class="ow">in</span>
+    <span class="mf">0.01</span><span class="n">mag</span> <span class="n">units</span><span class="o">.</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">MAG_BAND</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">which</span> <span class="n">identifies</span> <span class="n">the</span> <span class="n">spectral</span> <span class="n">band</span>
+    <span class="k">for</span> <span class="n">which</span> <span class="n">the</span> <span class="n">magnitude</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">derived</span><span class="o">.</span>
+    <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+
+        <span class="n">Mag</span> <span class="n">alpha</span> <span class="n">Emulsion</span> <span class="o">+</span> <span class="n">Filter</span>
+        <span class="o">---</span> <span class="o">-----</span> <span class="o">----------------</span>
+        <span class="mi">0</span>  <span class="mf">0.72</span>  <span class="n">IIIaJ</span> <span class="o">+</span> <span class="n">GG395</span>
+        <span class="mi">1</span> <span class="o">-</span><span class="mf">0.15</span>  <span class="n">IIaD</span>  <span class="o">+</span> <span class="n">W12</span>
+        <span class="mi">3</span>  <span class="mf">1.28</span>  <span class="n">Tycho</span> <span class="n">B</span>
+        <span class="mi">4</span>  <span class="mf">0.106</span> <span class="n">Tycho</span> <span class="n">V</span>
+        <span class="mi">6</span> <span class="o">-</span><span class="mf">0.10</span>  <span class="n">IIaD</span>  <span class="o">+</span> <span class="n">GG495</span>
+        <span class="mi">8</span> <span class="o">-</span><span class="mf">0.71</span>  <span class="mi">103</span><span class="n">aE</span> <span class="o">+</span> <span class="n">Red</span> <span class="n">Plexiglass</span>
+        <span class="mi">10</span>  <span class="mf">0.78</span>  <span class="n">yellow</span> <span class="n">objective</span> <span class="o">+</span> <span class="n">IIaD</span> <span class="o">+</span> <span class="n">GG4</span>
+        <span class="mi">11</span>  <span class="mf">1.16</span>  <span class="n">blue</span> <span class="n">objective</span> <span class="o">+</span><span class="mi">103</span><span class="n">aO</span>
+        <span class="mi">12</span>  <span class="mf">1.16</span>  <span class="n">blue</span> <span class="n">objective</span> <span class="o">+</span><span class="mi">103</span><span class="n">aO</span>
+        <span class="mi">13</span>  <span class="mf">0.13</span>  <span class="n">yellow</span> <span class="n">objective</span> <span class="o">+</span> <span class="mi">103</span><span class="n">aG</span> <span class="o">+</span> <span class="n">GG</span>
+        <span class="mi">14</span>  <span class="mf">0.78</span>  <span class="n">yellow</span> <span class="n">objective</span> <span class="o">+</span> <span class="mi">103</span><span class="n">aG</span> <span class="o">+</span> <span class="n">GG</span>
+        <span class="mi">16</span>  <span class="mf">0.00</span>  <span class="n">IIIaJ</span> <span class="o">+</span> <span class="n">GG495</span>
+        <span class="mi">18</span>  <span class="mf">0.72</span>  <span class="n">IIIaJ</span> <span class="o">+</span> <span class="n">GG385</span>
+        <span class="mi">21</span>  <span class="mf">0.00</span>  <span class="n">PPM</span> <span class="n">V</span> <span class="n">mag</span>
+        <span class="mi">22</span>  <span class="mf">1.00</span>  <span class="n">PPM</span> <span class="n">B</span> <span class="n">mag</span>
+
+<span class="mi">1</span>    <span class="n">MAG_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
+    <span class="n">mag</span><span class="p">,</span> <span class="n">mag_err</span><span class="p">,</span> <span class="ow">and</span> <span class="n">mag_band</span><span class="o">.</span>  <span class="n">Codes</span> <span class="n">are</span> <span class="k">as</span> <span class="n">follows</span><span class="p">:</span>
+
+        <span class="mi">0</span> <span class="o">-</span> <span class="n">no</span> <span class="n">associated</span> <span class="n">catalog</span>
+        <span class="mi">1</span> <span class="o">-</span> <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span>
+        <span class="mi">2</span> <span class="o">-</span> <span class="n">PPM</span>
+        <span class="mi">3</span> <span class="o">-</span> <span class="n">Tycho</span> <span class="n">Output</span> <span class="n">Catalog</span> <span class="p">(</span><span class="n">Tycho</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="mi">4</span> <span class="o">-</span> <span class="n">ACT</span>
+        <span class="mi">5</span> <span class="o">-</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span>
+        <span class="mi">6</span> <span class="o">-</span> <span class="n">GSC</span><span class="o">-</span><span class="n">ACT</span>
+      <span class="mi">128</span> <span class="o">-</span> <span class="n">Chandra</span> <span class="n">ACA</span> <span class="n">estimated</span> <span class="n">magnitude</span> <span class="p">(</span><span class="n">only</span> <span class="n">via</span> <span class="n">agasc</span> <span class="n">package</span> <span class="n">query</span><span class="p">)</span>
+
+<span class="mi">4</span>    <span class="n">COLOR1</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">cataloged</span> <span class="ow">or</span> <span class="n">estimated</span> <span class="n">B</span><span class="o">-</span><span class="n">V</span> <span class="n">color</span><span class="p">,</span>
+    <span class="n">used</span> <span class="k">for</span> <span class="n">mag_aca</span><span class="p">,</span> <span class="ow">in</span> <span class="n">mag</span><span class="o">.</span>  <span class="n">If</span> <span class="n">no</span> <span class="n">colors</span> <span class="n">are</span> <span class="n">available</span><span class="p">,</span> <span class="n">the</span> <span class="n">default</span>
+    <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.7000</span><span class="o">.</span>  <span class="n">If</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">data</span> <span class="n">show</span> <span class="n">colors</span> <span class="n">redder</span> <span class="n">than</span>
+    <span class="p">(</span><span class="n">B</span><span class="o">-</span><span class="n">V</span><span class="p">)</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">then</span> <span class="n">the</span> <span class="n">default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">1.5000</span><span class="o">.</span>  <span class="kc">True</span> <span class="n">cataloged</span>
+    <span class="n">color</span> <span class="n">values</span> <span class="n">are</span> <span class="n">stored</span> <span class="ow">in</span> <span class="n">COLOR2</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">COL0R1_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">color1</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
+    <span class="mf">0.01</span> <span class="n">mag</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">1</span>    <span class="n">C1_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">color1</span> <span class="ow">and</span>
+    <span class="n">color1_err</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+
+<span class="mi">4</span>    <span class="n">COLOR2</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">a</span> <span class="n">different</span> <span class="n">color</span><span class="p">,</span> <span class="ow">in</span> <span class="n">mag</span><span class="o">.</span>
+    <span class="n">For</span> <span class="n">Tycho</span> <span class="n">catalogs</span><span class="p">,</span> <span class="n">this</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">Tycho</span> <span class="n">BT</span><span class="o">-</span><span class="n">VT</span> <span class="n">color</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.0</span>
+
+<span class="mi">2</span>    <span class="n">COLOR2_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">color2</span><span class="p">,</span> <span class="n">iun</span>
+    <span class="n">units</span> <span class="n">of</span> <span class="mf">0.01</span><span class="n">mag</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">1</span>    <span class="n">C2_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">color2</span> <span class="ow">and</span>
+    <span class="n">color2_err</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+
+<span class="mi">4</span>    <span class="n">RSV1</span> <span class="o">-</span> <span class="n">APASS</span> <span class="n">V</span> <span class="o">-</span> <span class="n">i</span> <span class="n">magnitude</span> <span class="p">(</span><span class="n">COLOR3</span><span class="p">)</span><span class="o">.</span> <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">RSV2</span> <span class="o">-</span> <span class="n">APASS</span> <span class="n">V</span> <span class="n">magnitude</span><span class="o">.</span> <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">1</span>    <span class="n">RSV3</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="k">if</span> <span class="n">the</span> <span class="n">MAG_ACA</span> <span class="ow">and</span> <span class="n">MAG_ACA_ERR</span>
+    <span class="n">were</span> <span class="n">updated</span> <span class="n">compared</span> <span class="n">to</span> <span class="n">AGASC1</span><span class="o">.</span><span class="mi">6</span> <span class="p">(</span><span class="mi">1</span> <span class="o">==</span> <span class="n">updated</span><span class="p">,</span> <span class="mi">0</span> <span class="o">==</span> <span class="ow">not</span> <span class="n">updated</span><span class="p">)</span><span class="o">.</span>
+
+<span class="mi">2</span>    <span class="n">VAR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">providing</span> <span class="n">information</span> <span class="n">on</span> <span class="n">known</span> <span class="ow">or</span> <span class="n">suspected</span>
+    <span class="n">variable</span> <span class="n">stars</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+        <span class="mi">1</span> <span class="o">-</span> <span class="n">suspected</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">a</span> <span class="n">suspected</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="n">mag</span>
+        <span class="mi">2</span> <span class="o">-</span> <span class="n">suspected</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">a</span> <span class="n">suspected</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="n">mag</span>
+        <span class="mi">3</span> <span class="o">-</span> <span class="n">known</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">an</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&gt;</span> <span class="mf">0.2</span> <span class="n">mag</span>
+        <span class="mi">4</span> <span class="o">-</span> <span class="n">known</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">large</span> <span class="n">amplitude</span> <span class="p">(</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="n">mag</span><span class="p">),</span> <span class="k">for</span> <span class="n">which</span> <span class="n">an</span>
+            <span class="n">ephemeris</span> <span class="n">was</span> <span class="n">necessary</span>
+        <span class="mi">5</span> <span class="o">-</span> <span class="n">known</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">an</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&lt;</span> <span class="mf">0.2</span> <span class="n">mag</span>
+
+<span class="mi">1</span>    <span class="n">VAR_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">VAR</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
+
+<span class="mi">2</span>    <span class="n">ASPQ1</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">spoiler</span> <span class="n">code</span> <span class="k">for</span> <span class="n">aspect</span> <span class="n">stars</span><span class="o">.</span>
+    <span class="n">An</span> <span class="n">estimate</span><span class="p">,</span> <span class="ow">in</span> <span class="mi">50</span><span class="n">milliarcsec</span> <span class="n">units</span><span class="p">,</span> <span class="n">of</span> <span class="n">the</span> <span class="n">worst</span> <span class="n">centroid</span>
+    <span class="n">offset</span> <span class="n">caused</span> <span class="n">by</span> <span class="nb">any</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">80</span><span class="n">arcsec</span><span class="o">.</span> <span class="n">The</span> <span class="n">simulated</span> <span class="n">PSF</span>
+    <span class="n">centroid</span> <span class="n">offsets</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">ACA</span> <span class="n">are</span> <span class="kn">from</span> <span class="nn">offset_lookup.fits</span><span class="p">,</span> <span class="n">indexed</span>
+    <span class="n">brightness</span> <span class="n">difference</span> <span class="n">dm</span><span class="p">,</span> <span class="ow">and</span> <span class="n">radial</span> <span class="n">positional</span> <span class="n">separation</span> <span class="n">dr</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
+
+<span class="mi">2</span>    <span class="n">ASPQ2</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">proper</span> <span class="n">motion</span> <span class="n">flag</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
+        <span class="mi">0</span> <span class="o">-</span> <span class="n">unknown</span> <span class="n">proper</span> <span class="n">motion</span><span class="p">,</span> <span class="ow">or</span> <span class="n">proper</span> <span class="n">motion</span> <span class="o">&lt;</span><span class="mi">500</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">/</span><span class="n">year</span>
+        <span class="mi">1</span> <span class="o">-</span> <span class="n">proper</span> <span class="n">motion</span> <span class="o">&gt;=</span> <span class="mi">500</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">/</span><span class="n">year</span>
+
+<span class="mi">2</span>    <span class="n">ASPQ3</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">distance</span> <span class="p">(</span><span class="k">for</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">stars</span> <span class="n">only</span><span class="p">)</span> <span class="n">to</span>
+    <span class="n">nearest</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">star</span><span class="p">,</span> <span class="n">giving</span> <span class="n">distance</span> <span class="p">(</span><span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
+    <span class="mi">100</span><span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="p">)</span> <span class="n">computed</span> <span class="k">for</span> <span class="n">the</span> <span class="n">epoch</span> <span class="mf">1991.25</span><span class="o">.</span>  <span class="n">The</span> <span class="n">maximum</span>
+    <span class="n">value</span> <span class="n">recorded</span> <span class="k">for</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">stars</span> <span class="ow">is</span> <span class="mf">999.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">999.</span>
+
+<span class="mi">2</span>    <span class="n">ACQQ1</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
+    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mf">53.3</span><span class="s2">&quot; of this star, and this star, in units</span>
+    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">ACQQ2</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
+    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">107</span><span class="s2">&quot; of this star, and this star, in units</span>
+    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">ACQQ3</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
+    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mf">160.5</span><span class="s2">&quot; of this star, and this star, in units</span>
+    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">ACQQ4</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
+    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">214</span><span class="s2">&quot; of this star, and this star, in units</span>
+    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">ACQQ5</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
+    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mf">267.5</span><span class="s2">&quot; of this star, and this star, in units</span>
+    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">ACQQ6</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
+    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">321</span><span class="s2">&quot; of this star, and this star, in units</span>
+    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">4</span>    <span class="n">XREF_ID1</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">star</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">the</span>
+    <span class="n">AGASC</span> <span class="n">Version</span> <span class="mf">1.0</span> <span class="p">(</span><span class="o">=</span> <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span>  <span class="n">This</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">identifier</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">4</span>    <span class="n">XREF_ID2</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">PPM</span><span class="o">.</span>
+    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">4</span>    <span class="n">XREF_ID3</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Tycho</span> <span class="n">Output</span>
+    <span class="n">Catalog</span> <span class="p">(</span><span class="n">TYC2</span><span class="p">)</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">4</span>    <span class="n">XREF_ID4</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Tycho</span> <span class="n">Output</span>
+    <span class="n">Catalog</span> <span class="p">(</span><span class="n">TYC3</span><span class="p">)</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">4</span>    <span class="n">XREF_ID5</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">future</span>
+    <span class="n">catalog</span><span class="o">.</span>      <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">RSV4</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">reserved</span> <span class="k">for</span> <span class="n">future</span> <span class="n">use</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">RSV5</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">reserved</span> <span class="k">for</span> <span class="n">future</span> <span class="n">use</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+
+<span class="mi">2</span>    <span class="n">RSV6</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">reserved</span> <span class="k">for</span> <span class="n">future</span> <span class="n">use</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="history-of-the-agasc-version-1-7">
+<h2>History of the AGASC Version 1.7<a class="headerlink" href="#history-of-the-agasc-version-1-7" title="Permalink to this headline">¶</a></h2>
+<p>The primary objective of the Chandra Aspect Camera Assembly (ACA) is to
+measure the image positions of selected target stars and fiducial
+lights in its field of view (FOV). The Chandra on board computer uses
+gyro attitude data and ACA image centroids for real-time pointing.
+Post-facto aspect determination is required for observations over 100
+sec to compensate for the apparent motion of the X-ray image on the SI
+focal plane.  When a maneuver is completed, at least 2 acquisition
+stars must be acquired before acquiring guide stars and fiducial
+lights.  Up to 8 images can be tracked, including the fid lights.  The
+ground provides expected positions in the ACA FOV for these objects,
+using the AGASC.  At least 5 stars brighter than m=10.2 in the ACA
+instrumental mag (MAG_ACA) system should be provided from ground 95% of the
+time, anywhere on the sky, for the predicted end of life (EOL) FOV of
+1.79 square degrees.  To predict the ACA mag in advance, colors for
+each star are required.  Proper motions (p.m.) are also advisable,
+since high p.m. stars could move significantly over the extended
+lifetime of the Chandra mission.   Parallax data are also advisable,
+since parallaxes are not random, and in many cases will exceed
+position errors.  Currently, the largest consistent published catalogs
+providing colors and proper motions are the Positions and Proper
+Motions (PPM) Catalog and the Tycho Output Catalog (TYC).</p>
+<p>In 1996, we merged the PPM with the HST GSC1.1 to form AGASC1.1.
+The optimal tolerance for positional matching of stars between the
+GSC1.1 and the PPM was first determined, incorporating
+p.m. information, and including all morphological classes (not just
+stellar).  Studying a variety of celestial positions, including or
+excluding non-stellar objects, we find an optimal positional matching
+tolerance of r&lt;=10arcsec.  To that separation, 295871 stars (99.74%)
+are matched. To verify positionally matched stars, especially in more
+crowded regions, we compare magnitudes between the GSC1.1 and PPM.
+These mags are most often measured in different passbands.  For
+simplicity, and greatest likelihood of compatibility with future
+merged catalogs, we convert all magnitudes to the V band for
+comparison using approximate B-V colors derived from the PPM spectral
+types.  A magnitude tolerance of 2mag was allowed in the matching.
+The large tolerance results from a variety of factors including at least
+a) poor GSC1.1 magnitudes for bright stars, due to a poor mag-diameter
+relation, halos and/or diffraction spikes b) large color uncertainties
+since the PPM SpTypes may be crude and include no luminosity class, c)
+random mag errors in either catalog.  To that tolerance,
+295274 stars (99.54%) are matched. The differential histogram of
+matched stars for all PPM stars with PPM visual mags turns over at
+V=9, and is only a few hundred stars by V=12.</p>
+<p>The original conversion from V to MAG_ACA was determined by convolving
+the ACA bandpass with the Bruzual-Persson-Gunn-Stryker stellar
+spectrophotometric atlas. This is an extension of the Gunn-Stryker
+optical atlas (Gunn, J. E. &amp; Stryker, L. L., 1983 ApJS, 52, 121) where
+the spectral data have been extended into both the UV and the
+infrared.  The IR data are from Strecker et al. (ApJ 41, 501, 1979)
+and other unpublished sources.  Since the bandpass information for all
+filters is normalized, the zeropoint for each filter was established
+by convolution of the bandpass with a mag=0 spectrum of type G0V
+(BD+26 3780 in the BPGS atlas, normalized to $V=0$). V and MAG_ACA mags
+are then derived for each spectral type (SpType), resulting in a
+V-MAG_ACA as a function of (B-V) color.  Newer calibrations
+of ACA magnitude estimates for AGASC1.6 and AGASC1.7 are described below.</p>
+<p>In 1997, we merged the TYC with AGASC1.1 to form AGASC1.2 This merging
+was performed using the TYC ID codes TYC1 and TYC2, which are
+cross-references to the HST GSC1.1 region number, and star number,
+respectively.  Although all TYC stars appear to have GSC1.1
+cross-references, there are 2 cases where stars are added to the
+catalog.  First, where the TYC ID code TYC3 is greater than one, Tycho
+has resolved into multiples an object previously unresolved in the
+GSC1.1 Second, some TYC stars have no AGASC1.1 counterpart either from
+the GSC1.1 or the PPM).  Again, data are checked to see if their
+errors are smaller than those of data already in AGASC1.1 before being
+substituted into AGASC1.2 However, PPM proper motions are assumed to
+be superior due to their much longer baseline.  Positional data and
+epoch are updated with the proper motion to Epoch 2000.  TYC parallax
+measurements are all included for completeness, even though most are
+not significant.  These will be used only for post-facto aspect
+(image) reconstruction.  TYC V mags converted to Johnson V are
+preferred, and TYC B mags are incorporated only in a few cases.
+Johnson (B-V), as calculated in the TYC, are used for COLOR1 whenever
+possible, with (BT-VT) now stored (redundantly) as COLOR2.
+Multiplicity and variability information are also included.</p>
+<p>Due to the short (less than 4 year) lifetime of the Hipparcos
+mission, most of the proper motions included in the TYC are of low
+significance.  Tycho positions make it the most accurate catalog of
+comparable size at its epoch of observation, but its proper motions
+degrade it to a sub-standard reference catalog in less than about 10
+years.  The proper motions of the Tycho stars were improved from about
+30 mas/year to about 3 mas/year by combining TYC positions
+with AC2000 positions, yielding an average baseline of more than 80
+years.  The ACT proper motion information and updated positions
+were incorporated into AGASC1.3.</p>
+<p>Actual ACA mags for stars of a wide range of spectral types were
+accumulated during the first few months of the mission, and it
+proved important to generate more accurate mags for the catalog from
+the MAG and COLOR1 data. This recalibrated coefficients were derived
+from a fit to observed Aspect Camera magnitudes for 271 stars observed
+between 1999 Oct 03 - Nov 20, and AGASC1.3 was recalibrated to create
+AGASC1.4.  Observed ACA mags for 1939 stars observed by the
+Chandra Aspect Camera Assembly (ACA) between 1999-Sep to 2000-Oct
+have been extracted and a calibrating polynomial refit by comparison
+to colors from Tycho-1.</p>
+<p>In AGASC1.6, MAG_ACA is derived from V and BT-VT (COLOR2) for all
+stars with valid COLOR2 from Tycho-2.  MAG_ACA and MAG_ACA_ERR are
+unchanged from AGASC 1.5 for stars not meeting these criteria.  A
+seven node cubic spline was fit to the offset between the observed
+magnitudes and V-Band magnitudes for 30238 ACA star observations.</p>
+<p>In AGASC1.7, MAG_ACA is derived from V and BT-VT (COLOR2) and V-i
+(COLOR3) for all stars with valid COLOR2 from Tycho-2 and valid COLOR3
+from AAVSO (American Association of Variable Star Observers) Photometric
+All-Sky Survey (APASS) DR9. MAG_ACA and MAG_ACA_ERR are unchanged from
+AGASC1.6 for stars not meeting these criteria.</p>
+<p>In early 2002, we merged in data from the Tycho-2 catalog, and
+Tycho-2 supplement-1, described further below.  Tycho-2 data
+supercedes data from all previously merged catalogs whenever it is
+available.  Tycho-2 stars are matched to AGASC stars by the GSC star
+ID, so that the final organization retains the original GSC star ID
+and regions structure.</p>
+<p>The average stellar surface density of unspoiled stars brighter than
+MAG_ACA=10.2 with color information ((ASPQ1=0, CLASS=0, C1_CATID.ne.0)
+is 9.5 stars per square degree in AGASC1.5</p>
+<p>Near the galactic poles (b&gt;80deg), where the stellar surface density
+is lowest, there are 4.1 stars per square degree.  The desired figure
+of merit (FOM) of 5.1 per square degree over 95% of the sky is thus
+not quite achievable with these selection criteria from current
+catalogs, and may not ever be (i.e. we are already nearly complete).
+The current Chandra guide star selection includes stars without TYC
+colors or PPM SpType information, which boosts the surface density,
+but at this limiting ACA magnitude, such colors are available for 98%
+of stars.</p>
+<div class="section" id="hst-guide-star-catalog">
+<h3>HST Guide Star Catalog<a class="headerlink" href="#hst-guide-star-catalog" title="Permalink to this headline">¶</a></h3>
+<p>The HST Guide Star Catalog (GSC), which has been constructed to support
+the operational need of the Hubble Space Telescope for off-axis guide
+stars, contains 18,819,291 objects in the seventh to sixteenth
+magnitude range, of which more than 15 million are classified as
+stars.</p>
+<p>The GSC is primarily based on an all-sky, single epoch, single
+passband collection of Schmidt plates.  For centers at +6 degrees and
+north, a 1982 epoch “Quick V” survey was obtained by the Palomar
+Observatory, while for southern fields, materials from the UK SERC J
+survey (epoch approximately 1975) and its equatorial extension (epoch
+approximately 1982) were used.</p>
+<p>Photometry is available in the natural systems defined by the
+individual plates in the GSC collection (generally J or V), and the
+calibrations are done using B, V standards from the Guide Star
+Photometric Catalog.  The overall quality of the photometry near the
+standard stars is estimated from the fits and other tests to be 0.15
+mag (one sigma, averaged over all plates), while the quality far from
+the sequences is estimated from the all-sky plate-to-plate agreement
+and from comparisons with independent photometric surveys to be about
+0.30 mag (one sigma), with about 10% of the errors being greater than
+0.50 mag.</p>
+<p>Astrometry, at equinox J2000, is available at the epochs of the
+individual plates used in the GSC; and the reductions to the reference
+catalogs (AGK3, SAOC, or CPC, depending on the declination zone) use
+third order expansions of the modeled plate and telescope effects.
+Estimates of the overall external astrometric error, produced by
+comparisons of independently measured positions without regard to
+location on the GSC plates, are in the range 0.4 arc-sec to 0.6
+arc-sec.</p>
+<p>Further details concerning the HST GSC can be found in the following
+publications:</p>
+<ol class="arabic simple">
+<li><p>The  Guide  Star  Catalog.  I.    Astronomical  and Algorithmic
+Foundations; Barry M. Lasker, Conrad R. Sturch, Brian J. McLean,
+Jane L. Russell, Helmut Jenkner, and Michael M. Shara;
+Astrophysical J. Suppl., 68, 1-90 (1988).</p></li>
+<li><p>The  Guide  Star  Catalog.  II.   Photometric   and
+Astrometric Calibrations; Jane L. Russell, Barry M. Lasker,
+Brian J. McLean, Conrad R. Sturch, and Helmut Jenkner;
+Astronomical J., 99, 2059-2081 (1990).</p></li>
+<li><p>The  Guide  Star  Catalog.  III.  Production, Database
+Organization,  and  Population  Statistics;   Helmut Jenkner,
+Barry M. Lasker, Conrad R. Sturch, Brian J. McLean, Michael
+M. Shara, and Jane L. Russell;  Astronomical, J., 99,
+2081-2154 (1990).</p></li>
+<li><p>The table rev_1_1.tbl that accompanies the HST GSC1.1, as
+prepared by the Space Telescope Science Institute (ST ScI),
+3700 San Martin Drive,  Baltimore,  MD 21218,  USA.
+GSC  1.1  analysis and production were performed primarily by
+Jesse B.  Doggett, Daniel Egret, Brian J. McLean, and Conrad
+Sturch.</p></li>
+</ol>
+</div>
+<div class="section" id="positions-and-proper-motions-catalog-ppm">
+<h3>Positions and Proper Motions Catalog (PPM)<a class="headerlink" href="#positions-and-proper-motions-catalog-ppm" title="Permalink to this headline">¶</a></h3>
+<p>PPM North gives J2000 positions and proper motions of 181731 stars
+north of -2.5 degrees declination.  The mean epoch is near 1931. The
+average mean errors of the positions and proper motions are 0.27” and
+0.43”/cen. On the average six measured positions are available per
+star.  In addition to the positions and proper motions, the PPM
+(North) contains the magnitude, the spectral type, the number of positions
+included, the mean error of each component of the position and proper
+motion, and the weighted mean epoch in each coordinate.</p>
+<p>PPM South gives positions and proper motions of 197179 stars south of
+about -2.5 degrees declination.  This net is designed to represent as
+closely as possible the new IAU (1976) coordinate system on the sky,
+as defined by the FK5 star catalogue (Fricke et al., 1988).</p>
+<p>Further details concerning the PPM catalogs can be found in the following
+publications:</p>
+<ol class="arabic simple">
+<li><p>Catalogue of Positions and Proper Motions; Roeser S., &amp;
+Bastian U., 1988, Astron. Astrophys. Suppl. 74, 449</p></li>
+<li><p>PPM South: A reference star catalogue for the southern
+hemisphere; Bastian, U., Roeser, S.,  Nesterov, V. V.,
+Polozhentsev,        D. D., Potter, Kh. I., 1991, Astron.
+Astrophys. Suppl. 87, 159</p></li>
+</ol>
+</div>
+<div class="section" id="tycho-output-catalog-tyc">
+<h3>TYCHO Output Catalog (TYC)<a class="headerlink" href="#tycho-output-catalog-tyc" title="Permalink to this headline">¶</a></h3>
+<p>Colors are still needed for the majority of stars in AGASC1.1,
+since merge with the PPM provided colors (from spectral types) for only
+brightest 2% of the GSC1.1 to V=14.5.   Also, PPM-derived colors are
+probably very uncertain, since they are interpolated from listed
+Spectral Types with no reddening information. Merging the Tycho Output
+Catalog with the existing AGASC1.1 provides reliable colors for
+1,058,332 stars, nearly complete to V=10.5   In the current error
+budget, using the highly accurate Tycho star positions should improve
+the absolute aspect by 30-50% relative to GSC1.1 positions.</p>
+<p>The Tycho Output Catalog from the Tycho star mapper on the Hipparcos
+satellite, provides high precisions astrometric and photometric data
+for 1,058,332 stars, nearly complete to V=10.5 Median astrometric
+standard errors (in position, parallax, and annual proper motion) are
+typically around 7mas for stars brighter than V_T_~9mag, and
+approximately 25mas for V_T_~10.5mag, at the catalogue epoch
+(J1991.25).  Astrometric errors for Tycho stars (typically 25
+milliarcsec), are of the same order as parallaxes expected for many
+bright (V&lt;=8) stars typically selected by the Chandra Star Selection
+Algorithm.  Since parallax is additive, it will dominate absolute
+position errors unless incorporated in the Chandra image aspect solution.</p>
+<p>Further details concerning the TYC catalog can be found in the following
+publications:</p>
+<ol class="arabic simple">
+<li><p>The Tycho Reference Catalogue, Hog, E. et al. 1998,
+Astronomy and Astrophysics, 335, L65</p></li>
+<li><p>The Tycho Catalogue, Hog, E. et al. 1997,
+Astronomy and Astrophysics, 323, L57</p></li>
+</ol>
+</div>
+<div class="section" id="act-reference-catalog-act">
+<h3>ACT Reference Catalog (ACT)<a class="headerlink" href="#act-reference-catalog-act" title="Permalink to this headline">¶</a></h3>
+<p>The ACT Reference Catalog contains 988,758 star positions and proper
+motions covering the entire sky for the epoch and equinox J2000.0.
+The proper motions are from new reductions of the Astrographic
+Catalogue combined with the positions in the Tycho Catalogue.
+The proper motions of the Tycho stars have thus been improved from about
+30~mas/year to about 3~mas/year by recomputing them using the AC2000
+data.  This combination of AC2000 and Tycho, called ACT Reference
+Catalog, degrades much more slowly and is a valuable astronomical
+dataset for applications potentially spanning decades.</p>
+<p>The AC~2000 is a positional catalog recently compiled at The U.S. Naval
+Observatory using the plate measures contained in the Astrographic
+Catalogue (AC).   By the conclusion of the original AC project,
+positions of 4.6 million stars had been measured, many as faint as
+13th magnitude. These positions have an extremely early epoch; the
+average epoch of an AC plate is 1907.  To compile the AC~2000, each of
+the 22 zones making up the Astrographic Catalogue was reduced
+independently using the Astrographic Catalog Reference Stars.</p>
+<p>Further details concerning the ACT can be found in the following
+publications:</p>
+<ol class="arabic simple">
+<li><p>The ACT Reference Catalog, Urban, S. E., Corbin, T. E.,
+and Wycoff, G. L. 1998, AJ, 115, 2161</p></li>
+<li><p>The AC 2000: The Astrographic Catalogue on the System Defined by
+the Hipparcos Catalogue, Urban, S.E., et al. 1998, AJ, 115, 1212</p></li>
+</ol>
+</div>
+<div class="section" id="tycho-2-catalog">
+<h3>TYCHO-2 Catalog<a class="headerlink" href="#tycho-2-catalog" title="Permalink to this headline">¶</a></h3>
+<p>The Tycho-2 Catalogue is an astrometric reference catalogue containing
+positions and proper motions as well as two-colour photometric data
+for the 2.5 million brightest stars in the sky. Components of double
+stars with separations down to 0.8 arcsec are included.</p>
+<p>The Tycho-2 positions and magnitudes are based on precisely the same
+observations as the Tycho-1 Catalogue (ESA SP-1200, 1997) collected by
+the star mapper of the ESA Hipparcos satellite, but Tycho-2 is much bigger
+and slightly more precise, owing to a more advanced reduction technique.</p>
+<p>Proper motions precise to about 2.5 mas/yr are given as derived from
+a comparison with the Astrographic Catalogue (AC) and 143 other
+ground-based astrometric catalogues, all reduced to the Hipparcos
+celestial coordinate system. For only about 100,000 stars, no proper
+motion could be derived.</p>
+<p>Tycho-2 supersedes Tycho-1, and the ACT and TRC catalogues based on Tycho-1.
+The main Tycho-2 catalogue gives positions and at least one of B and V
+for all stars at the epoch of observation. For most entries (96%)
+proper motions (at epoch 2000) are also derived, using other
+catalogues (mainly AC) and the corresponding mean positions at epoch
+J2000.  When no proper motion has been derived, no mean position for
+epoch J2000 is given.  Supplement-1 contains stars missing in Tycho-2,
+but found in HIP or Tycho-1.  The supplement-1 only includes Tycho-1
+stars of good quality and therefore the quality 9 (very poor) stars
+and probable side-lobes were not included.</p>
+</div>
+<div class="section" id="gsc-act-catalog">
+<h3>GSC-ACT Catalog<a class="headerlink" href="#gsc-act-catalog" title="Permalink to this headline">¶</a></h3>
+<p>The original GSC1.1 positions have random position errors of about
+0.4arcsec, but also systematic position errors of about 0.3arcsec,
+due to errors in the reference catalogs (AGK3, SAO, CPC) and also
+to their low stellar density. STScI performed a recalibration of the
+GSC1.1, using the PPM catalog for a denser reference star network,
+resulting in the GSC1.2: see
+<a class="reference external" href="http://www-gsss.stsci.edu/gsc/gsc1/gsc12/DESCRIPTION.HTML">http://www-gsss.stsci.edu/gsc/gsc1/gsc12/DESCRIPTION.HTML</a>.</p>
+<p>In the GSC-ACT project, Bill Gray also recalibrated the GSC1.1,
+but using the ACT (Astrographic Catalog/Tycho) data from the US Naval
+Observatory. In the GSC-ACT,  GSC 1.1 systematic errors were reduced
+via recalibration of 42 plate coefficients plate-by-plate, using the
+proper-motion-corrected ACT stars for reference.
+See <a class="reference external" href="http://www.projectpluto.com/gsc_act.htm">http://www.projectpluto.com/gsc_act.htm</a></p>
+<p>Here at the CXC, we matched (2arcsec search radius) both the GSC-ACT
+and GSC1.2 against the catalog of ICRS defining source positions.
+From 43 independent sources matched, the GSC1.2 showed a mean
+positional difference of 0.40arcsec, RMS 0.35.  From 44 sources,
+the GSC-ACT showed mean 0.28arcsec, RMS 0.25.  The denser reference
+star network of the GSC-ACT results in a superior calibration,
+this is the catalog we’ve chosen to improve star positions in the
+AGASC that had only GSC1.1 (no Tycho or PPM) data.</p>
+</div>
+<div class="section" id="mass-galaxy-catalog">
+<h3>2MASS Galaxy Catalog<a class="headerlink" href="#mass-galaxy-catalog" title="Permalink to this headline">¶</a></h3>
+<p>We use a pre-release catalog of extended objects from June 2001
+kindly provided by Tom Jarrett (IPAC) and John Huchra (CfA).
+The table used contains 41855 such objects, most of which
+have not been verified as of this date by the human eye, or by match
+to known galaxies.  In AGASC1.5, we required that any AGASC object that
+has an extended 2MASS object within 5arcsec should have its CLASS
+set to 1 (galaxy).  70% of 2MASS galaxies are thus matched.
+CLASS=7 is used to denote objects within 3*r20 of 2MASS galaxies,
+to mean that the object is close to a galaxy or other extended object.
+The 2MASS project is a collaboration between The University of
+Massachusetts and the Infrared Processing and Analysis Center (JPL/
+Caltech). Funding is provided primarily by NASA and the NSF.
+For information on 2MASS, see <a class="reference external" href="http://www.ipac.caltech.edu/2mass/">http://www.ipac.caltech.edu/2mass/</a></p>
+</div>
+<div class="section" id="aavso-photometric-all-sky-survey-apass">
+<h3>AAVSO Photometric All-Sky Survey (APASS)<a class="headerlink" href="#aavso-photometric-all-sky-survey-apass" title="Permalink to this headline">¶</a></h3>
+<p>We make use of data from the (American Association of Variable Star Observers (AAVSO)
+Photometric All Sky Survey, DR9,
+whose funding has been provided by the Robert Martin Ayers Sciences Fund
+and by the NSF under grant AST-1412587. We matched the AGASC catalog
+with the APASS catalog (2 arcsec search radius) and included a new color
+information, V - i aka COLOR3 (APASS) in AGASC 1.7. COLOR2 (Tycho)
+combined with COLOR3 (APASS) resulted in improved calibration of the
+red spoiler stars.</p>
+</div>
+</div>
+<div class="section" id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
+<p>The AXAF Guide and Acquisition Star Catalog version 1.7 was prepared
+from AGASC1.6 and AAVSO (American Association of Variable Star Observers)
+Photometric All-Sky Survey (APASS) DR9, primarily by Malgosia Sobolewska,
+Tom Aldcroft, and Jean Connelly. Thanks to the entire Star Selection and
+Aspect Working Group for its input in the development and testing of this
+catalog. The Chandra X-ray Center is supported through NASA Contract
+NAS8-39073. Information about Chandra and the Chandra X-ray Observatory
+Center may be found on the WWW at <a class="reference external" href="http://chandra.harvard.edu/">http://chandra.harvard.edu/</a>
+Detailed information about the catalog and its construction can be
+obtained from the Chandra aspect web page at
+<a class="reference external" href="https://cxc.harvard.edu/mta/ASPECT/agasc1p7">https://cxc.harvard.edu/mta/ASPECT/agasc1p7</a> or by emailing:
+<a class="reference external" href="mailto:aspect_help&#37;&#52;&#48;cfa&#46;harvard&#46;edu">aspect_help<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a></p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">THE AXAF Guide and Acquisition Star Catalog V1.7</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#organization-of-the-fits-data-files">Organization of the FITS Data Files</a></li>
+<li><a class="reference internal" href="#summary-of-the-agasc1-7-format">Summary of the AGASC1.7 Format</a><ul>
+<li><a class="reference internal" href="#summary-of-the-agasc-version-1-7-entries">Summary of the AGASC Version 1.7 Entries</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#history-of-the-agasc-version-1-7">History of the AGASC Version 1.7</a><ul>
+<li><a class="reference internal" href="#hst-guide-star-catalog">HST Guide Star Catalog</a></li>
+<li><a class="reference internal" href="#positions-and-proper-motions-catalog-ppm">Positions and Proper Motions Catalog (PPM)</a></li>
+<li><a class="reference internal" href="#tycho-output-catalog-tyc">TYCHO Output Catalog (TYC)</a></li>
+<li><a class="reference internal" href="#act-reference-catalog-act">ACT Reference Catalog (ACT)</a></li>
+<li><a class="reference internal" href="#tycho-2-catalog">TYCHO-2 Catalog</a></li>
+<li><a class="reference internal" href="#gsc-act-catalog">GSC-ACT Catalog</a></li>
+<li><a class="reference internal" href="#mass-galaxy-catalog">2MASS Galaxy Catalog</a></li>
+<li><a class="reference internal" href="#aavso-photometric-all-sky-survey-apass">AAVSO Photometric All-Sky Survey (APASS)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">AGASC Catalog Description and History</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">API documentation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/catalog-description.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/catalog-description.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

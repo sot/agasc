@@ -1,0 +1,592 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Updating the AGASC Supplement &#8212; Agasc 4.10.2 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="API documentation" href="api.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska!</span><span id="logotext2">agasc</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="api.html" title="API documentation">
+	  &laquo; previous
+	</a>
+	
+      </li>
+      <li>
+	<a href="index.html">Agasc 4.10.2 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>Updating the AGASC Supplement</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="updating-the-agasc-supplement">
+<h1>Updating the AGASC Supplement<a class="headerlink" href="#updating-the-agasc-supplement" title="Permalink to this headline">¶</a></h1>
+<p>The AGASC magnitude supplement is updated on a weekly basis. A call like the following updates the supplement file
+located in $SKA/data/agasc, and produces html reports in $SKA/www/ASPECT/agasc_supplement_reports:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">update</span> <span class="o">--</span><span class="n">report</span>
+</pre></div>
+</div>
+<p>By default, this considers only the observations recorded in the two weeks prior. In other words,
+this is equivalent to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>agasc-supplement-update --start `date -I --date=&quot;14 days ago&quot;` --stop `date -I`
+</pre></div>
+</div>
+<p>The report of suspicious observations (over the last 90 days) is generated using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>agasc-mag-estimate-report --start `date -I --date=&quot;90 days ago&quot;` --stop `date -I`
+</pre></div>
+</div>
+<p>In order to produce the reports, the script uses two files that contain observed magnitude data.
+These files are placed in the same directory as the supplement file (usually $SKA/data/agasc).
+The location of these files can be specified in the command line. More information below.</p>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="agasc-supplement-update">
+<span id="id1"></span><h3><a class="reference internal" href="#agasc-supplement-update"><span class="std std-ref">agasc-supplement-update</span></a><a class="headerlink" href="#agasc-supplement-update" title="Permalink to this headline">¶</a></h3>
+<p><p>Update Magnitude Statistics.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">update</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">file</span> <span class="n">AGASC_ID_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">start</span> <span class="n">START</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stop</span> <span class="n">STOP</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">whole</span><span class="o">-</span><span class="n">history</span> <span class="n">WHOLE_HISTORY</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span><span class="o">-</span><span class="n">override</span> <span class="n">OBS_STATUS_OVERRIDE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">obs</span> <span class="n">OBS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGASC_ID</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">status</span> <span class="n">STATUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">comments</span> <span class="n">COMMENTS</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">email</span> <span class="n">EMAIL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">report</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reports</span><span class="o">-</span><span class="nb">dir</span> <span class="n">REPORTS_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">multi</span><span class="o">-</span><span class="n">process</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span> <span class="p">{</span><span class="n">debug</span><span class="p">,</span><span class="n">info</span><span class="p">,</span><span class="n">warning</span><span class="p">,</span><span class="n">error</span><span class="p">}]</span>
+</pre></div>
+</div>
+<div class="section" id="Named Arguments">
+<h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--agasc-id-file</kbd></dt>
+<dd><p>File containing a list of AGASC IDs, one per line.</p>
+</dd>
+<dt><kbd>--start</kbd></dt>
+<dd><p>Include only stars observed after this time. CxoTime-compatible time stamp. Default: now - 14 days.</p>
+</dd>
+<dt><kbd>--stop</kbd></dt>
+<dd><p>Include only stars observed before this time. CxoTime-compatible time stamp. Default: now.</p>
+</dd>
+<dt><kbd>--whole-history</kbd></dt>
+<dd><p>Include all star observations.</p>
+</dd>
+<dt><kbd>--obs-status-override</kbd></dt>
+<dd><p>YAML file with observation status.</p>
+</dd>
+<dt><kbd>--obs</kbd></dt>
+<dd><p>Observation ID for status override.</p>
+</dd>
+<dt><kbd>--agasc-id</kbd></dt>
+<dd><p>AGASC ID for status override.</p>
+</dd>
+<dt><kbd>--status</kbd></dt>
+<dd><p>Status to override.</p>
+</dd>
+<dt><kbd>--comments</kbd></dt>
+<dd><p>Comments for status override.</p>
+<p>Default: “”</p>
+</dd>
+<dt><kbd>--email</kbd></dt>
+<dd><p>Email to report errors.</p>
+</dd>
+<dt><kbd>--report</kbd></dt>
+<dd><p>Generate HTML report for the period covered. Default: False</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--output-dir</kbd></dt>
+<dd><p>Directory where to place the supplement. Default: .</p>
+<p>Default: “.”</p>
+</dd>
+<dt><kbd>--reports-dir</kbd></dt>
+<dd><p>Directory where to place reports. Default: &lt;output_dir&gt;/supplement_reports/weekly.</p>
+</dd>
+<dt><kbd>--multi-process</kbd></dt>
+<dd><p>Use multi-processing to accelerate run.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--log-level</kbd></dt>
+<dd><p>Possible choices: debug, info, warning, error</p>
+<p>Default: “info”</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="agasc-mag-estimate-report">
+<span id="id2"></span><h3><a class="reference internal" href="#agasc-mag-estimate-report"><span class="std std-ref">agasc-mag-estimate-report</span></a><a class="headerlink" href="#agasc-mag-estimate-report" title="Permalink to this headline">¶</a></h3>
+<p><p>Produce reports of the magnitude supplement.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">mag</span><span class="o">-</span><span class="n">estimate</span><span class="o">-</span><span class="n">report</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">start</span> <span class="n">START</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stop</span> <span class="n">STOP</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">input</span><span class="o">-</span><span class="nb">dir</span> <span class="n">INPUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">stats</span> <span class="n">OBS_STATS</span><span class="p">]</span>
+                                 <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="n">stats</span> <span class="n">AGASC_STATS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">weekly</span><span class="o">-</span><span class="n">report</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="Named Arguments">
+<h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--start</kbd></dt>
+<dd><p>Time to start processing new observations. CxoTime-compatible time stamp. Default: now - 90 days</p>
+</dd>
+<dt><kbd>--stop</kbd></dt>
+<dd><p>Time to stop processing new observations. CxoTime-compatible time stamp. Default: now</p>
+</dd>
+<dt><kbd>--input-dir</kbd></dt>
+<dd><p>Directory containing mag-stats files. Default: $SKA/data/agasc</p>
+<p>Default: “$SKA/data/agasc”</p>
+</dd>
+<dt><kbd>--output-dir</kbd></dt>
+<dd><p>Output directory. Default: supplement_reports/suspect</p>
+<p>Default: “supplement_reports/suspect”</p>
+</dd>
+<dt><kbd>--obs-stats</kbd></dt>
+<dd><p>FITS file with mag-stats for all observations. Default: mag_stats_obsid.fits</p>
+<p>Default: “mag_stats_obsid.fits”</p>
+</dd>
+<dt><kbd>--agasc-stats</kbd></dt>
+<dd><p>FITS file with mag-stats for all observed AGASC stars. Default: mag_stats_agasc.fits</p>
+<p>Default: “mag_stats_agasc.fits”</p>
+</dd>
+<dt><kbd>--weekly-report</kbd></dt>
+<dd><p>Add links to navigate weekly reports.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="section" id="module-agasc.supplement.magnitudes.mag_estimate">
+<span id="magnitude-supplement-api"></span><h2>Magnitude Supplement API<a class="headerlink" href="#module-agasc.supplement.magnitudes.mag_estimate" title="Permalink to this headline">¶</a></h2>
+<p>Functions to estimate observed ACA magnitudes</p>
+<dl class="py exception">
+<dt id="agasc.supplement.magnitudes.mag_estimate.MagStatsException">
+<em class="property">exception </em><code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">MagStatsException</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">agasc_id</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obsid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">timeline_id</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#MagStatsException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.MagStatsException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.add_obs_info">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">add_obs_info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telem</span></em>, <em class="sig-param"><span class="n">obs_stats</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#add_obs_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.add_obs_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add observation-specific information to a telemetry table (ok flag, and outlier flag).</p>
+<p>This is done as part of get_agasc_id_stats. It is a convenience for writing reports.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>telem</strong> – list of tables
+One or more telemetry tables (potentially many observations)</p></li>
+<li><p><strong>obs_stats</strong> – table
+The result of calc_obs_stats.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.calc_obs_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">calc_obs_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telem</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#calc_obs_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.calc_obs_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get summary magnitude statistics for an observation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>telem</strong> – dict
+Dictionary with telemetry (output of get_telemetry)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict
+dictionary with stats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_agasc_id_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_agasc_id_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_id</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_agasc_id_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get summary magnitude statistics for an AGASC ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_id</strong> – int</p></li>
+<li><p><strong>obs_status_override</strong> – dict.
+Dictionary overriding the OK flag for specific observations.
+Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
+{‘obs_ok’: True, ‘comments’: ‘some comment’}</p></li>
+<li><p><strong>tstop</strong> – cxotime-compatible timestamp
+Only entries in catalogs.STARS_OBS prior to this timestamp are considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict
+dictionary with stats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_droop_systematic_shift">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_droop_systematic_shift</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">magnitude</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_droop_systematic_shift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_droop_systematic_shift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Difference between the magnitude determined from DC-subtracted image telemetry and
+the catalog ACA magnitude.</p>
+<p>The magnitude shift is time-independent. It depends only on the catalog magnitude and is zero
+for bright stars. More details in the <a class="reference external" href="https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb">droop notebook</a>:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>magnitude</strong> – float
+Catalog ACA magnitude</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_mag_from_img">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_mag_from_img</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">slot_data</span></em>, <em class="sig-param"><span class="n">t_start</span></em>, <em class="sig-param"><span class="n">ok</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_mag_from_img"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_mag_from_img" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vectorized estimate of the magnitude from mica archive image telemetry data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slot_data</strong> – astropy.Table.
+The data returned by mica.archive.aca_l0.get_slot_data</p></li>
+<li><p><strong>t_start</strong> – The starting time of the observation (by convention, the starcat time)</p></li>
+<li><p><strong>ok</strong> – np.array.
+An boolean array with the same length as slot_data.
+Only magnitudes for entries with ok=True are calculated. The rest are set to MAX_MAG.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_obs_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_obs_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span></em>, <em class="sig-param"><span class="n">telem</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_obs_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_obs_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get summary magnitude statistics for an observation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs</strong> – astropy.table.Row
+a “star observation” row. From the join of starcheck catalog and starcat commands
+It must have the following columns: ‘agasc_id’, ‘mp_starcat_time’, ‘mag’, ‘slot’</p></li>
+<li><p><strong>telem</strong> – dict
+Dictionary with telemetry (output of get_telemetry)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict
+dictionary with stats</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_responsivity">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_responsivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_responsivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_responsivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>ACA magnitude response over time.</p>
+<p>This was estimated with bright stars that were observed more than a hundred times during the
+mission. More details in the <a class="reference external" href="https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb">responsivity notebook</a>:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> – float
+Time in CXC seconds</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_star_position">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_star_position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">star</span></em>, <em class="sig-param"><span class="n">telem</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_star_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_star_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Residuals for a given AGASC record at a given slot/time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>star</strong> – Table Row of one AGASC entry</p></li>
+<li><p><strong>telem</strong> – table
+Table with columns AOATTQT1, AOATTQT2, AOATTQT3, AOATTQT4.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_telemetry">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_telemetry</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_telemetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_telemetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all telemetry relevant for the magnitude estimation task.</p>
+<p>This gets:
+- AOACASEQ
+- AOPCADMD
+- AOACMAG (ACA estimated magnitude)
+- AOACIIR (ACA ionizing radiation flag)
+- AOACISP (ACA saturated pixel flag)</p>
+<p>MSIDs are renamed to remove the slot number.
+This assumes all MSIDs occur at the same times (they do)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>obs</strong> – astropy.table.Row
+It must have the following columns: ‘agasc_id’, ‘mp_starcat_time’, ‘mag’, ‘slot’</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.get_telemetry_by_agasc_id">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">get_telemetry_by_agasc_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_id</span></em>, <em class="sig-param"><span class="n">obsid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">ignore_exceptions</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_telemetry_by_agasc_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_telemetry_by_agasc_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all telemetry relevant for the magnitude estimation, given an AGASC ID.</p>
+<p>This gets all observations of a given star, it gets the telemetry for each, and stacks them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_id</strong> – int</p></li>
+<li><p><strong>obsid</strong> – int (optional)</p></li>
+<li><p><strong>ignore_exceptions</strong> – bool
+if True, any exception is ignored. Useful in some cases. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.mag_estimate.rolling_mean">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.mag_estimate.</code><code class="sig-name descname">rolling_mean</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">f</span></em>, <em class="sig-param"><span class="n">window</span></em>, <em class="sig-param"><span class="n">selection</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#rolling_mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.rolling_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the rolling mean of the ‘f’ array, using a centered square window in time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> – np.array
+the time array.</p></li>
+<li><p><strong>f</strong> – np.array
+the array to average.</p></li>
+<li><p><strong>window</strong> – float
+the window size (in the same units as the time array).</p></li>
+<li><p><strong>selection</strong> – np.array
+An optional array of bool.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.array
+An array with the same type and shape as ‘f’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-agasc.supplement.magnitudes.update_mag_supplement"></span><dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">get_agasc_id_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_ids</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call mag_stats.get_agasc_id_stats for each AGASC ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_ids</strong> – list</p></li>
+<li><p><strong>obs_status_override</strong> – dict.
+Dictionary overriding the OK flag for specific observations.
+Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
+{‘obs_ok’: True, ‘comments’: ‘some comment’}</p></li>
+<li><p><strong>tstop</strong> – cxotime-compatible timestamp
+Only observations prior to this timestamp are considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>astropy.table.Table, astropy.table.Table, list
+obs_stats, agasc_stats, fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">get_agasc_id_stats_pool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_ids</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats_pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call update_mag_stats.get_agasc_id_stats multiple times using a multiprocessing.Pool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_ids</strong> – list</p></li>
+<li><p><strong>obs_status_override</strong> – dict.
+Dictionary overriding the OK flag for specific observations.
+Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
+{‘obs_ok’: True, ‘comments’: ‘some comment’}</p></li>
+<li><p><strong>batch_size</strong> – int</p></li>
+<li><p><strong>tstop</strong> – cxotime-compatible timestamp
+Only observations prior to this timestamp are considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>astropy.table.Table, astropy.table.Table, list
+obs_stats, agasc_stats, fails, failed_jobs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">level0_archive_time_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#level0_archive_time_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the time range covered by mica archive aca_l0 files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>tuple of CxoTime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">update_mag_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs_stats</span></em>, <em class="sig-param"><span class="n">agasc_stats</span></em>, <em class="sig-param"><span class="n">fails</span></em>, <em class="sig-param"><span class="n">outdir</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_mag_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the mag_stats catalog.</p>
+<p>I currently save three files:
+- mag_stats_agasc.fits with stats for each AGASC ID
+- mag_stats_obsid.fits with stats for each OBSID
+- mag_stats_fails.pkl with a list of failures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs_stats</strong> – </p></li>
+<li><p><strong>agasc_stats</strong> – </p></li>
+<li><p><strong>fails</strong> – </p></li>
+<li><p><strong>outdir</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.update_supplement">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">update_supplement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_stats</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">obs_status</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">include_all</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_supplement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_supplement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the magnitude table of the AGASC supplement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_stats</strong> – </p></li>
+<li><p><strong>filename</strong> – </p></li>
+<li><p><strong>obs_status</strong> – dict.
+Dictionary with OK flag for specific observations.
+Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
+{‘obs_ok’: True, ‘comments’: ‘some comment’}</p></li>
+<li><p><strong>include_all</strong> – bool
+if True, all OK entries are included in supplement.
+if False, only OK entries marked ‘selected_*’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Updating the AGASC Supplement</a><ul>
+<li><a class="reference internal" href="#scripts">Scripts</a><ul>
+<li><a class="reference internal" href="#agasc-supplement-update"><span class="xref std std-ref">agasc-supplement-update</span></a><ul>
+<li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agasc-mag-estimate-report"><span class="xref std std-ref">agasc-mag-estimate-report</span></a><ul>
+<li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-agasc.supplement.magnitudes.mag_estimate">Magnitude Supplement API</a></li>
+</ul>
+</li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="previous chapter">API documentation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/supplement.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/supplement.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
