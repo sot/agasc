@@ -92,22 +92,27 @@ def main():
 
     star_obs_catalogs.load(args.stop)
 
-    obs_status_override, bad_stars = update_obs_status.parse_obs_status_args(vars(args))
+    status_override = update_obs_status.parse_obs_status_args(
+        filename=args.obs_status_override, **vars(args))
 
     # set the list of AGASC IDs from file if specified. If not, it will include all.
     agasc_ids = []
     if args.agasc_id_file:
         with open(args.agasc_id_file, 'r') as f:
             agasc_ids = [int(l.strip()) for l in f.readlines()]
-    agasc_ids += [o[1] for o in obs_status_override]
+    agasc_ids += [o[1] for o in status_override['obs']]
 
-    if obs_status_override:
+    if status_override['obs']:
         update_obs_status.update_obs_status(
-            args.data_root / 'agasc_supplement.h5', obs_status_override, dry_run=args.dry_run
+            args.data_root / 'agasc_supplement.h5', status_override['obs'], dry_run=args.dry_run
         )
 
-    if bad_stars:
-        add_bad_star(bad_stars, 9, args.output_dir / 'agasc_supplement.h5', dry_run=args.dry_run)
+    if status_override['bad']:
+        bad_star_ids, bad_star_source = zip(*status_override['bad'].items())
+        add_bad_star(bad_star_ids,
+                     bad_star_source,
+                     args.output_dir / 'agasc_supplement.h5',
+                     dry_run=args.dry_run)
 
     update_mag_supplement.do(
         args.output_dir,

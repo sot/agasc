@@ -153,7 +153,10 @@ def main():
     the_parser = parser()
     args = the_parser.parse_args()
 
-    status = parse_obs_status_args(vars(args))
+    status = parse_obs_status_args(
+        filename=args.obs_status_override,
+        **vars(args)
+    )
 
     if status['obs']:
         update_obs_status(
@@ -161,7 +164,11 @@ def main():
         )
 
     if status['bad']:
-        add_bad_star(status['bad'], 9, args.output_dir / 'agasc_supplement.h5', dry_run=args.dry_run)
+        bad_star_ids, bad_star_source = zip(*status['bad'].items())
+        add_bad_star(bad_star_ids,
+                     bad_star_source,
+                     args.data_root / 'agasc_supplement.h5',
+                     dry_run=args.dry_run)
 
 
 if __name__ == '__main__':
