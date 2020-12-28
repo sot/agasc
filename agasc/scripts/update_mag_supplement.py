@@ -77,6 +77,10 @@ def main():
     the_parser = parser()
     args = the_parser.parse_args()
 
+    status_to_int = {'true': 1, 'false': 0, 'ok': 1, 'good': 1, 'bad': 0}
+    if args.status and args.status.lower() in status_to_int:
+        args.status = status_to_int[args.status.lower()]
+
     args.output_dir = pathlib.Path(os.path.expandvars(args.output_dir))
     if args.reports_dir is None:
         args.reports_dir = args.output_dir / 'supplement_reports' / 'weekly'
@@ -104,7 +108,7 @@ def main():
 
     if status_override['obs']:
         update_obs_status.update_obs_status(
-            args.data_root / 'agasc_supplement.h5', status_override['obs'], dry_run=args.dry_run
+            args.output_dir / 'agasc_supplement.h5', status_override['obs'], dry_run=args.dry_run
         )
 
     if status_override['bad']:

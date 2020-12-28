@@ -151,7 +151,7 @@ def update_obs_status(filename, obs_status_override, dry_run=False):
     logger.info(f'updating "obs" table in {filename}')
     update = False
     for (obsid, agasc_id), status in obs_status_override.items():
-        if (obsid, agasc_id) not in obs_status:
+        if (obsid, agasc_id) not in obs_status or obs_status[(obsid, agasc_id)] != status:
             logger.info(f'Appending {agasc_id=}, {obsid=}, {status=}')
             obs_status[(obsid, agasc_id)] = status
             update = True
@@ -202,6 +202,11 @@ def parser():
 def main():
     the_parser = parser()
     args = the_parser.parse_args()
+
+    status_to_int = {'true': 1, 'false': 0, 'ok': 1, 'good': 1, 'bad': 0}
+    if args.status and args.status.lower() in status_to_int:
+        args.status = status_to_int[args.status.lower()]
+
     logging.basicConfig(level=args.log_level.upper())
 
     star_obs_catalogs.load()
