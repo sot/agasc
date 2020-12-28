@@ -153,6 +153,8 @@ def main():
     the_parser = parser()
     args = the_parser.parse_args()
 
+    star_obs_catalogs.load()
+
     status = parse_obs_status_args(
         filename=args.obs_status_override,
         **vars(args)
