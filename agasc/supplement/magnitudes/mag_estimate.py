@@ -51,13 +51,15 @@ EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code
 
 
 class MagStatsException(Exception):
-    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None):
+    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, **kwargs):
         super().__init__(msg)
         self.error_code = EXCEPTION_CODES[msg]
         self.msg = msg
         self.agasc_id = agasc_id
         self.obsid = obsid
         self.timeline_id = timeline_id
+        for k in kwargs:
+            setattr(self, k, kwargs[k])
 
     def __str__(self):
         return f'MagStatsException: {self.msg} (agasc_id: {self.agasc_id}, ' \
@@ -282,7 +284,9 @@ def get_telemetry(obs):
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
-                                timeline_id=obs["timeline_id"])
+                                timeline_id=obs["timeline_id"],
+                                time_range=[start, stop],
+                                slot=obs['slot'])
     tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
     t1 = np.round((msid.times - tmin)/1.025)
     t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin)/1.025)
