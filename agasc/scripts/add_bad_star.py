@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-
 """
-Update the agasc_supplement.h5.
+Update the 'bad' table in agasc_supplement.h5.
 
 This file is a supplement to the stable AGASC to inform star selection
 and star catalog checking.
@@ -14,50 +13,48 @@ update another table with effective mags based on acq / guide history.
 
 For process instructions see: https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually
 """
+
 import os
 import argparse
 from pathlib import Path
 
+import logging
 import pyyaks.logger
 from astropy.table import Table
 import numpy as np
 
 SKA = Path(os.environ['SKA'])
-logger = None  # Set via global in main()
 
 
-def get_options(args=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root",
+def parser():
+    parse_ = argparse.ArgumentParser(description=__doc__)
+    parse_.add_argument("--data-root",
                         default='.',
                         help=("Directory containing agasc_supplement.h5 (default='.')"))
-    parser.add_argument("--bad-star-id",
+    parse_.add_argument("--bad-star-id",
                         type=int,
                         help="AGASC ID of star to add to bad-star list")
-    parser.add_argument("--bad-star-source",
+    parse_.add_argument("--bad-star-source",
                         type=int,
                         help=("Source identifier indicating provenance (default=max "
                               "existing source + 1)"))
-    parser.add_argument("--log-level",
+    parse_.add_argument("--log-level",
                         default=20,
                         help="Logging level (default=20 (info))")
-    parser.add_argument("--dry-run",
+    parse_.add_argument("--dry-run",
                         action="store_true",
                         help="Dry run (no actual file or database updates)")
 
-    opt = parser.parse_args(args)
-    return opt
+    return parse_
 
 
 def main(args=None):
-    global logger
-
     # Setup for updating the sync repository
-    opt = get_options(args)
+    opt = parser().parse_args(args)
 
     # Set up logging
     loglevel = int(opt.log_level)
-    logger = pyyaks.logger.get_logger(name='mica_update_agasc_supplement', level=loglevel,
+    logger = pyyaks.logger.get_logger(name='agasc.supplement', level=loglevel,
                                       format="%(message)s")
 
     data_root = Path(opt.data_root)
@@ -72,27 +69,38 @@ def main(args=None):
 
 
 def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
+    logger = logging.getLogger('agasc.supplement')
+    if not bad_star_ids:
+        logger.info('Nothing to update')
+        return
+
+    logger.info(f'updating "bad" table in {suppl_file}')
+
     bad_star_ids = np.atleast_1d(bad_star_ids).astype(int)
     dat = Table.read(str(suppl_file), format='hdf5', path='bad')
 
     if bad_star_source is None:
         bad_star_source = dat['source'].max() + 1
     else:
-        bad_star_source = int(bad_star_source)
+        bad_star_source = np.array(bad_star_source).astype(int)
+    bad_star_ids, bad_star_source = np.broadcast_arrays(bad_star_ids, bad_star_source)
 
-    for star_id in bad_star_ids:
-        if star_id not in dat['agasc_id']:
-            dat.add_row((star_id, bad_star_source))
-            if logger:
-                logger.info(f'Appending {star_id} with source={bad_star_source} to {suppl_file}')
-    if logger:
-        logger.info('')
-        logger.info('IMPORTANT:')
-        logger.info('Edit following if source ID is new:')
-        logger.info('  https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually')
-        logger.info('')
-        logger.info('The wiki page also includes instructions for test, review, approval')
-        logger.info('and installation.')
+    update = False
+    for agasc_id, source in zip(bad_star_ids, bad_star_source):
+        if agasc_id not in dat['agasc_id']:
+            dat.add_row((agasc_id, source))
+            logger.info(f'Appending {agasc_id=} with {source=}')
+            update = True
+    if not update:
+        return
+
+    logger.info('')
+    logger.info('IMPORTANT:')
+    logger.info('Edit following if source ID is new:')
+    logger.info('  https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually')
+    logger.info('')
+    logger.info('The wiki page also includes instructions for test, review, approval')
+    logger.info('and installation.')
     if not dry_run:
         dat.write(str(suppl_file), format='hdf5', path='bad', append=True, overwrite=True)
 

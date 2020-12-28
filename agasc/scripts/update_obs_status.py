@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+"""
+Update the 'bad' and 'obs' tables in the agasc supplement (agasc_supplement.h5).
+
+This file is a supplement to the stable AGASC to inform star selection
+and star catalog checking.
+
+This script can add one or many bad stars to the bad star table, as well as observation status
+information relevant for the magnitude estimation from acq data.
+"""
 
 from astropy import table
 import yaml
@@ -6,9 +15,20 @@ import pathlib
 import argparse
 from agasc.scripts.add_bad_star import add_bad_star
 import numpy as np
+import logging
+
+from agasc.supplement.magnitudes import star_obs_catalogs
 
 
 def parse_obs_status_file(filename):
+    """
+    Parse a yaml file and return a dictionary.
+
+    The dictionary will be of the form: {'obs': {}, 'bad': {}}
+
+    :param filename:
+    :return:
+    """
     with open(filename) as fh:
         status = yaml.load(fh, Loader=yaml.SafeLoader)
     if 'obs' not in status:
@@ -45,6 +65,22 @@ def parse_obs_status_args(filename=None, bad_star=[], bad_star_source=None,
                           obs=None, status=None, comments='', agasc_id=None,
                           **_
                           ):
+    """
+    Combine obs/bad-star status from file and from arguments.
+
+    The arguments could be passed from and ArgumentParser doing::
+
+        parse_obs_status_args(vars(args))
+
+    :param filename: str
+    :param bad_star: int
+    :param bad_star_source: int
+    :param obs: int
+    :param status: int
+    :param comments: str
+    :param agasc_id: int
+    :return:
+    """
     obs_status_override = {}
     bad_star = (list(np.atleast_1d(bad_star)))
     bad = {}
@@ -52,7 +88,6 @@ def parse_obs_status_args(filename=None, bad_star=[], bad_star_source=None,
     if bad_star and bad_star_source is None:
         raise RuntimeError('If you specify bad_star, you must specify bad_star_source')
 
-    status_file = []
     if filename is not None:
         status_file = parse_obs_status_file(filename)
         bad = status_file['bad']
@@ -91,10 +126,13 @@ def update_obs_status(filename, obs_status_override, dry_run=False):
     :param dry_run: bool
     :return:
     """
+    logger = logging.getLogger('agasc.supplement')
+
     if not pathlib.Path(filename).exists():
         raise FileExistsError(f'AGASC supplement file does not exist: {filename}')
 
     if not obs_status_override:
+        logger.info('Nothing to update')
         return
 
     try:
@@ -110,17 +148,29 @@ def update_obs_status(filename, obs_status_override, dry_run=False):
         for r in obs_status
     }
 
-    obs_status.update(obs_status_override)
+    logger.info(f'updating "obs" table in {filename}')
+    update = False
+    for (obsid, agasc_id), status in obs_status_override.items():
+        if (obsid, agasc_id) not in obs_status:
+            logger.info(f'Appending {agasc_id=}, {obsid=}, {status=}')
+            obs_status[(obsid, agasc_id)] = status
+            update = True
+    if not update:
+        return
 
     if obs_status:
         t = list(zip(*[[oi, ai, np.uint(obs_status[(oi, ai)]['ok']), obs_status[(oi, ai)]['comments']]
                        for oi, ai in obs_status]))
         obs_status = table.Table(t, names=['obsid', 'agasc_id', 'ok', 'comments'])
     else:
+        logger.info('creating empty obs table')
         dtype = [('obsid', int), ('agasc_id', int), ('ok', np.uint), ('comments', '<U80')]
         obs_status = table.Table(dtype=dtype)
+
     if not dry_run:
         obs_status.write(str(filename), format='hdf5', path='obs', append=True, overwrite=True)
+    else:
+        logger.info('dry run, not saving anything')
 
 
 def parser():
@@ -152,6 +202,7 @@ def parser():
 def main():
     the_parser = parser()
     args = the_parser.parse_args()
+    logging.basicConfig(level=args.log_level.upper())
 
     star_obs_catalogs.load()
 
@@ -162,7 +213,9 @@ def main():
 
     if status['obs']:
         update_obs_status(
-            args.data_root / 'agasc_supplement.h5', status['obs'], dry_run=args.dry_run
+            args.data_root / 'agasc_supplement.h5',
+            status['obs'],
+            dry_run=args.dry_run
         )
 
     if status['bad']:
