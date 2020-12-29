@@ -223,40 +223,43 @@ def update_supplement(agasc_stats, filename, include_all=True):
     names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
     outliers_new = outliers_new[names].as_array()
 
+    outliers = None
     if filename.exists():
         # I could do what follows directly in place, but the table is not that large.
         with tables.File(filename, 'r') as h5:
-            outliers_current = h5.root.mags[:]
-            # find the indices of agasc_ids in both current and new lists
-            _, i_new, i_cur = np.intersect1d(outliers_new['agasc_id'],
-                                             outliers_current['agasc_id'],
-                                             return_indices=True)
-            current = outliers_current[i_cur]
-            new = outliers_new[i_new]
+            if 'mags' in h5.root:
+                outliers_current = h5.root.mags[:]
+                # find the indices of agasc_ids in both current and new lists
+                _, i_new, i_cur = np.intersect1d(outliers_new['agasc_id'],
+                                                 outliers_current['agasc_id'],
+                                                 return_indices=True)
+                current = outliers_current[i_cur]
+                new = outliers_new[i_new]
 
-            # from those, find the ones which differ in last observation time
-            i_cur = i_cur[current['last_obs_time'] != new['last_obs_time']]
-            i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
-            # overwrite current values with new values (and calculate diff to return)
-            updated_stars = np.zeros(len(outliers_new[i_new]),
-                                     dtype=[('agasc_id', np.int64),
-                                            ('mag_aca', np.float64),
-                                            ('mag_aca_err', np.float64)])
-            updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca'] -
-                                        outliers_current[i_cur]['mag_aca'])
-            updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err'] -
-                                            outliers_current[i_cur]['mag_aca_err'])
-            updated_stars['agasc_id'] = outliers_new[i_new]['agasc_id']
-            outliers_current[i_cur] = outliers_new[i_new]
+                # from those, find the ones which differ in last observation time
+                i_cur = i_cur[current['last_obs_time'] != new['last_obs_time']]
+                i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
+                # overwrite current values with new values (and calculate diff to return)
+                updated_stars = np.zeros(len(outliers_new[i_new]),
+                                         dtype=[('agasc_id', np.int64),
+                                                ('mag_aca', np.float64),
+                                                ('mag_aca_err', np.float64)])
+                updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca'] -
+                                            outliers_current[i_cur]['mag_aca'])
+                updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err'] -
+                                                outliers_current[i_cur]['mag_aca_err'])
+                updated_stars['agasc_id'] = outliers_new[i_new]['agasc_id']
+                outliers_current[i_cur] = outliers_new[i_new]
 
-            # find agasc_ids in new list but not in current list
-            new_stars = ~np.in1d(outliers_new['agasc_id'], outliers_current['agasc_id'])
-            # and add them to the current list
-            outliers_current = np.concatenate([outliers_current, outliers_new[new_stars]])
-            outliers = np.sort(outliers_current)
+                # find agasc_ids in new list but not in current list
+                new_stars = ~np.in1d(outliers_new['agasc_id'], outliers_current['agasc_id'])
+                # and add them to the current list
+                outliers_current = np.concatenate([outliers_current, outliers_new[new_stars]])
+                outliers = np.sort(outliers_current)
 
-            new_stars = outliers_new[new_stars]['agasc_id']
-    else:
+                new_stars = outliers_new[new_stars]['agasc_id']
+
+    if outliers is None:
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
         updated_stars = np.array([], dtype=[('agasc_id', np.int64), ('mag_aca', np.float64),
@@ -362,30 +365,35 @@ def do(output_dir,
                     (r['obsid'], r['agasc_id']): {'ok': r['ok'], 'comments': r['comments']}
                     for r in h5.root.obs[:]
                 }
+            if 'mags' in h5.root:
+                outliers_current = h5.root.mags[:]
+                times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
+                    'agasc_id').groups.aggregate(lambda d: np.max(CxoTime(d)).date)
+                if len(outliers_current):
+                    times = table.join(times,
+                                       table.Table(outliers_current[['agasc_id', 'last_obs_time']]),
+                                       join_type='left')
+                else:
+                    times['last_obs_time'] = table.MaskedColumn(
+                        np.zeros(len(times), dtype=h5.root.mags.dtype['last_obs_time']),
+                        mask=np.ones(len(times), dtype=bool)
+                    )
+                if hasattr(times['last_obs_time'], 'mask'):
+                    # the mask exists if there are stars in stars_obs
+                    # that are not in outliers_current
+                    update = (
+                        times['last_obs_time'].mask | (
+                        (~times['last_obs_time'].mask) &
+                        (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data)
+                    )
+                else:
+                    update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
 
-            outliers_current = h5.root.mags[:]
-            times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
-                'agasc_id').groups.aggregate(lambda d: np.max(CxoTime(d)).date)
-            if len(outliers_current):
-                times = table.join(times,
-                                   table.Table(outliers_current[['agasc_id', 'last_obs_time']]),
-                                   join_type='left')
-            else:
-                times['last_obs_time'] = table.MaskedColumn(
-                    np.zeros(len(times), dtype=h5.root.mags.dtype['last_obs_time']),
-                    mask=np.ones(len(times), dtype=bool)
-                )
-            if hasattr(times['last_obs_time'], 'mask'):
-                # the mask exists if there are stars in stars_obs that are not in outliers_current
-                update = (times['last_obs_time'].mask | (
-                          (~times['last_obs_time'].mask) &
-                          (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data))
-            else:
-                update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
-
-            stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
-            agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
-            logging.info(f'Skipping {len(update) - np.sum(update)} stars already in the supplement')
+                stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
+                agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
+                if len(update) - np.sum(update):
+                    logging.info(f'Skipping {len(update) - np.sum(update)} '
+                                 f'stars already in the supplement')
 
     # do the processing
     logging.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
