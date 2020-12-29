@@ -394,10 +394,10 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
             t['obsid'] = o['obsid']
             t['agasc_id'] = agasc_id
             telem.append(t)
-        except Exception as e:
+        except Exception:
             import sys
             import traceback
-            logging.info(f'{agasc_id} failed', e)
+            logging.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
             exc_type, exc_value, exc_traceback = sys.exc_info()
             trace = traceback.extract_tb(exc_traceback)
             logging.info(f'{exc_type.__name__} {exc_value}')
