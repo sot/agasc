@@ -360,7 +360,7 @@ def do(output_dir,
             if 'obs' in h5.root:
                 obs_status = {
                     (r['obsid'], r['agasc_id']): {'ok': r['ok'], 'comments': r['comments']}
-                    for r in h5.root.obs_status[:]
+                    for r in h5.root.obs[:]
                 }
 
             outliers_current = h5.root.mags[:]
