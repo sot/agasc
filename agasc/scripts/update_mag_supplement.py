@@ -27,7 +27,8 @@ def parser():
                             ' CxoTime-compatible time stamp.'
                             ' Default: now.')
     parse.add_argument('--whole-history',
-                       help='Include all star observations and ignore --start/stop.')
+                       help='Include all star observations and ignore --start/stop.',
+                       action='store_true', default=False)
     parse.add_argument('--agasc-id-file',
                        help='Include only observations of stars whose AGASC IDs are specified '
                             'in this file, one per line.')
