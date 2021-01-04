@@ -1,5 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from setuptools import setup
+import os
 
 try:
     from testr.setup_helper import cmdclass
@@ -16,6 +17,10 @@ entry_points = {
     ]
 }
 
+
+data_files = [(os.path.join('share', 'agasc'), ['task_schedule.cfg'])]
+
+
 setup(name='agasc',
       use_scm_version=True,
       setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
@@ -26,6 +31,7 @@ setup(name='agasc',
       packages=['agasc', 'agasc.supplement', 'agasc.supplement.magnitudes',
                 'agasc.tests', 'agasc.scripts'],
       package_data={'agasc.tests': ['data/*']},
+      data_files=data_files,
       tests_require=['pytest'],
       cmdclass=cmdclass,
       entry_points=entry_points,
