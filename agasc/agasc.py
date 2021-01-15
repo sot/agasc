@@ -1,42 +1,84 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
 from pathlib import Path
+import warnings
 
 import numpy as np
 import numexpr
 import tables
-import warnings
 
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
-from ska_helpers.utils import LazyDict
+from ska_helpers.utils import lru_cache_timed
 
-
-__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars', 'MAG_CATID_SUPPLEMENT']
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
+           'MAG_CATID_SUPPLEMENT', 'get_supplement_table']
 
 DATA_ROOT = Path(os.environ['SKA'], 'data', 'agasc')
 DEFAULT_AGASC_FILE = str(DATA_ROOT / 'miniagasc.h5')
-DEFAULT_SUPPLEMENT_FILE = str(DATA_ROOT / 'agasc_supplement.h5')
 
 MAG_CATID_SUPPLEMENT = 128
 
 
-def load_supplement():
-    supplement = {}
-    with tables.open_file(DEFAULT_SUPPLEMENT_FILE) as h5:
+@lru_cache_timed(timeout=3600)
+def get_supplement_table(name, data_root=DATA_ROOT, as_dict=False):
+    """Get one of the tables in the AGASC supplement.
+
+    This function gets one of the supplement tables, specified with ``name``:
+
+    - ``bad``: Bad stars (agasc_id, source)
+    - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)
+    - ``obs``: Star-obsid status for mag estimation (agasc_id, obsid, ok,
+      comments)
+
+    This function is cached with a timeout of an hour, so you can call it
+    repeatedly with no penalty in performance.
+
+    If ``as_dict=False`` (default) then the table is returned as an astropy
+    ``Table``.
+
+    If ``as_dict=True`` then the table is returned as a dict of {key: value}
+    pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the
+    key is the ``(agasc_id, obsid)`` tuple. In all cases the value is a dict
+    of the remaining columns.
+
+    :param name: Table name within the AGASC supplement HDF5 file
+    :param data_root: directory containing the AGASC supplement HDF5 file
+        (default=same directory as the AGASC file)
+    :param as_dict: return result as a dictionary (default=False)
+
+    :returns: supplement table as ``Table`` or ``dict``
+    """
+    if name not in ('mags', 'bad', 'obs'):
+        raise ValueError("table name must be one of 'mags', 'bad', or 'obs'")
+
+    supplement_file = Path(data_root) / 'agasc_supplement.h5'
+    with tables.open_file(supplement_file) as h5:
         try:
-            stars = h5.root.mags
+            dat = getattr(h5.root, name)[:]
         except tables.NoSuchNodeError:
-            pass # Will warn on this in future when mags in supplement are used
-        else:
-            for star in stars:
-                # Use Python int for key not numpy.int32
-                supplement[int(star['agasc_id'])] = (star['mag_aca'], star['mag_aca_err'])
+            warnings.warn(f"No dataset '{name}' in {supplement_file},"
+                          " returning empty table")
+            dat = []
 
-    return supplement
+    if as_dict:
+        out = {}
+        keys_names = {
+            'mags': ['agasc_id'],
+            'bad': ['agasc_id'],
+            'obs': ['agasc_id', 'obsid']}
+        key_names = keys_names[name]
+        for row in dat:
+            # Make the key, coercing the values from numpy to native Python
+            key = tuple(row[nm].item() for nm in key_names)
+            if len(key) == 1:
+                key = key[0]
+            # Make the value from the remaining non-key column names
+            out[key] = {nm: row[nm].item() for nm in row.dtype.names if nm not in key_names}
+    else:
+        out = Table(dat)
 
-
-SUPPLEMENT = LazyDict(load_supplement)
+    return out
 
 
 class IdNotFound(LookupError):
@@ -412,14 +454,28 @@ def update_mags_from_supplement(stars):
 
     :param stars: astropy.table.Table of stars
     """
-    for idx, agasc_id in enumerate(stars['AGASC_ID']):
-        agasc_id = int(agasc_id)
-        if agasc_id in SUPPLEMENT:
-            mag_est, mag_est_err = SUPPLEMENT[agasc_id]
-            stars['MAG_ACA'][idx] = mag_est
+    def set_star(star, name, value):
+        """Set star[name] = value if ``name`` is a column in the table"""
+        try:
+            star[name] = value
+        except KeyError:
+            pass
+
+    # Get estimate mags and errs from supplement as a dict of dict
+    # agasc_id : {mag_aca: .., mag_aca_err: ..}.
+    supplement_mags = get_supplement_table('mags', as_dict=True)
+
+    for star in stars:
+        agasc_id = int(star['AGASC_ID'])
+        if agasc_id in supplement_mags:
+            mag_est = supplement_mags[agasc_id]['mag_aca']
+            mag_est_err = supplement_mags[agasc_id]['mag_aca_err']
+
+            set_star(star, 'MAG_ACA', mag_est)
             # Mag err is stored as int16 in units of 0.01 mag. Use same convention here.
-            stars['MAG_ACA_ERR'][idx] = round(mag_est_err * 100)
-            stars['MAG_CATID'][idx] = MAG_CATID_SUPPLEMENT
-            color1 = stars['COLOR1'][idx]
-            if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
-                stars['COLOR1'][idx] = color1 - 0.01
+            set_star(star, 'MAG_ACA_ERR', round(mag_est_err * 100))
+            set_star(star, 'MAG_CATID', MAG_CATID_SUPPLEMENT)
+            if 'COLOR1' in stars.colnames:
+                color1 = star['COLOR1']
+                if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
+                    star['COLOR1'] = color1 - 0.01

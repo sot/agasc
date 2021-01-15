@@ -48,7 +48,8 @@ except Exception:
     DS_AGASC_VERSION = None
 
 
-HAS_MAGS_IN_SUPPLEMENT = any(agasc.agasc.SUPPLEMENT)
+HAS_MAGS_IN_SUPPLEMENT = any(agasc.get_supplement_table('mags', as_dict=True))
+HAS_OBS_IN_SUPPLEMENT = any(agasc.get_supplement_table('obs', as_dict=True))
 
 HAS_KSH = os.path.exists('/bin/ksh')  # dependency of mp_get_agascid
 
@@ -427,3 +428,49 @@ def test_supplement_get_stars():
     assert np.allclose(star2['COLOR1'], [1.49, 0.24395067])
 
     assert np.all(star2['MAG_ACA'] != star1['MAG_ACA'])
+
+
+def test_get_supplement_table_bad():
+    bad = agasc.get_supplement_table('bad')
+    assert isinstance(bad, Table)
+    assert bad.colnames == ['agasc_id', 'source']
+    assert len(bad) > 3300
+    assert 797847184 in bad['agasc_id']
+
+
+def test_get_supplement_table_bad_dict():
+    bad = agasc.get_supplement_table('bad', as_dict=True)
+    assert isinstance(bad, dict)
+    assert len(bad) > 3300
+    assert bad[797847184] == {'source': 1}
+
+
+@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+def test_get_supplement_table_mags():
+    mags = agasc.get_supplement_table('mags')
+    assert isinstance(mags, Table)
+    assert 131736 in mags['agasc_id']
+    assert len(mags) > 80000
+    assert mags.colnames == ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
+
+
+@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+def test_get_supplement_table_mags_dict():
+    mags = agasc.get_supplement_table('mags', as_dict=True)
+    assert isinstance(mags, dict)
+    assert 131736 in mags
+    assert len(mags) > 80000
+    assert list(mags[131736].keys()) == ['mag_aca', 'mag_aca_err', 'last_obs_time']
+
+
+@pytest.mark.skipif('not HAS_OBS_IN_SUPPLEMENT')
+def test_get_supplement_table_obs():
+    obs = agasc.get_supplement_table('obs')
+    assert isinstance(obs, Table)
+    assert obs.colnames == ['obsid', 'agasc_id', 'ok', 'comments']
+
+
+@pytest.mark.skipif('not HAS_OBS_IN_SUPPLEMENT')
+def test_get_supplement_table_obs_dict():
+    obs = agasc.get_supplement_table('obs', as_dict=True)
+    assert isinstance(obs, dict)
