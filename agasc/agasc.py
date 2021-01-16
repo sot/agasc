@@ -13,11 +13,13 @@ from astropy.table import Table, Column
 from ska_helpers.utils import lru_cache_timed
 
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
-           'MAG_CATID_SUPPLEMENT', 'get_supplement_table',
+           'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT', 'get_supplement_table',
            'disable_supplement']
 
 DISABLE_SUPPLEMENT_ENV = 'AGASC_DISABLE_SUPPLEMENT'
 MAG_CATID_SUPPLEMENT = 100
+BAD_CLASS_SUPPLEMENT = 100
+
 RA_DECS_CACHE = {}
 COMMON_DOC = """\
 If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
@@ -490,14 +492,18 @@ for func in get_stars, get_star, get_agasc_cone:
 
 
 def update_from_supplement(stars):
-    """Overwrite mag and color1 information from AGASC supplement in ``stars``.
+    """Update mag, color1 and class information from AGASC supplement in ``stars``.
 
-    Stars with available mag estimates in   the AGASC supplement are updated
+    Stars with available mag estimates in the AGASC supplement are updated
     in-place in the input ``stars`` Table:
 
     - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
     - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
     - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+
+    Stars which are in the bad stars table are updated as follows:
+
+    - ``CLASS = 100 + bad star source id``
 
     This functionality is gloabally disabled if the environment variable
     ``AGASC_DISABLE_SUPPLEMENT`` is set to any value.
@@ -518,6 +524,9 @@ def update_from_supplement(stars):
     # agasc_id : {mag_aca: .., mag_aca_err: ..}.
     supplement_mags = get_supplement_table('mags', as_dict=True)
 
+    # Get bad stars as {agasc_id: {source: ..}}
+    bad_stars = get_supplement_table('bad', as_dict=True)
+
     for star in stars:
         agasc_id = int(star['AGASC_ID'])
         if agasc_id in supplement_mags:
@@ -532,3 +541,6 @@ def update_from_supplement(stars):
                 color1 = star['COLOR1']
                 if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
                     star['COLOR1'] = color1 - 0.01
+
+        if agasc_id in bad_stars:
+            set_star(star, 'CLASS', BAD_CLASS_SUPPLEMENT + bad_stars[agasc_id]['source'])

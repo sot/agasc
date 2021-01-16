@@ -456,6 +456,13 @@ def test_get_supplement_table_bad_dict():
     assert bad[797847184] == {'source': 1}
 
 
+def test_get_bad_star_with_supplement():
+    bad = agasc.get_supplement_table('bad', as_dict=True)
+    agasc_id = 797847184
+    star = agasc.get_star(agasc_id, use_supplement=True)
+    assert star['CLASS'] == agasc.BAD_CLASS_SUPPLEMENT + bad[agasc_id]['source']
+
+
 @pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
 def test_get_supplement_table_mags():
     mags = agasc.get_supplement_table('mags')
