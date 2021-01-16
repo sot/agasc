@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 import warnings
-import functools
+from contextlib import ContextDecorator
 
 import numpy as np
 import numexpr
@@ -125,13 +125,12 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
     return out
 
 
-def disable_supplement(func):
+def ssdisable_supplement(func):
     """Decorator to temporarily disable use of the AGASC supplement in queries.
 
     This is mostly for testing or specialized applications to override the
     default behavior to use the AGASC supplement star mags when available.
     """
-    @functools.wraps(func)
     def wrap(*args, **kwargs):
         orig = os.environ.get(DISABLE_SUPPLEMENT_ENV)
         os.environ[DISABLE_SUPPLEMENT_ENV] = '1'
@@ -144,6 +143,36 @@ def disable_supplement(func):
                 os.environ[DISABLE_SUPPLEMENT_ENV] = orig
 
     return wrap
+
+
+class disable_supplement(ContextDecorator):
+    """Decorator / context manager to temporarily disable use of the AGASC supplement.
+
+    This is mostly for testing or specialized applications to override the
+    default behavior to use the AGASC supplement star mags when available.
+
+    Examples::
+
+      import agasc
+      with agasc.disable_supplement():
+          aca = proseco.get_aca_catalog(obsid=8008)
+
+      @agasc.disable_supplement()
+      def test_get_aca_catalog():
+          aca = proseco.get_aca_catalog(obsid=8008)
+          ...
+    """
+    def __enter__(self):
+        self.orig = os.environ.get(DISABLE_SUPPLEMENT_ENV)
+        os.environ[DISABLE_SUPPLEMENT_ENV] = '1'
+        return self
+
+    def __exit__(self, *exc):
+        if self.orig is None:
+            del os.environ[DISABLE_SUPPLEMENT_ENV]
+        else:
+            os.environ[DISABLE_SUPPLEMENT_ENV] = self.orig
+        return False
 
 
 class IdNotFound(LookupError):

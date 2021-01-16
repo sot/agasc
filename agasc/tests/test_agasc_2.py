@@ -48,8 +48,8 @@ except Exception:
     DS_AGASC_VERSION = None
 
 
-HAS_MAGS_IN_SUPPLEMENT = any(agasc.get_supplement_table('mags', as_dict=True))
-HAS_OBS_IN_SUPPLEMENT = any(agasc.get_supplement_table('obs', as_dict=True))
+NO_MAGS_IN_SUPPLEMENT = not any(agasc.get_supplement_table('mags', as_dict=True))
+NO_OBS_IN_SUPPLEMENT = not any(agasc.get_supplement_table('obs', as_dict=True))
 
 HAS_KSH = os.path.exists('/bin/ksh')  # dependency of mp_get_agascid
 
@@ -361,7 +361,7 @@ def test_proseco_agasc_1p7():
             assert p_star[name] == m_star[name]
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
     stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
@@ -397,7 +397,7 @@ def test_supplement_get_agasc_cone():
     assert np.all(stars2['MAG_ACA'][~ok] == stars1['MAG_ACA'][~ok])
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_star():
     agasc_id = 58720672
     star1 = agasc.get_star(agasc_id)
@@ -414,18 +414,29 @@ def test_supplement_get_star():
     assert star2['MAG_ACA_ERR'] != star1['MAG_ACA_ERR']
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
-def test_supplement_get_star_disable():
-    """Test that disable_supplement_mags decorator works"""
-    get_star_no_supp = agasc.disable_supplement(agasc.get_star)
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+def test_supplement_get_star_disable_context_manager():
+    """Test that disable_supplement_mags context manager works"""
     agasc_id = 58720672
     star1 = agasc.get_star(agasc_id, date='2020:001')
-    star2 = get_star_no_supp(agasc_id, date='2020:001', use_supplement=True)
+    with agasc.disable_supplement():
+        star2 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
     for name in star1.colnames:
         assert star1[name] == star2[name]
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+@agasc.disable_supplement()
+def test_supplement_get_star_disable_decorator():
+    """Test that disable_supplement_mags context manager works"""
+    agasc_id = 58720672
+    star1 = agasc.get_star(agasc_id, date='2020:001')
+    star2 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
+    for name in star1.colnames:
+        assert star1[name] == star2[name]
+
+
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
     star1 = agasc.get_stars(agasc_ids)
@@ -463,7 +474,7 @@ def test_get_bad_star_with_supplement():
     assert star['CLASS'] == agasc.BAD_CLASS_SUPPLEMENT + bad[agasc_id]['source']
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_get_supplement_table_mags():
     mags = agasc.get_supplement_table('mags')
     assert isinstance(mags, Table)
@@ -472,7 +483,7 @@ def test_get_supplement_table_mags():
     assert mags.colnames == ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_get_supplement_table_mags_dict():
     mags = agasc.get_supplement_table('mags', as_dict=True)
     assert isinstance(mags, dict)
@@ -481,14 +492,14 @@ def test_get_supplement_table_mags_dict():
     assert list(mags[131736].keys()) == ['mag_aca', 'mag_aca_err', 'last_obs_time']
 
 
-@pytest.mark.skipif('not HAS_OBS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_OBS_IN_SUPPLEMENT, reason='no obs in supplement')
 def test_get_supplement_table_obs():
     obs = agasc.get_supplement_table('obs')
     assert isinstance(obs, Table)
     assert obs.colnames == ['obsid', 'agasc_id', 'ok', 'comments']
 
 
-@pytest.mark.skipif('not HAS_OBS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_OBS_IN_SUPPLEMENT, reason='no obs in supplement')
 def test_get_supplement_table_obs_dict():
     obs = agasc.get_supplement_table('obs', as_dict=True)
     assert isinstance(obs, dict)
