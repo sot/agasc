@@ -365,7 +365,7 @@ def test_proseco_agasc_1p7():
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
     stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
-    stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_mag_est=True)
+    stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=True)
     ok = stars2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
     change_names = ['MAG_CATID', 'COLOR1', 'MAG_ACA', 'MAG_ACA_ERR']
@@ -401,7 +401,7 @@ def test_supplement_get_agasc_cone():
 def test_supplement_get_star():
     agasc_id = 58720672
     star1 = agasc.get_star(agasc_id)
-    star2 = agasc.get_star(agasc_id, use_mag_est=True)
+    star2 = agasc.get_star(agasc_id, use_supplement=True)
     assert star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT
     assert star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
@@ -415,10 +415,21 @@ def test_supplement_get_star():
 
 
 @pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+def test_supplement_get_star_disable():
+    """Test that disable_supplement_mags decorator works"""
+    get_star_no_supp = agasc.disable_supplement(agasc.get_star)
+    agasc_id = 58720672
+    star1 = agasc.get_star(agasc_id, date='2020:001')
+    star2 = get_star_no_supp(agasc_id, date='2020:001', use_supplement=True)
+    for name in star1.colnames:
+        assert star1[name] == star2[name]
+
+
+@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
     star1 = agasc.get_stars(agasc_ids)
-    star2 = agasc.get_stars(agasc_ids, use_mag_est=True)
+    star2 = agasc.get_stars(agasc_ids, use_supplement=True)
     assert np.all(star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT)
     assert np.all(star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT)
 
