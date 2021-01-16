@@ -221,7 +221,8 @@ following fields for each entry::
             5 - potential artifact
             6 - known multiple system
             7 - close to galaxy or other extended object
-          128 - bad star in AGASC supplement (only via agasc package query)
+         >100 - bad star in AGASC supplement (only via agasc package query);
+                class = 100 + bad star source ID.
 
         Note that code 1 is used only for a few hand-entered errata in
         or for galaxies with matches to preliminary 2MASS galaxy catalog.
@@ -267,7 +268,7 @@ following fields for each entry::
             4 - ACT
             5 - Tycho-2
             6 - GSC-ACT
-          128 - Chandra ACA estimated magnitude (only via agasc package query)
+          100 - Chandra ACA estimated magnitude (only via agasc package query)
 
     4    COLOR1 - float variable expressing the cataloged or estimated B-V color,
         used for mag_aca, in mag.  If no colors are available, the default

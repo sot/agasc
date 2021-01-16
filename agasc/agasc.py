@@ -17,8 +17,23 @@ __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
            'disable_supplement']
 
 DISABLE_SUPPLEMENT_ENV = 'AGASC_DISABLE_SUPPLEMENT'
-MAG_CATID_SUPPLEMENT = 128
+MAG_CATID_SUPPLEMENT = 100
 RA_DECS_CACHE = {}
+COMMON_DOC = """\
+If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
+    environment variable set, then stars with available mag estimates or bad
+    star entries in the AGASC supplement are updated in-place in the output
+    ``stars`` Table:
+
+    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
+    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (100).
+    - If ``COLOR1`` is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+    - If ``AGASC_ID`` is in the supplement bad stars table then CLASS is set to
+      ``100 + <source>``, where ``<source>`` is the bad star source identifier.
+
+    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
+    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
+    or ``$SKA/data/agasc``."""
 
 
 def default_agasc_dir():
@@ -109,7 +124,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
 
 
 def disable_supplement(func):
-    """Decorator to temporarily disable use the AGASC supplement in queries.
+    """Decorator to temporarily disable use of the AGASC supplement in queries.
 
     This is mostly for testing or specialized applications to override the
     default behavior to use the AGASC supplement star mags when available.
@@ -278,17 +293,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``
     columns, respectively.
 
-    If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
-    environment variable set, then stars with available mag estimates in
-    the AGASC supplement are updated in-place in the output ``stars`` Table:
-
-    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
-
-    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
-    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
-    or ``$SKA/data/agasc``.
+    {common_doc}
 
     Example::
 
@@ -343,24 +348,14 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Fal
     """
     Get AGASC catalog entry for star with requested id.
 
-    If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
-    environment variable set, then stars with available mag estimates in
-    the AGASC supplement are updated in-place in the output ``stars`` Table:
-
-    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
-
-    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
-    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
-    or ``$SKA/data/agasc``.
+    {common_doc}
 
     Example::
 
       >>> import agasc
       >>> star = agasc.get_star(636629880)
       >>> for name in star.colnames:
-      ...     print '{:12s} : {}'.format(name, star[name])
+      ...     print '{{:12s}} : {{}}'.format(name, star[name])
       AGASC_ID     : 636629880
       RA           : 125.64184
       DEC          : -4.23235
@@ -423,23 +418,13 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=
     indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
     are computed.
 
-    If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
-    environment variable set, then stars with available mag estimates in
-    the AGASC supplement are updated in-place in the output ``stars`` Table:
-
-    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
-
-    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
-    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
-    or ``$SKA/data/agasc``.
+    {common_doc}
 
     Example::
       >>> import agasc
       >>> star = agasc.get_stars(636629880)
       >>> for name in star.colnames:
-      ...     print '{:12s} : {}'.format(name, star[name])
+      ...     print '{{:12s}} : {{}}'.format(name, star[name])
       AGASC_ID     : 636629880
       RA           : 125.64184
       DEC          : -4.23235
@@ -497,6 +482,11 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=
         update_from_supplement(t)
 
     return t if ids.shape else t[0]
+
+
+# Interpolate COMMON_DOC into those function docstrings
+for func in get_stars, get_star, get_agasc_cone:
+    func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
 
 
 def update_from_supplement(stars):
