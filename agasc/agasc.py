@@ -551,10 +551,11 @@ def update_from_supplement(stars):
 
     # Get estimate mags and errs from supplement as a dict of dict
     # agasc_id : {mag_aca: .., mag_aca_err: ..}.
-    supplement_mags = get_supplement_table('mags', as_dict=True)
+    supplement_mags = get_supplement_table('mags', agasc_dir=default_agasc_dir(),
+                                           as_dict=True)
 
     # Get bad stars as {agasc_id: {source: ..}}
-    bad_stars = get_supplement_table('bad', as_dict=True)
+    bad_stars = get_supplement_table('bad', agasc_dir=default_agasc_dir(), as_dict=True)
 
     for star in stars:
         agasc_id = int(star['AGASC_ID'])
