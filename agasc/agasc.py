@@ -352,13 +352,54 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
     return t[0]
 
 
-def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=None):
+def _get_rows_read_where(ids_1d, dates_1d, agasc_file):
+    rows = []
+    with tables.open_file(agasc_file) as h5:
+        tbl = h5.root.data
+        for id, date in zip(ids_1d, dates_1d):
+            id_rows = tbl.read_where('(AGASC_ID == {})'.format(id))
+
+            if len(id_rows) > 1:
+                raise InconsistentCatalogError(
+                    f'More than one entry found for {id} in AGASC')
+
+            if id_rows is None or len(id_rows) == 0:
+                raise IdNotFound(f'No entry found for {id} in AGASC')
+
+            rows.append(id_rows[0])
+    return rows
+
+
+def _get_rows_read_entire(ids_1d, dates_1d, agasc_file):
+    with tables.open_file(agasc_file) as h5:
+        tbl = h5.root.data[:]
+
+    agasc_idx = {agasc_id: idx for idx, agasc_id in enumerate(tbl['AGASC_ID'])}
+
+    rows = []
+    for agasc_id, date in zip(ids_1d, dates_1d):
+        if agasc_id not in agasc_idx:
+            raise IdNotFound(f'No entry found for {agasc_id} in AGASC')
+
+        rows.append(tbl[agasc_idx[agasc_id]])
+    return rows
+
+
+def get_stars(ids, agasc_file=None, dates=None, read_entire_agasc=5000, fix_color1=True,
+              use_supplement=None):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
     The input ``ids`` and ``dates`` are broadcast together for the output shape
     (though note that the result is flattened in the end). If both are scalar
     inputs then the output is a Table Row, otherwise the output is a Table.
+
+    This function has two possible methods for getting stars, either by using
+    the HDF5 ``tables.read_where()`` function to get one star at a time from the
+    HDF5 file, or by reading the entire table into memory and doing the search
+    by making a dict index by AGASC ID. Tests indicate that the latter is faster
+    for about 5000 or more stars, so this function will read the entire AGASC if
+    the number of stars is greater than ``read_entire_agasc``.
 
     Unlike the similar ``get_star`` function, this adds a ``DATE`` column
     indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
@@ -400,27 +441,25 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=
     if agasc_file is None:
         agasc_file = default_agasc_file()
 
-    rows = []
-    dates = DateTime(dates).date
+    dates_in = DateTime(dates).date
+    dates_is_scalar = np.asarray(dates_in).shape == ()
 
-    with tables.open_file(agasc_file) as h5:
-        tbl = h5.root.data
-        ids, dates = np.broadcast_arrays(ids, dates)
-        for id, date in zip(np.atleast_1d(ids), np.atleast_1d(dates)):
-            id_rows = tbl.read_where('(AGASC_ID == {})'.format(id))
+    ids, dates = np.broadcast_arrays(ids, dates_in)
+    ids_1d, dates_1d = np.atleast_1d(ids), np.atleast_1d(dates)
 
-            if len(id_rows) > 1:
-                raise InconsistentCatalogError(
-                    f'More than one entry found for {id} in AGASC')
-
-            if id_rows is None or len(id_rows) == 0:
-                raise IdNotFound(f'No entry found for {id} in AGASC')
-
-            rows.append(id_rows[0])
+    if len(ids_1d) < read_entire_agasc:
+        rows = _get_rows_read_where(ids_1d, dates_1d, agasc_file)
+        method = 'tables_read_where'
+    else:
+        rows = _get_rows_read_entire(ids_1d, dates_1d, agasc_file)
+        method = 'read_entire_agasc'
 
     t = Table(np.vstack(rows).flatten())
 
-    add_pmcorr_columns(t, dates)
+    # Define a temporary attribute indicating get_stars method, mostly for testing
+    t.get_stars_method = method
+
+    add_pmcorr_columns(t, dates_in if dates_is_scalar else dates)
     if fix_color1:
         update_color1_column(t)
     t['DATE'] = dates
