@@ -25,6 +25,8 @@ import numpy as np
 
 SKA = Path(os.environ['SKA'])
 
+logger = logging.getLogger('agasc.supplement')
+
 
 def parser():
     parse_ = argparse.ArgumentParser(description=__doc__)
@@ -69,7 +71,6 @@ def main(args=None):
 
 
 def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
-    logger = logging.getLogger('agasc.supplement')
     if not bad_star_ids:
         logger.info('Nothing to update')
         return

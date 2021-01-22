@@ -14,6 +14,7 @@ from agasc.scripts.add_bad_star import add_bad_star
 from agasc.scripts import update_obs_status
 import pathlib
 import os
+import pyyaks
 
 
 def parser():
@@ -88,8 +89,11 @@ def main():
     else:
         args.reports_dir = pathlib.Path(os.path.expandvars(args.reports_dir))
 
-    logging.basicConfig(level=args.log_level.upper(),
-                        format='%(message)s')
+    pyyaks.logger.get_logger(
+        name='agasc.supplement',
+        level=args.log_level.upper(),
+        format="%(asctime)s %(message)s"
+    )
 
     if (args.obs and not args.status) or (not args.obs and args.status):
         logging.error('To override OBS status, both --obs and --status options are needed.')

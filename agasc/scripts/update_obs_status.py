@@ -16,8 +16,11 @@ import argparse
 from agasc.scripts.add_bad_star import add_bad_star
 import numpy as np
 import logging
+import pyyaks
 
 from agasc.supplement.magnitudes import star_obs_catalogs
+
+logger = logging.getLogger('agasc.supplement')
 
 
 def parse_obs_status_file(filename):
@@ -126,8 +129,6 @@ def update_obs_status(filename, obs_status_override, dry_run=False):
     :param dry_run: bool
     :return:
     """
-    logger = logging.getLogger('agasc.supplement')
-
     if not pathlib.Path(filename).exists():
         raise FileExistsError(f'AGASC supplement file does not exist: {filename}')
 
@@ -207,7 +208,11 @@ def main():
     if args.status and args.status.lower() in status_to_int:
         args.status = status_to_int[args.status.lower()]
 
-    logging.basicConfig(level=args.log_level.upper())
+    pyyaks.logger.get_logger(
+        name='agasc.supplement',
+        level=args.log_level.upper(),
+        format="%(asctime)s %(message)s"
+    )
 
     star_obs_catalogs.load()
 
