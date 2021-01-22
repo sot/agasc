@@ -64,13 +64,18 @@ The Magnitude Supplement
 ------------------------
 
 The AGASC magnitude supplement is automatically updated on a weekly basis using the `agasc-supplement-update`_ script.
-Here are some usage examples. Other useful command-line options are shown in the `agasc-supplement-update`_ section.
-
-A call like the following updates the supplement file located in the current working directory, and produces HTML
-reports in the `supplement_reports/weekly` directory, relative to the working directory::
+A call like the following::
 
     agasc-supplement-update --report
 
+Does the following:
+
+- updates/creates the supplement file located in the current working directory (``agasc_supplement.h5``),
+- updates/creates a file with star-observation statistics (``mag_stats_obsid.fits``),
+- updates/creates a file with star statistics (``mag_stats_agasc.fits``),
+- produces HTML reports in the `supplement_reports/weekly` directory, relative to the ($CWD)
+
+Here are some other usage examples. Other useful command-line options are shown in the `agasc-supplement-update`_ section.
 The following commands will update all observations since 2019:000 until the end of 2019, ignoring all observations
 after the stopping time::
 
