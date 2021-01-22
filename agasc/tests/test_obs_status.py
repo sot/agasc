@@ -162,14 +162,14 @@ def test_parse_obs_status_file(monkeypatch):
     monkeypatch.setitem(__builtins__, 'open', _open)
 
     with pytest.raises(RuntimeError, match=r"catalog"):
-        update_obs_status.parse_obs_status_file('file_4.yml')
+        update_obs_status._parse_obs_status_file('file_4.yml')
 
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     for filename in TEST_YAML:
-        data = update_obs_status.parse_obs_status_file(filename)
+        data = update_obs_status._parse_obs_status_file(filename)
         assert data == TEST_DATA[filename], \
-            f'parse_obs_status_file("{filename}") == TEST_DATA["{filename}"]'
+            f'_parse_obs_status_file("{filename}") == TEST_DATA["{filename}"]'
 
 
 def test_parse_obs_status_args_file(monkeypatch):
@@ -178,13 +178,13 @@ def test_parse_obs_status_args_file(monkeypatch):
 
     for filename in TEST_YAML:
         ref_obs_status_override, ref_bad = TEST_DATA[filename]
-        obs_status_override, bad = update_obs_status.parse_obs_status_args(
+        obs_status_override, bad = update_obs_status._parse_obs_status_args(
             filename=filename
         )
         assert obs_status_override == ref_obs_status_override, \
-            f'parse_obs_status_args("{filename}")[0] == TEST_DATA["{filename}"][0]'
+            f'_parse_obs_status_args("{filename}")[0] == TEST_DATA["{filename}"][0]'
         assert bad == ref_bad, \
-            f'parse_obs_status_args("{filename}")[1] == TEST_DATA["{filename}"][1]'
+            f'_parse_obs_status_args("{filename}")[1] == TEST_DATA["{filename}"][1]'
 
 
 def test_parse_obs_status_args_bad(monkeypatch):
@@ -195,14 +195,14 @@ def test_parse_obs_status_args_bad(monkeypatch):
     # specifying bad stars
     #######################
 
-    status = update_obs_status.parse_obs_status_args(
+    status = update_obs_status._parse_obs_status_args(
         bad_star=1, bad_star_source=2
     )
     assert status['obs'] == {}
     assert status['bad'] == {1: 2}
 
     # bad star can be a list
-    status = update_obs_status.parse_obs_status_args(
+    status = update_obs_status._parse_obs_status_args(
         bad_star=[1, 2], bad_star_source=3
     )
     assert status['obs'] == {}
@@ -210,7 +210,7 @@ def test_parse_obs_status_args_bad(monkeypatch):
 
     # if you specify bad_star, you must specify bad_star_source
     with pytest.raises(RuntimeError, match=r"specify bad_star_source"):
-        update_obs_status.parse_obs_status_args(
+        update_obs_status._parse_obs_status_args(
             bad_star=1
         )
 
@@ -223,8 +223,8 @@ def test_parse_obs_status_args_obs(monkeypatch):
     # specifying obs status
     #######################
 
-    status = update_obs_status.parse_obs_status_args(
-        obs=56314, status=False, comments='some comment'
+    status = update_obs_status._parse_obs_status_args(
+        obsid=56314, status=False, comments='some comment'
     )
     ref = {
         'obs': {
@@ -242,8 +242,8 @@ def test_parse_obs_status_args_obs(monkeypatch):
     assert status == ref
 
     # comments are optional
-    status = update_obs_status.parse_obs_status_args(
-        obs=56314, status=False
+    status = update_obs_status._parse_obs_status_args(
+        obsid=56314, status=False
     )
     ref = {
         'obs': {
@@ -260,21 +260,21 @@ def test_parse_obs_status_args_obs(monkeypatch):
     assert status == ref
 
     # OBSID does not exist, so there are no stars in it
-    status = update_obs_status.parse_obs_status_args(
-        obs=1, status=False
+    status = update_obs_status._parse_obs_status_args(
+        obsid=1, status=False
     )
     assert status == {'obs': {}, 'bad': {}}
 
     # optional agasc_id can be int or list
-    status = update_obs_status.parse_obs_status_args(
-        obs=1, status=True, agasc_id=[2], comments='comment'
+    status = update_obs_status._parse_obs_status_args(
+        obsid=1, status=True, agasc_id=[2], comments='comment'
     )
     ref = {'obs': {(1, 2): {'ok': True, 'comments': 'comment'}},
            'bad': {}}
     assert status == ref
 
-    status = update_obs_status.parse_obs_status_args(
-        obs=1, status=True, agasc_id=2, comments='comment'
+    status = update_obs_status._parse_obs_status_args(
+        obsid=1, status=True, agasc_id=2, comments='comment'
     )
     ref = {'obs': {(1, 2): {'ok': True, 'comments': 'comment'}},
            'bad': {}}
@@ -287,7 +287,7 @@ def test_parse_obs_status_args(monkeypatch):
 
     # calling function before catalog is initialized gives an exception
     with pytest.raises(RuntimeError, match=r"catalog"):
-        _ = update_obs_status.parse_obs_status_args('file_5.yml')
+        _ = update_obs_status._parse_obs_status_args('file_5.yml')
 
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
@@ -295,14 +295,14 @@ def test_parse_obs_status_args(monkeypatch):
 
     # can not specify bad star with different source in the file and in args.
     with pytest.raises(RuntimeError, match=r"name collision"):
-        _ = update_obs_status.parse_obs_status_args(
+        _ = update_obs_status._parse_obs_status_args(
             filename=filename,
             bad_star=23434,
             bad_star_source=12
         )
 
     # can specify bad star in the file and in args if the source is the same.
-    status = update_obs_status.parse_obs_status_args(
+    status = update_obs_status._parse_obs_status_args(
         filename=filename,
         bad_star=23434,
         bad_star_source=10
@@ -311,7 +311,7 @@ def test_parse_obs_status_args(monkeypatch):
     assert ref == status
 
     # if there are no name conflicts, args and file are merged
-    status = update_obs_status.parse_obs_status_args(
+    status = update_obs_status._parse_obs_status_args(
         filename=filename,
         obs=56309,
         agasc_id=[762184312, 762184768, 762185584, 762186016],
@@ -319,10 +319,10 @@ def test_parse_obs_status_args(monkeypatch):
         bad_star=[1, 2],
         bad_star_source=1000
     )
-    ref = update_obs_status.parse_obs_status_args(
+    ref = update_obs_status._parse_obs_status_args(
         filename=filename
     )
-    ref_2 = update_obs_status.parse_obs_status_args(
+    ref_2 = update_obs_status._parse_obs_status_args(
         obs=56309,
         agasc_id=[762184312, 762184768, 762185584, 762186016],
         status=False,
@@ -341,13 +341,13 @@ def _disabled_write(*args, **kwargs):
 
 def test_update_obs_non_existent():
     with pytest.raises(FileExistsError):
-        update_obs_status.update_obs_status('some_non_existent_file.h5', {})
+        update_obs_status.update_obs_table('some_non_existent_file.h5', {})
 
 
 def test_update_obs_dry_run(monkeypatch):
     # should not write if dry_run==True
     monkeypatch.setattr(table.Table, 'write', _disabled_write)
-    update_obs_status.update_obs_status(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
+    update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
                                         {},
                                         dry_run=True)
 
@@ -355,7 +355,7 @@ def test_update_obs_dry_run(monkeypatch):
 def test_update_obs_skip(monkeypatch):
     # should not write if there is nothing to write
     monkeypatch.setattr(table.Table, 'write', _disabled_write)
-    update_obs_status.update_obs_status(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
+    update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
                                         {},
                                         dry_run=False)
 
@@ -375,8 +375,8 @@ def test_update_obs_blank_slate(monkeypatch):
         monkeypatch.setattr(table.Table,
                             'write',
                             lambda *args, **kwargs: mock_write(filename, *args, **kwargs))
-        status = update_obs_status.parse_obs_status_args(filename=filename)
-        update_obs_status.update_obs_status(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
+        status = update_obs_status._parse_obs_status_args(filename=filename)
+        update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
                                             status['obs'],
                                             dry_run=False)
 
@@ -408,8 +408,8 @@ def test_update_obs(monkeypatch):
 
     filename = 'file_4.yml'
     monkeypatch.setattr(table.Table, 'write', mock_write)
-    status = update_obs_status.parse_obs_status_args(filename=filename)
-    update_obs_status.update_obs_status(TEST_DATA_DIR / 'agasc_supplement.h5',
+    status = update_obs_status._parse_obs_status_args(filename=filename)
+    update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
                                         status['obs'],
                                         dry_run=False)
 
@@ -423,13 +423,13 @@ def recreate_test_supplement():
     with tables.open_file(str(TEST_DATA_DIR / 'agasc_supplement.h5'), 'w'):
         pass
 
-    obs_status_override, bad_stars = update_obs_status.parse_obs_status_args(filename='file_7.yml')
-    update_obs_status.update_obs_status(TEST_DATA_DIR / 'agasc_supplement.h5',
+    obs_status_override, bad_stars = update_obs_status._parse_obs_status_args(filename='file_7.yml')
+    update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
                                         obs_status_override,
                                         dry_run=False)
 
-    obs_status_override, bad_stars = update_obs_status.parse_obs_status_args(filename='file_4.yml')
-    update_obs_status.update_obs_status(TEST_DATA_DIR / 'agasc_supplement.h5',
+    obs_status_override, bad_stars = update_obs_status._parse_obs_status_args(filename='file_4.yml')
+    update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
                                         obs_status_override,
                                         dry_run=False)
 
