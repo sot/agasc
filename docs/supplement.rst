@@ -45,8 +45,8 @@ With a `status.yml` file like the following:
       23434: 10
 
 will cause the script to add AGASC IDs 77073552 and 23434 to the bad star list, with sources 9 and 10 respectively.
-The observations of all stars observed in OBSID 56311 will be added to the "obs" table with status=False, and the
-observation of AGASC ID 806750112 in OBSID 56308 will be added with status=True. It is possible to specify a comment
+The observations of all stars observed in OBSID 56311 will be added to the "obs" table with ok=False, and the
+observation of AGASC ID 806750112 in OBSID 56308 will be added with ok=True. It is possible to specify a comment
 string with the observation info.
 
 By default, the `agasc-supplement-obs-status`_ script updates the supplement file in the current working directory, but
@@ -66,7 +66,7 @@ The Magnitude Supplement
 The AGASC magnitude supplement is automatically updated on a weekly basis using the `agasc-supplement-update`_ script.
 Here are some usage examples. Other useful command-line options are shown in the `agasc-supplement-update`_ section.
 
-A call like the following updates the supplement file located in the current working directory, and produces html
+A call like the following updates the supplement file located in the current working directory, and produces HTML
 reports in the `supplement_reports/weekly` directory, relative to the working directory::
 
     agasc-supplement-update --report
