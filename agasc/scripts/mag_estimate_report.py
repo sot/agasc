@@ -6,8 +6,8 @@ Produce reports of the magnitude supplement.
 
 import os
 import argparse
-import numpy as np
 import pathlib
+import numpy as np
 from astropy import table, time, units as u
 from cxotime import CxoTime, units
 

@@ -2,18 +2,18 @@
 import warnings
 import os
 import pickle
-import yaml
-import numpy as np
-import tables
 import datetime
 import logging
 from functools import partial
 from multiprocessing import Pool
+
+import tables
+import numpy as np
 from astropy import table
+from astropy import time, units as u
 
 from agasc.supplement.magnitudes import star_obs_catalogs, mag_estimate, mag_estimate_report as msr
 from cxotime import CxoTime
-from astropy import time, units as u
 
 
 def level0_archive_time_range():

@@ -1,15 +1,15 @@
-from pathlib import Path
-import jinja2
-from agasc.supplement.magnitudes import mag_estimate
-from astropy import table
-import numpy as np
-from cxotime import CxoTime
-import matplotlib.pyplot as plt
-
-from email.mime.text import MIMEText
-from subprocess import Popen, PIPE
 import platform
 import getpass
+from subprocess import Popen, PIPE
+from pathlib import Path
+from email.mime.text import MIMEText
+import jinja2
+import numpy as np
+import matplotlib.pyplot as plt
+from astropy import table
+from cxotime import CxoTime
+
+from agasc.supplement.magnitudes import mag_estimate
 
 
 class MagEstimateReport:

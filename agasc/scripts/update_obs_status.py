@@ -9,12 +9,12 @@ This script can add one or many bad stars to the bad star table, as well as obse
 information relevant for the magnitude estimation from acq data.
 """
 
-from astropy import table
-import yaml
-import pathlib
 import argparse
-import numpy as np
+import pathlib
 import logging
+import yaml
+import numpy as np
+from astropy import table
 import pyyaks.logger
 
 from agasc.supplement.magnitudes import star_obs_catalogs

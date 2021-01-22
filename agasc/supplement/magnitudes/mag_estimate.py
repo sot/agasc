@@ -4,16 +4,14 @@ Functions to estimate observed ACA magnitudes
 
 import logging
 import collections
+
 import scipy.stats
 import scipy.special
 import numpy as np
 import numba
 from astropy.table import Table, vstack
 
-from . import star_obs_catalogs
-
 from Chandra.Time import DateTime
-from agasc import get_star
 from cheta import fetch
 from Quaternion import Quat
 import Ska.quatutil
@@ -23,6 +21,8 @@ from chandra_aca.transform import count_rate_to_mag, pixels_to_yagzag
 from cxotime import CxoTime
 from kadi import events
 
+from . import star_obs_catalogs
+from agasc import get_star
 
 MAX_MAG = 15
 MASK = {
