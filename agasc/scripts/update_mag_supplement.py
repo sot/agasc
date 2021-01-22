@@ -10,51 +10,39 @@ import argparse
 import logging
 from agasc.supplement.magnitudes import star_obs_catalogs
 from agasc.supplement.magnitudes import update_mag_supplement
-from agasc.scripts.add_bad_star import add_bad_star
 from agasc.scripts import update_obs_status
 import pathlib
 import os
-import pyyaks
+import pyyaks.logger
 
 
-def parser():
-    parse = argparse.ArgumentParser(description=__doc__)
-    parse.add_argument('--start',
-                       help='Include only stars observed after this time.'
-                            ' CxoTime-compatible time stamp.'
-                            ' Default: now - 14 days.')
-    parse.add_argument('--stop',
-                       help='Include only stars observed before this time.'
-                            ' CxoTime-compatible time stamp.'
-                            ' Default: now.')
-    parse.add_argument('--whole-history',
-                       help='Include all star observations and ignore --start/stop.',
-                       action='store_true', default=False)
-    parse.add_argument('--agasc-id-file',
-                       help='Include only observations of stars whose AGASC IDs are specified '
-                            'in this file, one per line.')
-    parse.add_argument('--output-dir',
-                       help='Directory where agasc_supplement.h5 is located.'
-                            'Other output is placed here as well. Default: .',
-                       default='.')
-    parse.add_argument('--include-bad',
-                       help='Do not exclude "bad" stars from magnitude estimates. Default: False',
-                       action='store_true', default=False)
-    status = parse.add_argument_group(
-        'OBS/star status',
-        'options to modify the "bads" and "obs" tables in AGASC supplement. '
-        'Modifications to supplement happen before all magnitude estimates are made.'
+def get_parser():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        parents=[update_obs_status.get_obs_status_parser()]
     )
-    status.add_argument('--obs-status-override',
-                        help='YAML file with star/observation status. '
-                             'More info at https://sot.github.io/agasc/supplement.html')
-    status.add_argument('--obs', help='Observation ID for status override.')
-    status.add_argument('--agasc-id', help='AGASC ID for status override.')
-    status.add_argument('--status', help='Status to override.')
-    status.add_argument('--bad-star', help='Bad star AGASC ID.',
-                        default=[], action='append', type=int)
-    status.add_argument('--comments', help='Comments for status override.', default='')
-    report = parse.add_argument_group('Reporting')
+    parser.add_argument('--start',
+                        help='Include only stars observed after this time.'
+                             ' CxoTime-compatible time stamp.'
+                             ' Default: now - 14 days.')
+    parser.add_argument('--stop',
+                        help='Include only stars observed before this time.'
+                             ' CxoTime-compatible time stamp.'
+                             ' Default: now.')
+    parser.add_argument('--whole-history',
+                        help='Include all star observations and ignore --start/stop.',
+                        action='store_true', default=False)
+    parser.add_argument('--agasc-id-file',
+                        help='Include only observations of stars whose AGASC IDs are specified '
+                             'in this file, one per line.')
+    parser.add_argument('--output-dir',
+                        help='Directory where agasc_supplement.h5 is located.'
+                             'Other output is placed here as well. Default: .',
+                        default='.')
+    parser.add_argument('--include-bad',
+                        help='Do not exclude "bad" stars from magnitude estimates. Default: False',
+                        action='store_true', default=False)
+    report = parser.add_argument_group('Reporting')
     report.add_argument('--report',
                         help='Generate HTML report for the period covered. Default: False',
                         action='store_true', default=False)
@@ -62,7 +50,7 @@ def parser():
                         help='Directory where to place reports.'
                              ' Default: <output_dir>/supplement_reports/weekly.')
 
-    other = parse.add_argument_group('Other')
+    other = parser.add_argument_group('Other')
     other.add_argument('--multi-process',
                        help="Use multi-processing to accelerate run.",
                        action='store_true', default=False)
@@ -72,11 +60,11 @@ def parser():
     other.add_argument("--dry-run",
                        action="store_true",
                        help="Dry run (no actual file or database updates)")
-    return parse
+    return parser
 
 
 def main():
-    the_parser = parser()
+    the_parser = get_parser()
     args = the_parser.parse_args()
 
     status_to_int = {'true': 1, 'false': 0, 'ok': 1, 'good': 1, 'bad': 0}
@@ -101,27 +89,14 @@ def main():
 
     star_obs_catalogs.load(args.stop)
 
-    status_override = update_obs_status.parse_obs_status_args(
-        filename=args.obs_status_override, **vars(args))
-
     # set the list of AGASC IDs from file if specified. If not, it will include all.
     agasc_ids = []
     if args.agasc_id_file:
         with open(args.agasc_id_file, 'r') as f:
-            agasc_ids = [int(l.strip()) for l in f.readlines()]
-    agasc_ids += [o[1] for o in status_override['obs']]
+            agasc_ids = [int(line.strip()) for line in f.readlines()]
 
-    if status_override['obs']:
-        update_obs_status.update_obs_status(
-            args.output_dir / 'agasc_supplement.h5', status_override['obs'], dry_run=args.dry_run
-        )
-
-    if status_override['bad']:
-        bad_star_ids, bad_star_source = zip(*status_override['bad'].items())
-        add_bad_star(bad_star_ids,
-                     bad_star_source,
-                     args.output_dir / 'agasc_supplement.h5',
-                     dry_run=args.dry_run)
+    # update 'bad' and 'obs' tables in supplement
+    agasc_ids += update_obs_status.update(args)
 
     update_mag_supplement.do(
         args.output_dir,

@@ -114,7 +114,7 @@ Scripts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. argparse::
-   :ref: agasc.scripts.update_obs_status.parser
+   :ref: agasc.scripts.update_obs_status.get_parser
    :prog: agasc-supplement-obs-status
 
 
@@ -124,7 +124,7 @@ Scripts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. argparse::
-   :ref: agasc.scripts.update_mag_supplement.parser
+   :ref: agasc.scripts.update_mag_supplement.get_parser
    :prog: agasc-supplement-update
 
 
@@ -134,7 +134,7 @@ Scripts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. argparse::
-   :ref: agasc.scripts.mag_estimate_report.parser
+   :ref: agasc.scripts.mag_estimate_report.get_parser
    :prog: agasc-mag-estimate-report
 
 .. _`agasc-supplement-bad-star`:
@@ -143,5 +143,5 @@ Scripts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. argparse::
-   :ref: agasc.scripts.add_bad_star.parser
+   :ref: agasc.scripts.update_obs_status.get_parser
    :prog: agasc-supplement-bad-star
