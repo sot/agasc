@@ -163,7 +163,7 @@ def _parse_obs_status_file(filename):
     return status
 
 
-def _parse_obs_status_args(filename=None, bad_star=[], bad_star_source=None,
+def _parse_obs_status_args(filename=None, bad_star=None, bad_star_source=None,
                            obsid=None, status=None, comments='', agasc_id=None,
                            **_
                            ):
@@ -175,7 +175,7 @@ def _parse_obs_status_args(filename=None, bad_star=[], bad_star_source=None,
         parse_obs_status_args(vars(args))
 
     :param filename: str
-    :param bad_star: int
+    :param bad_star: int or list
     :param bad_star_source: int
     :param obs: int
     :param status: int
@@ -184,7 +184,7 @@ def _parse_obs_status_args(filename=None, bad_star=[], bad_star_source=None,
     :return:
     """
     obs_status_override = {}
-    bad_star = (list(np.atleast_1d(bad_star)))
+    bad_star = (list(np.atleast_1d(bad_star if bad_star else [])))
     bad = {}
 
     if bad_star and bad_star_source is None:
