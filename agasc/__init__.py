@@ -2,6 +2,8 @@
 import ska_helpers
 
 from .agasc import *  # noqa
+from .supplement.utils import *  # noqa
+from .paths import *  # noqa
 
 __version__ = ska_helpers.get_version(__package__)
 

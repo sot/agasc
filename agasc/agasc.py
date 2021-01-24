@@ -1,7 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from pathlib import Path
-import warnings
 from contextlib import ContextDecorator
 
 import numpy as np
@@ -10,10 +8,12 @@ import tables
 
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
-from ska_helpers.utils import lru_cache_timed
+
+from .paths import default_agasc_dir, default_agasc_file
+from .supplement.utils import get_supplement_table
 
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
-           'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT', 'get_supplement_table',
+           'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT',
            'disable_supplement']
 
 DISABLE_SUPPLEMENT_ENV = 'AGASC_DISABLE_SUPPLEMENT'
@@ -36,113 +36,6 @@ If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
     The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
     ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
     or ``$SKA/data/agasc``."""
-
-
-def default_agasc_dir():
-    """Path to the AGASC directory.
-
-    This returns the ``AGASC_DIR`` environment variable if defined, otherwise
-    ``$SKA/data/agasc``.
-
-    :returns: Path
-    """
-    if 'AGASC_DIR' in os.environ:
-        out = Path(os.environ['AGASC_DIR'])
-    else:
-        out = Path(os.environ['SKA'], 'data', 'agasc')
-    return out
-
-
-def default_agasc_file():
-    """Default main AGASC file ``agasc_dir() / miniagasc.h5``.
-
-    :returns: str
-    """
-    return str(default_agasc_dir() / 'miniagasc.h5')
-
-
-@lru_cache_timed(timeout=3600)
-def get_supplement_table(name, agasc_dir=None, as_dict=False):
-    """Get one of the tables in the AGASC supplement.
-
-    This function gets one of the supplement tables, specified with ``name``:
-
-    - ``bad``: Bad stars (agasc_id, source)
-    - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)
-    - ``obs``: Star-obsid status for mag estimation (agasc_id, obsid, ok,
-      comments)
-
-    This function is cached with a timeout of an hour, so you can call it
-    repeatedly with no penalty in performance.
-
-    If ``as_dict=False`` (default) then the table is returned as an astropy
-    ``Table``.
-
-    If ``as_dict=True`` then the table is returned as a dict of {key: value}
-    pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the
-    key is the ``(agasc_id, obsid)`` tuple. In all cases the value is a dict
-    of the remaining columns.
-
-    :param name: Table name within the AGASC supplement HDF5 file
-    :param data_root: directory containing the AGASC supplement HDF5 file
-        (default=same directory as the AGASC file)
-    :param as_dict: return result as a dictionary (default=False)
-
-    :returns: supplement table as ``Table`` or ``dict``
-    """
-    if agasc_dir is None:
-        agasc_dir = default_agasc_dir()
-
-    if name not in ('mags', 'bad', 'obs'):
-        raise ValueError("table name must be one of 'mags', 'bad', or 'obs'")
-
-    supplement_file = agasc_dir / 'agasc_supplement.h5'
-    with tables.open_file(supplement_file) as h5:
-        try:
-            dat = getattr(h5.root, name)[:]
-        except tables.NoSuchNodeError:
-            warnings.warn(f"No dataset '{name}' in {supplement_file},"
-                          " returning empty table")
-            dat = []
-
-    if as_dict:
-        out = {}
-        keys_names = {
-            'mags': ['agasc_id'],
-            'bad': ['agasc_id'],
-            'obs': ['agasc_id', 'obsid']}
-        key_names = keys_names[name]
-        for row in dat:
-            # Make the key, coercing the values from numpy to native Python
-            key = tuple(row[nm].item() for nm in key_names)
-            if len(key) == 1:
-                key = key[0]
-            # Make the value from the remaining non-key column names
-            out[key] = {nm: row[nm].item() for nm in row.dtype.names if nm not in key_names}
-    else:
-        out = Table(dat)
-
-    return out
-
-
-def ssdisable_supplement(func):
-    """Decorator to temporarily disable use of the AGASC supplement in queries.
-
-    This is mostly for testing or specialized applications to override the
-    default behavior to use the AGASC supplement star mags when available.
-    """
-    def wrap(*args, **kwargs):
-        orig = os.environ.get(DISABLE_SUPPLEMENT_ENV)
-        os.environ[DISABLE_SUPPLEMENT_ENV] = '1'
-        try:
-            return func(*args, **kwargs)
-        finally:
-            if orig is None:
-                del os.environ[DISABLE_SUPPLEMENT_ENV]
-            else:
-                os.environ[DISABLE_SUPPLEMENT_ENV] = orig
-
-    return wrap
 
 
 class disable_supplement(ContextDecorator):
