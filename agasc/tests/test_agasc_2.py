@@ -468,10 +468,9 @@ def test_get_supplement_table_bad_dict():
 
 
 def test_get_bad_star_with_supplement():
-    bad = agasc.get_supplement_table('bad', as_dict=True)
     agasc_id = 797847184
     star = agasc.get_star(agasc_id, use_supplement=True)
-    assert star['CLASS'] == agasc.BAD_CLASS_SUPPLEMENT + bad[agasc_id]['source']
+    assert star['CLASS'] == agasc.BAD_CLASS_SUPPLEMENT
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
