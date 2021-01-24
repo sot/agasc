@@ -420,12 +420,16 @@ def update_from_supplement(stars):
     in-place in the input ``stars`` Table:
 
     - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
+    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT``.
     - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+      Those particular values do not matter except that they are different from
+      the "status flag" values of 0.7 (no color => very unreliable mag estimate)
+      or 1.5 (red star => somewhat unreliable mag estimate) that have special
+      meaning based on deep heritage in the AGASC catalog itself.
 
     Stars which are in the bad stars table are updated as follows:
 
-    - ``CLASS = 100 + bad star source id``
+    - ``CLASS = BAD_CLASS_SUPPLEMENT``
 
     This functionality is gloabally disabled if the environment variable
     ``AGASC_DISABLE_SUPPLEMENT`` is set to any value.
@@ -466,4 +470,4 @@ def update_from_supplement(stars):
                     star['COLOR1'] = color1 - 0.01
 
         if agasc_id in bad_stars:
-            set_star(star, 'CLASS', BAD_CLASS_SUPPLEMENT + bad_stars[agasc_id]['source'])
+            set_star(star, 'CLASS', BAD_CLASS_SUPPLEMENT)
