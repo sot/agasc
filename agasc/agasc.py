@@ -21,21 +21,26 @@ MAG_CATID_SUPPLEMENT = 100
 BAD_CLASS_SUPPLEMENT = 100
 
 RA_DECS_CACHE = {}
-COMMON_DOC = """\
-If ``use_supplement`` is ``True`` and there is no ``AGASC_DISABLE_SUPPLEMENT``
-    environment variable set, then stars with available mag estimates or bad
+COMMON_DOC = """If ``use_supplement`` is ``True`` and the ``AGASC_DISABLE_SUPPLEMENT``
+    environment variable is not set, then stars with available mag estimates or bad
     star entries in the AGASC supplement are updated in-place in the output
     ``stars`` Table:
 
     - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (100).
+    - ``MAG_CATID`` (mag catalog ID) is set to ``agasc.MAG_CATID_SUPPLEMENT``.
     - If ``COLOR1`` is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+      Those particular values do not matter except that they are different from
+      the "status flag" values of 0.7 (no color => very unreliable mag estimate)
+      or 1.5 (red star => somewhat unreliable mag estimate) that have special
+      meaning based on deep heritage in the AGASC catalog itself.
     - If ``AGASC_ID`` is in the supplement bad stars table then CLASS is set to
-      ``100 + <source>``, where ``<source>`` is the bad star source identifier.
+      ``agasc.BAD_CLASS_SUPPLEMENT``.
 
     The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
     ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
-    or ``$SKA/data/agasc``."""
+    or ``$SKA/data/agasc``.
+
+    The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``."""
 
 
 class disable_supplement(ContextDecorator):

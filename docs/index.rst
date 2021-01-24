@@ -10,6 +10,19 @@ AGASC Catalog Description and History
 
    catalog-description
 
+
+Getting started
+---------------
+
+The most common usage of the ``agasc`` package is getting the AGASC catalog data
+for stars near a location on the sky or by AGASC ID.
+
+The three main functions are:
+
+- :func:`~agasc.agasc.get_agasc_cone`: Get stars within a radius of RA, Dec
+- :func:`~agasc.agasc.get_star`: Get information for one star by AGASC ID
+- :func:`~agasc.agasc.get_stars`: Get information for a list of stars by AGASC ID
+
 ``agasc`` package API documentation
 -----------------------------------
 .. toctree::
