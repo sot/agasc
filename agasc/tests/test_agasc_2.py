@@ -362,6 +362,7 @@ def test_proseco_agasc_1p7():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+@agasc.set_supplement_enabled(True)
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
     stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
@@ -398,6 +399,7 @@ def test_supplement_get_agasc_cone():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+@agasc.set_supplement_enabled(True)
 def test_supplement_get_star():
     agasc_id = 58720672
     star1 = agasc.get_star(agasc_id)
@@ -415,18 +417,19 @@ def test_supplement_get_star():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+@agasc.set_supplement_enabled(True)
 def test_supplement_get_star_disable_context_manager():
     """Test that disable_supplement_mags context manager works"""
     agasc_id = 58720672
     star1 = agasc.get_star(agasc_id, date='2020:001')
-    with agasc.disable_supplement():
+    with agasc.set_supplement_enabled(False):
         star2 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
     for name in star1.colnames:
         assert star1[name] == star2[name]
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
-@agasc.disable_supplement()
+@agasc.set_supplement_enabled(False)
 def test_supplement_get_star_disable_decorator():
     """Test that disable_supplement_mags context manager works"""
     agasc_id = 58720672
@@ -437,6 +440,7 @@ def test_supplement_get_star_disable_decorator():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+@agasc.set_supplement_enabled(True)
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
     star1 = agasc.get_stars(agasc_ids)
@@ -467,6 +471,7 @@ def test_get_supplement_table_bad_dict():
     assert bad[797847184] == {'source': 1}
 
 
+@agasc.set_supplement_enabled(True)
 def test_get_bad_star_with_supplement():
     agasc_id = 797847184
     star = agasc.get_star(agasc_id, use_supplement=True)

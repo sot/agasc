@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from contextlib import ContextDecorator
+import contextlib
 
 import numpy as np
 import numexpr
@@ -14,15 +14,26 @@ from .supplement.utils import get_supplement_table
 
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
            'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT',
-           'disable_supplement']
+           'set_supplement_enabled', 'SUPPLEMENT_ENABLED_ENV']
 
-DISABLE_SUPPLEMENT_ENV = 'AGASC_DISABLE_SUPPLEMENT'
+# NOTE: in a future release of Ska3, SUPPLEMENT_ENABLED_DEFAULT will be changed
+# to 'True', meaning that proseco / sparkles will start using it by default.
+# With these settings, these packages will not take advantage of the supplement
+# unless the AGASC_SUPPLEMENT_ENABLED environment variable is set to 'True'.
+# After the change in default, then one will need to set it to 'False' to
+# explicitly opt out of using the supplement mags. Note that this does not apply
+# excluding stars based on the bad stars table.
+
+SUPPLEMENT_ENABLED_ENV = 'AGASC_SUPPLEMENT_ENABLED'
+SUPPLEMENT_ENABLED_DEFAULT = 'False'
 MAG_CATID_SUPPLEMENT = 100
 BAD_CLASS_SUPPLEMENT = 100
 
+
 RA_DECS_CACHE = {}
-COMMON_DOC = """If ``use_supplement`` is ``True`` and the ``AGASC_DISABLE_SUPPLEMENT``
-    environment variable is not set, then stars with available mag estimates or bad
+
+COMMON_DOC = """If ``use_supplement`` is ``True`` and the ``AGASC_SUPPLEMENT_ENABLED``
+    environment variable is "True", then stars with available mag estimates or bad
     star entries in the AGASC supplement are updated in-place in the output
     ``stars`` Table:
 
@@ -43,8 +54,13 @@ COMMON_DOC = """If ``use_supplement`` is ``True`` and the ``AGASC_DISABLE_SUPPLE
     The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``."""
 
 
-class disable_supplement(ContextDecorator):
-    """Decorator / context manager to temporarily disable use of the AGASC supplement.
+@contextlib.contextmanager
+def set_supplement_enabled(value):
+    """Decorator / context manager to temporarily enable or disable use of the
+    AGASC supplement.
+
+    This allows globally disabling use of the supplement, regardless of the
+    value of ``use_supplement`` for AGASC function calls.
 
     This is mostly for testing or specialized applications to override the
     default behavior to use the AGASC supplement star mags when available.
@@ -52,25 +68,36 @@ class disable_supplement(ContextDecorator):
     Examples::
 
       import agasc
-      with agasc.disable_supplement():
+
+      # Disable use of the supplement
+      with agasc.set_supplement_enabled(False):
           aca = proseco.get_aca_catalog(obsid=8008)
 
-      @agasc.disable_supplement()
+      # Context manager has precedence over `use_supplement` function arg and
+      # this gives the same result as with `use_supplement=False`.
+      with agasc.set_supplement_enabled(False):
+          star = agasc.get_agasc_cone(1, 2, use_supplement=True)
+
+      # Allow using the supplement
+      @agasc.set_supplement_enabled(True)
       def test_get_aca_catalog():
           aca = proseco.get_aca_catalog(obsid=8008)
           ...
-    """
-    def __enter__(self):
-        self.orig = os.environ.get(DISABLE_SUPPLEMENT_ENV)
-        os.environ[DISABLE_SUPPLEMENT_ENV] = '1'
-        return self
 
-    def __exit__(self, *exc):
-        if self.orig is None:
-            del os.environ[DISABLE_SUPPLEMENT_ENV]
-        else:
-            os.environ[DISABLE_SUPPLEMENT_ENV] = self.orig
-        return False
+    :param value: bool
+        Whether to use the AGASC supplement in the context / decorator
+    """
+    if not isinstance(value, bool):
+        raise TypeError('value must be bool (True|False)')
+    orig = os.environ.get(SUPPLEMENT_ENABLED_ENV)
+    os.environ[SUPPLEMENT_ENABLED_ENV] = str(value)
+
+    yield
+
+    if orig is None:
+        del os.environ[SUPPLEMENT_ENABLED_ENV]
+    else:
+        os.environ[SUPPLEMENT_ENABLED_ENV] = orig
 
 
 class IdNotFound(LookupError):
@@ -437,11 +464,16 @@ def update_from_supplement(stars):
     - ``CLASS = BAD_CLASS_SUPPLEMENT``
 
     This functionality is gloabally disabled if the environment variable
-    ``AGASC_DISABLE_SUPPLEMENT`` is set to any value.
+    ``AGASC_SUPPLEMENT_ENABLED`` is set to "False".
 
     :param stars: astropy.table.Table of stars
     """
-    if DISABLE_SUPPLEMENT_ENV in os.environ:
+    supplement_enabled = os.environ.get(SUPPLEMENT_ENABLED_ENV,
+                                        SUPPLEMENT_ENABLED_DEFAULT)
+    if supplement_enabled not in ('True', 'False'):
+        raise ValueError(f'{SUPPLEMENT_ENABLED_ENV} env var must be either "True" or "False" '
+                         f'got {supplement_enabled}')
+    if supplement_enabled == 'False' or len(stars) == 0:
         return
 
     def set_star(star, name, value):
