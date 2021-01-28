@@ -32,6 +32,8 @@ import pytest
 
 import agasc
 
+os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'False'
+
 # See if we can get to ASCDS environment and mp_get_agasc
 try:
     ascrc_file = '{}/.ascrc'.format(os.environ['HOME'])
@@ -362,10 +364,9 @@ def test_proseco_agasc_1p7():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
-@agasc.set_supplement_enabled(True)
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
-    stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
+    stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=False)
     stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=True)
     ok = stars2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
@@ -399,9 +400,10 @@ def test_supplement_get_agasc_cone():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
-@agasc.set_supplement_enabled(True)
 def test_supplement_get_star():
     agasc_id = 58720672
+    # Also checks that the default is False given the os.environ override for
+    # this test file.
     star1 = agasc.get_star(agasc_id)
     star2 = agasc.get_star(agasc_id, use_supplement=True)
     assert star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT
@@ -417,19 +419,22 @@ def test_supplement_get_star():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
-@agasc.set_supplement_enabled(True)
 def test_supplement_get_star_disable_context_manager():
-    """Test that disable_supplement_mags context manager works"""
+    """Test that disable_supplement_mags context manager works.
+
+    This assumes a global default of AGASC_SUPPLEMENT_ENABLED=False for these
+    tests.
+    """
     agasc_id = 58720672
-    star1 = agasc.get_star(agasc_id, date='2020:001')
-    with agasc.set_supplement_enabled(False):
-        star2 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
+    star1 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
+    with agasc.set_supplement_enabled(True):
+        star2 = agasc.get_star(agasc_id, date='2020:001')
     for name in star1.colnames:
         assert star1[name] == star2[name]
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
-@agasc.set_supplement_enabled(False)
+@agasc.set_supplement_enabled(True)
 def test_supplement_get_star_disable_decorator():
     """Test that disable_supplement_mags context manager works"""
     agasc_id = 58720672
@@ -440,7 +445,6 @@ def test_supplement_get_star_disable_decorator():
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
-@agasc.set_supplement_enabled(True)
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
     star1 = agasc.get_stars(agasc_ids)
@@ -476,6 +480,15 @@ def test_get_bad_star_with_supplement():
     agasc_id = 797847184
     star = agasc.get_star(agasc_id, use_supplement=True)
     assert star['CLASS'] == agasc.BAD_CLASS_SUPPLEMENT
+
+
+def test_bad_agasc_supplement_env_var():
+    try:
+        os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'asdfasdf'
+        with pytest.raises(ValueError, match='env var must be either'):
+            agasc.get_star(797847184)
+    finally:
+        os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'False'
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
