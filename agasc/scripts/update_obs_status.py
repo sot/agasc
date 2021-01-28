@@ -170,7 +170,7 @@ def _parse_obs_status_file(filename):
     return status
 
 
-def _parse_obs_status_args(filename=None, bad_star=None, bad_star_source=None,
+def _parse_obs_status_args(filename=None, bad_star_id=None, bad_star_source=None,
                            obsid=None, status=None, comments='', agasc_id=None,
                            **_
                            ):
@@ -191,10 +191,10 @@ def _parse_obs_status_args(filename=None, bad_star=None, bad_star_source=None,
     :return:
     """
     obs_status_override = {}
-    bad_star = list(np.atleast_1d(bad_star if bad_star else []))
+    bad_star_id = list(np.atleast_1d(bad_star_id if bad_star_id else []))
     bad = {}
 
-    if bad_star and bad_star_source is None:
+    if bad_star_id and bad_star_source is None:
         raise RuntimeError('If you specify bad_star, you must specify bad_star_source')
 
     if filename is not None:
@@ -215,7 +215,7 @@ def _parse_obs_status_args(filename=None, bad_star=None, bad_star_source=None,
         for agasc_id in agasc_ids:
             obs_status_override[(obsid, agasc_id)] = {'ok': status, 'comments': comments}
 
-    for bs in bad_star:
+    for bs in bad_star_id:
         if bs in bad and bad[bs] != bad_star_source:
             raise RuntimeError('name collision: conflicting bad_star in file and in args')
         bad[bs] = bad_star_source
