@@ -24,7 +24,7 @@ The tables of bad stars and of star observation status in the AGASC supplement a
 star observation information (more info below). It is also possible to use a yaml file. For example, calling the script
 in this way::
 
-    agasc-supplement-obs-status --obs-status-override status.yml
+    agasc-supplement-obs-status --obs-status-file status.yml
 
 With a `status.yml` file like the following:
 
@@ -54,7 +54,7 @@ this can be specified in the command-line.
 
 Alternatively, the following call adds a single bad star::
 
-    agasc-supplement-obs-status --bad-star 77073552 --bad-star-source 9
+    agasc-supplement-obs-status --bad-star-id 77073552 --bad-star-source 9
 
 and the following adds a single star observation::
 
