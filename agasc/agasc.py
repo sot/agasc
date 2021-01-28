@@ -61,11 +61,11 @@ def set_supplement_enabled(value):
 
       import agasc
 
-      # Disable use of the supplement
+      # Disable use of the supplement for the context block
       with agasc.set_supplement_enabled(False):
           aca = proseco.get_aca_catalog(obsid=8008)
 
-      # Allow using the supplement
+      # Disable use of the supplement for the function
       @agasc.set_supplement_enabled(False)
       def test_get_aca_catalog():
           aca = proseco.get_aca_catalog(obsid=8008)
