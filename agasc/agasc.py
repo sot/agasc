@@ -240,7 +240,7 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True, fix_color1=True, use_supplement=False):
+                   pm_filter=True, fix_color1=True, use_supplement=True):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -300,7 +300,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     return stars
 
 
-def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=False):
+def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=True):
     """
     Get AGASC catalog entry for star with requested id.
 
@@ -362,7 +362,7 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Fal
     return t[0]
 
 
-def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=False):
+def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=True):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
