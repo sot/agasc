@@ -183,7 +183,7 @@ def _parse_obs_status_args(filename=None, bad_star=None, bad_star_source=None,
     :return:
     """
     obs_status_override = {}
-    bad_star = (list(np.atleast_1d(bad_star if bad_star else [])))
+    bad_star = list(np.atleast_1d(bad_star if bad_star else []))
     bad = {}
 
     if bad_star and bad_star_source is None:
