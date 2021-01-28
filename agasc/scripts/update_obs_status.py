@@ -235,18 +235,18 @@ def get_obs_status_parser():
         'options to modify the "bads" and "obs" tables in AGASC supplement. '
         'Modifications to supplement happen before all magnitude estimates are made.'
     )
-    status.add_argument('--obs-status-override',
+    status.add_argument('--obs-status-file',
                         help='YAML file with star/observation status. '
                              'More info at https://sot.github.io/agasc/supplement.html')
     status.add_argument('--obsid', help='Observation ID for status override.')
     status.add_argument('--agasc-id', help='AGASC ID for status override.')
     status.add_argument('--status', help='Status to override.')
-    status.add_argument('--bad-star-id', help='Bad star AGASC ID.',
+    status.add_argument('--comments', help='Comments for status override.', default='')
+    status.add_argument('--bad-star-id', help='AGASC ID of bad star.',
                         default=[], action='append', type=int)
     status.add_argument("--bad-star-source", type=int,
                         help=("Source identifier indicating provenance"
                               " (default=max existing source + 1)"))
-    status.add_argument('--comments', help='Comments for status override.', default='')
 
     return parser
 
@@ -281,7 +281,7 @@ def update(args):
     The arguments are assumed to be from a parser like the one returned by `get_obs_status_parser`.
     """
     status = _parse_obs_status_args(
-        filename=args.obs_status_override,
+        filename=args.obs_status_file,
         **vars(args)
     )
 
