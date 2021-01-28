@@ -139,7 +139,6 @@ def _parse_obs_status_file(filename):
         status['bad'] = {}
     for value in status['obs']:
         obs = value['obsid']
-        from agasc.supplement.magnitudes import star_obs_catalogs
         if star_obs_catalogs.STARS_OBS is None:
             raise RuntimeError('Observation catalog is not initialized')
 
