@@ -32,6 +32,8 @@ import pytest
 
 import agasc
 
+os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'False'
+
 # See if we can get to ASCDS environment and mp_get_agasc
 try:
     ascrc_file = '{}/.ascrc'.format(os.environ['HOME'])
@@ -48,7 +50,8 @@ except Exception:
     DS_AGASC_VERSION = None
 
 
-HAS_MAGS_IN_SUPPLEMENT = any(agasc.agasc.SUPPLEMENT)
+NO_MAGS_IN_SUPPLEMENT = not any(agasc.get_supplement_table('mags', as_dict=True))
+NO_OBS_IN_SUPPLEMENT = not any(agasc.get_supplement_table('obs', as_dict=True))
 
 HAS_KSH = os.path.exists('/bin/ksh')  # dependency of mp_get_agascid
 
@@ -360,11 +363,11 @@ def test_proseco_agasc_1p7():
             assert p_star[name] == m_star[name]
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
-    stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001')
-    stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_mag_est=True)
+    stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=False)
+    stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=True)
     ok = stars2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
     change_names = ['MAG_CATID', 'COLOR1', 'MAG_ACA', 'MAG_ACA_ERR']
@@ -396,11 +399,13 @@ def test_supplement_get_agasc_cone():
     assert np.all(stars2['MAG_ACA'][~ok] == stars1['MAG_ACA'][~ok])
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_star():
     agasc_id = 58720672
+    # Also checks that the default is False given the os.environ override for
+    # this test file.
     star1 = agasc.get_star(agasc_id)
-    star2 = agasc.get_star(agasc_id, use_mag_est=True)
+    star2 = agasc.get_star(agasc_id, use_supplement=True)
     assert star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT
     assert star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
@@ -413,11 +418,37 @@ def test_supplement_get_star():
     assert star2['MAG_ACA_ERR'] != star1['MAG_ACA_ERR']
 
 
-@pytest.mark.skipif('not HAS_MAGS_IN_SUPPLEMENT')
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+def test_supplement_get_star_disable_context_manager():
+    """Test that disable_supplement_mags context manager works.
+
+    This assumes a global default of AGASC_SUPPLEMENT_ENABLED=False for these
+    tests.
+    """
+    agasc_id = 58720672
+    star1 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
+    with agasc.set_supplement_enabled(True):
+        star2 = agasc.get_star(agasc_id, date='2020:001')
+    for name in star1.colnames:
+        assert star1[name] == star2[name]
+
+
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+@agasc.set_supplement_enabled(True)
+def test_supplement_get_star_disable_decorator():
+    """Test that disable_supplement_mags context manager works"""
+    agasc_id = 58720672
+    star1 = agasc.get_star(agasc_id, date='2020:001')
+    star2 = agasc.get_star(agasc_id, date='2020:001', use_supplement=True)
+    for name in star1.colnames:
+        assert star1[name] == star2[name]
+
+
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
     star1 = agasc.get_stars(agasc_ids)
-    star2 = agasc.get_stars(agasc_ids, use_mag_est=True)
+    star2 = agasc.get_stars(agasc_ids, use_supplement=True)
     assert np.all(star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT)
     assert np.all(star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT)
 
@@ -427,3 +458,65 @@ def test_supplement_get_stars():
     assert np.allclose(star2['COLOR1'], [1.49, 0.24395067])
 
     assert np.all(star2['MAG_ACA'] != star1['MAG_ACA'])
+
+
+def test_get_supplement_table_bad():
+    bad = agasc.get_supplement_table('bad')
+    assert isinstance(bad, Table)
+    assert bad.colnames == ['agasc_id', 'source']
+    assert len(bad) > 3300
+    assert 797847184 in bad['agasc_id']
+
+
+def test_get_supplement_table_bad_dict():
+    bad = agasc.get_supplement_table('bad', as_dict=True)
+    assert isinstance(bad, dict)
+    assert len(bad) > 3300
+    assert bad[797847184] == {'source': 1}
+
+
+@agasc.set_supplement_enabled(True)
+def test_get_bad_star_with_supplement():
+    agasc_id = 797847184
+    star = agasc.get_star(agasc_id, use_supplement=True)
+    assert star['CLASS'] == agasc.BAD_CLASS_SUPPLEMENT
+
+
+def test_bad_agasc_supplement_env_var():
+    try:
+        os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'asdfasdf'
+        with pytest.raises(ValueError, match='env var must be either'):
+            agasc.get_star(797847184)
+    finally:
+        os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'False'
+
+
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+def test_get_supplement_table_mags():
+    mags = agasc.get_supplement_table('mags')
+    assert isinstance(mags, Table)
+    assert 131736 in mags['agasc_id']
+    assert len(mags) > 80000
+    assert mags.colnames == ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
+
+
+@pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
+def test_get_supplement_table_mags_dict():
+    mags = agasc.get_supplement_table('mags', as_dict=True)
+    assert isinstance(mags, dict)
+    assert 131736 in mags
+    assert len(mags) > 80000
+    assert list(mags[131736].keys()) == ['mag_aca', 'mag_aca_err', 'last_obs_time']
+
+
+@pytest.mark.skipif(NO_OBS_IN_SUPPLEMENT, reason='no obs in supplement')
+def test_get_supplement_table_obs():
+    obs = agasc.get_supplement_table('obs')
+    assert isinstance(obs, Table)
+    assert obs.colnames == ['obsid', 'agasc_id', 'ok', 'comments']
+
+
+@pytest.mark.skipif(NO_OBS_IN_SUPPLEMENT, reason='no obs in supplement')
+def test_get_supplement_table_obs_dict():
+    obs = agasc.get_supplement_table('obs', as_dict=True)
+    assert isinstance(obs, dict)

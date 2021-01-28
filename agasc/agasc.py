@@ -1,42 +1,93 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import os
-from pathlib import Path
+import contextlib
 
 import numpy as np
 import numexpr
 import tables
-import warnings
 
 from Chandra.Time import DateTime
 from astropy.table import Table, Column
-from ska_helpers.utils import LazyDict
+
+from .paths import default_agasc_dir, default_agasc_file
+from .supplement.utils import get_supplement_table
+
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
+           'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT',
+           'set_supplement_enabled', 'SUPPLEMENT_ENABLED_ENV']
+
+SUPPLEMENT_ENABLED_ENV = 'AGASC_SUPPLEMENT_ENABLED'
+SUPPLEMENT_ENABLED_DEFAULT = 'True'
+MAG_CATID_SUPPLEMENT = 100
+BAD_CLASS_SUPPLEMENT = 100
+
+RA_DECS_CACHE = {}
+
+COMMON_DOC = """By default, stars with available mag estimates or bad star entries
+    in the AGASC supplement are updated in-place in the output ``stars`` Table:
+
+    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
+    - ``MAG_CATID`` (mag catalog ID) is set to ``agasc.MAG_CATID_SUPPLEMENT``.
+    - If ``COLOR1`` is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+      Those particular values do not matter except that they are different from
+      the "status flag" values of 0.7 (no color => very unreliable mag estimate)
+      or 1.5 (red star => somewhat unreliable mag estimate) that have special
+      meaning based on deep heritage in the AGASC catalog itself.
+    - If ``AGASC_ID`` is in the supplement bad stars table then CLASS is set to
+      ``agasc.BAD_CLASS_SUPPLEMENT``.
+
+    To disable the magnitude / bad star updates from the AGASC supplement, see
+    the ``set_supplement_enabled`` context manager / decorator.
+
+    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
+    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
+    or ``$SKA/data/agasc``.
+
+    The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``."""
 
 
-__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars', 'MAG_CATID_SUPPLEMENT']
+@contextlib.contextmanager
+def set_supplement_enabled(value):
+    """Decorator / context manager to temporarily set the default for use of
+    AGASC supplement in query functions.
 
-DATA_ROOT = Path(os.environ['SKA'], 'data', 'agasc')
-DEFAULT_AGASC_FILE = str(DATA_ROOT / 'miniagasc.h5')
-DEFAULT_SUPPLEMENT_FILE = str(DATA_ROOT / 'agasc_supplement.h5')
+    This sets the default for the ``use_supplement`` argument in AGASC function
+    calls if the user does not supply that argument.
 
-MAG_CATID_SUPPLEMENT = 128
+    This is mostly for testing or legacy applications to override the
+    default behavior to use the AGASC supplement star mags when available.
 
+    Examples::
 
-def load_supplement():
-    supplement = {}
-    with tables.open_file(DEFAULT_SUPPLEMENT_FILE) as h5:
-        try:
-            stars = h5.root.mags
-        except tables.NoSuchNodeError:
-            pass # Will warn on this in future when mags in supplement are used
-        else:
-            for star in stars:
-                # Use Python int for key not numpy.int32
-                supplement[int(star['agasc_id'])] = (star['mag_aca'], star['mag_aca_err'])
+      import agasc
 
-    return supplement
+      # Disable use of the supplement for the context block
+      with agasc.set_supplement_enabled(False):
+          aca = proseco.get_aca_catalog(obsid=8008)
 
+      # Disable use of the supplement for the function
+      @agasc.set_supplement_enabled(False)
+      def test_get_aca_catalog():
+          aca = proseco.get_aca_catalog(obsid=8008)
+          ...
 
-SUPPLEMENT = LazyDict(load_supplement)
+      # Globally disable use of the supplement everywhere
+      os.environ[agasc.SUPPLEMENT_ENABLED_VAR] = 'False'
+
+    :param value: bool
+        Whether to use the AGASC supplement in the context / decorator
+    """
+    if not isinstance(value, bool):
+        raise TypeError('value must be bool (True|False)')
+    orig = os.environ.get(SUPPLEMENT_ENABLED_ENV)
+    os.environ[SUPPLEMENT_ENABLED_ENV] = str(value)
+
+    yield
+
+    if orig is None:
+        del os.environ[SUPPLEMENT_ENABLED_ENV]
+    else:
+        os.environ[SUPPLEMENT_ENABLED_ENV] = orig
 
 
 class IdNotFound(LookupError):
@@ -76,9 +127,6 @@ class RaDec(object):
 
             # Now copy to separate ndarrays for memory efficiency
             return radecs['RA'].copy(), radecs['DEC'].copy()
-
-
-RA_DECS_CACHE = {DEFAULT_AGASC_FILE: RaDec(DEFAULT_AGASC_FILE)}
 
 
 def get_ra_decs(agasc_file):
@@ -182,7 +230,7 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True, fix_color1=True, use_mag_est=False):
+                   pm_filter=True, fix_color1=True, use_supplement=None):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -191,14 +239,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     corrected positions are available in the ``RA_PMCORR`` and ``DEC_PMCORR``
     columns, respectively.
 
-    If ``use_mag_est`` is ``True``, then stars with available mag estimates in
-    the AGASC supplement are updated in-place in the output ``stars`` Table:
-
-    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
-
-    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``
+    {common_doc}
 
     Example::
 
@@ -213,12 +254,13 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
     :param pm_filter: Use PM-corrected positions in filtering
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
-    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)
+    :param use_supplement: Use estimated mag from AGASC supplement where available
+        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
 
     :returns: astropy Table of AGASC entries
     """
     if agasc_file is None:
-        agasc_file = DEFAULT_AGASC_FILE
+        agasc_file = default_agasc_file()
 
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
@@ -243,31 +285,23 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         ok = dists <= radius
         stars = stars[ok]
 
-    if use_mag_est:
-        update_mags_from_supplement(stars)
+    update_from_supplement(stars, use_supplement)
 
     return stars
 
 
-def get_star(id, agasc_file=None, date=None, fix_color1=True, use_mag_est=False):
+def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=None):
     """
     Get AGASC catalog entry for star with requested id.
 
-    If ``use_mag_est`` is ``True``, then stars with available mag estimates in
-    the AGASC supplement are updated in-place in the output star entry.
-
-    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
-
-    The default ``agasc_file`` is ``/proj/sot/ska/data/agasc/miniagasc.h5``
+    {common_doc}
 
     Example::
 
       >>> import agasc
       >>> star = agasc.get_star(636629880)
       >>> for name in star.colnames:
-      ...     print '{:12s} : {}'.format(name, star[name])
+      ...     print '{{:12s}} : {{}}'.format(name, star[name])
       AGASC_ID     : 636629880
       RA           : 125.64184
       DEC          : -4.23235
@@ -289,12 +323,13 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_mag_est=False)
     :param id: AGASC id
     :param date: Date for proper motion (default=Now)
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
-    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)
+    :param use_supplement: Use estimated mag from AGASC supplement where available
+        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
     :returns: astropy Table Row of entry for id
     """
 
     if agasc_file is None:
-        agasc_file = DEFAULT_AGASC_FILE
+        agasc_file = default_agasc_file()
 
     with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
@@ -312,13 +347,12 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_mag_est=False)
     if fix_color1:
         update_color1_column(t)
 
-    if use_mag_est:
-        update_mags_from_supplement(t)
+    update_from_supplement(t, use_supplement)
 
     return t[0]
 
 
-def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_mag_est=False):
+def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_supplement=None):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
@@ -330,20 +364,13 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_mag_est=Fal
     indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
     are computed.
 
-    If ``use_mag_est`` is ``True``, then stars with available mag estimates in
-    the AGASC supplement are updated in-place in the output ``stars`` Table:
-
-    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
-    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
-
-    The default ``agasc_file`` is ``$SKA/data/agasc/miniagasc.h5``
+    {common_doc}
 
     Example::
       >>> import agasc
       >>> star = agasc.get_stars(636629880)
       >>> for name in star.colnames:
-      ...     print '{:12s} : {}'.format(name, star[name])
+      ...     print '{{:12s}} : {{}}'.format(name, star[name])
       AGASC_ID     : 636629880
       RA           : 125.64184
       DEC          : -4.23235
@@ -365,12 +392,13 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_mag_est=Fal
     :param ids: AGASC ids (scalar or array)
     :param dates: Dates for proper motion (scalar or array) (default=Now)
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
-    :param use_mag_est: Use estimated mag from AGASC supplement where available (default=False)
+    :param use_supplement: Use estimated mag from AGASC supplement where available
+        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
     :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input
     """
 
     if agasc_file is None:
-        agasc_file = DEFAULT_AGASC_FILE
+        agasc_file = default_agasc_file()
 
     rows = []
     dates = DateTime(dates).date
@@ -397,29 +425,83 @@ def get_stars(ids, agasc_file=None, dates=None, fix_color1=True, use_mag_est=Fal
         update_color1_column(t)
     t['DATE'] = dates
 
-    if use_mag_est:
-        update_mags_from_supplement(t)
+    update_from_supplement(t, use_supplement)
 
     return t if ids.shape else t[0]
 
 
-def update_mags_from_supplement(stars):
-    """Overwrite mag and color1 information from AGASC supplement in ``stars``.
+# Interpolate COMMON_DOC into those function docstrings
+for func in get_stars, get_star, get_agasc_cone:
+    func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
 
-    Stars with available mag estimates in the supplement are updated in-place in
-    the ``stars`` Table. The catalog ID is set to ``MAG_CATID_SUPPLEMENT`` (128).
-    Where COLOR1 is 0.7 or 1.5 it is changed to 0.69 or 1.49 respectively.
+
+def update_from_supplement(stars, use_supplement=None):
+    """Update mag, color1 and class information from AGASC supplement in ``stars``.
+
+    Stars with available mag estimates in the AGASC supplement are updated
+    in-place in the input ``stars`` Table:
+
+    - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
+    - ``MAG_CATID`` (mag catalog ID) is set to ``MAG_CATID_SUPPLEMENT``.
+    - If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+      Those particular values do not matter except that they are different from
+      the "status flag" values of 0.7 (no color => very unreliable mag estimate)
+      or 1.5 (red star => somewhat unreliable mag estimate) that have special
+      meaning based on deep heritage in the AGASC catalog itself.
+
+    Stars which are in the bad stars table are updated as follows:
+
+    - ``CLASS = BAD_CLASS_SUPPLEMENT``
+
+    Whether to actually apply the update is set by a combination of the
+    ``use_supplement`` argument, which has priority, and the
+    ``AGASC_SUPPLEMENT_ENABLED`` environment variable.
 
     :param stars: astropy.table.Table of stars
+    :param use_supplement: bool, None
+        Use the supplement (default=None, see above)
     """
-    for idx, agasc_id in enumerate(stars['AGASC_ID']):
-        agasc_id = int(agasc_id)
-        if agasc_id in SUPPLEMENT:
-            mag_est, mag_est_err = SUPPLEMENT[agasc_id]
-            stars['MAG_ACA'][idx] = mag_est
+    if use_supplement is None:
+        supplement_enabled_env = os.environ.get(SUPPLEMENT_ENABLED_ENV, SUPPLEMENT_ENABLED_DEFAULT)
+        if supplement_enabled_env not in ('True', 'False'):
+            raise ValueError(f'{SUPPLEMENT_ENABLED_ENV} env var must be either "True" or "False" '
+                             f'got {supplement_enabled_env}')
+        supplement_enabled = supplement_enabled_env == 'True'
+    else:
+        supplement_enabled = use_supplement
+
+    if not supplement_enabled or len(stars) == 0:
+        return
+
+    def set_star(star, name, value):
+        """Set star[name] = value if ``name`` is a column in the table"""
+        try:
+            star[name] = value
+        except KeyError:
+            pass
+
+    # Get estimate mags and errs from supplement as a dict of dict
+    # agasc_id : {mag_aca: .., mag_aca_err: ..}.
+    supplement_mags = get_supplement_table('mags', agasc_dir=default_agasc_dir(),
+                                           as_dict=True)
+
+    # Get bad stars as {agasc_id: {source: ..}}
+    bad_stars = get_supplement_table('bad', agasc_dir=default_agasc_dir(), as_dict=True)
+
+    for star in stars:
+        agasc_id = int(star['AGASC_ID'])
+        if agasc_id in supplement_mags:
+            mag_est = supplement_mags[agasc_id]['mag_aca']
+            mag_est_err = supplement_mags[agasc_id]['mag_aca_err']
+
+            set_star(star, 'MAG_ACA', mag_est)
             # Mag err is stored as int16 in units of 0.01 mag. Use same convention here.
-            stars['MAG_ACA_ERR'][idx] = round(mag_est_err * 100)
-            stars['MAG_CATID'][idx] = MAG_CATID_SUPPLEMENT
-            color1 = stars['COLOR1'][idx]
-            if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
-                stars['COLOR1'][idx] = color1 - 0.01
+            set_star(star, 'MAG_ACA_ERR', round(mag_est_err * 100))
+            set_star(star, 'MAG_CATID', MAG_CATID_SUPPLEMENT)
+            if 'COLOR1' in stars.colnames:
+                color1 = star['COLOR1']
+                if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
+                    star['COLOR1'] = color1 - 0.01
+
+        if agasc_id in bad_stars:
+            set_star(star, 'CLASS', BAD_CLASS_SUPPLEMENT)
