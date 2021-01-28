@@ -82,7 +82,7 @@ def main():
         format="%(asctime)s %(message)s"
     )
 
-    if (args.obs and not args.status) or (not args.obs and args.status):
+    if (args.obsid and not args.status) or (not args.obsid and args.status):
         logging.error('To override OBS status, both --obs and --status options are needed.')
         the_parser.exit(1)
 
