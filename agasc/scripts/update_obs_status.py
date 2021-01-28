@@ -245,8 +245,7 @@ def get_obs_status_parser():
     status.add_argument('--bad-star-id', help='AGASC ID of bad star.',
                         default=[], action='append', type=int)
     status.add_argument("--bad-star-source", type=int,
-                        help=("Source identifier indicating provenance"
-                              " (default=max existing source + 1)"))
+                        help="Source identifier indicating provenance.")
 
     return parser
 
