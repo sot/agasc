@@ -24,6 +24,10 @@ from kadi import events
 from . import star_obs_catalogs
 from agasc import get_star
 
+
+logger = logging.getLogger('agasc.supplement')
+
+
 MAX_MAG = 15
 MASK = {
     'mouse_bit': np.array([[True, True, True, True, True, True, True, True],
@@ -397,13 +401,13 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
         except Exception:
             import sys
             import traceback
-            logging.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
+            logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
             exc_type, exc_value, exc_traceback = sys.exc_info()
             trace = traceback.extract_tb(exc_traceback)
-            logging.info(f'{exc_type.__name__} {exc_value}')
+            logger.info(f'{exc_type.__name__} {exc_value}')
             for step in trace:
-                logging.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
-                logging.info(f'    {step.line}')
+                logger.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
+                logger.info(f'    {step.line}')
             if not ignore_exceptions:
                 raise
     return vstack(telem)

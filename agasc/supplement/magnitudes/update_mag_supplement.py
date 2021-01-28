@@ -16,6 +16,9 @@ from agasc.supplement.magnitudes import star_obs_catalogs, mag_estimate, mag_est
 from cxotime import CxoTime
 
 
+logger = logging.getLogger('agasc.supplement')
+
+
 def level0_archive_time_range():
     """
     Return the time range covered by mica archive aca_l0 files.
@@ -128,7 +131,7 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
                     dt = datetime.timedelta(seconds=(len(jobs)-finished) * dt1 / finished)
                     eta = f'ETA: {(now + dt).strftime(fmt)}'
                 progress = 100*finished/len(jobs)
-                logging.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
+                logger.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
             time.sleep(1)
     fails = []
     failed_agasc_ids = [i for arg, job in zip(args, jobs) if not job.successful() for i in arg]
@@ -321,9 +324,9 @@ def do(output_dir,
     # set start/stop times and agasc_ids
     if whole_history:
         if start:
-            logging.warning('Ignoring --start argument from commant line (--whole-history)')
+            logger.warning('Ignoring --start argument from commant line (--whole-history)')
         if stop:
-            logging.warning('Ignoring --stop argument from commant line (--whole-history)')
+            logger.warning('Ignoring --stop argument from commant line (--whole-history)')
         start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
         stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
         if agasc_ids is None:
@@ -357,7 +360,7 @@ def do(output_dir,
     if filename.exists():
         with tables.File(filename, 'r') as h5:
             if not include_bad and 'bad' in h5.root:
-                logging.info('Excluding bad stars')
+                logger.info('Excluding bad stars')
                 stars_obs = stars_obs[~np.in1d(stars_obs['agasc_id'], h5.root.bad[:]['agasc_id'])]
 
             if 'obs' in h5.root:
@@ -392,11 +395,11 @@ def do(output_dir,
                 stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
                 agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
                 if len(update) - np.sum(update):
-                    logging.info(f'Skipping {len(update) - np.sum(update)} '
-                                 f'stars already in the supplement')
+                    logger.info(f'Skipping {len(update) - np.sum(update)} '
+                                f'stars already in the supplement')
 
     # do the processing
-    logging.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
+    logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
     if dry_run:
         return
 
@@ -406,7 +409,7 @@ def do(output_dir,
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]
     failed_obs = [f for f in fails if f['obsid']]
-    logging.info(
+    logger.info(
         f'Got:\n'
         f'  {0 if obs_stats is None else len(obs_stats)} OBSIDs,'
         f'  {0 if agasc_stats is None else len(agasc_stats)} stars,'
@@ -423,7 +426,7 @@ def do(output_dir,
         new_stars, updated_stars = update_supplement(agasc_stats,
                                                      filename=filename)
 
-        logging.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
+        logger.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
         if email:
             try:
                 bad_obs = (
@@ -434,11 +437,11 @@ def do(output_dir,
                 if np.any(bad_obs):
                     msr.email_bad_obs_report(obs_stats[bad_obs], to=email)
             except Exception as e:
-                logging.error(f'Failed sending email to {email}: {e}')
+                logger.error(f'Failed sending email to {email}: {e}')
 
         if report:
             now = datetime.datetime.now()
-            logging.info(f"making report at {now}")
+            logger.info(f"making report at {now}")
             sections = [{
                 'id': 'new_stars',
                 'title': 'New Stars',
@@ -477,12 +480,12 @@ def do(output_dir,
                     latest.unlink()
                 latest.symlink_to(directory)
             except Exception as e:
-                logging.error(f'Exception when creating report: {e}')
+                logger.error(f'Exception when creating report: {e}')
                 multi_star_html_args['directory'] = directory
                 failure_file = output_dir / f'failed_report_{t.date[:8]}.pkl'
                 with open(failure_file, 'wb') as fh:
                     pickle.dump(multi_star_html_args, fh)
-                logging.error(f'Intermediate data saved in {failure_file}')
+                logger.error(f'Intermediate data saved in {failure_file}')
 
     now = datetime.datetime.now()
-    logging.info(f"done at {now}")
+    logger.info(f"done at {now}")
