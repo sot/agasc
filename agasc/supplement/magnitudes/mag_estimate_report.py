@@ -619,7 +619,7 @@ RUN_REPORT_SIMPLE = """<html lang="en">
           <span aria-hidden="true">&laquo;</span>
           <span class="sr-only">Previous</span>
         </a></li>
-        <li class="page-item"><a class="page-link" href='{{ nav_links.up}}'> 
+        <li class="page-item"><a class="page-link" href='{{ nav_links.up}}'>
           <!--span aria-hidden="true">&#8896;</span-->
           <!--span aria-hidden="true">&Hat;</span-->
           <!--span aria-hidden="true">&#8962;</span-->
@@ -646,7 +646,7 @@ RUN_REPORT_SIMPLE = """<html lang="en">
         <td> <a href="#{{ section.id }}"> {{ section.title }} </a> </td>
         <td> {{ section.stars | length }} </td>
       </tr>
-      {%- endfor %}    
+      {%- endfor %}
       <tr>
         <td> {% if failures -%} <a href="#failures"> Failures </a>
              {%- else -%} Failures {%- endif %} </td>

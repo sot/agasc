@@ -335,8 +335,8 @@ def get_telemetry(obs):
         del telem[f'{name}{slot}']
     for name in ['AOACIIR', 'AOACISP']:
         telem[name] = np.char.rstrip(telem[name])
-    ok = (telem['AOACASEQ'] == 'KALM') & (telem[f'AOACIIR'] == 'OK') & \
-         (telem[f'AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT') & \
+    ok = (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
+         (telem['AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT') & \
          (telem['AOACFCT'] == 'TRAK')
 
     # etc...
@@ -576,7 +576,7 @@ def calc_obs_stats(telem):
     times = telem['times']
 
     kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
-    track = (telem[f'AOACIIR'] == 'OK') & (telem[f'AOACISP'] == 'OK') & \
+    track = (telem['AOACIIR'] == 'OK') & (telem['AOACISP'] == 'OK') & \
             (telem['AOACFCT'] == 'TRAK')
     dr3 = (telem['dr'] < 3)
     dr5 = (telem['dr'] < 5)

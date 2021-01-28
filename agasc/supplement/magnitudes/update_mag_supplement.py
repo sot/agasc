@@ -227,6 +227,8 @@ def update_supplement(agasc_stats, filename, include_all=True):
     outliers_new = outliers_new[names].as_array()
 
     outliers = None
+    new_stars = None
+    updated_stars = None
     if filename.exists():
         # I could do what follows directly in place, but the table is not that large.
         with tables.File(filename, 'r') as h5:
