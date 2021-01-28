@@ -25,7 +25,7 @@ __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
 # excluding stars based on the bad stars table.
 
 SUPPLEMENT_ENABLED_ENV = 'AGASC_SUPPLEMENT_ENABLED'
-SUPPLEMENT_ENABLED_DEFAULT = 'False'
+SUPPLEMENT_ENABLED_DEFAULT = 'True'
 MAG_CATID_SUPPLEMENT = 100
 BAD_CLASS_SUPPLEMENT = 100
 
