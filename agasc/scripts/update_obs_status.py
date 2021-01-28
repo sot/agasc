@@ -10,7 +10,7 @@ information relevant for the magnitude estimation from acq data.
 """
 
 import argparse
-import pathlib
+from pathlib import Path
 import logging
 import yaml
 import numpy as np
@@ -85,7 +85,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
         {'ok': True, 'comments': 'some comment'}
     :param dry_run: bool
     """
-    if not pathlib.Path(filename).exists():
+    if not Path(filename).exists():
         raise FileExistsError(f'AGASC supplement file does not exist: {filename}')
 
     if not obs_status_override:
@@ -263,7 +263,7 @@ def get_parser():
     )
     parse.add_argument("--data-root",
                        default='.',
-                       type=pathlib.Path,
+                       type=Path,
                        help="Directory containing agasc_supplement.h5 (default='.')")
     parse.add_argument('--log-level',
                        default='info',

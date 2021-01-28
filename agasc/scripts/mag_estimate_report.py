@@ -6,7 +6,7 @@ Produce reports of the magnitude supplement.
 
 import os
 import argparse
-import pathlib
+from pathlib import Path
 import numpy as np
 from astropy import table, time, units as u
 from cxotime import CxoTime, units
@@ -42,8 +42,8 @@ def get_parser():
 def main():
     args = get_parser().parse_args()
 
-    args.output_dir = pathlib.Path(os.path.expandvars(args.output_dir))
-    args.input_dir = pathlib.Path(os.path.expandvars(args.input_dir))
+    args.output_dir = Path(os.path.expandvars(args.output_dir))
+    args.input_dir = Path(os.path.expandvars(args.input_dir))
     args.obs_stats = args.input_dir / args.obs_stats
     args.agasc_stats = args.input_dir / args.agasc_stats
 

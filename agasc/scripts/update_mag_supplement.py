@@ -6,7 +6,7 @@ Update Magnitude Statistics.
 
 """
 import os
-import pathlib
+from pathlib import Path
 import argparse
 import logging
 import pyyaks.logger
@@ -70,11 +70,11 @@ def main():
     if args.status and args.status.lower() in status_to_int:
         args.status = status_to_int[args.status.lower()]
 
-    args.output_dir = pathlib.Path(os.path.expandvars(args.output_dir))
+    args.output_dir = Path(os.path.expandvars(args.output_dir))
     if args.reports_dir is None:
         args.reports_dir = args.output_dir / 'supplement_reports' / 'weekly'
     else:
-        args.reports_dir = pathlib.Path(os.path.expandvars(args.reports_dir))
+        args.reports_dir = Path(os.path.expandvars(args.reports_dir))
 
     pyyaks.logger.get_logger(
         name='agasc.supplement',
