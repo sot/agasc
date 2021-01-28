@@ -38,7 +38,15 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
     logger.info(f'updating "bad" table in {suppl_file}')
 
     bad_star_ids = np.atleast_1d(bad_star_ids).astype(int)
-    dat = table.Table.read(str(suppl_file), format='hdf5', path='bad')
+
+    try:
+        dat = table.Table.read(str(suppl_file), format='hdf5', path='bad')
+    except OSError as e:
+        if str(e) == 'Path bad does not exist':
+            logger.warning('creating "bad" table because it is missing')
+            dat = table.Table(dtype=[('agasc_id', np.int32), ('source', np.int16)])
+        else:
+            raise
 
     if bad_star_source is None:
         bad_star_source = dat['source'].max() + 1
