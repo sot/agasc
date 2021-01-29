@@ -12,6 +12,12 @@ from cxotime import CxoTime
 from agasc.supplement.magnitudes import mag_estimate
 
 
+JINJA2 = jinja2.Environment(
+    loader=jinja2.PackageLoader('agasc.supplement.magnitudes', 'templates'),
+    autoescape=jinja2.select_autoescape(['html', 'xml'])
+)
+
+
 class MagEstimateReport:
     def __init__(self, agasc_stats, obs_stats, directory='./mag_estimates_reports'):
         self.agasc_stats = agasc_stats
@@ -24,7 +30,7 @@ class MagEstimateReport:
         if np.sum(self.agasc_stats['agasc_id'] == agasc_id) == 0:
             return
 
-        star_template = jinja2.Template(STAR_REPORT_BOOTSTRAP)
+        star_template = JINJA2.get_template('star_report.html')
 
         directory = Path(directory)
         if not directory.exists():
@@ -83,7 +89,7 @@ class MagEstimateReport:
                         static_dir='https://cxc.cfa.harvard.edu/mta/ASPECT/www_resources'):
         if sections is None:
             sections = []
-        run_template = jinja2.Template(RUN_REPORT_SIMPLE)
+        run_template = JINJA2.get_template('run_report.html')
 
         updated_star_ids = \
             updated_stars['agasc_id'] if updated_stars is not None and len(updated_stars) else []
@@ -108,7 +114,8 @@ class MagEstimateReport:
             sections.append({
                 'id': 'other_stars',
                 'title': 'Other Stars',
-                'stars': self.agasc_stats['agasc_id'][~np.in1d(self.agasc_stats['agasc_id'], agasc_ids)]
+                'stars': self.agasc_stats['agasc_id'][
+                    ~np.in1d(self.agasc_stats['agasc_id'], agasc_ids)]
             })
             agasc_ids = self.agasc_stats['agasc_id']
         failed_agasc_ids = [f['agasc_id'] for f in fails
@@ -121,8 +128,8 @@ class MagEstimateReport:
         agasc_stats = self.agasc_stats.copy()
 
         # check how many observations were added in this run, and how many of those are ok
-        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"]) &
-                        (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
+        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"])
+                        & (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
         if np.any(new_obs_mask):
             new_obs = self.obs_stats[new_obs_mask]. \
                 group_by('agasc_id')[['agasc_id', 'obsid', 'obs_ok']]. \
@@ -141,7 +148,7 @@ class MagEstimateReport:
 
         # add some extra fields
         if len(agasc_stats):
-            if not 'n_obs_bad_new' in agasc_stats.colnames:
+            if 'n_obs_bad_new' not in agasc_stats.colnames:
                 agasc_stats['n_obs_bad_new'] = 0
             agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
             agasc_stats['flag'] = '          '
@@ -149,7 +156,8 @@ class MagEstimateReport:
             agasc_stats['flag'][agasc_stats['n_obs_bad'] > 0] = 'warning'
             agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
             agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
-            agasc_stats['sigma'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])/agasc_stats['mag_aca_err']
+            agasc_stats['sigma'] = ((agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
+                                    / agasc_stats['mag_aca_err'])
             agasc_stats['new'] = True
             agasc_stats['new'][np.in1d(agasc_stats['agasc_id'], updated_star_ids)] = False
             agasc_stats['update_mag_aca'] = np.nan
@@ -375,8 +383,8 @@ class MagEstimateReport:
             sel = (obs_stats['obsid'] == obsid)
             if draw_obs_mag_stats and np.sum(sel):
                 label = '' if i else 'mag$_{OBSID}$'
-                if (np.isfinite(obs_stats[sel][0]['t_mean']) and
-                        np.isfinite(obs_stats[sel][0]['t_std'])):
+                if (np.isfinite(obs_stats[sel][0]['t_mean'])
+                        and np.isfinite(obs_stats[sel][0]['t_std'])):
                     mag_mean = obs_stats[sel][0]['t_mean']
                     mag_mean_minus = mag_mean - obs_stats[sel][0]['t_std']
                     mag_mean_plus = mag_mean + obs_stats[sel][0]['t_std']
@@ -430,8 +438,8 @@ class MagEstimateReport:
                         color='green', scalex=False, scaley=False)
             )
 
-        if (draw_agasc_mag_stats and
-                np.isfinite(agasc_stat['mag_obs']) and agasc_stat['mag_obs'] > 0):
+        if (draw_agasc_mag_stats
+                and np.isfinite(agasc_stat['mag_obs']) and agasc_stat['mag_obs'] > 0):
             mag_weighted_mean = agasc_stat['mag_obs']
             mag_weighted_std = agasc_stat['mag_obs_std']
             line_handles += (
@@ -471,25 +479,25 @@ class MagEstimateReport:
 
         obsids = np.unique(timeline['obsid'])
 
-        all_ok = ((timeline['AOACASEQ'] == 'KALM') &
-                  (timeline['AOPCADMD'] == 'NPNT') &
-                  (timeline['AOACFCT'] == 'TRAK') &
-                  (timeline['AOACIIR'] == 'OK') &
-                  (timeline['AOACISP'] == 'OK') &
-                  (timeline['dr'] < 3)
+        all_ok = ((timeline['AOACASEQ'] == 'KALM')
+                  & (timeline['AOPCADMD'] == 'NPNT')
+                  & (timeline['AOACFCT'] == 'TRAK')
+                  & (timeline['AOACIIR'] == 'OK')
+                  & (timeline['AOACISP'] == 'OK')
+                  & (timeline['dr'] < 3)
                   )
         flags = [
-            ('dr > 5', ((timeline['AOACASEQ'] == 'KALM') &
-                        (timeline['AOPCADMD'] == 'NPNT') &
-                        (timeline['AOACFCT'] == 'TRAK') &
-                        (timeline['dr'] >= 5))),
+            ('dr > 5', ((timeline['AOACASEQ'] == 'KALM')
+                        & (timeline['AOPCADMD'] == 'NPNT')
+                        & (timeline['AOACFCT'] == 'TRAK')
+                        & (timeline['dr'] >= 5))),
             ('Ion. rad.', (timeline['AOACIIR'] != 'OK')),
             ('Sat. pixel.', (timeline['AOACISP'] != 'OK')),
-            ('not track', ((timeline['AOACASEQ'] == 'KALM') &
-                           (timeline['AOPCADMD'] == 'NPNT') &
-                           (timeline['AOACFCT'] != 'TRAK'))),
-            ('not Kalman', ((timeline['AOACASEQ'] != 'KALM') |
-                            (timeline['AOPCADMD'] != 'NPNT'))),
+            ('not track', ((timeline['AOACASEQ'] == 'KALM')
+                           & (timeline['AOPCADMD'] == 'NPNT')
+                           & (timeline['AOACFCT'] != 'TRAK'))),
+            ('not Kalman', ((timeline['AOACASEQ'] != 'KALM')
+                            | (timeline['AOPCADMD'] != 'NPNT'))),
         ]
 
         if obsid is None:
@@ -585,328 +593,11 @@ class MagEstimateReport:
         return fig
 
 
-RUN_REPORT_SIMPLE = """<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-          crossorigin="anonymous">
-  </head>
-  <body>
-
-    <div class="container">
-    {% if nav_links %}
-    <!--
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href='{{ nav_links.previous}}'> Previous </a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href='{{ nav_links.up}}'> Up </a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href='{{ nav_links.next}}'> Next </a>
-        </li>
-      </ul>
-    </nav>
-    -->
-    <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item"><a class="page-link" href='{{ nav_links.previous}}'>
-          <span aria-hidden="true">&laquo;</span>
-          <span class="sr-only">Previous</span>
-        </a></li>
-        <li class="page-item"><a class="page-link" href='{{ nav_links.up}}'>
-          <!--span aria-hidden="true">&#8896;</span-->
-          <!--span aria-hidden="true">&Hat;</span-->
-          <!--span aria-hidden="true">&#8962;</span-->
-          <span aria-hidden="true">&#127968;</span>
-          <span class="sr-only">Up</span>
-        </a></li>
-        <li class="page-item"><a class="page-link" href='{{ nav_links.next}}'>
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Next</span>
-        </a></li>
-      </ul>
-    </nav>
-
-    {% endif %}
-    <h1> ACA Magnitude Statistics </h1>
-    <h2> {{ info.report_date }} Update Report </h2>
-    <table class="table table-sm">
-      <tr>
-        <td style="width: 50%"> Time range </td>
-        <td style="width: 50%"> {{ info.tstart }} &ndash; {{ info.tstop }} </td>
-      </tr>
-      {%- for section in sections %}
-      <tr>
-        <td> <a href="#{{ section.id }}"> {{ section.title }} </a> </td>
-        <td> {{ section.stars | length }} </td>
-      </tr>
-      {%- endfor %}
-      <tr>
-        <td> {% if failures -%} <a href="#failures"> Failures </a>
-             {%- else -%} Failures {%- endif %} </td>
-        <td> {{ failures | length }} </td>
-      </tr>
-    </table>
-
-    {%- for section in sections %}
-    <a name="{{ section.id }}"> </a>
-    <h3> {{ section.title }} </h3>
-    <table class="table table-hover">
-      <tr>
-      <tr>
-        <th data-toggle="tooltip" data-placement="top" title="ID in AGASC"> AGASC ID </th>
-        <th data-toggle="tooltip" data-placement="top" title="Last time the star was observed"> Last Obs </th>
-        <th data-toggle="tooltip" data-placement="top" title="Number of times the star has been observed"> n<sub>obs</sub> </th>
-        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Observations not included in calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>bad</sub> </th>
-        <th data-toggle="tooltip" data-html="true" data-placement="top" title="New observations not included in calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>bad new</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" data-html="true" title="tracking time as fraction of total time: <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>track</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Fraction of the tracking time within 5 arcsec of target"> f<sub>5 arcsec</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Magnitude in AGASC"> mag<sub>catalog</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Magnitude observed"> mag<sub>obs</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Difference between observed and catalog magnitudes"> &delta;<sub>mag cat</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Difference between observed and catalog magnitudes, divided by catalog magnitude error"> &delta;<sub>mag</sub>/&sigma;<sub>mag</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Variation in observed magnitude from the last version of AGASC supplement"> &delta;<sub>mag</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Variation in observed magnitude standard deviation from the last version of AGASC supplement"> &delta;<sub>&sigma;</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Color in AGASC"> color </th>
-      </tr>
-      {%- for star in section.stars %}
-      <tr {% if star.flag != '' -%}
-          class="table-{{ star.flag }}"
-          data-toggle="tooltip"
-          data-placement="top" title="{{ tooltips[star.flag] }}"
-        {%- endif -%}
-        >
-        <td>
-        {%- if star.agasc_id in star_reports -%}
-          <a href="{{ star_reports[star.agasc_id] }}/index.html"> {{ star.agasc_id }} </a>
-        {%- else -%}
-          {{ star.agasc_id }}
-        {%- endif -%}
-        </td>
-        <td> {{ star.last_obs[:8] }} </td>
-        <td> {{ star.n_obsids }}  </td>
-        <td> {%- if star.n_obs_bad > 0 %} {{ star.n_obs_bad }} {% endif %} </td>
-        <td> {%- if star.n_obs_bad > 0 %} {{ star.n_obs_bad_new }} {% endif %} </td>
-        <td> {{ "%.1f" | format(100*star.f_ok) }}%  </td>
-        <td> {{ "%.1f" | format(100*star.f_dr5) }}% </td>
-        <td {% if star.selected_mag_aca_err -%}
-              class="table-info"
-              data-toggle="tooltip" data-placement="top"
-              title="Large magnitude error in catalog"
-            {%- endif %}>
-          {{ "%.2f" | format(star.mag_aca) }} &#177; {{ "%.2f" | format(star.mag_aca_err) }}
-        </td>
-        <td>
-          {{ "%.2f" | format(star.mag_obs) }} &#177; {{ "%.2f" | format(star.mag_obs_err) }}
-        </td>
-        <td {%- if star.selected_atol %}
-              class="table-info"
-              data-toggle="tooltip" data-placement="top"
-              title="Large absolute difference between observed and catalogue magnitudes"
-            {% endif %}> {{ "%.2f" | format(star.delta) }}  </td>
-        <td {%- if star.selected_rtol %}
-              class="table-info"
-              data-toggle="tooltip" data-placement="top"
-              title="Large relative difference between observed and catalogue magnitudes"
-            {% endif %}> {{ "%.2f" | format(star.sigma) }}  </td>
-        <td>
-          {%- if star.new %} &ndash; {% else -%}
-          {{ "%.2f" | format(star.update_mag_aca) }}{% endif -%}
-        </td>
-        <td>
-          {%- if star.new %} &ndash; {% else -%}
-          {{ "%.2f" | format(star.update_mag_aca_err) }}{% endif -%}
-        </td>
-        <td {%- if star.selected_color %}
-              class="table-info"
-              data-toggle="tooltip" data-placement="top"
-              title="Color==1.5 or color==0.7 in catalog"
-            {% endif %}> {{ "%.2f" | format(star.color) }}  </td>
-      </tr>
-      {%- endfor %}
-    <table>
-    {%- endfor %}
-
-    <a name="failures"> </a>
-    {%- if failures %}
-    <h3> Failures </h3>
-    <table class="table table-hover">
-      <tr>
-        <th> AGASC ID </th>
-        <th> OBSID </th>
-        <th> Message </th>
-      </tr>
-      {%- for failure in failures %}
-      <tr>
-        <td> {%- if failure.agasc_id in star_reports -%}
-          <a href="{{ star_reports[failure.agasc_id] }}/index.html"> {{ failure.agasc_id }} </a>
-          {%- else -%} {{ failure.agasc_id }} {%- endif -%} </td>
-        <td> {{ failure.obsid }} </td>
-        <td> {{ failure.msg }} </td>
-      </tr>
-      {%- endfor %}
-    </table>
-    {% endif %}
-    </div>
-
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
-
-  <script type="text/javascript">
-    $(document).ready(function() {
-    $("body").tooltip({ selector: '[data-toggle=tooltip]' });
-});
-  </script>
-</html>
-"""
-
-
-STAR_REPORT_BOOTSTRAP = """<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-          crossorigin="anonymous">
-  </head>
-  <body>
-
-    <div class="container">
-      <h1> AGASC ID {{ agasc_stats.agasc_id }} </h1>
-      <h3> Info </h3>
-      <div class="row">
-        <div class="col-md">
-          <table class="table table-bordered table-sm">
-            <tr>
-              <td style="width: 30%"> Last Obs. </td>
-              <td style="width: 30%"> {{ agasc_stats.last_obs }} </td>
-            </tr>
-            <tr>
-              <td style="width: 30%"> mag<sub>catalog</sub> </td>
-              <td style="width: 30%">
-                {{ "%.2f" | format(agasc_stats.mag_aca) }} &#177; {{ "%.2f" | format(agasc_stats.mag_aca_err) }}
-              </td>
-            </tr>
-            <tr>
-              <td> mag<sub>3 arcsec </sub> </td>
-              <td>
-                {{ "%.2f" | format(agasc_stats.t_mean_dr3) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dr3) }}
-              </td>
-            </tr>
-            <tr>
-              <td> mag<sub>5 arcsec </sub> </td>
-              <td>
-                {{ "%.2f" | format(agasc_stats.t_mean_dr5) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dr5) }}
-              </td>
-            </tr>
-          </table>
-        </div>
-        <div class="col-md">
-          <table class="table table-bordered table-sm">
-            <tr>
-              <td> N<sub>obs</sub> </td>
-              <td>
-                {{ agasc_stats.n_obsids }} <span{%- if agasc_stats.n_obs_bad %} style="color:red;"{% endif -%}> ({{ agasc_stats.n_obs_bad }} bad) <span>
-              </td>
-            </tr>
-            <tr>
-              <td> f<sub>ok</sub> </td>
-              <td> {{ "%.1f" | format(100*agasc_stats.f_ok) }}%  </td>
-            </tr>
-            <tr>
-              <td> f<sub>3 arcsec</sub> </td>
-              <td> {{ "%.1f" | format(100*agasc_stats.f_dr3) }}% </td>
-            </tr>
-            <tr>
-              <td> f<sub>5 arcsec</sub> </td>
-              <td> {{ "%.1f" | format(100*agasc_stats.f_dr5) }}% </td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
-
-      <h3> Timeline </h3>
-      <img src="mag_stats.png" width="100%"/>
-
-      <h3> Observation Info </h3>
-      <table  class="table table-hover">
-        <tr>
-          <th data-toggle="tooltip" data-placement="top" title="OBSID"> OBSID </th>
-          <th data-toggle="tooltip" data-placement="top" title="MP starcat time"> Time </th>
-          <th data-toggle="tooltip" data-placement="top" title="Pixel row"> Row </th>
-          <th data-toggle="tooltip" data-placement="top" title="Pixel column"> Col </th>
-          <!-- th data-toggle="tooltip" data-placement="top" data-html="true" title="Observation is considered in the calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> OK </th -->
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples"> N </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples considered as 'tracking' <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> N<sub>ok</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of outlying samples"> N<sub>out</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Tracking time as a fraction of the total time <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>track</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of tracking time within 3 arcsec of target"> f<sub>dr3</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of tracking time within 5 arcsec of target"> f<sub>dr5</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Time where slot is tracking and target within 3 arcsec <br/> as fraction of total time"> f<sub>ok</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="100-second Rolling mean of mag - &langle; mag &rangle;"> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Mean magnitude"> &langle; mag &rangle; </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Magnitude uncertainty"> &sigma;<sub>mag</sub> </th>
-          <th> Comments </th>
-        </tr>
-        {%- for s in obs_stats %}
-        <tr {%- if not s.obs_ok %} class="table-danger" {% endif %}>
-          <td> <a href="https://web-kadi.cfa.harvard.edu/mica/?obsid_or_date={{ s.obsid }}"> {{ s.obsid }} </td>
-          <td> {{ s.mp_starcat_time }} </td>
-          <td> {{ "%.1f" | format(s.row) }} </td>
-          <td> {{ "%.1f" | format(s.col) }} </td>
-          <!-- td> {{ s.obs_ok }} </td -->
-          <td> {{ s.n }} </td>
-          <td> {{ s.n_ok }} </td>
-          <td> {{ s.outliers }} </td>
-          <td> {{ "%.1f" | format(100*s.f_track) }}% </td>
-          <td> {{ "%.1f" | format(100*s.f_dr3) }}% </td>
-          <td> {{ "%.1f" | format(100*s.f_dr5) }}% </td>
-          <td> {{ "%.1f" | format(100*s.f_ok) }}% </td>
-          <td> {{ "%.2f" | format(s.lf_variability_100s) }} </td>
-          <td> {{ "%.2f" | format(s.t_mean) }} </td>
-          <td> {{ "%.2f" | format(s.t_mean_err) }} </td>
-          <td> {{ s.comments }} </td>
-        </tr>
-        {%- endfor %}
-      </table>
-
-    </div>
-  </body>
-</html>
-"""
-
-
-BAD_OBS_EMAIL_REPORT = """Warning in magnitude estimates at {{ date }}.
-
-There were {{ bad_obs | length }} suspicious observation{% if bad_obs |length != 1 %}s{% endif %}
-in magnitude estimates:
-{% for s in bad_obs %}
-- {{ "% 6d" | format(s.obsid) }}: time={{ s.mp_starcat_time }}, n={{ s.n }}, n_ok={{ s.n_ok }}, outliers={{ s.outliers }}, f_track={{ "%.1f" | format(100*s.f_track) }}%
-{% endfor %}
-"""
-
-
 def email_bad_obs_report(bad_obs, to,
                          sender=f"{getpass.getuser()}@{platform.uname()[1]}"):
     date = CxoTime().date[:14]
-    message = jinja2.Template(BAD_OBS_EMAIL_REPORT,
-                              trim_blocks=True,
-                              lstrip_blocks=True).render(bad_obs=bad_obs, date=date)
+    message = JINJA2.get_template('email_report.txt')
+
     msg = MIMEText(message)
     msg["From"] = sender
     msg["To"] = to

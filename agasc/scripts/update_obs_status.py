@@ -116,8 +116,10 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
         return
 
     if obs_status:
-        t = list(zip(*[[oi, ai, np.uint(obs_status[(oi, ai)]['ok']), obs_status[(oi, ai)]['comments']]
-                       for oi, ai in obs_status]))
+        t = list(zip(
+            *[[oi, ai, np.uint(obs_status[(oi, ai)]['ok']), obs_status[(oi, ai)]['comments']]
+              for oi, ai in obs_status]
+        ))
         obs_status = table.Table(t, names=['obsid', 'agasc_id', 'ok', 'comments'])
     else:
         logger.info('creating empty obs table')
@@ -151,9 +153,9 @@ def _parse_obs_status_file(filename):
             raise RuntimeError('Observation catalog is not initialized')
 
         if 'agasc_id' not in value:
-            value['agasc_id'] = list(
-                sorted(star_obs_catalogs.STARS_OBS[star_obs_catalogs.STARS_OBS['obsid'] == obs]['agasc_id'])
-            )
+            value['agasc_id'] = list(sorted(
+                star_obs_catalogs.STARS_OBS[star_obs_catalogs.STARS_OBS['obsid'] == obs]['agasc_id']
+            ))
         else:
             value['agasc_id'] = (list(np.atleast_1d(value['agasc_id'])))
         if 'comments' not in value:

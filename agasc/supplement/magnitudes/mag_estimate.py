@@ -94,8 +94,8 @@ def _magnitude_correction(time, mag_aca):
 
     q = params['p']
     t_ref = DateTime(params['t_ref'])
-    dmag = (q[0] + (q[1] + q[2] * np.atleast_1d(time)) *
-            np.exp(q[3] + q[4] * np.atleast_1d(mag_aca)))
+    dmag = (q[0] + (q[1] + q[2] * np.atleast_1d(time))
+            * np.exp(q[3] + q[4] * np.atleast_1d(mag_aca)))
     dmag[np.atleast_1d(time) < t_ref.secs] = 0
     return np.squeeze(dmag)
 
@@ -107,14 +107,14 @@ def get_responsivity(time):
     This was estimated with bright stars that were observed more than a hundred times during the
     mission. More details in the `responsivity notebook`_:
 
-    .. _responsivity notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb
+    .. _responsivity notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb  # noqa
 
     :param time: float
         Time in CXC seconds
     :return:
     """
     a, b, c = [3.19776750e-02, 5.35201479e+08, 8.49670756e+07]
-    return - a*(1 + scipy.special.erf((time - b)/c))/2
+    return - a * (1 + scipy.special.erf((time - b) / c)) / 2
 
 
 def get_droop_systematic_shift(magnitude):
@@ -125,7 +125,7 @@ def get_droop_systematic_shift(magnitude):
     The magnitude shift is time-independent. It depends only on the catalog magnitude and is zero
     for bright stars. More details in the `droop notebook`_:
 
-    .. _droop notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb
+    .. _droop notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb  # noqa
 
     :param magnitude: float
         Catalog ACA magnitude
@@ -292,8 +292,8 @@ def get_telemetry(obs):
                                 time_range=[start, stop],
                                 slot=obs['slot'])
     tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
-    t1 = np.round((msid.times - tmin)/1.025)
-    t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin)/1.025)
+    t1 = np.round((msid.times - tmin) / 1.025)
+    t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin) / 1.025)
     c, i1, i2 = np.intersect1d(t1, t2, return_indices=True)
     times = msid.times[i1]
 
@@ -358,10 +358,10 @@ def get_telemetry(obs):
     if np.any(ok & (rang < 10)):
         y25, y50, y75 = np.quantile(yang[ok & (rang < 10)], [0.25, 0.5, 0.75])
         z25, z50, z75 = np.quantile(zang[ok & (rang < 10)], [0.25, 0.5, 0.75])
-        centroid_outlier = ((yang > y75 + 3 * (y75 - y25)) |
-                            (yang < y25 - 3 * (y75 - y25)) |
-                            (zang > z75 + 3 * (z75 - z25)) |
-                            (zang < z25 - 3 * (z75 - z25)))
+        centroid_outlier = ((yang > y75 + 3 * (y75 - y25))
+                            | (yang < y25 - 3 * (y75 - y25))
+                            | (zang > z75 + 3 * (z75 - z25))
+                            | (zang < z25 - 3 * (z75 - z25)))
 
         telem['dy'] = yang - np.mean(yang[ok & ~centroid_outlier])
         telem['dz'] = zang - np.mean(zang[ok & ~centroid_outlier])
@@ -387,8 +387,8 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
         obs = star_obs_catalogs.STARS_OBS[
             (star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id)]
     else:
-        obs = star_obs_catalogs.STARS_OBS[(star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id) &
-                                          (star_obs_catalogs.STARS_OBS['obsid'] == obsid)]
+        obs = star_obs_catalogs.STARS_OBS[(star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id)
+                                          & (star_obs_catalogs.STARS_OBS['obsid'] == obsid)]
     if len(obs) > 1:
         obs = obs.loc['mp_starcat_time', sorted(obs['mp_starcat_time'])]
     telem = []
@@ -426,9 +426,9 @@ def add_obs_info(telem, obs_stats):
     :return:
     """
     obs_stats['obs_ok'] = (
-        (obs_stats['n'] > 10) &
-        (obs_stats['f_track'] > 0.3) &
-        (obs_stats['lf_variability_100s'] < 1)
+        (obs_stats['n'] > 10)
+        & (obs_stats['f_track'] > 0.3)
+        & (obs_stats['lf_variability_100s'] < 1)
     )
     obs_stats['comments'] = np.zeros(len(obs_stats), dtype='<U80')
 
@@ -440,13 +440,13 @@ def add_obs_info(telem, obs_stats):
         obsid = s['obsid']
         o = (telem['obsid'] == obsid)
         telem['obs_ok'][o] = np.ones(np.sum(o), dtype=bool) * s['obs_ok']
-        if (np.any(telem['ok'][o]) and s['f_track'] > 0 and
-                np.isfinite(s['q75']) and np.isfinite(s['q25'])):
+        if (np.any(telem['ok'][o]) and s['f_track'] > 0
+                and np.isfinite(s['q75']) and np.isfinite(s['q25'])):
             iqr = s['q75'] - s['q25']
             telem['obs_outlier'][o] = (
-                    telem[o]['ok'] & (iqr > 0) &
-                    ((telem[o]['mags'] < s['q25'] - 1.5*iqr) |
-                     (telem[o]['mags'] > s['q75'] + 1.5*iqr))
+                telem[o]['ok'] & (iqr > 0)
+                & ((telem[o]['mags'] < s['q25'] - 1.5 * iqr)
+                   | (telem[o]['mags'] > s['q75'] + 1.5 * iqr))
             )
     return telem
 
@@ -454,8 +454,8 @@ def add_obs_info(telem, obs_stats):
 @numba.jit(nopython=True)
 def staggered_aca_slice(array_in, array_out, row, col):
     for i in np.arange(len(row)):
-        if row[i]+8 < 1024 and col[i]+8 < 1024:
-            array_out[i] = array_in[row[i]:row[i]+8, col[i]:col[i]+8]
+        if row[i] + 8 < 1024 and col[i] + 8 < 1024:
+            array_out[i] = array_in[row[i]:row[i] + 8, col[i]:col[i] + 8]
 
 
 def get_mag_from_img(slot_data, t_start, ok=True):
@@ -739,9 +739,9 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
     stats['obs_ok'] = (
-        (stats['n'] > 10) &
-        (stats['f_track'] > 0.3) &
-        (stats['lf_variability_100s'] < 1)
+        (stats['n'] > 10)
+        & (stats['f_track'] > 0.3)
+        & (stats['lf_variability_100s'] < 1)
     )
     stats['comments'] = np.zeros(len(stats), dtype='<U100')
     if obs_status_override:
@@ -756,23 +756,23 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
             iqr = s['q75'] - s['q25']
             t['obs_outlier'] = (
-                t['ok'] &
-                (iqr > 0) &
-                ((t['mags'] < s['q25'] - 1.5*iqr) | (t['mags'] > s['q75'] + 1.5*iqr))
+                t['ok']
+                & (iqr > 0)
+                & ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
             )
     all_telem = vstack([Table(t) for t in all_telem])
 
     mags = all_telem['mags']
     ok = all_telem['ok'] & all_telem['obs_ok']
 
-    f_ok = np.sum(ok)/len(ok)
+    f_ok = np.sum(ok) / len(ok)
 
     star = get_star(agasc_id, date=all_telem['times'][0])
     result = {
         'last_obs_time': last_obs_time,
         'agasc_id': agasc_id,
         'mag_aca': star['MAG_ACA'],
-        'mag_aca_err': star['MAG_ACA_ERR']/100,
+        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'mag_obs': 0.,
         'mag_obs_err': min_mag_obs_err,
         'mag_obs_std': 0.,
@@ -844,8 +844,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     mag_weighted_mean = (stats[obs_ok]['weighted_mean'].sum() / stats[obs_ok]['w'].sum())
     mag_weighted_std = (
-        np.sqrt(((stats[obs_ok]['mean'] - mag_weighted_mean)**2 * stats[obs_ok]['w']).sum() /
-                stats[obs_ok]['w'].sum())
+        np.sqrt(((stats[obs_ok]['mean'] - mag_weighted_mean)**2 * stats[obs_ok]['w']).sum()
+                / stats[obs_ok]['w'].sum())
     )
 
     result.update({

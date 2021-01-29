@@ -122,15 +122,15 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
         now = None
         while finished < len(jobs):
             finished = sum([f.ready() for f in jobs])
-            if now is None or 100*finished/len(jobs) - progress > 0.02:
+            if now is None or 100 * finished / len(jobs) - progress > 0.02:
                 now = datetime.datetime.now()
                 if finished == 0:
                     eta = ''
                 else:
                     dt1 = (now - start).total_seconds()
-                    dt = datetime.timedelta(seconds=(len(jobs)-finished) * dt1 / finished)
+                    dt = datetime.timedelta(seconds=(len(jobs) - finished) * dt1 / finished)
                     eta = f'ETA: {(now + dt).strftime(fmt)}'
-                progress = 100*finished/len(jobs)
+                progress = 100 * finished / len(jobs)
                 logger.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
             time.sleep(1)
     fails = []
@@ -215,11 +215,11 @@ def update_supplement(agasc_stats, filename, include_all=True):
         ]
     else:
         outliers_new = agasc_stats[
-            (agasc_stats['n_obsids_ok'] > 0) &
-            (agasc_stats['selected_atol'] |
-             agasc_stats['selected_rtol'] |
-             agasc_stats['selected_color'] |
-             agasc_stats['selected_mag_aca_err'])
+            (agasc_stats['n_obsids_ok'] > 0)
+            & (agasc_stats['selected_atol']
+               | agasc_stats['selected_rtol']
+               | agasc_stats['selected_color']
+               | agasc_stats['selected_mag_aca_err'])
         ]
     outliers_new['mag_aca'] = outliers_new['mag_obs']
     outliers_new['mag_aca_err'] = outliers_new['mag_obs_err']
@@ -249,10 +249,10 @@ def update_supplement(agasc_stats, filename, include_all=True):
                                          dtype=[('agasc_id', np.int64),
                                                 ('mag_aca', np.float64),
                                                 ('mag_aca_err', np.float64)])
-                updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca'] -
-                                            outliers_current[i_cur]['mag_aca'])
-                updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err'] -
-                                                outliers_current[i_cur]['mag_aca_err'])
+                updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca']
+                                            - outliers_current[i_cur]['mag_aca'])
+                updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err']
+                                                - outliers_current[i_cur]['mag_aca_err'])
                 updated_stars['agasc_id'] = outliers_new[i_new]['agasc_id']
                 outliers_current[i_cur] = outliers_new[i_new]
 
@@ -338,8 +338,8 @@ def do(output_dir,
             start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
         if not stop:
             stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
-        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start) &
-                       (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
+        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start)
+                       & (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
         agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
     else:
         if not stop:
@@ -386,11 +386,11 @@ def do(output_dir,
                 if hasattr(times['last_obs_time'], 'mask'):
                     # the mask exists if there are stars in stars_obs
                     # that are not in outliers_current
-                    update = (
-                        times['last_obs_time'].mask | (
-                        (~times['last_obs_time'].mask) &
-                        (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data)
-                    )
+                    update = (times['last_obs_time'].mask
+                              | ((~times['last_obs_time'].mask)
+                                 & (CxoTime(times['mp_starcat_time']).cxcsec
+                                    > times['last_obs_time']).data)
+                              )
                 else:
                     update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
 
@@ -432,10 +432,10 @@ def do(output_dir,
         if email:
             try:
                 bad_obs = (
-                    (obs_stats['mp_starcat_time'] >= start) &
-                    (obs_stats['mp_starcat_time'] < stop) &
-                    ~obs_stats['obs_ok']
-                    )
+                    (obs_stats['mp_starcat_time'] >= start)
+                    & (obs_stats['mp_starcat_time'] < stop)
+                    & ~obs_stats['obs_ok']
+                )
                 if np.any(bad_obs):
                     msr.email_bad_obs_report(obs_stats[bad_obs], to=email)
             except Exception as e:
