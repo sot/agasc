@@ -2,10 +2,16 @@ mp_get_agasc_bug.png
 miniagasc.h5
 ra_dec.npy
 agasc1p6.h5
-doc/_*
+docs/_*
 build
 data/
 dist/
 MANIFEST
 parsetab.py
 __pycache__
+.vscode
+.DS_store
+_*
+*~
+supplement_reports
+test
