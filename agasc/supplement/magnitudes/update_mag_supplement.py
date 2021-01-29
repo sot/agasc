@@ -209,6 +209,11 @@ def update_supplement(agasc_stats, filename, include_all=True):
         if False, only OK entries marked 'selected_*'
     :return:
     """
+    mags_dtype = np.dtype([('agasc_id', np.int32),
+                           ('mag_aca', np.float32),
+                           ('mag_aca_err', np.float32),
+                           ('last_obs_time', np.float64)])
+
     if include_all:
         outliers_new = agasc_stats[
             (agasc_stats['n_obsids_ok'] > 0)
@@ -223,8 +228,10 @@ def update_supplement(agasc_stats, filename, include_all=True):
         ]
     outliers_new['mag_aca'] = outliers_new['mag_obs']
     outliers_new['mag_aca_err'] = outliers_new['mag_obs_err']
-    names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
-    outliers_new = outliers_new[names].as_array()
+
+    outliers_new = outliers_new[mags_dtype.names].as_array()
+    if outliers_new.dtype != mags_dtype:
+        outliers_new = outliers_new.astype(mags_dtype)
 
     outliers = None
     new_stars = None
@@ -246,9 +253,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
                 i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
                 # overwrite current values with new values (and calculate diff to return)
                 updated_stars = np.zeros(len(outliers_new[i_new]),
-                                         dtype=[('agasc_id', np.int64),
-                                                ('mag_aca', np.float64),
-                                                ('mag_aca_err', np.float64)])
+                                         dtype=mags_dtype)
                 updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca']
                                             - outliers_current[i_cur]['mag_aca'])
                 updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err']
@@ -267,8 +272,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
     if outliers is None:
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
-        updated_stars = np.array([], dtype=[('agasc_id', np.int64), ('mag_aca', np.float64),
-                                            ('mag_aca_err', np.float64)])
+        updated_stars = np.array([], dtype=mags_dtype)
 
     mode = 'r+' if filename.exists() else 'w'
     with tables.File(filename, mode) as h5:
