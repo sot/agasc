@@ -265,6 +265,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
                 new_stars = outliers_new[new_stars]['agasc_id']
 
     if outliers is None:
+        logger.warning('Creating new "mags" table')
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
         updated_stars = np.array([], dtype=mags_dtype)
