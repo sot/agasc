@@ -122,15 +122,15 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
         now = None
         while finished < len(jobs):
             finished = sum([f.ready() for f in jobs])
-            if now is None or 100*finished/len(jobs) - progress > 0.02:
+            if now is None or 100 * finished / len(jobs) - progress > 0.02:
                 now = datetime.datetime.now()
                 if finished == 0:
                     eta = ''
                 else:
                     dt1 = (now - start).total_seconds()
-                    dt = datetime.timedelta(seconds=(len(jobs)-finished) * dt1 / finished)
+                    dt = datetime.timedelta(seconds=(len(jobs) - finished) * dt1 / finished)
                     eta = f'ETA: {(now + dt).strftime(fmt)}'
-                progress = 100*finished/len(jobs)
+                progress = 100 * finished / len(jobs)
                 logger.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
             time.sleep(1)
     fails = []
@@ -388,8 +388,8 @@ def do(output_dir,
                     # that are not in outliers_current
                     update = (
                         times['last_obs_time'].mask | (
-                        (~times['last_obs_time'].mask) &
-                        (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data)
+                            (~times['last_obs_time'].mask) &
+                            (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data)
                     )
                 else:
                     update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
@@ -435,7 +435,7 @@ def do(output_dir,
                     (obs_stats['mp_starcat_time'] >= start) &
                     (obs_stats['mp_starcat_time'] < stop) &
                     ~obs_stats['obs_ok']
-                    )
+                )
                 if np.any(bad_obs):
                     msr.email_bad_obs_report(obs_stats[bad_obs], to=email)
             except Exception as e:

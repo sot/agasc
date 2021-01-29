@@ -114,7 +114,7 @@ def get_responsivity(time):
     :return:
     """
     a, b, c = [3.19776750e-02, 5.35201479e+08, 8.49670756e+07]
-    return - a*(1 + scipy.special.erf((time - b)/c))/2
+    return - a * (1 + scipy.special.erf((time - b) / c)) / 2
 
 
 def get_droop_systematic_shift(magnitude):
@@ -292,8 +292,8 @@ def get_telemetry(obs):
                                 time_range=[start, stop],
                                 slot=obs['slot'])
     tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
-    t1 = np.round((msid.times - tmin)/1.025)
-    t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin)/1.025)
+    t1 = np.round((msid.times - tmin) / 1.025)
+    t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin) / 1.025)
     c, i1, i2 = np.intersect1d(t1, t2, return_indices=True)
     times = msid.times[i1]
 
@@ -444,9 +444,9 @@ def add_obs_info(telem, obs_stats):
                 np.isfinite(s['q75']) and np.isfinite(s['q25'])):
             iqr = s['q75'] - s['q25']
             telem['obs_outlier'][o] = (
-                    telem[o]['ok'] & (iqr > 0) &
-                    ((telem[o]['mags'] < s['q25'] - 1.5*iqr) |
-                     (telem[o]['mags'] > s['q75'] + 1.5*iqr))
+                telem[o]['ok'] & (iqr > 0) &
+                ((telem[o]['mags'] < s['q25'] - 1.5 * iqr) |
+                 (telem[o]['mags'] > s['q75'] + 1.5 * iqr))
             )
     return telem
 
@@ -454,8 +454,8 @@ def add_obs_info(telem, obs_stats):
 @numba.jit(nopython=True)
 def staggered_aca_slice(array_in, array_out, row, col):
     for i in np.arange(len(row)):
-        if row[i]+8 < 1024 and col[i]+8 < 1024:
-            array_out[i] = array_in[row[i]:row[i]+8, col[i]:col[i]+8]
+        if row[i] + 8 < 1024 and col[i] + 8 < 1024:
+            array_out[i] = array_in[row[i]:row[i] + 8, col[i]:col[i] + 8]
 
 
 def get_mag_from_img(slot_data, t_start, ok=True):
@@ -758,21 +758,21 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             t['obs_outlier'] = (
                 t['ok'] &
                 (iqr > 0) &
-                ((t['mags'] < s['q25'] - 1.5*iqr) | (t['mags'] > s['q75'] + 1.5*iqr))
+                ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
             )
     all_telem = vstack([Table(t) for t in all_telem])
 
     mags = all_telem['mags']
     ok = all_telem['ok'] & all_telem['obs_ok']
 
-    f_ok = np.sum(ok)/len(ok)
+    f_ok = np.sum(ok) / len(ok)
 
     star = get_star(agasc_id, date=all_telem['times'][0])
     result = {
         'last_obs_time': last_obs_time,
         'agasc_id': agasc_id,
         'mag_aca': star['MAG_ACA'],
-        'mag_aca_err': star['MAG_ACA_ERR']/100,
+        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'mag_obs': 0.,
         'mag_obs_err': min_mag_obs_err,
         'mag_obs_std': 0.,

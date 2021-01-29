@@ -17,11 +17,11 @@ from agasc.supplement.magnitudes import mag_estimate_report
 def get_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--start', help='Time to start processing new observations.'
-                                       ' CxoTime-compatible time stamp.'
-                                       ' Default: now - 90 days')
+                        ' CxoTime-compatible time stamp.'
+                        ' Default: now - 90 days')
     parser.add_argument('--stop', help='Time to stop processing new observations.'
-                                      ' CxoTime-compatible time stamp.'
-                                      ' Default: now')
+                        ' CxoTime-compatible time stamp.'
+                        ' Default: now')
     parser.add_argument('--input-dir', default='$SKA/data/agasc',
                         help='Directory containing mag-stats files. Default: $SKA/data/agasc')
     parser.add_argument('--output-dir', default='supplement_reports/suspect',
@@ -72,7 +72,7 @@ def main():
     if args.weekly_report:
         t = CxoTime(args.stop)
         directory = args.output_dir / t.date[:8]
-        week = time.TimeDelta(7*u.day)
+        week = time.TimeDelta(7 * u.day)
         nav_links = {
             'previous': f'../{(t - week).date[:8]}',
             'up': '..',

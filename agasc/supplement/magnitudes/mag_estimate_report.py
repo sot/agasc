@@ -149,7 +149,7 @@ class MagEstimateReport:
             agasc_stats['flag'][agasc_stats['n_obs_bad'] > 0] = 'warning'
             agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
             agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
-            agasc_stats['sigma'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])/agasc_stats['mag_aca_err']
+            agasc_stats['sigma'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca']) / agasc_stats['mag_aca_err']
             agasc_stats['new'] = True
             agasc_stats['new'][np.in1d(agasc_stats['agasc_id'], updated_star_ids)] = False
             agasc_stats['update_mag_aca'] = np.nan

@@ -10,29 +10,29 @@ from agasc.scripts import update_obs_status
 
 TEST_DATA_DIR = pathlib.Path(__file__).parent / 'data'
 
-STARS_OBS = np.array([(56314,  114950168), (56314,  114950584), (56314,  114952056),
-                      (56314,  114952792), (56314,  114952824), (56314,  114955056),
-                      (56314,  114956608), (56314,  115347520), (56312,  357045496),
-                      (56312,  357049064), (56312,  357051640), (56312,  357054680),
-                      (56312,  358220224), (56312,  358222256), (56312,  358224400),
-                      (56312,  358757768), (56313,  441853632), (56313,  441854760),
-                      (56313,  441855776), (56313,  441856032), (56313,  441856400),
-                      (56313,  441980072), (56313,  491391592), (56313,  491394504),
-                      (56311,  563087864), (56311,  563088952), (56311,  563089432),
-                      (56311,  563091784), (56311,  563092520), (56311,  563612488),
-                      (56311,  563612792), (56311,  563617352), (56310,  624826320),
-                      (56310,  624826464), (56310,  624828488), (56310,  624831328),
-                      (56310,  624831392), (56310,  624954248), (56310,  624956216),
-                      (56310,  625476960), (12203,  697581832), (12203,  697963056),
-                      (12203,  697963288), (12203,  697970576), (12203,  697973824),
-                      (56308,  732697144), (56308,  732698416), (56309,  762184312),
-                      (56309,  762184768), (56309,  762185584), (56309,  762186016),
-                      (56309,  762186080), (56309,  762191224), (56309,  762579584),
-                      (56309,  762581024), (56308,  806748432), (56308,  806748880),
-                      (56308,  806750112), (56308,  806750408), (56308,  806750912),
-                      (56308,  806751424), (56306,  956708808), (56306,  957219128),
-                      (56306,  957221200), (56306,  957222432), (56306,  957229080),
-                      (56306,  957230976), (56306,  957233920), (56306,  957369088),
+STARS_OBS = np.array([(56314, 114950168), (56314, 114950584), (56314, 114952056),
+                      (56314, 114952792), (56314, 114952824), (56314, 114955056),
+                      (56314, 114956608), (56314, 115347520), (56312, 357045496),
+                      (56312, 357049064), (56312, 357051640), (56312, 357054680),
+                      (56312, 358220224), (56312, 358222256), (56312, 358224400),
+                      (56312, 358757768), (56313, 441853632), (56313, 441854760),
+                      (56313, 441855776), (56313, 441856032), (56313, 441856400),
+                      (56313, 441980072), (56313, 491391592), (56313, 491394504),
+                      (56311, 563087864), (56311, 563088952), (56311, 563089432),
+                      (56311, 563091784), (56311, 563092520), (56311, 563612488),
+                      (56311, 563612792), (56311, 563617352), (56310, 624826320),
+                      (56310, 624826464), (56310, 624828488), (56310, 624831328),
+                      (56310, 624831392), (56310, 624954248), (56310, 624956216),
+                      (56310, 625476960), (12203, 697581832), (12203, 697963056),
+                      (12203, 697963288), (12203, 697970576), (12203, 697973824),
+                      (56308, 732697144), (56308, 732698416), (56309, 762184312),
+                      (56309, 762184768), (56309, 762185584), (56309, 762186016),
+                      (56309, 762186080), (56309, 762191224), (56309, 762579584),
+                      (56309, 762581024), (56308, 806748432), (56308, 806748880),
+                      (56308, 806750112), (56308, 806750408), (56308, 806750912),
+                      (56308, 806751424), (56306, 956708808), (56306, 957219128),
+                      (56306, 957221200), (56306, 957222432), (56306, 957229080),
+                      (56306, 957230976), (56306, 957233920), (56306, 957369088),
                       (11849, 1019347720), (11849, 1019348536), (11849, 1019350904),
                       (11849, 1019354232), (11849, 1019357032), (11980, 1198184872),
                       (11980, 1198190648), (11980, 1198190664), (11980, 1198191400),
@@ -42,7 +42,7 @@ STARS_OBS = np.array([(56314,  114950168), (56314,  114950584), (56314,  1149520
                          'formats': ['<i8', '<i8'],
                          'offsets': [0, 16],
                          'itemsize': 264
-                     })
+})
 
 
 TEST_YAML = {
@@ -151,7 +151,7 @@ TEST_DATA = {
             (11849, 1019350904): {'ok': False, 'comments': 'just removed them'}
         },
         'bad': {}}
-    }
+}
 
 
 def _open(filename):
@@ -348,16 +348,16 @@ def test_update_obs_dry_run(monkeypatch):
     # should not write if dry_run==True
     monkeypatch.setattr(table.Table, 'write', _disabled_write)
     update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
-                                        {},
-                                        dry_run=True)
+                                       {},
+                                       dry_run=True)
 
 
 def test_update_obs_skip(monkeypatch):
     # should not write if there is nothing to write
     monkeypatch.setattr(table.Table, 'write', _disabled_write)
     update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
-                                        {},
-                                        dry_run=False)
+                                       {},
+                                       dry_run=False)
 
 
 def test_update_obs_blank_slate(monkeypatch):
@@ -377,8 +377,8 @@ def test_update_obs_blank_slate(monkeypatch):
                             lambda *args, **kwargs: mock_write(filename, *args, **kwargs))
         status = update_obs_status._parse_obs_status_args(filename=filename)
         update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
-                                            status['obs'],
-                                            dry_run=False)
+                                           status['obs'],
+                                           dry_run=False)
 
 
 def test_update_obs(monkeypatch):
@@ -386,21 +386,21 @@ def test_update_obs(monkeypatch):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     def mock_write(*args, **kwargs):
-        ref = table.Table(np.array([(56311,  563087864, 0, ''), (56311,  563088952, 0, ''),
-                                    (56311,  563089432, 0, ''), (56311,  563091784, 0, ''),
-                                    (56311,  563092520, 0, ''), (56311,  563612488, 0, ''),
-                                    (56311,  563612792, 0, ''), (56311,  563617352, 0, ''),
-                                    (56308,  806750112, 1, ''),
+        ref = table.Table(np.array([(56311, 563087864, 0, ''), (56311, 563088952, 0, ''),
+                                    (56311, 563089432, 0, ''), (56311, 563091784, 0, ''),
+                                    (56311, 563092520, 0, ''), (56311, 563612488, 0, ''),
+                                    (56311, 563612792, 0, ''), (56311, 563617352, 0, ''),
+                                    (56308, 806750112, 1, ''),
                                     (11849, 1019348536, 0, 'just removed them'),
                                     (11849, 1019350904, 0, 'just removed them'),
-                                    (56314,  114950168, 0, 'removed because I felt like it'),
-                                    (56314,  114950584, 0, 'removed because I felt like it'),
-                                    (56314,  114952056, 0, 'removed because I felt like it'),
-                                    (56314,  114952792, 0, 'removed because I felt like it'),
-                                    (56314,  114952824, 0, 'removed because I felt like it'),
-                                    (56314,  114955056, 0, 'removed because I felt like it'),
-                                    (56314,  114956608, 0, 'removed because I felt like it'),
-                                    (56314,  115347520, 0, 'removed because I felt like it')],
+                                    (56314, 114950168, 0, 'removed because I felt like it'),
+                                    (56314, 114950584, 0, 'removed because I felt like it'),
+                                    (56314, 114952056, 0, 'removed because I felt like it'),
+                                    (56314, 114952792, 0, 'removed because I felt like it'),
+                                    (56314, 114952824, 0, 'removed because I felt like it'),
+                                    (56314, 114955056, 0, 'removed because I felt like it'),
+                                    (56314, 114956608, 0, 'removed because I felt like it'),
+                                    (56314, 115347520, 0, 'removed because I felt like it')],
                                    dtype=[('obsid', '<i8'), ('agasc_id', '<i8'),
                                           ('ok', '<u8'), ('comments', '<U30')])
                           )
@@ -410,8 +410,8 @@ def test_update_obs(monkeypatch):
     monkeypatch.setattr(table.Table, 'write', mock_write)
     status = update_obs_status._parse_obs_status_args(filename=filename)
     update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
-                                        status['obs'],
-                                        dry_run=False)
+                                       status['obs'],
+                                       dry_run=False)
 
 
 def recreate_test_supplement():
@@ -425,11 +425,10 @@ def recreate_test_supplement():
 
     obs_status_override, bad_stars = update_obs_status._parse_obs_status_args(filename='file_7.yml')
     update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
-                                        obs_status_override,
-                                        dry_run=False)
+                                       obs_status_override,
+                                       dry_run=False)
 
     obs_status_override, bad_stars = update_obs_status._parse_obs_status_args(filename='file_4.yml')
     update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
-                                        obs_status_override,
-                                        dry_run=False)
-
+                                       obs_status_override,
+                                       dry_run=False)
