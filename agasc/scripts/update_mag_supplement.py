@@ -63,6 +63,7 @@ def get_parser():
 
 
 def main():
+    logger = logging.getLogger('agasc.supplement')
     the_parser = get_parser()
     args = the_parser.parse_args()
 
@@ -83,7 +84,7 @@ def main():
     )
 
     if (args.obsid and not args.status) or (not args.obsid and args.status):
-        logging.error('To override OBS status, both --obs and --status options are needed.')
+        logger.error('To override OBS status, both --obs and --status options are needed.')
         the_parser.exit(1)
 
     star_obs_catalogs.load(args.stop)
