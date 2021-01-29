@@ -478,7 +478,7 @@ def do(output_dir,
                 report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
                 report.multi_star_html(**multi_star_html_args)
                 latest = reports_dir / 'latest'
-                if latest.exists:
+                if latest.exists():
                     latest.unlink()
                 latest.symlink_to(directory)
             except Exception as e:
