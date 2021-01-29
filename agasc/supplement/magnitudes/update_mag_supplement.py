@@ -324,28 +324,23 @@ def do(output_dir,
         agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
 
     # set start/stop times and agasc_ids
-    if whole_history:
+    if whole_history or agasc_ids is not None:
         if start:
-            logger.warning('Ignoring --start argument from commant line (--whole-history)')
+            logger.warning('Ignoring --start argument from commant line')
         if stop:
-            logger.warning('Ignoring --stop argument from commant line (--whole-history)')
+            logger.warning('Ignoring --stop argument from commant line')
         start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
         stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
         if agasc_ids is None:
             agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
-    elif agasc_ids is None:
-        if not start:
-            start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
-        if not stop:
-            stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
-        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start)
-                       & (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
-        agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
     else:
         if not stop:
             stop = CxoTime.now().date
         if not start:
-            start = CxoTime(stop) - 14 * u.day
+            start = (CxoTime(stop) - 14 * u.day).date
+        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start)
+                       & (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
+        agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
 
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
@@ -402,6 +397,7 @@ def do(output_dir,
 
     # do the processing
     logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
+    logger.info(f'from {start} to {stop}')
     if dry_run:
         return
 
