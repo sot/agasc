@@ -4,16 +4,14 @@ Functions to estimate observed ACA magnitudes
 
 import logging
 import collections
+
 import scipy.stats
 import scipy.special
 import numpy as np
 import numba
 from astropy.table import Table, vstack
 
-from . import star_obs_catalogs
-
 from Chandra.Time import DateTime
-from agasc import get_star
 from cheta import fetch
 from Quaternion import Quat
 import Ska.quatutil
@@ -22,6 +20,12 @@ from mica.archive.aca_dark.dark_cal import get_dark_cal_image
 from chandra_aca.transform import count_rate_to_mag, pixels_to_yagzag
 from cxotime import CxoTime
 from kadi import events
+
+from . import star_obs_catalogs
+from agasc import get_star
+
+
+logger = logging.getLogger('agasc.supplement')
 
 
 MAX_MAG = 15
@@ -51,13 +55,15 @@ EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code
 
 
 class MagStatsException(Exception):
-    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None):
+    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, **kwargs):
         super().__init__(msg)
         self.error_code = EXCEPTION_CODES[msg]
         self.msg = msg
         self.agasc_id = agasc_id
         self.obsid = obsid
         self.timeline_id = timeline_id
+        for k in kwargs:
+            setattr(self, k, kwargs[k])
 
     def __str__(self):
         return f'MagStatsException: {self.msg} (agasc_id: {self.agasc_id}, ' \
@@ -282,7 +288,9 @@ def get_telemetry(obs):
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
-                                timeline_id=obs["timeline_id"])
+                                timeline_id=obs["timeline_id"],
+                                time_range=[start, stop],
+                                slot=obs['slot'])
     tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
     t1 = np.round((msid.times - tmin)/1.025)
     t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin)/1.025)
@@ -327,8 +335,8 @@ def get_telemetry(obs):
         del telem[f'{name}{slot}']
     for name in ['AOACIIR', 'AOACISP']:
         telem[name] = np.char.rstrip(telem[name])
-    ok = (telem['AOACASEQ'] == 'KALM') & (telem[f'AOACIIR'] == 'OK') & \
-         (telem[f'AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT') & \
+    ok = (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
+         (telem['AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT') & \
          (telem['AOACFCT'] == 'TRAK')
 
     # etc...
@@ -390,16 +398,16 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
             t['obsid'] = o['obsid']
             t['agasc_id'] = agasc_id
             telem.append(t)
-        except Exception as e:
+        except Exception:
             import sys
             import traceback
-            logging.info(f'{agasc_id} failed', e)
+            logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
             exc_type, exc_value, exc_traceback = sys.exc_info()
             trace = traceback.extract_tb(exc_traceback)
-            logging.info(f'{exc_type.__name__} {exc_value}')
+            logger.info(f'{exc_type.__name__} {exc_value}')
             for step in trace:
-                logging.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
-                logging.info(f'    {step.line}')
+                logger.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
+                logger.info(f'    {step.line}')
             if not ignore_exceptions:
                 raise
     return vstack(telem)
@@ -568,7 +576,7 @@ def calc_obs_stats(telem):
     times = telem['times']
 
     kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
-    track = (telem[f'AOACIIR'] == 'OK') & (telem[f'AOACISP'] == 'OK') & \
+    track = (telem['AOACIIR'] == 'OK') & (telem['AOACISP'] == 'OK') & \
             (telem['AOACFCT'] == 'TRAK')
     dr3 = (telem['dr'] < 3)
     dr5 = (telem['dr'] < 5)

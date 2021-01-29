@@ -1,13 +1,13 @@
 import os
 import sys
 import numpy as np
+import tables
 
 from astropy.table import Table
 from astropy import table
-from Ska.DBI import DBI
 
+from Ska.DBI import DBI
 from cxotime import CxoTime
-import tables
 from Chandra.Time import date2secs
 from chandra_aca.transform import yagzag_to_pixels
 

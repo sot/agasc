@@ -2,18 +2,21 @@
 import warnings
 import os
 import pickle
-import yaml
-import numpy as np
-import tables
 import datetime
 import logging
 from functools import partial
 from multiprocessing import Pool
+
+import tables
+import numpy as np
 from astropy import table
+from astropy import time, units as u
 
 from agasc.supplement.magnitudes import star_obs_catalogs, mag_estimate, mag_estimate_report as msr
 from cxotime import CxoTime
-from astropy import time, units as u
+
+
+logger = logging.getLogger('agasc.supplement')
 
 
 def level0_archive_time_range():
@@ -128,7 +131,7 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
                     dt = datetime.timedelta(seconds=(len(jobs)-finished) * dt1 / finished)
                     eta = f'ETA: {(now + dt).strftime(fmt)}'
                 progress = 100*finished/len(jobs)
-                logging.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
+                logger.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
             time.sleep(1)
     fails = []
     failed_agasc_ids = [i for arg, job in zip(args, jobs) if not job.successful() for i in arg]
@@ -195,16 +198,12 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
             pickle.dump(fails, out)
 
 
-def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
+def update_supplement(agasc_stats, filename, include_all=True):
     """
     Update the magnitude table of the AGASC supplement.
 
     :param agasc_stats:
     :param filename:
-    :param obs_status: dict.
-        Dictionary with OK flag for specific observations.
-        Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
-        {'obs_ok': True, 'comments': 'some comment'}
     :param include_all: bool
         if True, all OK entries are included in supplement.
         if False, only OK entries marked 'selected_*'
@@ -227,189 +226,192 @@ def update_supplement(agasc_stats, filename, obs_status=None, include_all=True):
     names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
     outliers_new = outliers_new[names].as_array()
 
+    outliers = None
+    new_stars = None
+    updated_stars = None
     if filename.exists():
         # I could do what follows directly in place, but the table is not that large.
         with tables.File(filename, 'r') as h5:
-            outliers_current = h5.root.mags[:]
-            # find the indices of agasc_ids in both current and new lists
-            _, i_new, i_cur = np.intersect1d(outliers_new['agasc_id'],
-                                             outliers_current['agasc_id'],
-                                             return_indices=True)
-            current = outliers_current[i_cur]
-            new = outliers_new[i_new]
+            if 'mags' in h5.root:
+                outliers_current = h5.root.mags[:]
+                # find the indices of agasc_ids in both current and new lists
+                _, i_new, i_cur = np.intersect1d(outliers_new['agasc_id'],
+                                                 outliers_current['agasc_id'],
+                                                 return_indices=True)
+                current = outliers_current[i_cur]
+                new = outliers_new[i_new]
 
-            # from those, find the ones which differ in last observation time
-            i_cur = i_cur[current['last_obs_time'] != new['last_obs_time']]
-            i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
-            # overwrite current values with new values (and calculate diff to return)
-            updated_stars = np.zeros(len(outliers_new[i_new]),
-                                     dtype=[('agasc_id', np.int64),
-                                            ('mag_aca', np.float64),
-                                            ('mag_aca_err', np.float64)])
-            updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca'] -
-                                        outliers_current[i_cur]['mag_aca'])
-            updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err'] -
-                                            outliers_current[i_cur]['mag_aca_err'])
-            updated_stars['agasc_id'] = outliers_new[i_new]['agasc_id']
-            outliers_current[i_cur] = outliers_new[i_new]
+                # from those, find the ones which differ in last observation time
+                i_cur = i_cur[current['last_obs_time'] != new['last_obs_time']]
+                i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
+                # overwrite current values with new values (and calculate diff to return)
+                updated_stars = np.zeros(len(outliers_new[i_new]),
+                                         dtype=[('agasc_id', np.int64),
+                                                ('mag_aca', np.float64),
+                                                ('mag_aca_err', np.float64)])
+                updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca'] -
+                                            outliers_current[i_cur]['mag_aca'])
+                updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err'] -
+                                                outliers_current[i_cur]['mag_aca_err'])
+                updated_stars['agasc_id'] = outliers_new[i_new]['agasc_id']
+                outliers_current[i_cur] = outliers_new[i_new]
 
-            # find agasc_ids in new list but not in current list
-            new_stars = ~np.in1d(outliers_new['agasc_id'], outliers_current['agasc_id'])
-            # and add them to the current list
-            outliers_current = np.concatenate([outliers_current, outliers_new[new_stars]])
-            outliers = np.sort(outliers_current)
+                # find agasc_ids in new list but not in current list
+                new_stars = ~np.in1d(outliers_new['agasc_id'], outliers_current['agasc_id'])
+                # and add them to the current list
+                outliers_current = np.concatenate([outliers_current, outliers_new[new_stars]])
+                outliers = np.sort(outliers_current)
 
-            new_stars = outliers_new[new_stars]['agasc_id']
-    else:
+                new_stars = outliers_new[new_stars]['agasc_id']
+
+    if outliers is None:
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
         updated_stars = np.array([], dtype=[('agasc_id', np.int64), ('mag_aca', np.float64),
                                             ('mag_aca_err', np.float64)])
-
-    t = list(zip(*[[oi, ai, obs_status[(oi, ai)]['ok'], obs_status[(oi, ai)]['comments']]
-                   for oi, ai in obs_status]))
-    if t:
-        obs_status = table.Table(t, names=['obsid', 'agasc_id', 'ok', 'comments']).as_array()
-    else:
-        obs_status = table.Table(dtype=[('obsid', int),
-                                        ('agasc_id', int),
-                                        ('ok', bool),
-                                        ('comments', '<U80')]).as_array()
 
     mode = 'r+' if filename.exists() else 'w'
     with tables.File(filename, mode) as h5:
         if 'mags' in h5.root:
             h5.remove_node('/mags')
         h5.create_table('/', 'mags', outliers)
-        if 'obs_status' in h5.root:
-            h5.remove_node('/obs_status')
-        h5.create_table('/', 'obs_status', obs_status)
 
     return new_stars, updated_stars
 
 
-def do(args):
+def do(output_dir,
+       reports_dir,
+       agasc_ids=None,
+       multi_process=False,
+       start=None,
+       stop=None,
+       whole_history=False,
+       report=False,
+       email='',
+       include_bad=False,
+       dry_run=False):
+    """
+
+    :param output_dir:
+    :param reports_dir:
+    :param agasc_ids:
+    :param multi_process:
+    :param start:
+    :param stop:
+    :param whole_history:
+    :param report:
+    :param email:
+    :return:
+    """
     # PyTables is not really unicode-compatible, but python 3 is basically unicode.
     # For our purposes, PyTables works. It would fail with characters that can not be written
     # as ascii. It displays a warning which I want to avoid:
     warnings.filterwarnings("ignore", category=tables.exceptions.FlavorWarning)
 
-    filename = args.output_dir / 'agasc_supplement.h5'
+    if start:
+        start = CxoTime(start)
+    if stop:
+        stop = CxoTime(stop)
 
-    if args.multi_process:
+    filename = output_dir / 'agasc_supplement.h5'
+
+    if multi_process:
         get_stats = partial(get_agasc_id_stats_pool, batch_size=10)
     else:
         get_stats = get_agasc_id_stats
-    star_obs_catalogs.load(args.stop)
 
-    # set the list of AGASC IDs from file if specified. If not, it will include all.
-    agasc_ids = None
-    if args.agasc_id_file:
-        with open(args.agasc_id_file, 'r') as f:
-            agasc_ids = [int(l.strip()) for l in f.readlines()]
-            agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
+    if agasc_ids is not None:
+        agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
 
-    # set start/stop times
-    if args.whole_history:
-        if args.start:
-            logging.warning('Ignoring --start argument from commant line (--whole-history)')
-        if args.stop:
-            logging.warning('Ignoring --stop argument from commant line (--whole-history)')
-        args.start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
-        args.stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
+    # set start/stop times and agasc_ids
+    if whole_history:
+        if start:
+            logger.warning('Ignoring --start argument from commant line (--whole-history)')
+        if stop:
+            logger.warning('Ignoring --stop argument from commant line (--whole-history)')
+        start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
+        stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
         if agasc_ids is None:
             agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
+    elif agasc_ids is None:
+        if not start:
+            start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
+        if not stop:
+            stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
+        obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start) &
+                       (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
+        agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
     else:
-        if not args.stop:
-            args.stop = CxoTime.now().date
-        else:
-            args.stop = CxoTime(args.stop).date
-        if not args.start:
-            args.start = CxoTime(args.stop) - 14 * u.day
-        if agasc_ids is None:
-            obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= args.start) &
-                           (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= args.stop))
-            agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
+        if not stop:
+            stop = CxoTime.now().date
+        if not start:
+            start = CxoTime(stop) - 14 * u.day
 
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
         np.in1d(star_obs_catalogs.STARS_OBS['agasc_id'], agasc_ids)
     ]
 
-    # exclude/include an ad-hoc list of observations
-    obs_status_override = {}
-    if args.obs_status_override:
-        with open(args.obs_status_override) as f:
-            obs_status_override = yaml.load(f, Loader=yaml.FullLoader)
-    if args.obs and args.status:
-        obs_status_override[args.obs] = {'ok': args.status, 'comments': args.comments}
-        if args.agasc_id:
-            obs_status_override[args.obs]['agasc_id'] = args.agasc_id
-    for obs in obs_status_override:
-        if 'agasc_id' not in obs_status_override[obs]:
-            obs_status_override[obs]['agasc_id'] = list(
-                star_obs_catalogs.STARS_OBS[star_obs_catalogs.STARS_OBS['obsid'] == obs]['agasc_id']
-            )
-    obs_status_override = {
-        (obs, agasc_id): {
-            'ok': obs_status_override[obs]['ok'],
-            'comments': obs_status_override[obs]['comments']
-        }
-        for obs in obs_status_override for agasc_id in obs_status_override[obs]['agasc_id']}
-
-    # if supplement exists, get the latest observation for each agasc_id in stars_obs,
-    # find the ones already in the supplement, and drop the ones for which supplement.last_obs_time
-    # is equal or larger than stars_obs.mp_starcat_time
+    # if supplement exists:
+    # - drop bad stars
+    # - get OBS status override
+    # - get the latest observation for each agasc_id,
+    # - find the ones already in the supplement
+    # - include only the ones with supplement.last_obs_time < than stars_obs.mp_starcat_time
     obs_status = {}
     if filename.exists():
         with tables.File(filename, 'r') as h5:
-            outliers_current = h5.root.mags[:]
-            times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
-                'agasc_id').groups.aggregate(lambda d: np.max(CxoTime(d)).date)
-            if len(outliers_current):
-                times = table.join(times,
-                                   table.Table(outliers_current[['agasc_id', 'last_obs_time']]),
-                                   join_type='left')
-            else:
-                times['last_obs_time'] = table.MaskedColumn(
-                    np.zeros(len(times), dtype=h5.root.mags.dtype['last_obs_time']),
-                    mask=np.ones(len(times), dtype=bool)
-                )
-            if hasattr(times['last_obs_time'], 'mask'):
-                # the mask exists if there are stars in stars_obs that are not in outliers_current
-                update = (times['last_obs_time'].mask | (
-                          (~times['last_obs_time'].mask) &
-                          (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data))
-            else:
-                update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
-
-            # also update stars passed in the obs_status_override
-            override_agasc_ids = np.in1d(times['agasc_id'], [ai for _, ai in obs_status_override])
-            if np.any(override_agasc_ids):
-                update += override_agasc_ids
-                logging.info(f'Not skipping {np.sum(override_agasc_ids)} stars overridden explicitly')
-
-            stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
-            agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
-            logging.info(f'Skipping {len(update) - np.sum(update)} stars (already in the supplement)')
+            if not include_bad and 'bad' in h5.root:
+                logger.info('Excluding bad stars')
+                stars_obs = stars_obs[~np.in1d(stars_obs['agasc_id'], h5.root.bad[:]['agasc_id'])]
 
             if 'obs' in h5.root:
                 obs_status = {
                     (r['obsid'], r['agasc_id']): {'ok': r['ok'], 'comments': r['comments']}
-                    for r in h5.root.obs_status[:]
+                    for r in h5.root.obs[:]
                 }
+            if 'mags' in h5.root:
+                outliers_current = h5.root.mags[:]
+                times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
+                    'agasc_id').groups.aggregate(lambda d: np.max(CxoTime(d)).date)
+                if len(outliers_current):
+                    times = table.join(times,
+                                       table.Table(outliers_current[['agasc_id', 'last_obs_time']]),
+                                       join_type='left')
+                else:
+                    times['last_obs_time'] = table.MaskedColumn(
+                        np.zeros(len(times), dtype=h5.root.mags.dtype['last_obs_time']),
+                        mask=np.ones(len(times), dtype=bool)
+                    )
+                if hasattr(times['last_obs_time'], 'mask'):
+                    # the mask exists if there are stars in stars_obs
+                    # that are not in outliers_current
+                    update = (
+                        times['last_obs_time'].mask | (
+                        (~times['last_obs_time'].mask) &
+                        (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data)
+                    )
+                else:
+                    update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
 
-    obs_status.update(obs_status_override)
+                stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
+                agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
+                if len(update) - np.sum(update):
+                    logger.info(f'Skipping {len(update) - np.sum(update)} '
+                                f'stars already in the supplement')
 
     # do the processing
-    logging.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
+    logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
+    if dry_run:
+        return
+
     obs_stats, agasc_stats, fails = \
-        get_stats(agasc_ids, tstop=args.stop, obs_status_override=obs_status)
+        get_stats(agasc_ids, tstop=stop, obs_status_override=obs_status)
 
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]
     failed_obs = [f for f in fails if f['obsid']]
-    logging.info(
+    logger.info(
         f'Got:\n'
         f'  {0 if obs_stats is None else len(obs_stats)} OBSIDs,'
         f'  {0 if agasc_stats is None else len(agasc_stats)} stars,'
@@ -418,30 +420,30 @@ def do(args):
         f'  {len(failed_global)} global errors'
     )
 
-    if not args.output_dir.exists():
-        args.output_dir.mkdir(parents=True)
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
 
-    update_mag_stats(obs_stats, agasc_stats, fails, args.output_dir)
+    update_mag_stats(obs_stats, agasc_stats, fails, output_dir)
     if agasc_stats is not None and len(agasc_stats):
         new_stars, updated_stars = update_supplement(agasc_stats,
-                                                     filename=filename, obs_status=obs_status)
+                                                     filename=filename)
 
-        logging.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
-        if args.email:
+        logger.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
+        if email:
             try:
                 bad_obs = (
-                    (obs_stats['mp_starcat_time'] >= args.start) &
-                    (obs_stats['mp_starcat_time'] < args.stop) &
+                    (obs_stats['mp_starcat_time'] >= start) &
+                    (obs_stats['mp_starcat_time'] < stop) &
                     ~obs_stats['obs_ok']
                     )
                 if np.any(bad_obs):
-                    msr.email_bad_obs_report(obs_stats[bad_obs], to=args.email)
+                    msr.email_bad_obs_report(obs_stats[bad_obs], to=email)
             except Exception as e:
-                logging.error(f'Failed sending email to {args.email}: {e}')
+                logger.error(f'Failed sending email to {email}: {e}')
 
-        if args.report:
+        if report:
             now = datetime.datetime.now()
-            logging.info(f"making report at {now}")
+            logger.info(f"making report at {now}")
             sections = [{
                 'id': 'new_stars',
                 'title': 'New Stars',
@@ -453,22 +455,39 @@ def do(args):
             }]
 
             week = time.TimeDelta(7 * u.day)
-            t = CxoTime(args.stop)
+            t = CxoTime(stop)
             nav_links = {
                 'previous': f'../{(t - week).date[:8]}/index.html',
                 'up': '..',
                 'next': f'../{(t + week).date[:8]}/index.html'
             }
-            report = msr.MagEstimateReport(agasc_stats, obs_stats,
-                                           directory=args.reports_dir / f'{t.date[:8]}')
-            report.multi_star_html(filename='index.html',
-                                   sections=sections,
-                                   updated_stars=updated_stars,
-                                   fails=fails,
-                                   report_date=CxoTime.now().date,
-                                   tstart=args.start,
-                                   tstop=args.stop,
-                                   nav_links=nav_links,
-                                   include_all_stars=True)
+
+            directory = reports_dir / f'{t.date[:8]}'
+            multi_star_html_args = dict(
+                filename='index.html',
+                sections=sections,
+                updated_stars=updated_stars,
+                fails=fails,
+                report_date=CxoTime.now().date,
+                tstart=start,
+                tstop=stop,
+                nav_links=nav_links,
+                include_all_stars=True
+            )
+            try:
+                report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
+                report.multi_star_html(**multi_star_html_args)
+                latest = reports_dir / 'latest'
+                if latest.exists:
+                    latest.unlink()
+                latest.symlink_to(directory)
+            except Exception as e:
+                logger.error(f'Exception when creating report: {e}')
+                multi_star_html_args['directory'] = directory
+                failure_file = output_dir / f'failed_report_{t.date[:8]}.pkl'
+                with open(failure_file, 'wb') as fh:
+                    pickle.dump(multi_star_html_args, fh)
+                logger.error(f'Intermediate data saved in {failure_file}')
+
     now = datetime.datetime.now()
-    logging.info(f"done at {now}")
+    logger.info(f"done at {now}")
