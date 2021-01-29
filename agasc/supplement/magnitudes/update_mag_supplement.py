@@ -386,11 +386,11 @@ def do(output_dir,
                 if hasattr(times['last_obs_time'], 'mask'):
                     # the mask exists if there are stars in stars_obs
                     # that are not in outliers_current
-                    update = (
-                        times['last_obs_time'].mask | (
-                            (~times['last_obs_time'].mask)
-                            & (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time']).data)
-                    )
+                    update = (times['last_obs_time'].mask
+                              | ((~times['last_obs_time'].mask)
+                                 & (CxoTime(times['mp_starcat_time']).cxcsec
+                                    > times['last_obs_time']).data)
+                              )
                 else:
                     update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
 

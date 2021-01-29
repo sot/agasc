@@ -107,7 +107,7 @@ def get_responsivity(time):
     This was estimated with bright stars that were observed more than a hundred times during the
     mission. More details in the `responsivity notebook`_:
 
-    .. _responsivity notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb
+    .. _responsivity notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb  # noqa
 
     :param time: float
         Time in CXC seconds
@@ -125,7 +125,7 @@ def get_droop_systematic_shift(magnitude):
     The magnitude shift is time-independent. It depends only on the catalog magnitude and is zero
     for bright stars. More details in the `droop notebook`_:
 
-    .. _droop notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb
+    .. _droop notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb  # noqa
 
     :param magnitude: float
         Catalog ACA magnitude
