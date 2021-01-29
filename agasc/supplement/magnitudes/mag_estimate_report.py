@@ -121,8 +121,8 @@ class MagEstimateReport:
         agasc_stats = self.agasc_stats.copy()
 
         # check how many observations were added in this run, and how many of those are ok
-        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"]) &
-                        (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
+        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"])
+                        & (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
         if np.any(new_obs_mask):
             new_obs = self.obs_stats[new_obs_mask]. \
                 group_by('agasc_id')[['agasc_id', 'obsid', 'obs_ok']]. \
@@ -375,8 +375,8 @@ class MagEstimateReport:
             sel = (obs_stats['obsid'] == obsid)
             if draw_obs_mag_stats and np.sum(sel):
                 label = '' if i else 'mag$_{OBSID}$'
-                if (np.isfinite(obs_stats[sel][0]['t_mean']) and
-                        np.isfinite(obs_stats[sel][0]['t_std'])):
+                if (np.isfinite(obs_stats[sel][0]['t_mean'])
+                        and np.isfinite(obs_stats[sel][0]['t_std'])):
                     mag_mean = obs_stats[sel][0]['t_mean']
                     mag_mean_minus = mag_mean - obs_stats[sel][0]['t_std']
                     mag_mean_plus = mag_mean + obs_stats[sel][0]['t_std']
@@ -430,8 +430,8 @@ class MagEstimateReport:
                         color='green', scalex=False, scaley=False)
             )
 
-        if (draw_agasc_mag_stats and
-                np.isfinite(agasc_stat['mag_obs']) and agasc_stat['mag_obs'] > 0):
+        if (draw_agasc_mag_stats
+                and np.isfinite(agasc_stat['mag_obs']) and agasc_stat['mag_obs'] > 0):
             mag_weighted_mean = agasc_stat['mag_obs']
             mag_weighted_std = agasc_stat['mag_obs_std']
             line_handles += (
@@ -471,25 +471,25 @@ class MagEstimateReport:
 
         obsids = np.unique(timeline['obsid'])
 
-        all_ok = ((timeline['AOACASEQ'] == 'KALM') &
-                  (timeline['AOPCADMD'] == 'NPNT') &
-                  (timeline['AOACFCT'] == 'TRAK') &
-                  (timeline['AOACIIR'] == 'OK') &
-                  (timeline['AOACISP'] == 'OK') &
-                  (timeline['dr'] < 3)
+        all_ok = ((timeline['AOACASEQ'] == 'KALM')
+                  & (timeline['AOPCADMD'] == 'NPNT')
+                  & (timeline['AOACFCT'] == 'TRAK')
+                  & (timeline['AOACIIR'] == 'OK')
+                  & (timeline['AOACISP'] == 'OK')
+                  & (timeline['dr'] < 3)
                   )
         flags = [
-            ('dr > 5', ((timeline['AOACASEQ'] == 'KALM') &
-                        (timeline['AOPCADMD'] == 'NPNT') &
-                        (timeline['AOACFCT'] == 'TRAK') &
-                        (timeline['dr'] >= 5))),
+            ('dr > 5', ((timeline['AOACASEQ'] == 'KALM')
+                        & (timeline['AOPCADMD'] == 'NPNT')
+                        & (timeline['AOACFCT'] == 'TRAK')
+                        & (timeline['dr'] >= 5))),
             ('Ion. rad.', (timeline['AOACIIR'] != 'OK')),
             ('Sat. pixel.', (timeline['AOACISP'] != 'OK')),
-            ('not track', ((timeline['AOACASEQ'] == 'KALM') &
-                           (timeline['AOPCADMD'] == 'NPNT') &
-                           (timeline['AOACFCT'] != 'TRAK'))),
-            ('not Kalman', ((timeline['AOACASEQ'] != 'KALM') |
-                            (timeline['AOPCADMD'] != 'NPNT'))),
+            ('not track', ((timeline['AOACASEQ'] == 'KALM')
+                           & (timeline['AOPCADMD'] == 'NPNT')
+                           & (timeline['AOACFCT'] != 'TRAK'))),
+            ('not Kalman', ((timeline['AOACASEQ'] != 'KALM')
+                            | (timeline['AOPCADMD'] != 'NPNT'))),
         ]
 
         if obsid is None:

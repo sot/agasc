@@ -94,8 +94,8 @@ def _magnitude_correction(time, mag_aca):
 
     q = params['p']
     t_ref = DateTime(params['t_ref'])
-    dmag = (q[0] + (q[1] + q[2] * np.atleast_1d(time)) *
-            np.exp(q[3] + q[4] * np.atleast_1d(mag_aca)))
+    dmag = (q[0] + (q[1] + q[2] * np.atleast_1d(time))
+            * np.exp(q[3] + q[4] * np.atleast_1d(mag_aca)))
     dmag[np.atleast_1d(time) < t_ref.secs] = 0
     return np.squeeze(dmag)
 
@@ -358,10 +358,10 @@ def get_telemetry(obs):
     if np.any(ok & (rang < 10)):
         y25, y50, y75 = np.quantile(yang[ok & (rang < 10)], [0.25, 0.5, 0.75])
         z25, z50, z75 = np.quantile(zang[ok & (rang < 10)], [0.25, 0.5, 0.75])
-        centroid_outlier = ((yang > y75 + 3 * (y75 - y25)) |
-                            (yang < y25 - 3 * (y75 - y25)) |
-                            (zang > z75 + 3 * (z75 - z25)) |
-                            (zang < z25 - 3 * (z75 - z25)))
+        centroid_outlier = ((yang > y75 + 3 * (y75 - y25))
+                            | (yang < y25 - 3 * (y75 - y25))
+                            | (zang > z75 + 3 * (z75 - z25))
+                            | (zang < z25 - 3 * (z75 - z25)))
 
         telem['dy'] = yang - np.mean(yang[ok & ~centroid_outlier])
         telem['dz'] = zang - np.mean(zang[ok & ~centroid_outlier])
@@ -387,8 +387,8 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
         obs = star_obs_catalogs.STARS_OBS[
             (star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id)]
     else:
-        obs = star_obs_catalogs.STARS_OBS[(star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id) &
-                                          (star_obs_catalogs.STARS_OBS['obsid'] == obsid)]
+        obs = star_obs_catalogs.STARS_OBS[(star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id)
+                                          & (star_obs_catalogs.STARS_OBS['obsid'] == obsid)]
     if len(obs) > 1:
         obs = obs.loc['mp_starcat_time', sorted(obs['mp_starcat_time'])]
     telem = []
@@ -426,9 +426,9 @@ def add_obs_info(telem, obs_stats):
     :return:
     """
     obs_stats['obs_ok'] = (
-        (obs_stats['n'] > 10) &
-        (obs_stats['f_track'] > 0.3) &
-        (obs_stats['lf_variability_100s'] < 1)
+        (obs_stats['n'] > 10)
+        & (obs_stats['f_track'] > 0.3)
+        & (obs_stats['lf_variability_100s'] < 1)
     )
     obs_stats['comments'] = np.zeros(len(obs_stats), dtype='<U80')
 
@@ -440,13 +440,13 @@ def add_obs_info(telem, obs_stats):
         obsid = s['obsid']
         o = (telem['obsid'] == obsid)
         telem['obs_ok'][o] = np.ones(np.sum(o), dtype=bool) * s['obs_ok']
-        if (np.any(telem['ok'][o]) and s['f_track'] > 0 and
-                np.isfinite(s['q75']) and np.isfinite(s['q25'])):
+        if (np.any(telem['ok'][o]) and s['f_track'] > 0
+                and np.isfinite(s['q75']) and np.isfinite(s['q25'])):
             iqr = s['q75'] - s['q25']
             telem['obs_outlier'][o] = (
-                telem[o]['ok'] & (iqr > 0) &
-                ((telem[o]['mags'] < s['q25'] - 1.5 * iqr) |
-                 (telem[o]['mags'] > s['q75'] + 1.5 * iqr))
+                telem[o]['ok'] & (iqr > 0)
+                & ((telem[o]['mags'] < s['q25'] - 1.5 * iqr)
+                   | (telem[o]['mags'] > s['q75'] + 1.5 * iqr))
             )
     return telem
 
@@ -739,9 +739,9 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
     stats['obs_ok'] = (
-        (stats['n'] > 10) &
-        (stats['f_track'] > 0.3) &
-        (stats['lf_variability_100s'] < 1)
+        (stats['n'] > 10)
+        & (stats['f_track'] > 0.3)
+        & (stats['lf_variability_100s'] < 1)
     )
     stats['comments'] = np.zeros(len(stats), dtype='<U100')
     if obs_status_override:
@@ -756,9 +756,9 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
             iqr = s['q75'] - s['q25']
             t['obs_outlier'] = (
-                t['ok'] &
-                (iqr > 0) &
-                ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
+                t['ok']
+                & (iqr > 0)
+                & ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
             )
     all_telem = vstack([Table(t) for t in all_telem])
 
@@ -844,8 +844,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     mag_weighted_mean = (stats[obs_ok]['weighted_mean'].sum() / stats[obs_ok]['w'].sum())
     mag_weighted_std = (
-        np.sqrt(((stats[obs_ok]['mean'] - mag_weighted_mean)**2 * stats[obs_ok]['w']).sum() /
-                stats[obs_ok]['w'].sum())
+        np.sqrt(((stats[obs_ok]['mean'] - mag_weighted_mean)**2 * stats[obs_ok]['w']).sum()
+                / stats[obs_ok]['w'].sum())
     )
 
     result.update({
