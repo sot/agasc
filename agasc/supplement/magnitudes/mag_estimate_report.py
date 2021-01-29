@@ -141,7 +141,7 @@ class MagEstimateReport:
 
         # add some extra fields
         if len(agasc_stats):
-            if not 'n_obs_bad_new' in agasc_stats.colnames:
+            if 'n_obs_bad_new' not in agasc_stats.colnames:
                 agasc_stats['n_obs_bad_new'] = 0
             agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
             agasc_stats['flag'] = '          '
