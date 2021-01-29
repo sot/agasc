@@ -268,7 +268,7 @@ def test_get_stars_many():
     stars = agasc.get_agasc_cone(0, 0, radius=0.5)
     agasc_ids = stars['AGASC_ID']
     stars1 = agasc.get_stars(agasc_ids, dates='2020:001')  # read_where method
-    stars2 = agasc.get_stars(agasc_ids, dates='2020:001', read_entire_agasc=1)  # read entire AGASC
+    stars2 = agasc.get_stars(agasc_ids, dates='2020:001', method_threshold=1)  # read entire AGASC
 
     assert stars1.get_stars_method == 'tables_read_where'
     assert stars2.get_stars_method == 'read_entire_agasc'

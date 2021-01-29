@@ -385,7 +385,7 @@ def _get_rows_read_entire(ids_1d, dates_1d, agasc_file):
     return rows
 
 
-def get_stars(ids, agasc_file=None, dates=None, read_entire_agasc=5000, fix_color1=True,
+def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color1=True,
               use_supplement=None):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
@@ -399,7 +399,7 @@ def get_stars(ids, agasc_file=None, dates=None, read_entire_agasc=5000, fix_colo
     HDF5 file, or by reading the entire table into memory and doing the search
     by making a dict index by AGASC ID. Tests indicate that the latter is faster
     for about 5000 or more stars, so this function will read the entire AGASC if
-    the number of stars is greater than ``read_entire_agasc``.
+    the number of stars is greater than ``method_threshold``.
 
     Unlike the similar ``get_star`` function, this adds a ``DATE`` column
     indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
@@ -447,7 +447,7 @@ def get_stars(ids, agasc_file=None, dates=None, read_entire_agasc=5000, fix_colo
     ids, dates = np.broadcast_arrays(ids, dates_in)
     ids_1d, dates_1d = np.atleast_1d(ids), np.atleast_1d(dates)
 
-    if len(ids_1d) < read_entire_agasc:
+    if len(ids_1d) < method_threshold:
         rows = _get_rows_read_where(ids_1d, dates_1d, agasc_file)
         method = 'tables_read_where'
     else:
