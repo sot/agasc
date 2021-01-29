@@ -1,11 +1,13 @@
 import platform
 import getpass
+import logging
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
 import jinja2
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from astropy import table
 from cxotime import CxoTime
 
@@ -16,6 +18,8 @@ JINJA2 = jinja2.Environment(
     loader=jinja2.PackageLoader('agasc.supplement.magnitudes', 'templates'),
     autoescape=jinja2.select_autoescape(['html', 'xml'])
 )
+
+logger = logging.getLogger('agasc.supplement')
 
 
 class MagEstimateReport:
@@ -177,7 +181,8 @@ class MagEstimateReport:
 
         # make all individual star reports
         star_reports = {}
-        for agasc_id in np.atleast_1d(agasc_ids):
+        logger.info("Generating star reports")
+        for agasc_id in tqdm(np.atleast_1d(agasc_ids), desc='progress', disable=None, unit='star'):
             try:
                 dirname = self.directory / 'stars' / f'{agasc_id//1e7:03.0f}' / f'{agasc_id:.0f}'
                 if make_single_reports:

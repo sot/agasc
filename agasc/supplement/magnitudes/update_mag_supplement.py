@@ -7,6 +7,7 @@ import logging
 from functools import partial
 from multiprocessing import Pool
 
+from tqdm import tqdm
 import tables
 import numpy as np
 from astropy import table
@@ -37,7 +38,7 @@ def level0_archive_time_range():
         return CxoTime(t_stop).date, CxoTime(t_start).date
 
 
-def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
+def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progress=None):
     """
     Call mag_stats.get_agasc_id_stats for each AGASC ID
 
@@ -57,7 +58,9 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
     fails = []
     obs_stats = []
     agasc_stats = []
-    for i, agasc_id in enumerate(agasc_ids):
+    bar = tqdm(agasc_ids, desc='progress', disable=no_progress, unit='star')
+    for agasc_id in agasc_ids:
+        bar.update()
         try:
             agasc_stat, obs_stat, obs_fail = \
                 mag_estimate.get_agasc_id_stats(agasc_id=agasc_id,
@@ -71,6 +74,7 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
         except Exception as e:
             # transform Exception to MagStatsException for standard book keeping
             fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=str(e))))
+    bar.close()
 
     try:
         agasc_stats = Table(agasc_stats) if agasc_stats else None
@@ -106,33 +110,24 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
     if obs_status_override is None:
         obs_status_override = {}
 
-    fmt = '%Y-%m-%d %H:%M'
     jobs = []
-    n = len(agasc_ids)
     args = []
-    progress = 0
     finished = 0
-    for i in range(0, n, batch_size):
+    logger.info(f'Processing {batch_size} stars per job')
+    for i in range(0, len(agasc_ids), batch_size):
         args.append(agasc_ids[i:i + batch_size])
     with Pool() as pool:
         for arg in args:
             jobs.append(pool.apply_async(get_agasc_id_stats,
-                                         [arg, obs_status_override, tstop]))
-        start = datetime.datetime.now()
-        now = None
+                                         [arg, obs_status_override, tstop, True]))
+        bar = tqdm(total=len(jobs), desc='progress', disable=None, unit='job')
         while finished < len(jobs):
             finished = sum([f.ready() for f in jobs])
-            if now is None or 100 * finished / len(jobs) - progress > 0.02:
-                now = datetime.datetime.now()
-                if finished == 0:
-                    eta = ''
-                else:
-                    dt1 = (now - start).total_seconds()
-                    dt = datetime.timedelta(seconds=(len(jobs) - finished) * dt1 / finished)
-                    eta = f'ETA: {(now + dt).strftime(fmt)}'
-                progress = 100 * finished / len(jobs)
-                logger.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
+            if finished - bar.n:
+                bar.update(finished - bar.n)
             time.sleep(1)
+        bar.close()
+
     fails = []
     failed_agasc_ids = [i for arg, job in zip(args, jobs) if not job.successful() for i in arg]
     for agasc_id in failed_agasc_ids:
@@ -434,7 +429,6 @@ def do(output_dir,
 
         if report:
             now = datetime.datetime.now()
-            logger.info(f"making report at {now}")
             sections = [{
                 'id': 'new_stars',
                 'title': 'New Stars',
