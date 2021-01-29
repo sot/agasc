@@ -262,6 +262,22 @@ def test_get_stars3():
     assert np.allclose(stars['MAG_ACA'], mags)
 
 
+def test_get_stars_many():
+    """Test get_stars() with at least GET_STARS_METHOD_THRESHOLD (5000) stars"""
+    from .. import agasc
+    stars = agasc.get_agasc_cone(0, 0, radius=0.5)
+    agasc_ids = stars['AGASC_ID']
+    stars1 = agasc.get_stars(agasc_ids, dates='2020:001')  # read_where method
+    stars2 = agasc.get_stars(agasc_ids, dates='2020:001', method_threshold=1)  # read entire AGASC
+
+    assert stars1.get_stars_method == 'tables_read_where'
+    assert stars2.get_stars_method == 'read_entire_agasc'
+
+    assert stars1.colnames == stars2.colnames
+    for name in stars1.colnames:
+        assert np.all(stars1[name] == stars2[name])
+
+
 def test_float16():
     stars = agasc.get_agasc_cone(np.float16(219.90279), np.float16(-60.83358), .015)
     assert stars['AGASC_ID'][0] == 1180612176
