@@ -312,11 +312,6 @@ def do(output_dir,
     # as ascii. It displays a warning which I want to avoid:
     warnings.filterwarnings("ignore", category=tables.exceptions.FlavorWarning)
 
-    if start:
-        start = CxoTime(start)
-    if stop:
-        stop = CxoTime(stop)
-
     filename = output_dir / 'agasc_supplement.h5'
 
     if multi_process:
@@ -336,10 +331,8 @@ def do(output_dir,
         if agasc_ids is None:
             agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
     else:
-        if not stop:
-            stop = CxoTime.now().date
-        if not start:
-            start = (CxoTime(stop) - 14 * u.day).date
+        stop = CxoTime(stop).date if stop else CxoTime.now().date
+        start = CxoTime(start).date if start else (CxoTime(stop) - 14 * u.day).date
         obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start)
                        & (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
         agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
