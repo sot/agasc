@@ -77,6 +77,10 @@ def main():
     else:
         args.reports_dir = Path(os.path.expandvars(args.reports_dir))
 
+    if args.whole_history and (args.start or args.stop):
+        logger.error('--whole-history argument is incompatible with --start/--stop arguments')
+        the_parser.exit(1)
+    
     pyyaks.logger.get_logger(
         name='agasc.supplement',
         level=args.log_level.upper(),
