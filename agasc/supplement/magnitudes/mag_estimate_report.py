@@ -185,7 +185,8 @@ class MagEstimateReport:
         star_reports = {}
         logger.debug('-' * 80)
         logger.info("Generating star reports")
-        for agasc_id in tqdm(np.atleast_1d(agasc_ids), desc='progress', disable=no_progress, unit='star'):
+        for agasc_id in tqdm(np.atleast_1d(agasc_ids),
+                             desc='progress', disable=no_progress, unit='star'):
             try:
                 logger.debug('-' * 80)
                 logger.debug(f'{agasc_id=}')

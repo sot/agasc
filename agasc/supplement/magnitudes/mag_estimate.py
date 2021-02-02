@@ -215,7 +215,8 @@ def get_star_position(star, telem):
     yag = np.arctan2(d_aca[:, 1], d_aca[:, 0]) * rad_to_arcsec
     zag = np.arctan2(d_aca[:, 2], d_aca[:, 0]) * rad_to_arcsec
 
-    logger.debug(f'    star position. AGASC_ID={star["AGASC_ID"]}, {len(yag)} samples, ({yag[0]}, {zag[0]})...')
+    logger.debug(f'    star position. AGASC_ID={star["AGASC_ID"]}, '
+                 f'{len(yag)} samples, ({yag[0]}, {zag[0]})...')
     return {
         'yang_star': yag,
         'zang_star': zag,
@@ -275,7 +276,8 @@ def get_telemetry(obs):
     start = dwell['tstart']
     stop = dwell['tstop']
     slot = obs['slot']
-    logger.debug(f'  Getting telemetry for AGASC ID={obs["agasc_id"]}, OBSID={obs["obsid"]}, mp_starcat_time={obs["mp_starcat_time"]}')
+    logger.debug(f'  Getting telemetry for AGASC ID={obs["agasc_id"]}, OBSID={obs["obsid"]}, '
+                 f'mp_starcat_time={obs["mp_starcat_time"]}')
 
     # first we get slot data from mica and magnitudes from cheta and match them in time
     # to match them in time, we assume they come in steps of 1.025 seconds, starting from the first
