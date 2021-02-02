@@ -779,7 +779,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     for s, t in zip(stats, all_telem):
         t['obs_ok'] = np.ones_like(t['ok'], dtype=bool) * s['obs_ok']
         logger.debug('  identifying outlying observations '
-                        f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})')
+                     f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})')
         t['obs_outlier'] = np.zeros_like(t['ok'])
         if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
             iqr = s['q75'] - s['q25']
