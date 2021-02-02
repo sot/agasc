@@ -62,6 +62,8 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
     for agasc_id in agasc_ids:
         bar.update()
         try:
+            logger.debug('-' * 80)
+            logger.debug(f'{agasc_id=}')
             agasc_stat, obs_stat, obs_fail = \
                 mag_estimate.get_agasc_id_stats(agasc_id=agasc_id,
                                                 obs_status_override=obs_status_override,
@@ -75,6 +77,7 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
             # transform Exception to MagStatsException for standard book keeping
             fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=str(e))))
     bar.close()
+    logger.debug('-' * 80)
 
     try:
         agasc_stats = Table(agasc_stats) if agasc_stats else None
@@ -89,7 +92,8 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
     return obs_stats, agasc_stats, fails
 
 
-def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100, tstop=None):
+def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100, tstop=None,
+                            no_progress=None):
     """
     Call update_mag_stats.get_agasc_id_stats multiple times using a multiprocessing.Pool
 
@@ -120,7 +124,7 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
         for arg in args:
             jobs.append(pool.apply_async(get_agasc_id_stats,
                                          [arg, obs_status_override, tstop, True]))
-        bar = tqdm(total=len(jobs), desc='progress', disable=None, unit='job')
+        bar = tqdm(total=len(jobs), desc='progress', disable=no_progress, unit='job')
         while finished < len(jobs):
             finished = sum([f.ready() for f in jobs])
             if finished - bar.n:
@@ -175,6 +179,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
     """
     if agasc_stats is not None and len(agasc_stats):
         filename = outdir / 'mag_stats_agasc.fits'
+        logger.debug(f'Updating {filename}')
         if filename.exists():
             agasc_stats = _update_table(table.Table.read(filename), agasc_stats,
                                         keys=['agasc_id'])
@@ -182,6 +187,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
         agasc_stats.write(filename)
     if obs_stats is not None and len(obs_stats):
         filename = outdir / 'mag_stats_obsid.fits'
+        logger.debug(f'Updating {filename}')
         if filename.exists():
             obs_stats = _update_table(table.Table.read(filename), obs_stats,
                                       keys=['agasc_id', 'obsid', 'timeline_id'])
@@ -189,6 +195,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
         obs_stats.write(filename)
     if len(fails):
         filename = outdir / 'mag_stats_fails.pkl'
+        logger.debug(f'Updating {filename}')
         with open(filename, 'wb') as out:
             pickle.dump(fails, out)
 
@@ -289,7 +296,8 @@ def do(output_dir,
        report=False,
        email='',
        include_bad=False,
-       dry_run=False):
+       dry_run=False,
+       no_progress=None):
     """
 
     :param output_dir:
@@ -393,7 +401,7 @@ def do(output_dir,
         return
 
     obs_stats, agasc_stats, fails = \
-        get_stats(agasc_ids, tstop=stop, obs_status_override=obs_status)
+        get_stats(agasc_ids, tstop=stop, obs_status_override=obs_status, no_progress=no_progress)
 
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]
@@ -458,15 +466,18 @@ def do(output_dir,
                 tstart=start,
                 tstop=stop,
                 nav_links=nav_links,
-                include_all_stars=True
+                include_all_stars=True,
+                no_progress=no_progress
             )
             try:
                 report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
                 report.multi_star_html(**multi_star_html_args)
                 latest = reports_dir / 'latest'
                 if os.path.lexists(latest):
+                    logger.debug('Removing existing "latest" symlink')
                     latest.unlink()
                 latest.symlink_to(directory.absolute())
+                logger.debug('Creating "latest" symlink')
             except Exception as e:
                 logger.error(f'Exception when creating report: {e}')
                 multi_star_html_args['directory'] = directory

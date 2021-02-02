@@ -215,6 +215,7 @@ def get_star_position(star, telem):
     yag = np.arctan2(d_aca[:, 1], d_aca[:, 0]) * rad_to_arcsec
     zag = np.arctan2(d_aca[:, 2], d_aca[:, 0]) * rad_to_arcsec
 
+    logger.debug(f'    star position. AGASC_ID={star["AGASC_ID"]}, {len(yag)} samples, ({yag[0]}, {zag[0]})...')
     return {
         'yang_star': yag,
         'zang_star': zag,
@@ -274,6 +275,7 @@ def get_telemetry(obs):
     start = dwell['tstart']
     stop = dwell['tstop']
     slot = obs['slot']
+    logger.debug(f'  Getting telemetry for AGASC ID={obs["agasc_id"]}, OBSID={obs["obsid"]}, mp_starcat_time={obs["mp_starcat_time"]}')
 
     # first we get slot data from mica and magnitudes from cheta and match them in time
     # to match them in time, we assume they come in steps of 1.025 seconds, starting from the first
@@ -340,10 +342,15 @@ def get_telemetry(obs):
          (telem['AOACFCT'] == 'TRAK')
 
     # etc...
+    logger.debug('    Adding magnitude estimates')
     telem.update(get_mag_from_img(slot_data, start, ok))
+    logger.debug('    Adding star position')
     telem.update(get_star_position(star=star, telem=telem))
 
+    logger.debug('    Correcting for droop')
     droop_shift = get_droop_systematic_shift(star['MAG_ACA'])
+
+    logger.debug('    Correcting for responsivity')
     responsivity = get_responsivity(start)
     telem['mags'] = telem['mags_img'] - responsivity - droop_shift
     telem['mags'][~ok] = 0.
@@ -382,6 +389,7 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
         if True, any exception is ignored. Useful in some cases. Default is False.
     :return: dict
     """
+    logger.debug(f'  Getting telemetry for AGASC ID={agasc_id}')
     star_obs_catalogs.load()
     if obsid is None:
         obs = star_obs_catalogs.STARS_OBS[
@@ -425,6 +433,7 @@ def add_obs_info(telem, obs_stats):
         The result of calc_obs_stats.
     :return:
     """
+    logger.debug('  Adding observation info to telemetry...')
     obs_stats['obs_ok'] = (
         (obs_stats['n'] > 10)
         & (obs_stats['f_track'] > 0.3)
@@ -448,6 +457,7 @@ def add_obs_info(telem, obs_stats):
                 & ((telem[o]['mags'] < s['q25'] - 1.5 * iqr)
                    | (telem[o]['mags'] > s['q75'] + 1.5 * iqr))
             )
+        logger.debug(f'  Adding observation info to telemetry {obsid=}')
     return telem
 
 
@@ -471,6 +481,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
         Only magnitudes for entries with ok=True are calculated. The rest are set to MAX_MAG.
     :return:
     """
+    logger.debug('    magnitude from images...')
     dark_cal = get_dark_cal_image(t_start, 'nearest',
                                   t_ccd_ref=np.mean(slot_data['TEMPCCD'] - 273.16),
                                   aca_image=False)
@@ -515,6 +526,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     y_pixel = row + imgrow_8x8
     z_pixel = col + imgcol_8x8
     yag[m], zag[m] = pixels_to_yagzag(y_pixel[m], z_pixel[m])
+    logger.debug(f'    magnitude from images... {len(mag)} samples: {mag[0]}...')
     return {
         'mags_img': mag,
         'yang_img': yag,
@@ -536,6 +548,9 @@ def get_obs_stats(obs, telem=None):
     :return: dict
         dictionary with stats
     """
+    logger.debug(f'  Getting OBS stats for AGASC ID {obs["agasc_id"]},'
+                 f' OBSID {obs["agasc_id"]} at {obs["mp_starcat_time"]}')
+
     star_obs_catalogs.load()
     if telem is None:
         telem = get_telemetry(obs)
@@ -560,7 +575,9 @@ def get_obs_stats(obs, telem=None):
                   'col': obs['col'],
                   })
     stats.update(calc_obs_stats(telem))
-
+    logger.debug(f'    slot={stats["slot"]}, f_ok={stats["f_ok"]:.3f}, '
+                 f'f_track={stats["f_track"]:.3f}, f_dr3={stats["f_dr3"]:.3f},'
+                 f' mag={stats["mag_obs"]}')
     return stats
 
 
@@ -705,6 +722,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     :return: dict
         dictionary with stats
     """
+    logger.debug(f'Getting stats for AGASC ID {agasc_id}...')
     min_mag_obs_err = 0.03
     if not obs_status_override:
         obs_status_override = {}
@@ -727,9 +745,11 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             stats.append(get_obs_stats(o, telem={k: telem[k] for k in telem.colnames}))
             last_obs_time = CxoTime(o['mp_starcat_time']).cxcsec
         except MagStatsException as e:
+            logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}, obsid={o["obsid"]}): {e}')
             failures.append(dict(e))
 
     if len(all_telem) == 0:
+        logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}): No telemetry data')
         raise MagStatsException('No telemetry data', agasc_id=agasc_id)
 
     stats = Table(stats)
@@ -745,13 +765,21 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     )
     stats['comments'] = np.zeros(len(stats), dtype='<U100')
     if obs_status_override:
+        logger.debug('  checking obs status...')
         for i, (oi, ai) in enumerate(stats[['obsid', 'agasc_id']]):
             if (oi, ai) in obs_status_override:
                 stats[i]['obs_ok'] = obs_status_override[(oi, ai)]['ok']
                 stats[i]['comments'] = obs_status_override[(oi, ai)]['comments']
+                logger.debug(f'  overriding status for (AGASC ID {ai}, OBSID {oi}): '
+                             f'{stats[i]["obs_ok"]}, {stats[i]["comments"]}')
+    else:
+        logger.debug('  no obs status info')
 
+    logger.debug('  identifying outlying observations...')
     for s, t in zip(stats, all_telem):
         t['obs_ok'] = np.ones_like(t['ok'], dtype=bool) * s['obs_ok']
+        logger.debug('  identifying outlying observations '
+                        f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})')
         t['obs_outlier'] = np.zeros_like(t['ok'])
         if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
             iqr = s['q75'] - s['q25']
@@ -910,4 +938,6 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'selected_color': (result['color'] == 1.5) | (np.isclose(result['color'], 0.7))
     })
 
+    logger.debug(f'  stats for AGASC ID {agasc_id}: '
+                 f' {stats["mag_obs"][0]}')
     return result, stats, failures

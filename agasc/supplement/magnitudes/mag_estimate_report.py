@@ -38,6 +38,7 @@ class MagEstimateReport:
 
         directory = Path(directory)
         if not directory.exists():
+            logger.debug('making report directory {directory}')
             directory.mkdir(parents=True)
 
         o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
@@ -90,7 +91,8 @@ class MagEstimateReport:
                         make_single_reports=True,
                         nav_links=None,
                         highlight_obs=lambda o: ~o['obs_ok'],
-                        static_dir='https://cxc.cfa.harvard.edu/mta/ASPECT/www_resources'):
+                        static_dir='https://cxc.cfa.harvard.edu/mta/ASPECT/www_resources',
+                        no_progress=None):
         if sections is None:
             sections = []
         run_template = JINJA2.get_template('run_report.html')
@@ -181,9 +183,12 @@ class MagEstimateReport:
 
         # make all individual star reports
         star_reports = {}
+        logger.debug('-' * 80)
         logger.info("Generating star reports")
-        for agasc_id in tqdm(np.atleast_1d(agasc_ids), desc='progress', disable=None, unit='star'):
+        for agasc_id in tqdm(np.atleast_1d(agasc_ids), desc='progress', disable=no_progress, unit='star'):
             try:
+                logger.debug('-' * 80)
+                logger.debug(f'{agasc_id=}')
                 dirname = self.directory / 'stars' / f'{agasc_id//1e7:03.0f}' / f'{agasc_id:.0f}'
                 if make_single_reports:
                     self.single_star_html(
@@ -192,6 +197,7 @@ class MagEstimateReport:
                         highlight_obs=highlight_obs
                     )
                 if dirname.exists():
+                    logger.debug('report directory exists already, skipping')
                     star_reports[agasc_id] = dirname
             except mag_estimate.MagStatsException:
                 pass
