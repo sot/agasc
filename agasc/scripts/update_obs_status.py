@@ -35,6 +35,10 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
         logger.info('Nothing to update')
         return
 
+    if not Path(suppl_file).exists():
+        logger.warning(f'Creating a new AGASC supplement: {suppl_file}')
+        raise FileExistsError(suppl_file)
+
     logger.info(f'updating "bad" table in {suppl_file}')
 
     bad_star_ids = np.atleast_1d(bad_star_ids).astype(int)
@@ -42,7 +46,7 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
     try:
         dat = table.Table.read(str(suppl_file), format='hdf5', path='bad')
     except OSError as e:
-        if str(e) == 'Path bad does not exist':
+        if not suppl_file.exists() or str(e) == 'Path bad does not exist':
             logger.warning('creating "bad" table because it is missing')
             dat = table.Table(dtype=[('agasc_id', np.int32), ('source', np.int16)])
         else:
@@ -85,17 +89,18 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
         {'ok': True, 'comments': 'some comment'}
     :param dry_run: bool
     """
-    if not Path(filename).exists():
-        raise FileExistsError(f'AGASC supplement file does not exist: {filename}')
-
     if not obs_status_override:
         logger.info('Nothing to update')
         return
 
+    if not Path(filename).exists():
+        logger.warning(f'Creating a new AGASC supplement: {filename}')
+        raise FileExistsError(filename)
+
     try:
         obs_status = table.Table.read(filename, format='hdf5', path='obs')
     except OSError as e:
-        if str(e) == 'Path obs does not exist':
+        if not filename.exists() or str(e) == 'Path obs does not exist':
             obs_status = {}
         else:
             raise

@@ -7,6 +7,7 @@ import logging
 from functools import partial
 from multiprocessing import Pool
 
+from tqdm import tqdm
 import tables
 import numpy as np
 from astropy import table
@@ -37,7 +38,7 @@ def level0_archive_time_range():
         return CxoTime(t_stop).date, CxoTime(t_start).date
 
 
-def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
+def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progress=None):
     """
     Call mag_stats.get_agasc_id_stats for each AGASC ID
 
@@ -57,8 +58,12 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
     fails = []
     obs_stats = []
     agasc_stats = []
-    for i, agasc_id in enumerate(agasc_ids):
+    bar = tqdm(agasc_ids, desc='progress', disable=no_progress, unit='star')
+    for agasc_id in agasc_ids:
+        bar.update()
         try:
+            logger.debug('-' * 80)
+            logger.debug(f'{agasc_id=}')
             agasc_stat, obs_stat, obs_fail = \
                 mag_estimate.get_agasc_id_stats(agasc_id=agasc_id,
                                                 obs_status_override=obs_status_override,
@@ -70,7 +75,10 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
             fails.append(dict(e))
         except Exception as e:
             # transform Exception to MagStatsException for standard book keeping
+            logger.debug(f'Unexpected Error: {e}')
             fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=str(e))))
+    bar.close()
+    logger.debug('-' * 80)
 
     try:
         agasc_stats = Table(agasc_stats) if agasc_stats else None
@@ -85,7 +93,8 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None):
     return obs_stats, agasc_stats, fails
 
 
-def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100, tstop=None):
+def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100, tstop=None,
+                            no_progress=None):
     """
     Call update_mag_stats.get_agasc_id_stats multiple times using a multiprocessing.Pool
 
@@ -106,33 +115,24 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
     if obs_status_override is None:
         obs_status_override = {}
 
-    fmt = '%Y-%m-%d %H:%M'
     jobs = []
-    n = len(agasc_ids)
     args = []
-    progress = 0
     finished = 0
-    for i in range(0, n, batch_size):
+    logger.info(f'Processing {batch_size} stars per job')
+    for i in range(0, len(agasc_ids), batch_size):
         args.append(agasc_ids[i:i + batch_size])
     with Pool() as pool:
         for arg in args:
             jobs.append(pool.apply_async(get_agasc_id_stats,
-                                         [arg, obs_status_override, tstop]))
-        start = datetime.datetime.now()
-        now = None
+                                         [arg, obs_status_override, tstop, True]))
+        bar = tqdm(total=len(jobs), desc='progress', disable=no_progress, unit='job')
         while finished < len(jobs):
             finished = sum([f.ready() for f in jobs])
-            if now is None or 100 * finished / len(jobs) - progress > 0.02:
-                now = datetime.datetime.now()
-                if finished == 0:
-                    eta = ''
-                else:
-                    dt1 = (now - start).total_seconds()
-                    dt = datetime.timedelta(seconds=(len(jobs) - finished) * dt1 / finished)
-                    eta = f'ETA: {(now + dt).strftime(fmt)}'
-                progress = 100 * finished / len(jobs)
-                logger.info(f'{progress:6.2f}% at {now.strftime(fmt)}, {eta}')
+            if finished - bar.n:
+                bar.update(finished - bar.n)
             time.sleep(1)
+        bar.close()
+
     fails = []
     failed_agasc_ids = [i for arg, job in zip(args, jobs) if not job.successful() for i in arg]
     for agasc_id in failed_agasc_ids:
@@ -180,6 +180,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
     """
     if agasc_stats is not None and len(agasc_stats):
         filename = outdir / 'mag_stats_agasc.fits'
+        logger.debug(f'Updating {filename}')
         if filename.exists():
             agasc_stats = _update_table(table.Table.read(filename), agasc_stats,
                                         keys=['agasc_id'])
@@ -187,6 +188,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
         agasc_stats.write(filename)
     if obs_stats is not None and len(obs_stats):
         filename = outdir / 'mag_stats_obsid.fits'
+        logger.debug(f'Updating {filename}')
         if filename.exists():
             obs_stats = _update_table(table.Table.read(filename), obs_stats,
                                       keys=['agasc_id', 'obsid', 'timeline_id'])
@@ -194,6 +196,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
         obs_stats.write(filename)
     if len(fails):
         filename = outdir / 'mag_stats_fails.pkl'
+        logger.debug(f'Updating {filename}')
         with open(filename, 'wb') as out:
             pickle.dump(fails, out)
 
@@ -270,6 +273,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
                 new_stars = outliers_new[new_stars]['agasc_id']
 
     if outliers is None:
+        logger.warning('Creating new "mags" table')
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
         updated_stars = np.array([], dtype=mags_dtype)
@@ -293,7 +297,8 @@ def do(output_dir,
        report=False,
        email='',
        include_bad=False,
-       dry_run=False):
+       dry_run=False,
+       no_progress=None):
     """
 
     :param output_dir:
@@ -397,7 +402,7 @@ def do(output_dir,
         return
 
     obs_stats, agasc_stats, fails = \
-        get_stats(agasc_ids, tstop=stop, obs_status_override=obs_status)
+        get_stats(agasc_ids, tstop=stop, obs_status_override=obs_status, no_progress=no_progress)
 
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]
@@ -430,11 +435,10 @@ def do(output_dir,
                 if np.any(bad_obs):
                     msr.email_bad_obs_report(obs_stats[bad_obs], to=email)
             except Exception as e:
-                logger.error(f'Failed sending email to {email}: {e}')
+                logger.error(f'Error sending email to {email}: {e}')
 
         if report:
             now = datetime.datetime.now()
-            logger.info(f"making report at {now}")
             sections = [{
                 'id': 'new_stars',
                 'title': 'New Stars',
@@ -463,17 +467,20 @@ def do(output_dir,
                 tstart=start,
                 tstop=stop,
                 nav_links=nav_links,
-                include_all_stars=True
+                include_all_stars=True,
+                no_progress=no_progress
             )
             try:
                 report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
                 report.multi_star_html(**multi_star_html_args)
                 latest = reports_dir / 'latest'
                 if os.path.lexists(latest):
+                    logger.debug('Removing existing "latest" symlink')
                     latest.unlink()
                 latest.symlink_to(directory.absolute())
+                logger.debug('Creating "latest" symlink')
             except Exception as e:
-                logger.error(f'Exception when creating report: {e}')
+                logger.error(f'Error when creating report: {e}')
                 multi_star_html_args['directory'] = directory
                 failure_file = output_dir / f'failed_report_{t.date[:8]}.pkl'
                 with open(failure_file, 'wb') as fh:
