@@ -435,7 +435,7 @@ def do(output_dir,
                 if np.any(bad_obs):
                     msr.email_bad_obs_report(obs_stats[bad_obs], to=email)
             except Exception as e:
-                logger.error(f'Failed sending email to {email}: {e}')
+                logger.error(f'Error sending email to {email}: {e}')
 
         if report:
             now = datetime.datetime.now()
@@ -480,7 +480,7 @@ def do(output_dir,
                 latest.symlink_to(directory.absolute())
                 logger.debug('Creating "latest" symlink')
             except Exception as e:
-                logger.error(f'Exception when creating report: {e}')
+                logger.error(f'Error when creating report: {e}')
                 multi_star_html_args['directory'] = directory
                 failure_file = output_dir / f'failed_report_{t.date[:8]}.pkl'
                 with open(failure_file, 'wb') as fh:

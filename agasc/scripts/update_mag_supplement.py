@@ -56,9 +56,9 @@ def get_parser():
     other.add_argument('--log-level',
                        default='info',
                        choices=['debug', 'info', 'warning', 'error'])
-    other.add_argument('--show-progress', dest='progress',
-                       help='Show a progress bar',
-                       default=False, action='store_true')
+    other.add_argument('--no-progress', dest='no_progress',
+                       help='Do not show a progress bar',
+                       action='store_true')  # this has no default, it will be None.
     other.add_argument("--dry-run",
                        action="store_true",
                        help="Dry run (no actual file or database updates)")
@@ -119,7 +119,7 @@ def main():
         args.report,
         include_bad=args.include_bad,
         dry_run=args.dry_run,
-        no_progress=(not args.progress)
+        no_progress=args.no_progress
     )
 
 

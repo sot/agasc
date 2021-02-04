@@ -528,7 +528,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     y_pixel = row + imgrow_8x8
     z_pixel = col + imgcol_8x8
     yag[m], zag[m] = pixels_to_yagzag(y_pixel[m], z_pixel[m])
-    logger.debug(f'    magnitude from images... {len(mag)} samples: {mag[0]}...')
+    logger.debug(f'    magnitude from images... {len(mag)} samples: {mag[0]:.2f}...')
     return {
         'mags_img': mag,
         'yang_img': yag,
@@ -579,7 +579,7 @@ def get_obs_stats(obs, telem=None):
     stats.update(calc_obs_stats(telem))
     logger.debug(f'    slot={stats["slot"]}, f_ok={stats["f_ok"]:.3f}, '
                  f'f_track={stats["f_track"]:.3f}, f_dr3={stats["f_dr3"]:.3f},'
-                 f' mag={stats["mag_obs"]}')
+                 f' mag={stats["mag_obs"]:.2f}')
     return stats
 
 
