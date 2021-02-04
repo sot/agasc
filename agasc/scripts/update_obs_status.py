@@ -37,6 +37,7 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
 
     if not Path(suppl_file).exists():
         logger.warning(f'Creating a new AGASC supplement: {suppl_file}')
+        raise FileExistsError(suppl_file)
 
     logger.info(f'updating "bad" table in {suppl_file}')
 
@@ -94,6 +95,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
 
     if not Path(filename).exists():
         logger.warning(f'Creating a new AGASC supplement: {filename}')
+        raise FileExistsError(filename)
 
     try:
         obs_status = table.Table.read(filename, format='hdf5', path='obs')
