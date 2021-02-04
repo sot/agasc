@@ -75,6 +75,7 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
             fails.append(dict(e))
         except Exception as e:
             # transform Exception to MagStatsException for standard book keeping
+            logger.debug(f'Unexpected Error: {e}')
             fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=str(e))))
     bar.close()
     logger.debug('-' * 80)
