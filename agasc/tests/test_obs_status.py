@@ -196,14 +196,14 @@ def test_parse_obs_status_args_bad(monkeypatch):
     #######################
 
     status = update_obs_status._parse_obs_status_args(
-        bad_star=1, bad_star_source=2
+        bad_star_id=1, bad_star_source=2
     )
     assert status['obs'] == {}
     assert status['bad'] == {1: 2}
 
     # bad star can be a list
     status = update_obs_status._parse_obs_status_args(
-        bad_star=[1, 2], bad_star_source=3
+        bad_star_id=[1, 2], bad_star_source=3
     )
     assert status['obs'] == {}
     assert status['bad'] == {1: 3, 2: 3}
@@ -211,7 +211,7 @@ def test_parse_obs_status_args_bad(monkeypatch):
     # if you specify bad_star, you must specify bad_star_source
     with pytest.raises(RuntimeError, match=r"specify bad_star_source"):
         update_obs_status._parse_obs_status_args(
-            bad_star=1
+            bad_star_id=1
         )
 
 
@@ -297,14 +297,14 @@ def test_parse_obs_status_args(monkeypatch):
     with pytest.raises(RuntimeError, match=r"name collision"):
         _ = update_obs_status._parse_obs_status_args(
             filename=filename,
-            bad_star=23434,
+            bad_star_id=23434,
             bad_star_source=12
         )
 
     # can specify bad star in the file and in args if the source is the same.
     status = update_obs_status._parse_obs_status_args(
         filename=filename,
-        bad_star=23434,
+        bad_star_id=23434,
         bad_star_source=10
     )
     ref = copy.deepcopy(TEST_DATA[filename])
@@ -316,7 +316,7 @@ def test_parse_obs_status_args(monkeypatch):
         obs=56309,
         agasc_id=[762184312, 762184768, 762185584, 762186016],
         status=False,
-        bad_star=[1, 2],
+        bad_star_id=[1, 2],
         bad_star_source=1000
     )
     ref = update_obs_status._parse_obs_status_args(
@@ -326,7 +326,7 @@ def test_parse_obs_status_args(monkeypatch):
         obs=56309,
         agasc_id=[762184312, 762184768, 762185584, 762186016],
         status=False,
-        bad_star=[1, 2],
+        bad_star_id=[1, 2],
         bad_star_source=1000
     )
     ref['obs'].update(ref_2['obs'])

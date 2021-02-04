@@ -115,16 +115,21 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
     if not update:
         return
 
+    obs_dtype = np.dtype([
+        ('obsid', np.int32),
+        ('agasc_id', np.int32),
+        ('ok', np.int32),
+        ('comments', '<U80')])
     if obs_status:
         t = list(zip(
             *[[oi, ai, np.uint(obs_status[(oi, ai)]['ok']), obs_status[(oi, ai)]['comments']]
               for oi, ai in obs_status]
         ))
-        obs_status = table.Table(t, names=['obsid', 'agasc_id', 'ok', 'comments'])
+        obs_status = table.Table(t, names=obs_dtype.names,
+                                 dtype=[obs_dtype[name] for name in obs_dtype.names])
     else:
         logger.info('creating empty obs table')
-        dtype = [('obsid', int), ('agasc_id', int), ('ok', np.uint), ('comments', '<U80')]
-        obs_status = table.Table(dtype=dtype)
+        obs_status = table.Table(dtype=obs_dtype)
 
     if not dry_run:
         obs_status.write(str(filename), format='hdf5', path='obs', append=True, overwrite=True)

@@ -209,6 +209,11 @@ def update_supplement(agasc_stats, filename, include_all=True):
         if False, only OK entries marked 'selected_*'
     :return:
     """
+    mags_dtype = np.dtype([('agasc_id', np.int32),
+                           ('mag_aca', np.float32),
+                           ('mag_aca_err', np.float32),
+                           ('last_obs_time', np.float64)])
+
     if include_all:
         outliers_new = agasc_stats[
             (agasc_stats['n_obsids_ok'] > 0)
@@ -223,8 +228,10 @@ def update_supplement(agasc_stats, filename, include_all=True):
         ]
     outliers_new['mag_aca'] = outliers_new['mag_obs']
     outliers_new['mag_aca_err'] = outliers_new['mag_obs_err']
-    names = ['agasc_id', 'mag_aca', 'mag_aca_err', 'last_obs_time']
-    outliers_new = outliers_new[names].as_array()
+
+    outliers_new = outliers_new[mags_dtype.names].as_array()
+    if outliers_new.dtype != mags_dtype:
+        outliers_new = outliers_new.astype(mags_dtype)
 
     outliers = None
     new_stars = None
@@ -246,9 +253,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
                 i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
                 # overwrite current values with new values (and calculate diff to return)
                 updated_stars = np.zeros(len(outliers_new[i_new]),
-                                         dtype=[('agasc_id', np.int64),
-                                                ('mag_aca', np.float64),
-                                                ('mag_aca_err', np.float64)])
+                                         dtype=mags_dtype)
                 updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca']
                                             - outliers_current[i_cur]['mag_aca'])
                 updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err']
@@ -267,8 +272,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
     if outliers is None:
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
-        updated_stars = np.array([], dtype=[('agasc_id', np.int64), ('mag_aca', np.float64),
-                                            ('mag_aca_err', np.float64)])
+        updated_stars = np.array([], dtype=mags_dtype)
 
     mode = 'r+' if filename.exists() else 'w'
     with tables.File(filename, mode) as h5:
@@ -308,11 +312,6 @@ def do(output_dir,
     # as ascii. It displays a warning which I want to avoid:
     warnings.filterwarnings("ignore", category=tables.exceptions.FlavorWarning)
 
-    if start:
-        start = CxoTime(start)
-    if stop:
-        stop = CxoTime(stop)
-
     filename = output_dir / 'agasc_supplement.h5'
 
     if multi_process:
@@ -324,28 +323,19 @@ def do(output_dir,
         agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
 
     # set start/stop times and agasc_ids
-    if whole_history:
-        if start:
-            logger.warning('Ignoring --start argument from commant line (--whole-history)')
-        if stop:
-            logger.warning('Ignoring --stop argument from commant line (--whole-history)')
+    if whole_history or agasc_ids is not None:
+        if start or stop:
+            raise ValueError('incompatible arguments: whole_history and start/stop')
         start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
         stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
         if agasc_ids is None:
             agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
-    elif agasc_ids is None:
-        if not start:
-            start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
-        if not stop:
-            stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
+    else:
+        stop = CxoTime(stop).date if stop else CxoTime.now().date
+        start = CxoTime(start).date if start else (CxoTime(stop) - 14 * u.day).date
         obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start)
                        & (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
         agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
-    else:
-        if not stop:
-            stop = CxoTime.now().date
-        if not start:
-            start = CxoTime(stop) - 14 * u.day
 
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
@@ -402,6 +392,7 @@ def do(output_dir,
 
     # do the processing
     logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
+    logger.info(f'from {start} to {stop}')
     if dry_run:
         return
 
@@ -478,9 +469,9 @@ def do(output_dir,
                 report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
                 report.multi_star_html(**multi_star_html_args)
                 latest = reports_dir / 'latest'
-                if latest.exists:
+                if os.path.lexists(latest):
                     latest.unlink()
-                latest.symlink_to(directory)
+                latest.symlink_to(directory.absolute())
             except Exception as e:
                 logger.error(f'Exception when creating report: {e}')
                 multi_star_html_args['directory'] = directory
