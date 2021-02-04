@@ -362,7 +362,7 @@ def do(output_dir,
 
             if 'obs' in h5.root:
                 obs_status = {
-                    (r['obsid'], r['agasc_id']): {'ok': r['ok'], 'comments': r['comments']}
+                    (r['obsid'], r['agasc_id']): {'status': r['status'], 'comments': r['comments']}
                     for r in h5.root.obs[:]
                 }
             if 'mags' in h5.root:
