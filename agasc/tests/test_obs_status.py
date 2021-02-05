@@ -49,7 +49,7 @@ TEST_YAML = {
     'file_4.yml': """
                   obs:
                     - obsid: 56314
-                      ok: false
+                      status: 1
                       comments: removed because I felt like it
                       agasc_id: [114950168, 114950584, 114952056, 114952792,
                                  114952824, 114955056, 114956608, 115347520]
@@ -60,7 +60,7 @@ TEST_YAML = {
     'file_5.yml': """
                   obs:
                     - obsid: 56314
-                      ok: false
+                      status: 1
                       comments: removed because I felt like it
                   bad:
                     77073552: null
@@ -69,25 +69,25 @@ TEST_YAML = {
     'file_6.yml': """
                   obs:
                     - obsid: 56314
-                      ok: false
+                      status: 1
                       agasc_id: 114950168
                   """,
     'file_7.yml': """
                   obs:
                     - obsid: 56311
-                      ok: false
+                      status: 1
                     - obsid: 56308
-                      ok: true
+                      status: 0
                       agasc_id: [806750112]
                     - obsid: 11849
-                      ok: false
+                      status: 1
                       agasc_id: [1019348536, 1019350904]
                       comments: just removed them
     """,
     'file_1.yml': """
                   obs:
                     - obsid: 80616784
-                      ok: true
+                      status: 0
                   bad:
                     77073552: null
                     23434: 10
@@ -100,7 +100,7 @@ TEST_YAML = {
     'file_3.yml': """
               obs:
                 - obsid: 80616784
-                  ok: true
+                  status: 0
               """,
 }
 
@@ -111,44 +111,44 @@ TEST_DATA = {
     'file_3.yml': {'obs': {}, 'bad': {}},
     'file_4.yml': {
         'obs': {
-            (56314, 114950168): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114950584): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114952056): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114952792): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114952824): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114955056): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114956608): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 115347520): {'ok': False, 'comments': 'removed because I felt like it'}
+            (56314, 114950168): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114950584): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114952056): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114952792): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114952824): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114955056): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114956608): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 115347520): {'status': 1, 'comments': 'removed because I felt like it'}
         },
         'bad': {77073552: None, 23434: 10}},
     'file_5.yml': {
         'obs': {
-            (56314, 114950168): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114950584): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114952056): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114952792): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114952824): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114955056): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 114956608): {'ok': False, 'comments': 'removed because I felt like it'},
-            (56314, 115347520): {'ok': False, 'comments': 'removed because I felt like it'}
+            (56314, 114950168): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114950584): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114952056): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114952792): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114952824): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114955056): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 114956608): {'status': 1, 'comments': 'removed because I felt like it'},
+            (56314, 115347520): {'status': 1, 'comments': 'removed because I felt like it'}
         },
         'bad': {77073552: None, 23434: 10}},
     'file_6.yml': {
-        'obs': {(56314, 114950168): {'ok': False, 'comments': ''}},
+        'obs': {(56314, 114950168): {'status': 1, 'comments': ''}},
         'bad': {}},
     'file_7.yml': {
         'obs': {
-            (56311, 563087864): {'ok': False, 'comments': ''},
-            (56311, 563088952): {'ok': False, 'comments': ''},
-            (56311, 563089432): {'ok': False, 'comments': ''},
-            (56311, 563091784): {'ok': False, 'comments': ''},
-            (56311, 563092520): {'ok': False, 'comments': ''},
-            (56311, 563612488): {'ok': False, 'comments': ''},
-            (56311, 563612792): {'ok': False, 'comments': ''},
-            (56311, 563617352): {'ok': False, 'comments': ''},
-            (56308, 806750112): {'ok': True, 'comments': ''},
-            (11849, 1019348536): {'ok': False, 'comments': 'just removed them'},
-            (11849, 1019350904): {'ok': False, 'comments': 'just removed them'}
+            (56311, 563087864): {'status': 1, 'comments': ''},
+            (56311, 563088952): {'status': 1, 'comments': ''},
+            (56311, 563089432): {'status': 1, 'comments': ''},
+            (56311, 563091784): {'status': 1, 'comments': ''},
+            (56311, 563092520): {'status': 1, 'comments': ''},
+            (56311, 563612488): {'status': 1, 'comments': ''},
+            (56311, 563612792): {'status': 1, 'comments': ''},
+            (56311, 563617352): {'status': 1, 'comments': ''},
+            (56308, 806750112): {'status': 0, 'comments': ''},
+            (11849, 1019348536): {'status': 1, 'comments': 'just removed them'},
+            (11849, 1019350904): {'status': 1, 'comments': 'just removed them'}
         },
         'bad': {}}
 }
@@ -224,18 +224,18 @@ def test_parse_obs_status_args_obs(monkeypatch):
     #######################
 
     status = update_obs_status._parse_obs_status_args(
-        obsid=56314, status=False, comments='some comment'
+        obsid=56314, status=1, comments='some comment'
     )
     ref = {
         'obs': {
-            (56314, 114950168): {'ok': False, 'comments': 'some comment'},
-            (56314, 114950584): {'ok': False, 'comments': 'some comment'},
-            (56314, 114952056): {'ok': False, 'comments': 'some comment'},
-            (56314, 114952792): {'ok': False, 'comments': 'some comment'},
-            (56314, 114952824): {'ok': False, 'comments': 'some comment'},
-            (56314, 114955056): {'ok': False, 'comments': 'some comment'},
-            (56314, 114956608): {'ok': False, 'comments': 'some comment'},
-            (56314, 115347520): {'ok': False, 'comments': 'some comment'}
+            (56314, 114950168): {'status': 1, 'comments': 'some comment'},
+            (56314, 114950584): {'status': 1, 'comments': 'some comment'},
+            (56314, 114952056): {'status': 1, 'comments': 'some comment'},
+            (56314, 114952792): {'status': 1, 'comments': 'some comment'},
+            (56314, 114952824): {'status': 1, 'comments': 'some comment'},
+            (56314, 114955056): {'status': 1, 'comments': 'some comment'},
+            (56314, 114956608): {'status': 1, 'comments': 'some comment'},
+            (56314, 115347520): {'status': 1, 'comments': 'some comment'}
         },
         'bad': {}
     }
@@ -243,40 +243,40 @@ def test_parse_obs_status_args_obs(monkeypatch):
 
     # comments are optional
     status = update_obs_status._parse_obs_status_args(
-        obsid=56314, status=False
+        obsid=56314, status=1
     )
     ref = {
         'obs': {
-            (56314, 114950168): {'ok': False, 'comments': ''},
-            (56314, 114950584): {'ok': False, 'comments': ''},
-            (56314, 114952056): {'ok': False, 'comments': ''},
-            (56314, 114952792): {'ok': False, 'comments': ''},
-            (56314, 114952824): {'ok': False, 'comments': ''},
-            (56314, 114955056): {'ok': False, 'comments': ''},
-            (56314, 114956608): {'ok': False, 'comments': ''},
-            (56314, 115347520): {'ok': False, 'comments': ''}},
+            (56314, 114950168): {'status': 1, 'comments': ''},
+            (56314, 114950584): {'status': 1, 'comments': ''},
+            (56314, 114952056): {'status': 1, 'comments': ''},
+            (56314, 114952792): {'status': 1, 'comments': ''},
+            (56314, 114952824): {'status': 1, 'comments': ''},
+            (56314, 114955056): {'status': 1, 'comments': ''},
+            (56314, 114956608): {'status': 1, 'comments': ''},
+            (56314, 115347520): {'status': 1, 'comments': ''}},
         'bad': {}
     }
     assert status == ref
 
     # OBSID does not exist, so there are no stars in it
     status = update_obs_status._parse_obs_status_args(
-        obsid=1, status=False
+        obsid=1, status=1
     )
     assert status == {'obs': {}, 'bad': {}}
 
     # optional agasc_id can be int or list
     status = update_obs_status._parse_obs_status_args(
-        obsid=1, status=True, agasc_id=[2], comments='comment'
+        obsid=1, status=0, agasc_id=[2], comments='comment'
     )
-    ref = {'obs': {(1, 2): {'ok': True, 'comments': 'comment'}},
+    ref = {'obs': {(1, 2): {'status': 0, 'comments': 'comment'}},
            'bad': {}}
     assert status == ref
 
     status = update_obs_status._parse_obs_status_args(
-        obsid=1, status=True, agasc_id=2, comments='comment'
+        obsid=1, status=0, agasc_id=2, comments='comment'
     )
-    ref = {'obs': {(1, 2): {'ok': True, 'comments': 'comment'}},
+    ref = {'obs': {(1, 2): {'status': 0, 'comments': 'comment'}},
            'bad': {}}
     assert status == ref
 
@@ -341,7 +341,9 @@ def _disabled_write(*args, **kwargs):
 
 def test_update_obs_non_existent():
     with pytest.raises(FileExistsError):
-        update_obs_status.update_obs_table('some_non_existent_file.h5', {})
+        # if ref is empty, no exception is raised
+        ref = {'obs': {(1, 2): {'status': 0, 'comments': 'comment'}}, 'bad': {}}
+        update_obs_status.update_obs_table(pathlib.Path('some_non_existent_file.h5'), ref['obs'])
 
 
 def test_update_obs_dry_run(monkeypatch):
@@ -366,7 +368,7 @@ def test_update_obs_blank_slate(monkeypatch):
 
     def mock_write(fname, *args, **kwargs):
         obs_status = {
-            (r['obsid'], r['agasc_id']): {'ok': r['ok'], 'comments': r['comments']}
+            (r['obsid'], r['agasc_id']): {'status': r['status'], 'comments': r['comments']}
             for r in args[0]
         }
         assert obs_status == TEST_DATA[fname]['obs']
@@ -401,8 +403,8 @@ def test_update_obs(monkeypatch):
                                     (56314, 114955056, 0, 'removed because I felt like it'),
                                     (56314, 114956608, 0, 'removed because I felt like it'),
                                     (56314, 115347520, 0, 'removed because I felt like it')],
-                                   dtype=[('obsid', '<i8'), ('agasc_id', '<i8'),
-                                          ('ok', '<u8'), ('comments', '<U30')])
+                                   dtype=[('obsid', np.int32), ('agasc_id', np.int32),
+                                          ('status', np.int32), ('comments', '<U80')])
                           )
         assert np.all(args[0] == ref)
 

@@ -84,9 +84,9 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
 
     :param filename:
     :param obs_status_override: dict.
-        Dictionary with OK flag for specific observations.
+        Dictionary with status flag for specific observations.
         Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
-        {'ok': True, 'comments': 'some comment'}
+        {'status': 0, 'comments': 'some comment'}
     :param dry_run: bool
     """
     if not obs_status_override:
@@ -106,7 +106,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
             raise
 
     obs_status = {
-        (r['obsid'], r['agasc_id']): {'ok': r['ok'], 'comments': r['comments']}
+        (r['obsid'], r['agasc_id']): {'status': r['status'], 'comments': r['comments']}
         for r in obs_status
     }
 
@@ -123,11 +123,11 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
     obs_dtype = np.dtype([
         ('obsid', np.int32),
         ('agasc_id', np.int32),
-        ('ok', np.int32),
+        ('status', np.int32),
         ('comments', '<U80')])
     if obs_status:
         t = list(zip(
-            *[[oi, ai, np.uint(obs_status[(oi, ai)]['ok']), obs_status[(oi, ai)]['comments']]
+            *[[oi, ai, np.uint(obs_status[(oi, ai)]['status']), obs_status[(oi, ai)]['comments']]
               for oi, ai in obs_status]
         ))
         obs_status = table.Table(t, names=obs_dtype.names,
@@ -173,7 +173,7 @@ def _parse_obs_status_file(filename):
 
     status['obs'] = {
         (obs['obsid'], agasc_id): {
-            'ok': obs['ok'],
+            'status': obs['status'],
             'comments': obs['comments']
         }
         for obs in status['obs'] for agasc_id in obs['agasc_id']
@@ -225,7 +225,7 @@ def _parse_obs_status_args(filename=None, bad_star_id=None, bad_star_source=None
             agasc_ids = sorted(list(np.atleast_1d(agasc_id)))
 
         for agasc_id in agasc_ids:
-            obs_status_override[(obsid, agasc_id)] = {'ok': status, 'comments': comments}
+            obs_status_override[(obsid, agasc_id)] = {'status': status, 'comments': comments}
 
     for bs in bad_star_id:
         if bs in bad and bad[bs] != bad_star_source:
@@ -318,7 +318,7 @@ def main():
     """
     args = get_parser().parse_args()
 
-    status_to_int = {'true': 1, 'false': 0, 'ok': 1, 'good': 1, 'bad': 0}
+    status_to_int = {'ok': 0, 'good': 0, 'bad': 1}
     if args.status and args.status.lower() in status_to_int:
         args.status = status_to_int[args.status.lower()]
 

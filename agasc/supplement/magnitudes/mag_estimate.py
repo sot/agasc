@@ -770,7 +770,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         logger.debug('  checking obs status...')
         for i, (oi, ai) in enumerate(stats[['obsid', 'agasc_id']]):
             if (oi, ai) in obs_status_override:
-                stats[i]['obs_ok'] = obs_status_override[(oi, ai)]['ok']
+                stats[i]['obs_ok'] = (obs_status_override[(oi, ai)]['status'] == 0)
                 stats[i]['comments'] = obs_status_override[(oi, ai)]['comments']
                 logger.debug(f'  overriding status for (AGASC ID {ai}, OBSID {oi}): '
                              f'{stats[i]["obs_ok"]}, {stats[i]["comments"]}')
