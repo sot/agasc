@@ -3,6 +3,7 @@ import getpass
 import logging
 import errno
 import os
+import copy
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
@@ -58,7 +59,7 @@ class MagEstimateReport:
 
         directory = Path(directory)
         if not directory.exists():
-            logger.debug('making report directory {directory}')
+            logger.debug(f'making report directory {directory}')
             directory.mkdir(parents=True)
 
         o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
@@ -115,6 +116,10 @@ class MagEstimateReport:
                         no_progress=None):
         if sections is None:
             sections = []
+        else:
+            # Copying this because it is a dict that will get modified
+            sections = copy.deepcopy(sections)
+
         run_template = JINJA2.get_template('run_report.html')
 
         updated_star_ids = \
@@ -153,33 +158,14 @@ class MagEstimateReport:
 
         agasc_stats = self.agasc_stats.copy()
 
-        # check how many observations were added in this run, and how many of those are ok
-        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"])
-                        & (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
-        if np.any(new_obs_mask):
-            new_obs = self.obs_stats[new_obs_mask]. \
-                group_by('agasc_id')[['agasc_id', 'obsid', 'obs_ok']]. \
-                groups.aggregate(np.count_nonzero)[['agasc_id', 'obsid', 'obs_ok']]
-            new_obs['n_obs_bad_new'] = new_obs['obsid'] - new_obs['obs_ok']
-
-            all_agasc_ids = np.unique(np.concatenate([
-                new_obs['agasc_id'],
-                [f['agasc_id'] for f in fails]
-            ]))
-            agasc_stats = table.join(agasc_stats, new_obs[['agasc_id', 'n_obs_bad_new']],
-                                     keys=['agasc_id'])
-
-            assert np.all(np.in1d(agasc_stats['agasc_id'], all_agasc_ids)
-                          ), 'Not all AGASC IDs are in new obs.'
-
         # add some extra fields
         if len(agasc_stats):
-            if 'n_obs_bad_new' not in agasc_stats.colnames:
-                agasc_stats['n_obs_bad_new'] = 0
+            agasc_stats['n_obs_bad_new'] = agasc_stats['n_obsids_fail']
             agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
             agasc_stats['flag'] = '          '
             agasc_stats['flag'][:] = ''
-            agasc_stats['flag'][agasc_stats['n_obs_bad'] > 0] = 'warning'
+            agasc_stats['flag'][(agasc_stats['n_obs_bad'] > 0)
+                                | (agasc_stats['n_obsids'] == 0)] = 'warning'
             agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
             agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
             agasc_stats['sigma'] = ((agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
@@ -217,11 +203,9 @@ class MagEstimateReport:
                         directory=dirname,
                         highlight_obs=highlight_obs
                     )
-                if dirname.exists():
-                    logger.debug('report directory exists already, skipping')
-                    star_reports[agasc_id] = dirname
+                star_reports[agasc_id] = dirname
             except mag_estimate.MagStatsException:
-                pass
+                logger.debug(f'  Error generating report for {agasc_id=}')
 
         # remove empty sections, and set the star tables for each of the remaining sections
         sections = sections.copy()
@@ -275,8 +259,12 @@ class MagEstimateReport:
         if ax is None:
             ax = plt.gca()
         if telem is None:
-            telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
-            telem = mag_estimate.add_obs_info(telem, obs_stats)
+            try:
+                telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
+                telem = mag_estimate.add_obs_info(telem, obs_stats)
+            except Exception as e:
+                logger.debug(f'Error making plot: {e}')
+                return
 
         obsids = [arg_obsid] if arg_obsid else np.unique(telem['obsid'])
 
@@ -355,6 +343,8 @@ class MagEstimateReport:
         limits = {}
         for i, obsid in enumerate(obsids):
             in_obsid = timeline['obsid'] == obsid
+            if len(timeline[timeline['obsid'] == obsid]) == 0:
+                continue
             limits[obsid] = (timeline['index'][timeline['obsid'] == obsid].min(),
                              timeline['index'][timeline['obsid'] == obsid].max())
             if not only_ok and np.any(in_obsid & ~ok):
@@ -598,16 +588,22 @@ class MagEstimateReport:
     def plot_set(self, agasc_id, args, telem=None, filename=None):
         if not args:
             return
-        if telem is None:
-            telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
-            telem = mag_estimate.add_obs_info(
-                telem,
-                self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
-            )
+
         fig, ax = plt.subplots(len(args), 1, figsize=(15, 3.5 * len(args)))
         if len(args) == 1:
             ax = [ax]
         ax[0].set_title(f'AGASC ID {agasc_id}')
+
+        if telem is None:
+            try:
+                telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
+                telem = mag_estimate.add_obs_info(
+                    telem,
+                    self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
+                )
+            except Exception as e:
+                logger.debug(f'Error making plot: {e}')
+                return fig
 
         for i, kwargs in enumerate(args):
             if 'type' in kwargs and kwargs['type'] == 'flags':
