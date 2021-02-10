@@ -6,6 +6,7 @@ import datetime
 import logging
 from functools import partial
 from multiprocessing import Pool
+import jinja2
 
 from tqdm import tqdm
 import tables
@@ -293,6 +294,52 @@ def update_supplement(agasc_stats, filename, include_all=True):
     return new_stars, updated_stars
 
 
+def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
+    obs = []
+    if obs_stats and len(obs_stats):
+        obs_stats = obs_stats[~obs_stats['obs_ok']]
+        obsids = np.unique(obs_stats['obsid'])
+        for obsid in obsids:
+            rows = obs_stats[obs_stats['obsid'] == obsid]
+            rows.sort(keys='agasc_id')
+            obs.append({
+                'obsid': obsid,
+                'agasc_id': list(rows['agasc_id']),
+                'status': 1,
+                'comments': obs_stats['comment']
+            })
+    for fail in fails:
+        if fail['agasc_id'] is None or fail['obsid'] is None:
+            continue
+        obsids = fail['obsid'] if type(fail['obsid']) is list else [fail['obsid']]
+        agasc_id = fail['agasc_id']
+        for obsid in obsids:
+            obs.append({
+                'obsid': obsid,
+                'agasc_id': [agasc_id],
+                'status': 1,
+                'comments': fail['msg']
+            })
+    if len(obs) == 0:
+        return
+
+    yaml_template = """obs:
+  {%- for obs in observations %}
+  - obsid: {{ obs.obsid }}
+    status: {{ obs.status }}
+    agasc_id: [{% for agasc_id in obs.agasc_id -%}
+                  {{ agasc_id }}{%- if not loop.last %}, {% endif -%}
+               {%- endfor -%}]
+    comments: {{ obs.comments }}
+  {%- endfor %}
+  """
+    tpl = jinja2.Template(yaml_template)
+    if filename:
+        with open(filename, 'w') as fh:
+            fh.write(tpl.render(observations=obs))
+    return tpl.render(observations=obs)
+
+
 def do(output_dir,
        reports_dir,
        agasc_ids=None,
@@ -429,6 +476,12 @@ def do(output_dir,
         output_dir.mkdir(parents=True)
 
     update_mag_stats(obs_stats, agasc_stats, fails, output_dir)
+
+    obs_status_file = output_dir / 'obs_status.yml'
+    try:
+        write_obs_status_yaml([], fails=failed_obs + failed_stars, filename=obs_status_file)
+    except Exception as e:
+        logger.warning(f'Failed to write {obs_status_file}: {e}')
 
     new_stars, updated_stars = update_supplement(agasc_stats, filename=filename)
     logger.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
