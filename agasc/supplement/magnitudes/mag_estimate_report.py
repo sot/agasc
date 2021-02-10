@@ -160,13 +160,13 @@ class MagEstimateReport:
 
         # add some extra fields
         if len(agasc_stats):
-            agasc_stats['n_obs_bad_new'] = agasc_stats['n_obsids_fail']
+            agasc_stats['n_obs_bad_fail'] = agasc_stats['n_obsids_fail']
             agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
             agasc_stats['flag'] = '          '
             agasc_stats['flag'][:] = ''
             agasc_stats['flag'][(agasc_stats['n_obs_bad'] > 0)
                                 | (agasc_stats['n_obsids'] == 0)] = 'warning'
-            agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
+            agasc_stats['flag'][agasc_stats['n_obs_bad_fail'] > 0] = 'danger'
             agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
             agasc_stats['sigma'] = ((agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
                                     / agasc_stats['mag_aca_err'])
@@ -184,7 +184,7 @@ class MagEstimateReport:
 
         tooltips = {
             'warning': 'At least one bad observation',
-            'danger': 'At least one new bad observation'
+            'danger': 'At least one suspect or failed observation'
         }
 
         # make all individual star reports
