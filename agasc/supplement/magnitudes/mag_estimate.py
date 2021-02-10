@@ -2,6 +2,8 @@
 Functions to estimate observed ACA magnitudes
 """
 
+import sys
+import traceback
 import logging
 import collections
 
@@ -410,16 +412,14 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
             t['agasc_id'] = agasc_id
             telem.append(t)
         except Exception:
-            import sys
-            import traceback
-            logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            trace = traceback.extract_tb(exc_traceback)
-            logger.info(f'{exc_type.__name__} {exc_value}')
-            for step in trace:
-                logger.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
-                logger.info(f'    {step.line}')
             if not ignore_exceptions:
+                logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                trace = traceback.extract_tb(exc_traceback)
+                logger.info(f'{exc_type.__name__} {exc_value}')
+                for step in trace:
+                    logger.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
+                    logger.info(f'    {step.line}')
                 raise
     return vstack(telem)
 
