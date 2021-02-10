@@ -764,6 +764,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'color': np.nan,
         'n_obsids': 0,
         'n_obsids_fail': 0,
+        'n_obsids_suspect': 0,
         'n_obsids_ok': 0,
         'n_no_track': 0,
         'n': 0,
@@ -869,12 +870,13 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                 logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}, obsid={o["obsid"]}): {e}')
                 failures.append(dict(e))
 
-    result['n_obsids_fail'] = len(failures)
-
     stats = Table(stats)
     stats['w'] = np.nan
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
+
+    result['n_obsids_fail'] = np.sum(stats['obs_fail'])
+    result['n_obsids_suspect'] = np.sum(stats['obs_suspect'])
 
     if not np.any(~excluded_obs):
         logger.debug('  Skipping star in get_agasc_id_stats({agasc_id=}).'
@@ -917,7 +919,6 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'mag_obs_err': min_mag_obs_err,
         'color': star['COLOR1'],
         'n_obsids': n_obsids,
-        'n_obsids_fail': len(failures),
         'n_obsids_ok': np.sum(stats['obs_ok']),
         'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
         'n': len(ok),

@@ -69,7 +69,8 @@ class MagEstimateReport:
         o.sort(keys=['mp_starcat_time'])
         s = self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0]
         s = {k: s[k] for k in s.colnames}
-        s['n_obs_bad'] = s['n_obsids'] - s['n_obsids_ok'] - s['n_obsids_fail']
+        s['n_obs_bad'] = \
+            s['n_obsids'] - s['n_obsids_ok'] - s['n_obsids_fail'] - s['n_obsids_suspect']
         s['last_obs'] = ':'.join(o[-1]['mp_starcat_time'].split(':')[:4])
 
         # OBSIDs can be repeated
@@ -161,7 +162,8 @@ class MagEstimateReport:
 
         # add some extra fields
         if len(agasc_stats):
-            agasc_stats['n_obs_bad_fail'] = agasc_stats['n_obsids_fail']
+            agasc_stats['n_obs_bad_fail'] = \
+                agasc_stats['n_obsids_fail'] + agasc_stats['n_obsids_suspect']
             agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
             agasc_stats['flag'] = '          '
             agasc_stats['flag'][:] = ''
