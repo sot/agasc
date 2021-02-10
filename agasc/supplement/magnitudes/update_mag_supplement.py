@@ -219,6 +219,9 @@ def update_supplement(agasc_stats, filename, include_all=True):
                            ('mag_aca_err', np.float32),
                            ('last_obs_time', np.float64)])
 
+    if agasc_stats is None or len(agasc_stats) == 0:
+        return [], np.array([], dtype=mags_dtype)
+
     if include_all:
         outliers_new = agasc_stats[
             (agasc_stats['n_obsids_ok'] > 0)
@@ -327,8 +330,10 @@ def do(output_dir,
     else:
         get_stats = get_agasc_id_stats
 
+    skip = True
     if agasc_ids is not None:
         agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
+        skip = False
 
     # set start/stop times and agasc_ids
     if whole_history or agasc_ids is not None:
@@ -381,22 +386,23 @@ def do(output_dir,
                         np.zeros(len(times), dtype=h5.root.mags.dtype['last_obs_time']),
                         mask=np.ones(len(times), dtype=bool)
                     )
-                if hasattr(times['last_obs_time'], 'mask'):
-                    # the mask exists if there are stars in stars_obs
-                    # that are not in outliers_current
-                    update = (times['last_obs_time'].mask
-                              | ((~times['last_obs_time'].mask)
-                                 & (CxoTime(times['mp_starcat_time']).cxcsec
-                                    > times['last_obs_time']).data)
-                              )
-                else:
-                    update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
+                if skip:
+                    if hasattr(times['last_obs_time'], 'mask'):
+                        # the mask exists if there are stars in stars_obs
+                        # that are not in outliers_current
+                        update = (times['last_obs_time'].mask
+                                  | ((~times['last_obs_time'].mask)
+                                     & (CxoTime(times['mp_starcat_time']).cxcsec
+                                        > times['last_obs_time']).data)
+                                  )
+                    else:
+                        update = (CxoTime(times['mp_starcat_time']).cxcsec > times['last_obs_time'])
 
-                stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
-                agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
-                if len(update) - np.sum(update):
-                    logger.info(f'Skipping {len(update) - np.sum(update)} '
-                                f'stars already in the supplement')
+                    stars_obs = stars_obs[np.in1d(stars_obs['agasc_id'], times[update]['agasc_id'])]
+                    agasc_ids = np.sort(np.unique(stars_obs['agasc_id']))
+                    if len(update) - np.sum(update):
+                        logger.info(f'Skipping {len(update) - np.sum(update)} '
+                                    f'stars already in the supplement')
 
     # do the processing
     logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
@@ -423,11 +429,11 @@ def do(output_dir,
         output_dir.mkdir(parents=True)
 
     update_mag_stats(obs_stats, agasc_stats, fails, output_dir)
-    if agasc_stats is not None and len(agasc_stats):
-        new_stars, updated_stars = update_supplement(agasc_stats,
-                                                     filename=filename)
 
-        logger.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
+    new_stars, updated_stars = update_supplement(agasc_stats, filename=filename)
+    logger.info(f'  {len(new_stars)} new stars, {len(updated_stars)} updated stars')
+
+    if agasc_stats is not None and len(agasc_stats):
         if email:
             try:
                 bad_obs = (
@@ -440,8 +446,38 @@ def do(output_dir,
             except Exception as e:
                 logger.error(f'Error sending email to {email}: {e}')
 
-        if report:
-            now = datetime.datetime.now()
+    if report:
+        report_date = CxoTime(stop)
+        # the nominal date for reports is the first Monday after the stop date.
+        report_date += ((7 - report_date.datetime.weekday()) % 7) * u.day
+
+        directory = reports_dir / f'{report_date.date[:8]}'
+        report_data_dir = directory
+        report_data_file = report_data_dir / f'report_data_{report_date.date[:8]}.pkl'
+
+        week = time.TimeDelta(7 * u.day)
+        nav_links = {
+            'previous': f'../{(report_date - week).date[:8]}/index.html',
+            'up': '..',
+            'next': f'../{(report_date + week).date[:8]}/index.html'
+        }
+
+        # If the report data file exists, the arguments for the report from the file are
+        # modified according to the current run. Otherwise, they are created from scratch.
+        if report_data_file.exists():
+            with open(report_data_file, 'rb') as fh:
+                report_data = pickle.load(fh)
+            logger.info(f'Loading existing report data from {report_data_file}')
+            multi_star_html_args = report_data['args']
+
+            # arguments for the report are modified here
+            # merge fails:
+            # - from previous run, take fails that were not run just now
+            # - add current fails
+            multi_star_html_args['fails'] = fails
+            multi_star_html_args['no_progress'] = no_progress
+
+        else:
             sections = [{
                 'id': 'new_stars',
                 'title': 'New Stars',
@@ -450,45 +486,56 @@ def do(output_dir,
                 'id': 'updated_stars',
                 'title': 'Updated Stars',
                 'stars': updated_stars['agasc_id'] if len(updated_stars) else []
-            }]
-
-            week = time.TimeDelta(7 * u.day)
-            t = CxoTime(stop)
-            nav_links = {
-                'previous': f'../{(t - week).date[:8]}/index.html',
-                'up': '..',
-                'next': f'../{(t + week).date[:8]}/index.html'
+            }, {
+                'id': 'other_stars',
+                'title': 'Other Stars',
+                'stars': list(agasc_stats['agasc_id'][
+                    ~np.in1d(agasc_stats['agasc_id'], new_stars)
+                    & ~np.in1d(agasc_stats['agasc_id'], updated_stars['agasc_id'])
+                ])
             }
+            ]
 
-            directory = reports_dir / f'{t.date[:8]}'
             multi_star_html_args = dict(
                 filename='index.html',
                 sections=sections,
                 updated_stars=updated_stars,
                 fails=fails,
-                report_date=CxoTime.now().date,
+                report_date=report_date.date,
                 tstart=start,
                 tstop=stop,
                 nav_links=nav_links,
-                include_all_stars=True,
+                include_all_stars=False,
                 no_progress=no_progress
             )
-            try:
-                report = msr.MagEstimateReport(agasc_stats, obs_stats, directory=directory)
-                report.multi_star_html(**multi_star_html_args)
-                latest = reports_dir / 'latest'
-                if os.path.lexists(latest):
-                    logger.debug('Removing existing "latest" symlink')
-                    latest.unlink()
-                latest.symlink_to(directory.absolute())
-                logger.debug('Creating "latest" symlink')
-            except Exception as e:
-                logger.error(f'Error when creating report: {e}')
-                multi_star_html_args['directory'] = directory
-                failure_file = output_dir / f'failed_report_{t.date[:8]}.pkl'
-                with open(failure_file, 'wb') as fh:
-                    pickle.dump(multi_star_html_args, fh)
-                logger.error(f'Intermediate data saved in {failure_file}')
+
+        try:
+            report = msr.MagEstimateReport(
+                agasc_stats=output_dir / 'mag_stats_agasc.fits',
+                obs_stats=output_dir / 'mag_stats_obsid.fits',
+                directory=directory
+            )
+            report.multi_star_html(**multi_star_html_args)
+            latest = reports_dir / 'latest'
+            if os.path.lexists(latest):
+                logger.debug('Removing existing "latest" symlink')
+                latest.unlink()
+            logger.debug('Creating "latest" symlink')
+            latest.symlink_to(directory.absolute())
+        except Exception as e:
+            report_data_dir = output_dir
+            logger.error(f'Error when creating report: {e}')
+        finally:
+            report_data_file = report_data_dir / report_data_file.name
+            if not report_data_dir.exists():
+                report_data_dir.mkdir(parents=True)
+            report_data = {
+                'args': multi_star_html_args,
+                'directory': directory
+            }
+            with open(report_data_file, 'wb') as fh:
+                pickle.dump(report_data, fh)
+            logger.info(f'Report data saved in {report_data_file}')
 
     now = datetime.datetime.now()
     logger.info(f"done at {now}")

@@ -1,6 +1,8 @@
 import platform
 import getpass
 import logging
+import errno
+import os
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
@@ -23,9 +25,27 @@ logger = logging.getLogger('agasc.supplement')
 
 
 class MagEstimateReport:
-    def __init__(self, agasc_stats, obs_stats, directory='./mag_estimates_reports'):
-        self.agasc_stats = agasc_stats
-        self.obs_stats = obs_stats
+    def __init__(self,
+                 agasc_stats='mag_stats_agasc.fits',
+                 obs_stats='mag_stats_obsid.fits',
+                 directory='./mag_estimates_reports'):
+
+        if type(agasc_stats) is table.Table:
+            self.agasc_stats = agasc_stats
+        else:
+            if not Path(agasc_stats).exists:
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), agasc_stats)
+            self.agasc_stats = table.Table.read(agasc_stats)
+            self.agasc_stats.convert_bytestring_to_unicode()
+
+        if type(obs_stats) is table.Table:
+            self.obs_stats = obs_stats
+        else:
+            if not Path(obs_stats).exists:
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), obs_stats)
+            self.obs_stats = table.Table.read(obs_stats)
+            self.obs_stats.convert_bytestring_to_unicode()
+
         self.directory = Path(directory)
 
     def single_star_html(self, agasc_id, directory,
