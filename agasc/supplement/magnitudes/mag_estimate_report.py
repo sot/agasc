@@ -269,11 +269,14 @@ class MagEstimateReport:
                 logger.debug(f'Error making plot: {e}')
                 telem = []
 
-        if len(telem) == 0:
+        if len(telem) == 0 or (arg_obsid is not None and np.sum(telem['obsid'] == arg_obsid) == 0):
+            msg = 'No Telemetry'
+            if arg_obsid is not None:
+                msg += f' for OBSID {arg_obsid}'
             ax.text(
                 np.mean(ax.get_xlim()),
                 np.mean(ax.get_ylim()),
-                'No Telemetry',
+                msg,
                 horizontalalignment='center',
                 verticalalignment='center')
             return
@@ -501,7 +504,7 @@ class MagEstimateReport:
         if ax is None:
             ax = plt.gca()
 
-        if len(telemetry) == 0:
+        if len(telemetry) > 0:
             timeline = telemetry[['times', 'mags', 'obsid', 'obs_ok', 'dr', 'AOACFCT',
                                   'AOACASEQ', 'AOACIIR', 'AOACISP', 'AOPCADMD',
                                   ]]
@@ -546,6 +549,9 @@ class MagEstimateReport:
             ]
 
         if obsid:
+            for i, (l, o) in enumerate(flags):
+                flags[i] = (l, o[timeline['obsid'] == obsid])
+            all_ok = all_ok[timeline['obsid'] == obsid]
             timeline = timeline[timeline['obsid'] == obsid]
 
         obsids = np.unique(timeline['obsid'])
