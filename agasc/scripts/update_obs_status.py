@@ -283,7 +283,7 @@ def get_parser():
         description=__doc__,
         parents=[get_obs_status_parser()]
     )
-    parse.add_argument("--data-root",
+    parse.add_argument("--output-dir",
                        default='.',
                        type=Path,
                        help="Directory containing agasc_supplement.h5 (default='.')")
@@ -309,7 +309,7 @@ def update(args):
 
     if status['obs']:
         update_obs_table(
-            args.data_root / 'agasc_supplement.h5',
+            args.output_dir / 'agasc_supplement.h5',
             status['obs'],
             dry_run=args.dry_run
         )
@@ -318,7 +318,7 @@ def update(args):
         bad_star_ids, bad_star_source = zip(*status['bad'].items())
         add_bad_star(bad_star_ids,
                      bad_star_source,
-                     args.data_root / 'agasc_supplement.h5',
+                     args.output_dir / 'agasc_supplement.h5',
                      dry_run=args.dry_run)
     return [o[1] for o in status['obs']]
 
