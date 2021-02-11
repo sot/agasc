@@ -17,7 +17,9 @@ import numpy as np
 from astropy import table
 import pyyaks.logger
 
+import agasc
 from agasc.supplement.magnitudes import star_obs_catalogs
+from agasc.supplement.utils import save_version
 
 logger = logging.getLogger('agasc.supplement')
 
@@ -76,6 +78,7 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
     logger.info('and installation.')
     if not dry_run:
         dat.write(str(suppl_file), format='hdf5', path='bad', append=True, overwrite=True)
+        save_version(suppl_file, obs=agasc.__version__)
 
 
 def update_obs_table(filename, obs_status_override, dry_run=False):
@@ -138,6 +141,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
 
     if not dry_run:
         obs_status.write(str(filename), format='hdf5', path='obs', append=True, overwrite=True)
+        save_version(filename, obs=agasc.__version__)
     else:
         logger.info('dry run, not saving anything')
 

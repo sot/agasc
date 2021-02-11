@@ -1,15 +1,20 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from pathlib import Path
+import logging
 import warnings
 
 from ska_helpers.utils import lru_cache_timed
 import tables
-from astropy.table import Table
+from cxotime import CxoTime
+from astropy.table import Table, Column
 
 from ..paths import SUPPLEMENT_FILENAME, default_agasc_dir
 
 
-__all__ = ['get_supplement_table']
+__all__ = ['get_supplement_table', 'save_version']
+
+
+logger = logging.getLogger('agasc.supplement')
 
 
 @lru_cache_timed(timeout=3600)
@@ -43,8 +48,9 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
     """
     agasc_dir = default_agasc_dir() if agasc_dir is None else Path(agasc_dir)
 
-    if name not in ('mags', 'bad', 'obs'):
-        raise ValueError("table name must be one of 'mags', 'bad', or 'obs'")
+    if name not in ('mags', 'bad', 'obs', 'last_updated', 'versions'):
+        raise ValueError("table name must be one of "
+                         "'mags', 'bad', 'obs', 'last_updated' or 'versions'")
 
     supplement_file = agasc_dir / SUPPLEMENT_FILENAME
     with tables.open_file(supplement_file) as h5:
@@ -73,3 +79,60 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
         out = Table(dat)
 
     return out
+
+
+def _load_or_create(filename, table_name):
+    try:
+        table = Table.read(filename, format='hdf5', path=table_name)
+    except OSError as e:
+        logger.debug(f'Creating agasc supplement table "{table_name}"')
+        if not filename.exists() or str(e) == f'Path {table_name} does not exist':
+            table = Table()
+        else:
+            raise
+    return table
+
+
+def save_version(filename, **kwargs):
+    """Save the version of a supplement table to the "versions" table.
+
+    Along with the version, the time of update is also added to another table called "last_updated"
+
+    Example usage::
+
+        from agasc.supplement.utils import save_version
+        save_version('agasc_supplement.h5', mags='4.10.2')
+
+    The different versions can be retrieved from the default supplement::
+
+        from agasc.supplement.utils import get_supplement_table
+        versions = get_supplement_table('versions')
+
+    :param filename: pathlib.Path
+    :param kwargs: dict
+        A dictionary of table name/version pairs,
+    """
+    import agasc
+    version_dtype = '<U32'
+    filename = Path(filename)
+
+    versions = _load_or_create(filename, 'versions')
+    last_updated = _load_or_create(filename, 'last_updated')
+
+    time = CxoTime().iso
+    kwargs.update({'supplement': agasc.__version__})
+    for key, value in kwargs.items():
+        pass
+        if key not in versions.colnames:
+            logger.debug(f'Adding "{key}" to agasc supplement "versions" table')
+            versions[key] = Column(data=['unknown'], dtype=version_dtype)
+        if key not in last_updated.colnames:
+            logger.debug(f'Adding "{key}" to agasc supplement "last_updated" table')
+            last_updated[key] = Column(data=['unknown'], dtype=version_dtype)
+        versions[key][:] = value
+        last_updated[key][:] = time
+
+    versions.write(str(filename), format='hdf5', path='versions',
+                   append=True, overwrite=True)
+    last_updated.write(str(filename), format='hdf5', path='last_updated',
+                       append=True, overwrite=True)
