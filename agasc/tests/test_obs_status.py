@@ -368,12 +368,14 @@ def test_update_obs_blank_slate(monkeypatch):
 
     def mock_write(fname, *args, **kwargs):
         assert kwargs['path'] in ['agasc_versions', 'last_updated', 'obs']
+        mock_write.calls.append((args, kwargs))
         if kwargs['path'] == 'obs':
             obs_status = {
                 (r['obsid'], r['agasc_id']): {'status': r['status'], 'comments': r['comments']}
                 for r in args[0]
             }
             assert obs_status == TEST_DATA[fname]['obs']
+    mock_write.calls = []
 
     for filename in TEST_YAML:
         monkeypatch.setattr(table.Table,
@@ -383,6 +385,7 @@ def test_update_obs_blank_slate(monkeypatch):
         update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement_empty.h5',
                                            status['obs'],
                                            dry_run=False)
+    assert len(mock_write.calls) > 0, 'Table.write was never called'
 
 
 def test_update_obs(monkeypatch):
@@ -390,25 +393,30 @@ def test_update_obs(monkeypatch):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     def mock_write(*args, **kwargs):
-        ref = table.Table(np.array([(56311, 563087864, 0, ''), (56311, 563088952, 0, ''),
-                                    (56311, 563089432, 0, ''), (56311, 563091784, 0, ''),
-                                    (56311, 563092520, 0, ''), (56311, 563612488, 0, ''),
-                                    (56311, 563612792, 0, ''), (56311, 563617352, 0, ''),
-                                    (56308, 806750112, 1, ''),
-                                    (11849, 1019348536, 0, 'just removed them'),
-                                    (11849, 1019350904, 0, 'just removed them'),
-                                    (56314, 114950168, 0, 'removed because I felt like it'),
-                                    (56314, 114950584, 0, 'removed because I felt like it'),
-                                    (56314, 114952056, 0, 'removed because I felt like it'),
-                                    (56314, 114952792, 0, 'removed because I felt like it'),
-                                    (56314, 114952824, 0, 'removed because I felt like it'),
-                                    (56314, 114955056, 0, 'removed because I felt like it'),
-                                    (56314, 114956608, 0, 'removed because I felt like it'),
-                                    (56314, 115347520, 0, 'removed because I felt like it')],
-                                   dtype=[('obsid', np.int32), ('agasc_id', np.int32),
-                                          ('status', np.int32), ('comments', '<U80')])
-                          )
-        assert np.all(args[0] == ref)
+        mock_write.calls.append((args, kwargs))
+        if 'path' in kwargs and kwargs['path'] == 'obs':
+            mock_write.n_calls += 1
+            ref = table.Table(np.array([(56311, 563087864, 1, ''), (56311, 563088952, 1, ''),
+                                        (56311, 563089432, 1, ''), (56311, 563091784, 1, ''),
+                                        (56311, 563092520, 1, ''), (56311, 563612488, 1, ''),
+                                        (56311, 563612792, 1, ''), (56311, 563617352, 1, ''),
+                                        (56308, 806750112, 0, ''),
+                                        (11849, 1019348536, 1, 'just removed them'),
+                                        (11849, 1019350904, 1, 'just removed them'),
+                                        (56314, 114950168, 1, 'removed because I felt like it'),
+                                        (56314, 114950584, 1, 'removed because I felt like it'),
+                                        (56314, 114952056, 1, 'removed because I felt like it'),
+                                        (56314, 114952792, 1, 'removed because I felt like it'),
+                                        (56314, 114952824, 1, 'removed because I felt like it'),
+                                        (56314, 114955056, 1, 'removed because I felt like it'),
+                                        (56314, 114956608, 1, 'removed because I felt like it'),
+                                        (56314, 115347520, 1, 'removed because I felt like it')],
+                                       dtype=[('obsid', np.int32), ('agasc_id', np.int32),
+                                              ('status', np.int32), ('comments', '<U80')])
+                              )
+            assert np.all(args[0] == ref)
+    mock_write.n_calls = 0
+    mock_write.calls = []
 
     filename = 'file_4.yml'
     monkeypatch.setattr(table.Table, 'write', mock_write)
@@ -416,6 +424,7 @@ def test_update_obs(monkeypatch):
     update_obs_status.update_obs_table(TEST_DATA_DIR / 'agasc_supplement.h5',
                                        status['obs'],
                                        dry_run=False)
+    assert mock_write.n_calls == 1, 'Table.write was never called'
 
 
 def recreate_test_supplement():
@@ -446,6 +455,7 @@ def test_save_version(monkeypatch):
     versions = dict(obs=agasc.__version__, mags=agasc.__version__)
 
     def mock_write(*args, **kwargs):
+        mock_write.calls.append((args, kwargs))
         assert 'format' in kwargs and kwargs['format'] == 'hdf5'
         assert 'path' in kwargs
         assert kwargs['path'] in ['last_updated', 'agasc_versions']
@@ -455,8 +465,10 @@ def test_save_version(monkeypatch):
             for k, v in versions.items():
                 assert k in args[0].colnames
                 assert args[0][k][0] == versions[k]
+    mock_write.calls = []
 
     monkeypatch.setattr(table.Table, 'write', mock_write)
 
     from agasc.supplement.utils import save_version
     save_version('test_save_version.h5', ['obs', 'mags'])
+    assert len(mock_write.calls) > 0, "Table.write was never called"
