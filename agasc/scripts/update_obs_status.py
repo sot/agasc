@@ -81,7 +81,7 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run, create=Fals
     logger.info('The wiki page also includes instructions for test, review, approval')
     logger.info('and installation.')
     if not dry_run:
-        dat.write(suppl_file, format='hdf5', path='bad', append=True, overwrite=True)
+        dat.write(str(suppl_file), format='hdf5', path='bad', append=True, overwrite=True)
         save_version(suppl_file, 'bad')
 
 

@@ -130,7 +130,7 @@ def save_version(filename, table_name):
         versions[key] = [agasc.__version__]
         last_updated[key] = [time.iso]
 
-    versions.write(filename, format='hdf5', path='agasc_versions',
+    versions.write(str(filename), format='hdf5', path='agasc_versions',
                    append=True, overwrite=True)
-    last_updated.write(filename, format='hdf5', path='last_updated',
+    last_updated.write(str(filename), format='hdf5', path='last_updated',
                        append=True, overwrite=True)
