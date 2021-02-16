@@ -442,7 +442,8 @@ def test_save_version(monkeypatch):
     # this test takes the following dictionary and passes it to save_version
     # it then checks that a corresponding astropy table with the right structure is created and its
     # write method is called
-    versions = dict(obs='v2.3', mags='v1.1')
+    import agasc
+    versions = dict(obs=agasc.__version__, mags=agasc.__version__)
     print("HERE")
 
     def mock_write(*args, **kwargs):
@@ -460,4 +461,4 @@ def test_save_version(monkeypatch):
     monkeypatch.setattr(table.Table, 'write', mock_write)
 
     from agasc.supplement.utils import save_version
-    save_version('test_save_version.h5', **versions)
+    save_version('test_save_version.h5', ['obs', 'mags'])

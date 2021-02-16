@@ -83,7 +83,7 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run, create=Fals
     logger.info('and installation.')
     if not dry_run:
         dat.write(suppl_file, format='hdf5', path='bad', append=True, overwrite=True)
-        save_version(suppl_file, bad=agasc.__version__)
+        save_version(suppl_file, 'bad')
 
 
 def update_obs_table(filename, obs_status_override, dry_run=False, create=False):
@@ -149,7 +149,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False, create=False)
 
     if not dry_run:
         obs_status.write(filename, format='hdf5', path='obs', append=True, overwrite=True)
-        save_version(filename, obs=agasc.__version__)
+        save_version(filename, 'obs')
     else:
         logger.info('dry run, not saving anything')
 

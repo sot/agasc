@@ -95,7 +95,7 @@ def _load_or_create(filename, table_name):
     return table
 
 
-def save_version(filename, **kwargs):
+def save_version(filename, table_name):
     """Save the version of a supplement table to the "versions" table.
 
     Along with the version, the time of update is also added to another table called "last_updated"
@@ -111,9 +111,11 @@ def save_version(filename, **kwargs):
         versions = get_supplement_table('agasc_versions')
 
     :param filename: pathlib.Path
-    :param kwargs: dict
-        A dictionary of table name/version pairs,
+    :param table_name: str or list
     """
+    if isinstance(table_name, str):
+        table_name = [table_name]
+
     import agasc
     filename = Path(filename)
 
@@ -122,10 +124,10 @@ def save_version(filename, **kwargs):
 
     time = CxoTime.now()
     time.precision = 0
-    kwargs.update({'supplement': agasc.__version__})
-    for key, value in kwargs.items():
+    table_name.append('supplement')
+    for key in table_name:
         logger.debug(f'Adding "{key}" to supplement "agasc_versions" and "last_updated" table')
-        versions[key] = [value]
+        versions[key] = [agasc.__version__]
         last_updated[key] = [time.iso]
 
     versions.write(filename, format='hdf5', path='agasc_versions',
