@@ -6,7 +6,7 @@ import warnings
 from ska_helpers.utils import lru_cache_timed
 import tables
 from cxotime import CxoTime
-from astropy.table import Table, Column
+from astropy.table import Table
 
 from ..paths import SUPPLEMENT_FILENAME, default_agasc_dir
 
@@ -15,6 +15,9 @@ __all__ = ['get_supplement_table', 'save_version']
 
 
 logger = logging.getLogger('agasc.supplement')
+
+
+AGASC_SUPPLEMENT_TABLES = ('mags', 'bad', 'obs', 'last_updated', 'agasc_versions')
 
 
 @lru_cache_timed(timeout=3600)
@@ -48,9 +51,8 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
     """
     agasc_dir = default_agasc_dir() if agasc_dir is None else Path(agasc_dir)
 
-    if name not in ('mags', 'bad', 'obs', 'last_updated', 'versions'):
-        raise ValueError("table name must be one of "
-                         "'mags', 'bad', 'obs', 'last_updated' or 'versions'")
+    if name not in AGASC_SUPPLEMENT_TABLES:
+        raise ValueError(f"table name must be one of {AGASC_SUPPLEMENT_TABLES}")
 
     supplement_file = agasc_dir / SUPPLEMENT_FILENAME
     with tables.open_file(supplement_file) as h5:
@@ -106,33 +108,27 @@ def save_version(filename, **kwargs):
     The different versions can be retrieved from the default supplement::
 
         from agasc.supplement.utils import get_supplement_table
-        versions = get_supplement_table('versions')
+        versions = get_supplement_table('agasc_versions')
 
     :param filename: pathlib.Path
     :param kwargs: dict
         A dictionary of table name/version pairs,
     """
     import agasc
-    version_dtype = '<U32'
     filename = Path(filename)
 
-    versions = _load_or_create(filename, 'versions')
+    versions = _load_or_create(filename, 'agasc_versions')
     last_updated = _load_or_create(filename, 'last_updated')
 
-    time = CxoTime().iso
+    time = CxoTime.now()
+    time.precision = 0
     kwargs.update({'supplement': agasc.__version__})
     for key, value in kwargs.items():
-        pass
-        if key not in versions.colnames:
-            logger.debug(f'Adding "{key}" to agasc supplement "versions" table')
-            versions[key] = Column(data=['unknown'], dtype=version_dtype)
-        if key not in last_updated.colnames:
-            logger.debug(f'Adding "{key}" to agasc supplement "last_updated" table')
-            last_updated[key] = Column(data=['unknown'], dtype=version_dtype)
-        versions[key][:] = value
-        last_updated[key][:] = time
+        logger.debug(f'Adding "{key}" to supplement "agasc_versions" and "last_updated" table')
+        versions[key] = [value]
+        last_updated[key] = [time.iso]
 
-    versions.write(str(filename), format='hdf5', path='versions',
+    versions.write(filename, format='hdf5', path='agasc_versions',
                    append=True, overwrite=True)
-    last_updated.write(str(filename), format='hdf5', path='last_updated',
+    last_updated.write(filename, format='hdf5', path='last_updated',
                        append=True, overwrite=True)

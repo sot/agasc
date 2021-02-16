@@ -24,7 +24,7 @@ from agasc.supplement.utils import save_version
 logger = logging.getLogger('agasc.supplement')
 
 
-def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
+def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run, create=False):
     """
     Update the 'bad' table of the AGASC supplement.
 
@@ -32,14 +32,19 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
     :param bad_star_source: int or list
     :param suppl_file: pathlib.Path
     :param dry_run: bool
+    :param create: bool
+        Create a supplement file if it does not exist
     """
+    suppl_file = Path(suppl_file)
+
     if not bad_star_ids:
         logger.info('Nothing to update')
         return
 
-    if not Path(suppl_file).exists():
+    if not suppl_file.exists():
+        if not create:
+            raise FileExistsError(suppl_file)
         logger.warning(f'Creating a new AGASC supplement: {suppl_file}')
-        raise FileExistsError(suppl_file)
 
     logger.info(f'updating "bad" table in {suppl_file}')
 
@@ -77,11 +82,11 @@ def add_bad_star(bad_star_ids, bad_star_source, suppl_file, dry_run):
     logger.info('The wiki page also includes instructions for test, review, approval')
     logger.info('and installation.')
     if not dry_run:
-        dat.write(str(suppl_file), format='hdf5', path='bad', append=True, overwrite=True)
-        save_version(suppl_file, obs=agasc.__version__)
+        dat.write(suppl_file, format='hdf5', path='bad', append=True, overwrite=True)
+        save_version(suppl_file, bad=agasc.__version__)
 
 
-def update_obs_table(filename, obs_status_override, dry_run=False):
+def update_obs_table(filename, obs_status_override, dry_run=False, create=False):
     """
     Update the 'obs' table of the AGASC supplement.
 
@@ -91,14 +96,17 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
         Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
         {'status': 0, 'comments': 'some comment'}
     :param dry_run: bool
+    :param create: bool
+        Create a supplement file if it does not exist
     """
     if not obs_status_override:
         logger.info('Nothing to update')
         return
 
     if not Path(filename).exists():
+        if not create:
+            raise FileExistsError(filename)
         logger.warning(f'Creating a new AGASC supplement: {filename}')
-        raise FileExistsError(filename)
 
     try:
         obs_status = table.Table.read(filename, format='hdf5', path='obs')
@@ -140,7 +148,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False):
         obs_status = table.Table(dtype=obs_dtype)
 
     if not dry_run:
-        obs_status.write(str(filename), format='hdf5', path='obs', append=True, overwrite=True)
+        obs_status.write(filename, format='hdf5', path='obs', append=True, overwrite=True)
         save_version(filename, obs=agasc.__version__)
     else:
         logger.info('dry run, not saving anything')

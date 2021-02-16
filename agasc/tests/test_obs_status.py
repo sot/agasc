@@ -367,7 +367,7 @@ def test_update_obs_blank_slate(monkeypatch):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     def mock_write(fname, *args, **kwargs):
-        assert kwargs['path'] in ['versions', 'last_updated', 'obs']
+        assert kwargs['path'] in ['agasc_versions', 'last_updated', 'obs']
         if kwargs['path'] == 'obs':
             obs_status = {
                 (r['obsid'], r['agasc_id']): {'status': r['status'], 'comments': r['comments']}
@@ -443,14 +443,16 @@ def test_save_version(monkeypatch):
     # it then checks that a corresponding astropy table with the right structure is created and its
     # write method is called
     versions = dict(obs='v2.3', mags='v1.1')
+    print("HERE")
 
     def mock_write(*args, **kwargs):
+        print('KEYS', kwargs.keys())
         assert 'format' in kwargs and kwargs['format'] == 'hdf5'
         assert 'path' in kwargs
-        assert kwargs['path'] in ['last_updated', 'versions']
+        assert kwargs['path'] in ['last_updated', 'agasc_versions']
         assert len(args[0]) == 1
         assert 'supplement' in args[0].colnames
-        if kwargs['path'] == 'versions':
+        if kwargs['path'] == 'agasc_versions':
             for k, v in versions.items():
                 assert k in args[0].colnames
                 assert args[0][k][0] == versions[k]
