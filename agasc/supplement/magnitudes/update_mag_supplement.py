@@ -13,7 +13,9 @@ import numpy as np
 from astropy import table
 from astropy import time, units as u
 
+import agasc
 from agasc.supplement.magnitudes import star_obs_catalogs, mag_estimate, mag_estimate_report as msr
+from agasc.supplement.utils import save_version
 from cxotime import CxoTime
 
 
@@ -283,6 +285,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
         if 'mags' in h5.root:
             h5.remove_node('/mags')
         h5.create_table('/', 'mags', outliers)
+    save_version(filename, mags=agasc.__version__)
 
     return new_stars, updated_stars
 
