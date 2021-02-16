@@ -444,10 +444,8 @@ def test_save_version(monkeypatch):
     # write method is called
     import agasc
     versions = dict(obs=agasc.__version__, mags=agasc.__version__)
-    print("HERE")
 
     def mock_write(*args, **kwargs):
-        print('KEYS', kwargs.keys())
         assert 'format' in kwargs and kwargs['format'] == 'hdf5'
         assert 'path' in kwargs
         assert kwargs['path'] in ['last_updated', 'agasc_versions']
