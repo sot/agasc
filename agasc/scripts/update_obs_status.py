@@ -17,7 +17,6 @@ import numpy as np
 from astropy import table
 import pyyaks.logger
 
-import agasc
 from agasc.supplement.magnitudes import star_obs_catalogs
 from agasc.supplement.utils import save_version
 
