@@ -1,0 +1,114 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div class="container">
+      <h1> AGASC ID {{ agasc_stats.agasc_id }} </h1>
+      <h3> Info </h3>
+      <div class="row">
+        <div class="col-md">
+          <table class="table table-bordered table-sm">
+            <tr>
+              <td style="width: 30%"> Last Obs. </td>
+              <td style="width: 30%"> {{ agasc_stats.last_obs }} </td>
+            </tr>
+            <tr>
+              <td style="width: 30%"> mag<sub>catalog</sub> </td>
+              <td style="width: 30%">
+                {{ "%.2f" | format(agasc_stats.mag_aca) }} &#177; {{ "%.2f" | format(agasc_stats.mag_aca_err) }}
+              </td>
+            </tr>
+            <tr>
+              <td> mag<sub>3 arcsec </sub> </td>
+              <td>
+                {{ "%.2f" | format(agasc_stats.t_mean_dr3) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dr3) }}
+              </td>
+            </tr>
+            <tr>
+              <td> mag<sub>5 arcsec </sub> </td>
+              <td>
+                {{ "%.2f" | format(agasc_stats.t_mean_dr5) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dr5) }}
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-md">
+          <table class="table table-bordered table-sm">
+            <tr>
+              <td> N<sub>obs</sub> </td>
+              <td>
+                {{ agasc_stats.n_obsids }} <span{%- if agasc_stats.n_obs_bad %} style="color:red;"{% endif -%}> ({{ agasc_stats.n_obs_bad }} bad) <span>
+              </td>
+            </tr>
+            <tr>
+              <td> f<sub>ok</sub> </td>
+              <td> {{ "%.1f" | format(100*agasc_stats.f_ok) }}%  </td>
+            </tr>
+            <tr>
+              <td> f<sub>3 arcsec</sub> </td>
+              <td> {{ "%.1f" | format(100*agasc_stats.f_dr3) }}% </td>
+            </tr>
+            <tr>
+              <td> f<sub>5 arcsec</sub> </td>
+              <td> {{ "%.1f" | format(100*agasc_stats.f_dr5) }}% </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+  
+  
+      <h3> Timeline </h3>
+      <img src="mag_stats.png" width="100%"/>
+  
+      <h3> Observation Info </h3>
+      <table  class="table table-hover">
+        <tr>
+          <th data-toggle="tooltip" data-placement="top" title="OBSID"> OBSID </th>
+          <th data-toggle="tooltip" data-placement="top" title="MP starcat time"> Time </th>
+          <th data-toggle="tooltip" data-placement="top" title="Pixel row"> Row </th>
+          <th data-toggle="tooltip" data-placement="top" title="Pixel column"> Col </th>
+          <!-- th data-toggle="tooltip" data-placement="top" data-html="true" title="Observation is considered in the calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> OK </th -->
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples"> N </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples considered as 'tracking' <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> N<sub>ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of outlying samples"> N<sub>out</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Tracking time as a fraction of the total time <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>track</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of tracking time within 3 arcsec of target"> f<sub>dr3</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of tracking time within 5 arcsec of target"> f<sub>dr5</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Time where slot is tracking and target within 3 arcsec <br/> as fraction of total time"> f<sub>ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="100-second Rolling mean of mag - &langle; mag &rangle;"> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Mean magnitude"> &langle; mag &rangle; </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Magnitude uncertainty"> &sigma;<sub>mag</sub> </th>
+          <th> Comments </th>
+        </tr>
+        {%- for s in obs_stats %}
+        <tr {%- if not s.obs_ok %} class="table-danger" {% endif %}>
+          <td> <a href="https://web-kadi.cfa.harvard.edu/mica/?obsid_or_date={{ s.obsid }}"> {{ s.obsid }} </td>
+          <td> {{ s.mp_starcat_time }} </td>
+          <td> {{ "%.1f" | format(s.row) }} </td>
+          <td> {{ "%.1f" | format(s.col) }} </td>
+          <!-- td> {{ s.obs_ok }} </td -->
+          <td> {{ s.n }} </td>
+          <td> {{ s.n_ok }} </td>
+          <td> {{ s.outliers }} </td>
+          <td> {{ "%.1f" | format(100*s.f_track) }}% </td>
+          <td> {{ "%.1f" | format(100*s.f_dr3) }}% </td>
+          <td> {{ "%.1f" | format(100*s.f_dr5) }}% </td>
+          <td> {{ "%.1f" | format(100*s.f_ok) }}% </td>
+          <td> {{ "%.2f" | format(s.lf_variability_100s) }} </td>
+          <td> {{ "%.2f" | format(s.t_mean) }} </td>
+          <td> {{ "%.2f" | format(s.t_mean_err) }} </td>
+          <td> {{ s.comments }} </td>
+        </tr>
+        {%- endfor %}
+      </table>
+  
+    </div>
+  </body>
+</html>
