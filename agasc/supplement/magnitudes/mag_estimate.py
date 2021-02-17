@@ -828,7 +828,6 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         comment = ''
         if (oi, ai) in obs_status_override:
             status = obs_status_override[(oi, ai)]
-            print(status)
             logger.debug(f'  overriding status for (AGASC ID {ai}, OBSID {oi}): '
                          f'{status["status"]}, {status["comments"]}')
             comment = status['comments']
@@ -875,11 +874,12 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
 
-    result['n_obsids_fail'] = np.sum(stats['obs_fail'])
+    result['n_obsids_fail'] = len(failures)
     result['n_obsids_suspect'] = np.sum(stats['obs_suspect'])
+    result['n_obsids'] = n_obsids
 
     if not np.any(~excluded_obs):
-        logger.debug('  Skipping star in get_agasc_id_stats({agasc_id=}).'
+        logger.debug(f'  Skipping star in get_agasc_id_stats({agasc_id=}).'
                      ' All observations are flagged as not good.')
         return result, stats, failures
 
@@ -918,7 +918,6 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'mag_obs_err': min_mag_obs_err,
         'color': star['COLOR1'],
-        'n_obsids': n_obsids,
         'n_obsids_ok': np.sum(stats['obs_ok']),
         'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
         'n': len(ok),
