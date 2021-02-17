@@ -15,7 +15,7 @@ from astropy import table
 from astropy import time, units as u
 
 from agasc.supplement.magnitudes import star_obs_catalogs, mag_estimate, mag_estimate_report as msr
-from agasc.supplement.utils import save_version
+from agasc.supplement.utils import save_version, MAGS_DTYPE
 from cxotime import CxoTime
 
 
@@ -79,6 +79,7 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
             # transform Exception to MagStatsException for standard book keeping
             logger.debug(f'Unexpected Error: {e}')
             fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=str(e))))
+            raise
     bar.close()
     logger.debug('-' * 80)
 
@@ -214,14 +215,6 @@ def update_supplement(agasc_stats, filename, include_all=True):
         if False, only OK entries marked 'selected_*'
     :return:
     """
-    mags_dtype = np.dtype([('agasc_id', np.int32),
-                           ('mag_aca', np.float32),
-                           ('mag_aca_err', np.float32),
-                           ('last_obs_time', np.float64)])
-
-    if agasc_stats is None or len(agasc_stats) == 0:
-        return [], np.array([], dtype=mags_dtype)
-
     if include_all:
         outliers_new = agasc_stats[
             (agasc_stats['n_obsids_ok'] > 0)
@@ -237,9 +230,9 @@ def update_supplement(agasc_stats, filename, include_all=True):
     outliers_new['mag_aca'] = outliers_new['mag_obs']
     outliers_new['mag_aca_err'] = outliers_new['mag_obs_err']
 
-    outliers_new = outliers_new[mags_dtype.names].as_array()
-    if outliers_new.dtype != mags_dtype:
-        outliers_new = outliers_new.astype(mags_dtype)
+    outliers_new = outliers_new[MAGS_DTYPE.names].as_array()
+    if outliers_new.dtype != MAGS_DTYPE:
+        outliers_new = outliers_new.astype(MAGS_DTYPE)
 
     outliers = None
     new_stars = None
@@ -261,7 +254,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
                 i_new = i_new[current['last_obs_time'] != new['last_obs_time']]
                 # overwrite current values with new values (and calculate diff to return)
                 updated_stars = np.zeros(len(outliers_new[i_new]),
-                                         dtype=mags_dtype)
+                                         dtype=MAGS_DTYPE)
                 updated_stars['mag_aca'] = (outliers_new[i_new]['mag_aca']
                                             - outliers_current[i_cur]['mag_aca'])
                 updated_stars['mag_aca_err'] = (outliers_new[i_new]['mag_aca_err']
@@ -281,7 +274,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
         logger.warning('Creating new "mags" table')
         outliers = outliers_new
         new_stars = outliers_new['agasc_id']
-        updated_stars = np.array([], dtype=mags_dtype)
+        updated_stars = np.array([], dtype=MAGS_DTYPE)
 
     mode = 'r+' if filename.exists() else 'w'
     with tables.File(filename, mode) as h5:
@@ -297,24 +290,25 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
     obs = []
     if obs_stats and len(obs_stats):
         obs_stats = obs_stats[~obs_stats['obs_ok']]
-        obsids = np.unique(obs_stats['obsid'])
-        for obsid in obsids:
-            rows = obs_stats[obs_stats['obsid'] == obsid]
+        observation_ids = np.unique(obs_stats['observation_id'])
+        for observation_id in observation_ids:
+            rows = obs_stats[obs_stats['observation_id'] == observation_id]
             rows.sort(keys='agasc_id')
             obs.append({
-                'obsid': obsid,
+                'observation_id': observation_id,
                 'agasc_id': list(rows['agasc_id']),
                 'status': 1,
                 'comments': obs_stats['comment']
             })
     for fail in fails:
-        if fail['agasc_id'] is None or fail['obsid'] is None:
+        if fail['agasc_id'] is None or fail['observation_id'] is None:
             continue
-        obsids = fail['obsid'] if type(fail['obsid']) is list else [fail['obsid']]
+        observation_ids = fail['observation_id'] if type(fail['observation_id']) is list \
+            else [fail['observation_id']]
         agasc_id = fail['agasc_id']
-        for obsid in obsids:
+        for observation_id in observation_ids:
             obs.append({
-                'obsid': obsid,
+                'observation_id': observation_id,
                 'agasc_id': [agasc_id],
                 'status': 1,
                 'comments': fail['msg']
@@ -324,7 +318,7 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
 
     yaml_template = """obs:
   {%- for obs in observations %}
-  - obsid: {{ obs.obsid }}
+  - observation_id: {{ obs.observation_id }}
     status: {{ obs.status }}
     agasc_id: [{% for agasc_id in obs.agasc_id -%}
                   {{ agasc_id }}{%- if not loop.last %}, {% endif -%}
@@ -407,7 +401,7 @@ def do(output_dir,
     # - get the latest observation for each agasc_id,
     # - find the ones already in the supplement
     # - include only the ones with supplement.last_obs_time < than stars_obs.mp_starcat_time
-    obs_status = {}
+    obs_status_override = {}
     if filename.exists():
         with tables.File(filename, 'r') as h5:
             if not include_bad and 'bad' in h5.root:
@@ -415,9 +409,12 @@ def do(output_dir,
                 stars_obs = stars_obs[~np.in1d(stars_obs['agasc_id'], h5.root.bad[:]['agasc_id'])]
 
             if 'obs' in h5.root:
-                obs_status = {
-                    (r['obsid'], r['agasc_id']): {'status': r['status'], 'comments': r['comments']}
-                    for r in h5.root.obs[:]
+                obs_status_override = table.Table(h5.root.obs[:])
+                obs_status_override.convert_bytestring_to_unicode()
+                obs_status_override = {
+                    (r['observation_id'], r['agasc_id']):
+                        {'status': r['status'], 'comments': r['comments']}
+                    for r in obs_status_override
                 }
             if 'mags' in h5.root:
                 outliers_current = h5.root.mags[:]
@@ -457,7 +454,9 @@ def do(output_dir,
         return
 
     obs_stats, agasc_stats, fails = \
-        get_stats(agasc_ids, tstop=stop, obs_status_override=obs_status, no_progress=no_progress)
+        get_stats(agasc_ids, tstop=stop,
+                  obs_status_override=obs_status_override,
+                  no_progress=no_progress)
 
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]

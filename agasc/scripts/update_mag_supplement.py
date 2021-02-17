@@ -12,13 +12,13 @@ import logging
 import pyyaks.logger
 from agasc.supplement.magnitudes import star_obs_catalogs
 from agasc.supplement.magnitudes import update_mag_supplement
-from agasc.scripts import update_obs_status
+from agasc.scripts import update_supplement
 
 
 def get_parser():
     parser = argparse.ArgumentParser(
         description=__doc__,
-        parents=[update_obs_status.get_obs_status_parser()]
+        parents=[update_supplement.get_obs_status_parser()]
     )
     parser.add_argument('--start',
                         help='Include only stars observed after this time.'
@@ -93,8 +93,10 @@ def main():
         format="%(asctime)s %(message)s"
     )
 
-    if (args.obsid and not args.status) or (not args.obsid and args.status):
-        logger.error('To override OBS status, both --obs and --status options are needed.')
+    if (((args.obsid or args.observation_id) and not args.status)
+            or (not (args.obsid or args.observation_id) and args.status)):
+        logger.error(
+            'To override OBS status, both --obs/observation-id and --status options are needed.')
         the_parser.exit(1)
 
     star_obs_catalogs.load(args.stop)
@@ -106,7 +108,7 @@ def main():
             agasc_ids = [int(line.strip()) for line in f.readlines()]
 
     # update 'bad' and 'obs' tables in supplement
-    agasc_ids += update_obs_status.update(args)
+    agasc_ids += update_supplement.update(args)
 
     update_mag_supplement.do(
         args.output_dir,
