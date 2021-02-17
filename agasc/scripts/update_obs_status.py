@@ -147,7 +147,7 @@ def update_obs_table(filename, obs_status_override, dry_run=False, create=False)
         obs_status = table.Table(dtype=obs_dtype)
 
     if not dry_run:
-        obs_status.write(filename, format='hdf5', path='obs', append=True, overwrite=True)
+        obs_status.write(str(filename), format='hdf5', path='obs', append=True, overwrite=True)
         save_version(filename, 'obs')
     else:
         logger.info('dry run, not saving anything')
