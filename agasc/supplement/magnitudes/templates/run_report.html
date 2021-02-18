@@ -1,0 +1,171 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+  </head>
+  <body>
+
+    <div class="container">
+    {% if nav_links %}
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item"><a class="page-link" href='{{ nav_links.previous}}'>
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous</span>
+        </a></li>
+        <li class="page-item"><a class="page-link" href='{{ nav_links.up}}'>
+          <!--span aria-hidden="true">&#8896;</span-->
+          <!--span aria-hidden="true">&Hat;</span-->
+          <!--span aria-hidden="true">&#8962;</span-->
+          <span aria-hidden="true">&#127968;</span>
+          <span class="sr-only">Up</span>
+        </a></li>
+        <li class="page-item"><a class="page-link" href='{{ nav_links.next}}'>
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next</span>
+        </a></li>
+      </ul>
+    </nav>
+
+    {% endif %}
+    <h1> ACA Magnitude Statistics </h1>
+    <h2> {{ info.report_date }} Update Report </h2>
+    <table class="table table-sm">
+      <tr>
+        <td style="width: 50%"> Time range </td>
+        <td style="width: 50%"> {{ info.tstart }} &ndash; {{ info.tstop }} </td>
+      </tr>
+      {%- for section in sections %}
+      <tr>
+        <td> <a href="#{{ section.id }}"> {{ section.title }} </a> </td>
+        <td> {{ section.stars | length }} </td>
+      </tr>
+      {%- endfor %}
+      <tr>
+        <td> {% if failures -%} <a href="#failures"> Failures </a>
+             {%- else -%} Failures {%- endif %} </td>
+        <td> {{ failures | length }} </td>
+      </tr>
+    </table>
+
+    {%- for section in sections %}
+    <a name="{{ section.id }}"> </a>
+    <h3> {{ section.title }} </h3>
+    <table class="table table-hover">
+      <tr>
+      <tr>
+        <th data-toggle="tooltip" data-placement="top" title="ID in AGASC"> AGASC ID </th>
+        <th data-toggle="tooltip" data-placement="top" title="Last time the star was observed"> Last Obs </th>
+        <th data-toggle="tooltip" data-placement="top" title="Number of times the star has been observed"> n<sub>obs</sub> </th>
+        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Observations not included in calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>bad</sub> </th>
+        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Suspect or failed observations (not included in calculation) <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>fail</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="tracking time as fraction of total time: <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>track</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Fraction of the tracking time within 5 arcsec of target"> f<sub>5 arcsec</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Magnitude in AGASC"> mag<sub>catalog</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Magnitude observed"> mag<sub>obs</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Difference between observed and catalog magnitudes"> &delta;<sub>mag cat</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Difference between observed and catalog magnitudes, divided by catalog magnitude error"> &delta;<sub>mag</sub>/&sigma;<sub>mag</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Variation in observed magnitude from the last version of AGASC supplement"> &delta;<sub>mag</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Variation in observed magnitude standard deviation from the last version of AGASC supplement"> &delta;<sub>&sigma;</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Color in AGASC"> color </th>
+      </tr>
+      {%- for star in section.stars %}
+      <tr {% if star.flag != '' -%}
+          class="table-{{ star.flag }}"
+          data-toggle="tooltip"
+          data-placement="top" title="{{ tooltips[star.flag] }}"
+        {%- endif -%}
+        >
+        <td>
+        {%- if star.agasc_id in star_reports -%}
+          <a href="{{ star_reports[star.agasc_id] }}/index.html"> {{ star.agasc_id }} </a>
+        {%- else -%}
+          {{ star.agasc_id }}
+        {%- endif -%}
+        </td>
+        <td> {{ star.last_obs[:8] }} </td>
+        <td> {{ star.n_obsids }}  </td>
+        <td> {%- if star.n_obs_bad > 0 %} {{ star.n_obs_bad }} {% endif %} </td>
+        <td> {%- if star.n_obs_bad_fail > 0 %} {{ star.n_obs_bad_fail }} {% endif %} </td>
+        <td> {{ "%.1f" | format(100*star.f_ok) }}%  </td>
+        <td> {{ "%.1f" | format(100*star.f_dr5) }}% </td>
+        <td {% if star.selected_mag_aca_err -%}
+              class="table-info"
+              data-toggle="tooltip" data-placement="top"
+              title="Large magnitude error in catalog"
+            {%- endif %}>
+          {{ "%.2f" | format(star.mag_aca) }} &#177; {{ "%.2f" | format(star.mag_aca_err) }}
+        </td>
+        <td>
+          {{ "%.2f" | format(star.mag_obs) }} &#177; {{ "%.2f" | format(star.mag_obs_err) }}
+        </td>
+        <td {%- if star.selected_atol %}
+              class="table-info"
+              data-toggle="tooltip" data-placement="top"
+              title="Large absolute difference between observed and catalogue magnitudes"
+            {% endif %}> {{ "%.2f" | format(star.delta) }}  </td>
+        <td {%- if star.selected_rtol %}
+              class="table-info"
+              data-toggle="tooltip" data-placement="top"
+              title="Large relative difference between observed and catalogue magnitudes"
+            {% endif %}> {{ "%.2f" | format(star.sigma) }}  </td>
+        <td>
+          {%- if star.new %} &ndash; {% else -%}
+          {{ "%.2f" | format(star.update_mag_aca) }}{% endif -%}
+        </td>
+        <td>
+          {%- if star.new %} &ndash; {% else -%}
+          {{ "%.2f" | format(star.update_mag_aca_err) }}{% endif -%}
+        </td>
+        <td {%- if star.selected_color %}
+              class="table-info"
+              data-toggle="tooltip" data-placement="top"
+              title="Color==1.5 or color==0.7 in catalog"
+            {% endif %}> {{ "%.2f" | format(star.color) }}  </td>
+      </tr>
+      {%- endfor %}
+    <table>
+    {%- endfor %}
+
+    <a name="failures"> </a>
+    {%- if failures %}
+    <h3> Failures </h3>
+    <table class="table table-hover">
+      <tr>
+        <th> AGASC ID </th>
+        <th> OBSID </th>
+        <th> Message </th>
+      </tr>
+      {%- for failure in failures %}
+      <tr>
+        <td> {%- if failure.agasc_id in star_reports -%}
+          <a href="{{ star_reports[failure.agasc_id] }}/index.html"> {{ failure.agasc_id }} </a>
+          {%- else -%} {{ failure.agasc_id }} {%- endif -%} </td>
+        <td> {{ failure.obsid }} </td>
+        <td> {{ failure.msg }} </td>
+      </tr>
+      {%- endfor %}
+    </table>
+    {% endif %}
+    </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+    $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+});
+  </script>
+</html>

@@ -2,6 +2,8 @@
 Functions to estimate observed ACA magnitudes
 """
 
+import sys
+import traceback
 import logging
 import collections
 
@@ -48,7 +50,8 @@ EXCEPTION_MSG = {
     2: 'No telemetry data',
     3: 'Mismatch in telemetry between aca_l0 and cheta',
     4: 'Time mismatch between cheta and level0',
-    5: 'Failed job'
+    5: 'Failed job',
+    6: 'Suspect observation'
 }
 EXCEPTION_CODES = collections.defaultdict(lambda: -1)
 EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code > 0})
@@ -60,7 +63,7 @@ class MagStatsException(Exception):
         self.error_code = EXCEPTION_CODES[msg]
         self.msg = msg
         self.agasc_id = agasc_id
-        self.obsid = obsid
+        self.obsid = obsid[0] if type(obsid) is list and len(obsid) == 1 else obsid
         self.timeline_id = timeline_id
         for k in kwargs:
             setattr(self, k, kwargs[k])
@@ -409,16 +412,14 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
             t['agasc_id'] = agasc_id
             telem.append(t)
         except Exception:
-            import sys
-            import traceback
-            logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            trace = traceback.extract_tb(exc_traceback)
-            logger.info(f'{exc_type.__name__} {exc_value}')
-            for step in trace:
-                logger.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
-                logger.info(f'    {step.line}')
             if not ignore_exceptions:
+                logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                trace = traceback.extract_tb(exc_traceback)
+                logger.info(f'{exc_type.__name__} {exc_value}')
+                for step in trace:
+                    logger.info(f'  in {step.filename}:{step.lineno}/{step.name}:')
+                    logger.info(f'    {step.line}')
                 raise
     return vstack(telem)
 
@@ -554,8 +555,6 @@ def get_obs_stats(obs, telem=None):
                  f' OBSID {obs["agasc_id"]} at {obs["mp_starcat_time"]}')
 
     star_obs_catalogs.load()
-    if telem is None:
-        telem = get_telemetry(obs)
 
     star = get_star(obs['agasc_id'])
     dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
@@ -576,10 +575,55 @@ def get_obs_stats(obs, telem=None):
                   'row': obs['row'],
                   'col': obs['col'],
                   })
-    stats.update(calc_obs_stats(telem))
-    logger.debug(f'    slot={stats["slot"]}, f_ok={stats["f_ok"]:.3f}, '
-                 f'f_track={stats["f_track"]:.3f}, f_dr3={stats["f_dr3"]:.3f},'
-                 f' mag={stats["mag_obs"]:.2f}')
+
+    # other default values
+    stats.update({
+        'mag_img': np.inf,
+        'mag_obs': np.inf,
+        'mag_obs_err': np.inf,
+        'aoacmag_mean': np.inf,
+        'aoacmag_err': np.inf,
+        'aoacmag_q25': np.inf,
+        'aoacmag_median': np.inf,
+        'aoacmag_q75': np.inf,
+        'counts_img': np.inf,
+        'counts_dark': np.inf,
+        'f_kalman': 0.,
+        'f_track': 0.,
+        'f_dr5': 0.,
+        'f_dr3': 0.,
+        'f_ok': 0.,
+        'q25': np.inf,
+        'median': np.inf,
+        'q75': np.inf,
+        'mean': np.inf,
+        'mean_err': np.inf,
+        'std': np.inf,
+        'skew': np.inf,
+        'kurt': np.inf,
+        't_mean': np.inf,
+        't_mean_err': np.inf,
+        't_std': np.inf,
+        't_skew': np.inf,
+        't_kurt': np.inf,
+        'n': 0,
+        'n_ok': 0,
+        'outliers': -1,
+        'lf_variability_100s': np.inf,
+        'lf_variability_500s': np.inf,
+        'lf_variability_1000s': np.inf,
+        'tempccd': np.nan,
+        'dr_star': np.inf,
+    })
+
+    if telem is None:
+        telem = get_telemetry(obs)
+
+    if len(telem) > 0:
+        stats.update(calc_obs_stats(telem))
+        logger.debug(f'    slot={stats["slot"]}, f_ok={stats["f_ok"]:.3f}, '
+                     f'f_track={stats["f_track"]:.3f}, f_dr3={stats["f_dr3"]:.3f},'
+                     f' mag={stats["mag_obs"]:.2f}')
     return stats
 
 
@@ -618,41 +662,13 @@ def calc_obs_stats(telem):
         dr_star = np.inf
 
     stats = {
-        'mag_img': np.inf,
-        'mag_obs': np.inf,
-        'mag_obs_err': np.inf,
-        'aoacmag_mean': np.inf,
-        'aoacmag_err': np.inf,
-        'aoacmag_q25': np.inf,
-        'aoacmag_median': np.inf,
-        'aoacmag_q75': np.inf,
-        'counts_img': np.inf,
-        'counts_dark': np.inf,
         'f_kalman': f_kalman,
         'f_track': f_track,
         'f_dr5': f_5,
         'f_dr3': f_3,
         'f_ok': f_ok,
-        'q25': np.inf,
-        'median': np.inf,
-        'q75': np.inf,
-        'mean': np.inf,
-        'mean_err': np.inf,
-        'std': np.inf,
-        'skew': np.inf,
-        'kurt': np.inf,
-        't_mean': np.inf,
-        't_mean_err': np.inf,
-        't_std': np.inf,
-        't_skew': np.inf,
-        't_kurt': np.inf,
         'n': len(telem['AOACMAG']),
         'n_ok': np.sum(ok),
-        'outliers': -1,
-        'lf_variability_100s': np.inf,
-        'lf_variability_500s': np.inf,
-        'lf_variability_1000s': np.inf,
-        'tempccd': np.nan,
         'dr_star': dr_star,
     }
     if stats['n_ok'] < 10:
@@ -736,84 +752,24 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     if len(star_obs) > 1:
         star_obs = star_obs.loc['mp_starcat_time', sorted(star_obs['mp_starcat_time'])]
 
-    failures = []
-    all_telem = []
-    stats = []
-    last_obs_time = 0
-    for i, o in enumerate(star_obs):
-        try:
-            telem = Table(get_telemetry(o))
-            all_telem.append(telem)
-            stats.append(get_obs_stats(o, telem={k: telem[k] for k in telem.colnames}))
-            last_obs_time = CxoTime(o['mp_starcat_time']).cxcsec
-        except MagStatsException as e:
-            logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}, obsid={o["obsid"]}): {e}')
-            failures.append(dict(e))
-
-    if len(all_telem) == 0:
-        logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}): No telemetry data')
-        raise MagStatsException('No telemetry data', agasc_id=agasc_id)
-
-    stats = Table(stats)
-    n_obsids = len(star_obs)
-
-    stats['w'] = np.nan
-    stats['mean_corrected'] = np.nan
-    stats['weighted_mean'] = np.nan
-    stats['obs_ok'] = (
-        (stats['n'] > 10)
-        & (stats['f_track'] > 0.3)
-        & (stats['lf_variability_100s'] < 1)
-    )
-    stats['comments'] = np.zeros(len(stats), dtype='<U100')
-    if obs_status_override:
-        logger.debug('  checking obs status...')
-        for i, (oi, ai) in enumerate(stats[['obsid', 'agasc_id']]):
-            if (oi, ai) in obs_status_override:
-                stats[i]['obs_ok'] = (obs_status_override[(oi, ai)]['status'] == 0)
-                stats[i]['comments'] = obs_status_override[(oi, ai)]['comments']
-                logger.debug(f'  overriding status for (AGASC ID {ai}, OBSID {oi}): '
-                             f'{stats[i]["obs_ok"]}, {stats[i]["comments"]}')
-    else:
-        logger.debug('  no obs status info')
-
-    logger.debug('  identifying outlying observations...')
-    for s, t in zip(stats, all_telem):
-        t['obs_ok'] = np.ones_like(t['ok'], dtype=bool) * s['obs_ok']
-        logger.debug('  identifying outlying observations '
-                     f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})')
-        t['obs_outlier'] = np.zeros_like(t['ok'])
-        if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
-            iqr = s['q75'] - s['q25']
-            t['obs_outlier'] = (
-                t['ok']
-                & (iqr > 0)
-                & ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
-            )
-    all_telem = vstack([Table(t) for t in all_telem])
-
-    mags = all_telem['mags']
-    ok = all_telem['ok'] & all_telem['obs_ok']
-
-    f_ok = np.sum(ok) / len(ok)
-
-    star = get_star(agasc_id, date=all_telem['times'][0])
+    # this is the default result, if nothing gets calculated
     result = {
-        'last_obs_time': last_obs_time,
+        'last_obs_time': 0,
         'agasc_id': agasc_id,
-        'mag_aca': star['MAG_ACA'],
-        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
+        'mag_aca': np.nan,
+        'mag_aca_err': np.nan,
         'mag_obs': 0.,
-        'mag_obs_err': min_mag_obs_err,
+        'mag_obs_err': np.nan,
         'mag_obs_std': 0.,
-        'color': star['COLOR1'],
-        'n_obsids': n_obsids,
-        'n_obsids_fail': len(failures),
-        'n_obsids_ok': np.sum(stats['obs_ok']),
-        'n_no_track': np.sum(stats['f_ok'] < 0.3),
-        'n': len(ok),
-        'n_ok': np.sum(ok),
-        'f_ok': f_ok,
+        'color': np.nan,
+        'n_obsids': 0,
+        'n_obsids_fail': 0,
+        'n_obsids_suspect': 0,
+        'n_obsids_ok': 0,
+        'n_no_track': 0,
+        'n': 0,
+        'n_ok': 0,
+        'f_ok': 0.,
         'median': 0,
         'sigma_minus': 0,
         'sigma_plus': 0,
@@ -852,6 +808,122 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             f'sigma_minus_dr{dr}': 0,
             f'sigma_plus_dr{dr}': 0,
         })
+
+    n_obsids = len(star_obs)
+
+    # exclude star_obs that are in obs_status_override with status != 0
+    excluded_obs = np.array([((oi, ai) in obs_status_override
+                             and obs_status_override[(oi, ai)]['status'] != 0)
+                             for oi, ai in star_obs[['obsid', 'agasc_id']]])
+    if np.any(excluded_obs):
+        logger.debug('  Excluding observations flagged in obs-status table: '
+                     f'{list(star_obs[excluded_obs]["obsid"])}')
+
+    failures = []
+    all_telem = []
+    stats = []
+    last_obs_time = 0
+    for i, o in enumerate(star_obs):
+        oi, ai = o['obsid', 'agasc_id']
+        comment = ''
+        if (oi, ai) in obs_status_override:
+            status = obs_status_override[(oi, ai)]
+            logger.debug(f'  overriding status for (AGASC ID {ai}, OBSID {oi}): '
+                         f'{status["status"]}, {status["comments"]}')
+            comment = status['comments']
+        try:
+            telem = Table(get_telemetry(o))
+            obs_stat = get_obs_stats(o, telem={k: telem[k] for k in telem.colnames})
+            last_obs_time = CxoTime(o['mp_starcat_time']).cxcsec
+            obs_stat.update({
+                'obs_ok': (
+                    ~excluded_obs[i]
+                    & (obs_stat['n'] > 10)
+                    & (obs_stat['f_track'] > 0.3)
+                    & (obs_stat['lf_variability_100s'] < 1)
+                ),
+                'obs_suspect': False,
+                'obs_fail': False,
+                'comments': comment
+            })
+            all_telem.append(telem)
+            stats.append(obs_stat)
+
+            if not obs_stat['obs_ok'] and not excluded_obs[i]:
+                obs_stat['obs_suspect'] = True
+                failures.append(
+                    dict(MagStatsException(msg='Suspect observation', agasc_id=ai, obsid=oi)))
+        except MagStatsException as e:
+            # this except branch deals with exceptions thrown by get_telemetry
+            all_telem.append(None)
+            # length-zero telemetry short-circuits any new call to get_telemetry
+            obs_stat = get_obs_stats(o, telem=[])
+            obs_stat.update({
+                'obs_ok': False,
+                'obs_suspect': False,
+                'obs_fail': True,
+                'comments': comment if excluded_obs[i] else f'Error: {e.msg}.'
+            })
+            stats.append(obs_stat)
+            if not excluded_obs[i]:
+                logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}, obsid={o["obsid"]}): {e}')
+                failures.append(dict(e))
+
+    stats = Table(stats)
+    stats['w'] = np.nan
+    stats['mean_corrected'] = np.nan
+    stats['weighted_mean'] = np.nan
+
+    result['n_obsids_fail'] = len(failures)
+    result['n_obsids_suspect'] = np.sum(stats['obs_suspect'])
+    result['n_obsids'] = n_obsids
+
+    if not np.any(~excluded_obs):
+        logger.debug(f'  Skipping star in get_agasc_id_stats({agasc_id=}).'
+                     ' All observations are flagged as not good.')
+        return result, stats, failures
+
+    if len(all_telem) - len(failures) <= 0:
+        logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}): No telemetry data')
+        return result, stats, failures
+
+    excluded_obs += np.array([t is None for t in all_telem])
+
+    logger.debug('  identifying outlying observations...')
+    for i, (s, t) in enumerate(zip(stats, all_telem)):
+        if excluded_obs[i]:
+            continue
+        t['obs_ok'] = np.ones_like(t['ok'], dtype=bool) * s['obs_ok']
+        logger.debug('  identifying outlying observations '
+                     f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})')
+        t['obs_outlier'] = np.zeros_like(t['ok'])
+        if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
+            iqr = s['q75'] - s['q25']
+            t['obs_outlier'] = (
+                t['ok']
+                & (iqr > 0)
+                & ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
+            )
+    all_telem = vstack([Table(t) for i, t in enumerate(all_telem) if not excluded_obs[i]])
+
+    mags = all_telem['mags']
+    ok = all_telem['ok'] & all_telem['obs_ok']
+
+    f_ok = np.sum(ok) / len(ok)
+
+    star = get_star(agasc_id, date=all_telem['times'][0])
+    result.update({
+        'last_obs_time': last_obs_time,
+        'mag_aca': star['MAG_ACA'],
+        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
+        'mag_obs_err': min_mag_obs_err,
+        'color': star['COLOR1'],
+        'n_obsids_ok': np.sum(stats['obs_ok']),
+        'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
+        'n': len(ok),
+        'n_ok': np.sum(ok),
+        'f_ok': f_ok,
+    })
 
     if result['n_ok'] < 10:
         return result, stats, failures

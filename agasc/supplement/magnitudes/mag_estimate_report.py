@@ -1,12 +1,16 @@
 import platform
 import getpass
 import logging
+import errno
+import os
+import copy
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
 import jinja2
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from tqdm import tqdm
 from astropy import table
 from cxotime import CxoTime
@@ -23,9 +27,27 @@ logger = logging.getLogger('agasc.supplement')
 
 
 class MagEstimateReport:
-    def __init__(self, agasc_stats, obs_stats, directory='./mag_estimates_reports'):
-        self.agasc_stats = agasc_stats
-        self.obs_stats = obs_stats
+    def __init__(self,
+                 agasc_stats='mag_stats_agasc.fits',
+                 obs_stats='mag_stats_obsid.fits',
+                 directory='./mag_estimates_reports'):
+
+        if type(agasc_stats) is table.Table:
+            self.agasc_stats = agasc_stats
+        else:
+            if not Path(agasc_stats).exists:
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), agasc_stats)
+            self.agasc_stats = table.Table.read(agasc_stats)
+            self.agasc_stats.convert_bytestring_to_unicode()
+
+        if type(obs_stats) is table.Table:
+            self.obs_stats = obs_stats
+        else:
+            if not Path(obs_stats).exists:
+                raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), obs_stats)
+            self.obs_stats = table.Table.read(obs_stats)
+            self.obs_stats.convert_bytestring_to_unicode()
+
         self.directory = Path(directory)
 
     def single_star_html(self, agasc_id, directory,
@@ -38,7 +60,7 @@ class MagEstimateReport:
 
         directory = Path(directory)
         if not directory.exists():
-            logger.debug('making report directory {directory}')
+            logger.debug(f'making report directory {directory}')
             directory.mkdir(parents=True)
 
         o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
@@ -47,7 +69,8 @@ class MagEstimateReport:
         o.sort(keys=['mp_starcat_time'])
         s = self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0]
         s = {k: s[k] for k in s.colnames}
-        s['n_obs_bad'] = s['n_obsids'] - s['n_obsids_ok'] - s['n_obsids_fail']
+        s['n_obs_bad'] = \
+            s['n_obsids'] - s['n_obsids_ok']
         s['last_obs'] = ':'.join(o[-1]['mp_starcat_time'].split(':')[:4])
 
         # OBSIDs can be repeated
@@ -95,6 +118,10 @@ class MagEstimateReport:
                         no_progress=None):
         if sections is None:
             sections = []
+        else:
+            # Copying this because it is a dict that will get modified
+            sections = copy.deepcopy(sections)
+
         run_template = JINJA2.get_template('run_report.html')
 
         updated_star_ids = \
@@ -133,34 +160,15 @@ class MagEstimateReport:
 
         agasc_stats = self.agasc_stats.copy()
 
-        # check how many observations were added in this run, and how many of those are ok
-        new_obs_mask = ((self.obs_stats['mp_starcat_time'] >= info["tstart"])
-                        & (self.obs_stats['mp_starcat_time'] <= info["tstop"]))
-        if np.any(new_obs_mask):
-            new_obs = self.obs_stats[new_obs_mask]. \
-                group_by('agasc_id')[['agasc_id', 'obsid', 'obs_ok']]. \
-                groups.aggregate(np.count_nonzero)[['agasc_id', 'obsid', 'obs_ok']]
-            new_obs['n_obs_bad_new'] = new_obs['obsid'] - new_obs['obs_ok']
-
-            all_agasc_ids = np.unique(np.concatenate([
-                new_obs['agasc_id'],
-                [f['agasc_id'] for f in fails]
-            ]))
-            agasc_stats = table.join(agasc_stats, new_obs[['agasc_id', 'n_obs_bad_new']],
-                                     keys=['agasc_id'])
-
-            assert np.all(np.in1d(agasc_stats['agasc_id'], all_agasc_ids)
-                          ), 'Not all AGASC IDs are in new obs.'
-
         # add some extra fields
         if len(agasc_stats):
-            if 'n_obs_bad_new' not in agasc_stats.colnames:
-                agasc_stats['n_obs_bad_new'] = 0
+            agasc_stats['n_obs_bad_fail'] = agasc_stats['n_obsids_fail']
             agasc_stats['n_obs_bad'] = agasc_stats['n_obsids'] - agasc_stats['n_obsids_ok']
             agasc_stats['flag'] = '          '
             agasc_stats['flag'][:] = ''
-            agasc_stats['flag'][agasc_stats['n_obs_bad'] > 0] = 'warning'
-            agasc_stats['flag'][agasc_stats['n_obs_bad_new'] > 0] = 'danger'
+            agasc_stats['flag'][(agasc_stats['n_obs_bad'] > 0)
+                                | (agasc_stats['n_obsids'] == 0)] = 'warning'
+            agasc_stats['flag'][agasc_stats['n_obs_bad_fail'] > 0] = 'danger'
             agasc_stats['delta'] = (agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
             agasc_stats['sigma'] = ((agasc_stats['t_mean_dr3'] - agasc_stats['mag_aca'])
                                     / agasc_stats['mag_aca_err'])
@@ -178,7 +186,7 @@ class MagEstimateReport:
 
         tooltips = {
             'warning': 'At least one bad observation',
-            'danger': 'At least one new bad observation'
+            'danger': 'At least failed observation'
         }
 
         # make all individual star reports
@@ -197,11 +205,9 @@ class MagEstimateReport:
                         directory=dirname,
                         highlight_obs=highlight_obs
                     )
-                if dirname.exists():
-                    logger.debug('report directory exists already, skipping')
-                    star_reports[agasc_id] = dirname
+                star_reports[agasc_id] = dirname
             except mag_estimate.MagStatsException:
-                pass
+                logger.debug(f'  Error generating report for {agasc_id=}')
 
         # remove empty sections, and set the star tables for each of the remaining sections
         sections = sections.copy()
@@ -240,6 +246,8 @@ class MagEstimateReport:
                              outside_markers=False):
         if title is not None:
             ax.set_title(title)
+        elif obsid is not None:
+            ax.set_title(f'OBSID {obsid}')
         if type(highlight_obsid) is not list and np.isscalar(highlight_obsid):
             highlight_obsid = [highlight_obsid]
 
@@ -255,8 +263,24 @@ class MagEstimateReport:
         if ax is None:
             ax = plt.gca()
         if telem is None:
-            telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
-            telem = mag_estimate.add_obs_info(telem, obs_stats)
+            try:
+                telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
+                telem = mag_estimate.add_obs_info(telem, obs_stats)
+            except Exception as e:
+                logger.debug(f'Error making plot: {e}')
+                telem = []
+
+        if len(telem) == 0 or (arg_obsid is not None and np.sum(telem['obsid'] == arg_obsid) == 0):
+            msg = 'No Telemetry'
+            if arg_obsid is not None:
+                msg += f' for OBSID {arg_obsid}'
+            ax.text(
+                np.mean(ax.get_xlim()),
+                np.mean(ax.get_ylim()),
+                msg,
+                horizontalalignment='center',
+                verticalalignment='center')
+            return
 
         obsids = [arg_obsid] if arg_obsid else np.unique(telem['obsid'])
 
@@ -335,6 +359,8 @@ class MagEstimateReport:
         limits = {}
         for i, obsid in enumerate(obsids):
             in_obsid = timeline['obsid'] == obsid
+            if len(timeline[timeline['obsid'] == obsid]) == 0:
+                continue
             limits[obsid] = (timeline['index'][timeline['obsid'] == obsid].min(),
                              timeline['index'][timeline['obsid'] == obsid].max())
             if not only_ok and np.any(in_obsid & ~ok):
@@ -479,47 +505,67 @@ class MagEstimateReport:
         if ax is None:
             ax = plt.gca()
 
-        timeline = telemetry[['times', 'mags', 'obsid', 'obs_ok', 'dr', 'AOACFCT',
-                              'AOACASEQ', 'AOACIIR', 'AOACISP', 'AOPCADMD',
-                              ]]
-        timeline['x'] = np.arange(len(timeline))
-        timeline['y'] = np.ones(len(timeline))
-        timeline = timeline.as_array()
+        if len(telemetry) > 0:
+            timeline = telemetry[['times', 'mags', 'obsid', 'obs_ok', 'dr', 'AOACFCT',
+                                  'AOACASEQ', 'AOACIIR', 'AOACISP', 'AOPCADMD',
+                                  ]]
+            timeline['x'] = np.arange(len(timeline))
+            timeline['y'] = np.ones(len(timeline))
+            timeline = timeline.as_array()
+
+            all_ok = ((timeline['AOACASEQ'] == 'KALM')
+                      & (timeline['AOPCADMD'] == 'NPNT')
+                      & (timeline['AOACFCT'] == 'TRAK')
+                      & (timeline['AOACIIR'] == 'OK')
+                      & (timeline['AOACISP'] == 'OK')
+                      & (timeline['dr'] < 3)
+                      )
+            flags = [
+                ('dr > 5', ((timeline['AOACASEQ'] == 'KALM')
+                            & (timeline['AOPCADMD'] == 'NPNT')
+                            & (timeline['AOACFCT'] == 'TRAK')
+                            & (timeline['dr'] >= 5))),
+                ('Ion. rad.', (timeline['AOACIIR'] != 'OK')),
+                ('Sat. pixel.', (timeline['AOACISP'] != 'OK')),
+                ('not track', ((timeline['AOACASEQ'] == 'KALM')
+                               & (timeline['AOPCADMD'] == 'NPNT')
+                               & (timeline['AOACFCT'] != 'TRAK'))),
+                ('not Kalman', ((timeline['AOACASEQ'] != 'KALM')
+                                | (timeline['AOPCADMD'] != 'NPNT'))),
+            ]
+        else:
+            timeline_dtype = np.dtype(
+                [(n, float) for n in ['times', 'mags', 'obsid', 'obs_ok', 'dr']]
+                + [(n, int) for n in ['AOACFCT', 'AOACASEQ', 'AOACIIR', 'AOACISP', 'AOPCADMD',
+                                      'x', 'y']]
+            )
+            timeline = np.array([], dtype=timeline_dtype)
+            all_ok = np.array([], dtype=bool)
+            flags = [
+                ('dr > 5', np.array([], dtype=bool)),
+                ('Ion. rad.', np.array([], dtype=bool)),
+                ('Sat. pixel.', np.array([], dtype=bool)),
+                ('not track', np.array([], dtype=bool)),
+                ('not Kalman', np.array([], dtype=bool)),
+            ]
 
         if obsid:
+            for i, (l, o) in enumerate(flags):
+                flags[i] = (l, o[timeline['obsid'] == obsid])
+            all_ok = all_ok[timeline['obsid'] == obsid]
             timeline = timeline[timeline['obsid'] == obsid]
 
         obsids = np.unique(timeline['obsid'])
 
-        all_ok = ((timeline['AOACASEQ'] == 'KALM')
-                  & (timeline['AOPCADMD'] == 'NPNT')
-                  & (timeline['AOACFCT'] == 'TRAK')
-                  & (timeline['AOACIIR'] == 'OK')
-                  & (timeline['AOACISP'] == 'OK')
-                  & (timeline['dr'] < 3)
-                  )
-        flags = [
-            ('dr > 5', ((timeline['AOACASEQ'] == 'KALM')
-                        & (timeline['AOPCADMD'] == 'NPNT')
-                        & (timeline['AOACFCT'] == 'TRAK')
-                        & (timeline['dr'] >= 5))),
-            ('Ion. rad.', (timeline['AOACIIR'] != 'OK')),
-            ('Sat. pixel.', (timeline['AOACISP'] != 'OK')),
-            ('not track', ((timeline['AOACASEQ'] == 'KALM')
-                           & (timeline['AOPCADMD'] == 'NPNT')
-                           & (timeline['AOACFCT'] != 'TRAK'))),
-            ('not Kalman', ((timeline['AOACASEQ'] != 'KALM')
-                            | (timeline['AOPCADMD'] != 'NPNT'))),
-        ]
-
-        if obsid is None:
-            all_ok = timeline['obs_ok'] & all_ok
-            flags = [('OBS not OK', ~timeline['obs_ok'])] + flags
-
         limits = {}
-        for i, obsid in enumerate(obsids):
-            limits[obsid] = (timeline['x'][timeline['obsid'] == obsid].min(),
-                             timeline['x'][timeline['obsid'] == obsid].max())
+        if len(timeline) > 0:
+            if obsid is None:
+                all_ok = timeline['obs_ok'] & all_ok
+                flags = [('OBS not OK', ~timeline['obs_ok'])] + flags
+
+            for i, obsid in enumerate(obsids):
+                limits[obsid] = (timeline['x'][timeline['obsid'] == obsid].min(),
+                                 timeline['x'][timeline['obsid'] == obsid].max())
 
         ok = [f[1] for f in flags]
         labels = [f[0] for f in flags]
@@ -540,34 +586,34 @@ class MagEstimateReport:
             if i == len(limits) - 1:
                 ax.axvline(tmax, linestyle=':', color='purple')
 
-        dr = timeline['dr'].copy()
-        dr[dr > 10] = 10
-        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
         divider = make_axes_locatable(ax)
         ax_dr = divider.append_axes("bottom", size='25%', pad=0., sharex=ax)
-        ax_dr.set_ylabel('dr')
-        ax_dr.scatter(
-            timeline['x'][all_ok & (dr < 10)], dr[all_ok & (dr < 10)],
-            s=3, marker='.', color='k'
-        )
-        ax_dr.scatter(
-            timeline['x'][all_ok & (dr >= 10)], dr[all_ok & (dr >= 10)],
-            s=3, marker='^', color='k'
-        )
-        ax_dr.scatter(
-            timeline['x'][~all_ok & (dr < 10)], dr[~all_ok & (dr < 10)],
-            s=3, marker='.', color='r'
-        )
-        ax_dr.scatter(
-            timeline['x'][~all_ok & (dr >= 10)],
-            dr[~all_ok & (dr >= 10)],
-            s=3, marker='^',
-            color='r'
-        )
-        ax_dr.set_ylim((-0.5, 10.5))
-        ax_dr.set_yticks([0., 2.5, 5, 7.5, 10], minor=True)
-        ax_dr.set_yticks([0., 5, 10], minor=False)
-        ax_dr.grid(True, axis='y', linestyle=':')
+        if len(timeline) > 0:
+            dr = timeline['dr'].copy()
+            dr[dr > 10] = 10
+            ax_dr.scatter(
+                timeline['x'][all_ok & (dr < 10)], dr[all_ok & (dr < 10)],
+                s=3, marker='.', color='k'
+            )
+            ax_dr.scatter(
+                timeline['x'][all_ok & (dr >= 10)], dr[all_ok & (dr >= 10)],
+                s=3, marker='^', color='k'
+            )
+            ax_dr.scatter(
+                timeline['x'][~all_ok & (dr < 10)], dr[~all_ok & (dr < 10)],
+                s=3, marker='.', color='r'
+            )
+            ax_dr.scatter(
+                timeline['x'][~all_ok & (dr >= 10)],
+                dr[~all_ok & (dr >= 10)],
+                s=3, marker='^',
+                color='r'
+            )
+            ax_dr.set_ylabel('dr')
+            ax_dr.set_ylim((-0.5, 10.5))
+            ax_dr.set_yticks([0., 2.5, 5, 7.5, 10], minor=True)
+            ax_dr.set_yticks([0., 5, 10], minor=False)
+            ax_dr.grid(True, axis='y', linestyle=':')
 
         for i, obsid in enumerate(sorted_obsids):
             (tmin, tmax) = limits[obsid]
@@ -578,12 +624,21 @@ class MagEstimateReport:
     def plot_set(self, agasc_id, args, telem=None, filename=None):
         if not args:
             return
+
         if telem is None:
-            telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
-            telem = mag_estimate.add_obs_info(
-                telem,
-                self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
-            )
+            try:
+                telem = mag_estimate.get_telemetry_by_agasc_id(agasc_id, ignore_exceptions=True)
+                telem = mag_estimate.add_obs_info(
+                    telem,
+                    self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
+                )
+            except Exception as e:
+                logger.debug(f'Error making plot: {e}')
+                telem = []
+
+        if len(telem) == 0:
+            args = [{}]
+
         fig, ax = plt.subplots(len(args), 1, figsize=(15, 3.5 * len(args)))
         if len(args) == 1:
             ax = [ax]
@@ -600,6 +655,7 @@ class MagEstimateReport:
 
         plt.tight_layout()
         if filename is not None:
+            print(f'saving {filename}')
             fig.savefig(filename)
 
         return fig
