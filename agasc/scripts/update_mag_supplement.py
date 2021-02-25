@@ -9,10 +9,13 @@ import os
 from pathlib import Path
 import argparse
 import logging
+import yaml
 import pyyaks.logger
+
 from agasc.supplement.magnitudes import star_obs_catalogs
 from agasc.supplement.magnitudes import update_mag_supplement
 from agasc.scripts import update_supplement
+from cxotime import CxoTime, units as u
 
 
 def get_parser():
@@ -59,6 +62,9 @@ def get_parser():
     other.add_argument('--no-progress', dest='no_progress',
                        help='Do not show a progress bar',
                        action='store_true')  # this has no default, it will be None.
+    other.add_argument('--args-file',
+                       help='YAML file with arguments to '
+                            'agasc.supplement.magnitudes.update_mag_supplement.do')
     other.add_argument("--dry-run",
                        action="store_true",
                        help="Dry run (no actual file or database updates)")
@@ -69,6 +75,15 @@ def main():
     logger = logging.getLogger('agasc.supplement')
     the_parser = get_parser()
     args = the_parser.parse_args()
+    if args.args_file:
+        args.args_file = Path(args.args_file)
+        if not args.args_file.exists():
+            logger.error(f'File does not exist: {args.args_file}')
+            the_parser.exit(1)
+        with open(args.args_file) as fh:
+            file_args = yaml.load(fh, Loader=yaml.SafeLoader)
+            the_parser.set_defaults(**file_args)
+        args = the_parser.parse_args()
 
     status_to_int = {'true': 1, 'false': 0, 'ok': 1, 'good': 1, 'bad': 0}
     if args.status and args.status.lower() in status_to_int:
@@ -110,19 +125,48 @@ def main():
     # update 'bad' and 'obs' tables in supplement
     agasc_ids += update_supplement.update(args)
 
+    # set start/stop times
+    if args.whole_history:
+        if args.start or args.stop:
+            raise ValueError('incompatible arguments: whole_history and start/stop')
+        args.start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
+        args.stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
+    else:
+        args.stop = CxoTime(args.stop).date if args.stop else CxoTime.now().date
+        args.start = CxoTime(args.start).date if args.start else (CxoTime.now() - 30 * u.day).date
+
+    report_date = None
+    if args.report:
+        report_date = CxoTime(args.stop)
+        # the nominal date for reports is the first Monday after the stop date.
+        # this is not perfect, because it needs to agree with nav_links in update_mag_supplement.do
+        report_date += ((7 - report_date.datetime.weekday()) % 7) * u.day
+        report_date = CxoTime(report_date.date[:8])
+
+    args_log_file = args.output_dir / 'call_args.yml'
+    if not args.output_dir.exists():
+        args.output_dir.mkdir(parents=True)
+    with open(args_log_file, 'w') as fh:
+        # there must be a better way to do this...
+        yaml_args = {k: str(v) if issubclass(type(v), Path) else v
+                     for k, v in vars(args).items()}
+        yaml.dump(yaml_args, fh)
+
     update_mag_supplement.do(
-        args.output_dir,
-        args.reports_dir,
-        agasc_ids if agasc_ids else None,
-        args.multi_process,
-        args.start,
-        args.stop,
-        args.whole_history,
-        args.report,
+        output_dir=args.output_dir,
+        reports_dir=args.reports_dir,
+        report_date=report_date,
+        agasc_ids=agasc_ids if agasc_ids else None,
+        multi_process=args.multi_process,
+        start=args.start,
+        stop=args.stop,
+        report=args.report,
         include_bad=args.include_bad,
         dry_run=args.dry_run,
-        no_progress=args.no_progress
+        no_progress=args.no_progress,
     )
+    if args.report:
+        args_log_file.replace(args.reports_dir / f'{report_date.date[:8]}' / args_log_file.name)
 
 
 if __name__ == '__main__':
