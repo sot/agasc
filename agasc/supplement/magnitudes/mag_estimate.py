@@ -58,19 +58,22 @@ EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code
 
 
 class MagStatsException(Exception):
-    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, **kwargs):
+    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, observation_id=None,
+                 **kwargs):
         super().__init__(msg)
         self.error_code = EXCEPTION_CODES[msg]
         self.msg = msg
         self.agasc_id = agasc_id
         self.obsid = obsid[0] if type(obsid) is list and len(obsid) == 1 else obsid
         self.timeline_id = timeline_id
+        self.observation_id = (observation_id[0] if type(observation_id) is list
+                               and len(observation_id) == 1 else observation_id)
         for k in kwargs:
             setattr(self, k, kwargs[k])
 
     def __str__(self):
         return f'MagStatsException: {self.msg} (agasc_id: {self.agasc_id}, ' \
-               f'obsid: {self.obsid}, timeline_id: {self.timeline_id})'
+               f'obsid: {self.obsid}, observation_id: {self.observation_id})'
 
     def __iter__(self):
         yield 'error_code', self.error_code
@@ -78,6 +81,7 @@ class MagStatsException(Exception):
         yield 'agasc_id', self.agasc_id
         yield 'obsid', self.obsid
         yield 'timeline_id', self.timeline_id
+        yield 'observation_id', self.observation_id
 
 
 def _magnitude_correction(time, mag_aca):
@@ -295,7 +299,7 @@ def get_telemetry(obs):
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
-                                timeline_id=obs["timeline_id"],
+                                observation_id=obs["mp_starcat_time"],
                                 time_range=[start, stop],
                                 slot=obs['slot'])
     tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
@@ -312,7 +316,7 @@ def get_telemetry(obs):
         raise MagStatsException('Time mismatch between cheta and level0',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
-                                timeline_id=obs["timeline_id"])
+                                observation_id=obs["mp_starcat_time"])
 
     # Now that we have the times, we get the rest of the MSIDs
     telem = {
@@ -335,7 +339,7 @@ def get_telemetry(obs):
     if len(telem['AOACASEQ']) != len(telem['IMGSIZE']):
         raise MagStatsException(
             "Mismatch in telemetry between aca_l0 and cheta",
-            agasc_id=obs['agasc_id'], obsid=obs['obsid'], timeline_id=obs['timeline_id']
+            agasc_id=obs['agasc_id'], obsid=obs['obsid'], observation_id=obs["mp_starcat_time"]
         )
     for name in ['AOACIIR', 'AOACISP', 'AOACYAN', 'AOACZAN', 'AOACMAG', 'AOACFCT']:
         telem[name] = telem[f'{name}{slot}']
@@ -563,6 +567,7 @@ def get_obs_stats(obs, telem=None):
 
     stats = {k: obs[k] for k in
              ['agasc_id', 'obsid', 'slot', 'type', 'mp_starcat_time', 'timeline_id']}
+    stats['observation_id'] = stats['mp_starcat_time']
     droop_shift = get_droop_systematic_shift(star['MAG_ACA'])
     responsivity = get_responsivity(start)
     stats.update({'tstart': start,
@@ -811,10 +816,11 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     n_obsids = len(star_obs)
 
+    print('obs_status_override', obs_status_override)
     # exclude star_obs that are in obs_status_override with status != 0
     excluded_obs = np.array([((oi, ai) in obs_status_override
                              and obs_status_override[(oi, ai)]['status'] != 0)
-                             for oi, ai in star_obs[['obsid', 'agasc_id']]])
+                             for oi, ai in star_obs[['mp_starcat_time', 'agasc_id']]])
     if np.any(excluded_obs):
         logger.debug('  Excluding observations flagged in obs-status table: '
                      f'{list(star_obs[excluded_obs]["obsid"])}')
@@ -823,18 +829,18 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     all_telem = []
     stats = []
     last_obs_time = 0
-    for i, o in enumerate(star_obs):
-        oi, ai = o['obsid', 'agasc_id']
+    for i, obs in enumerate(star_obs):
+        oi, ai = obs['mp_starcat_time', 'agasc_id']
         comment = ''
         if (oi, ai) in obs_status_override:
             status = obs_status_override[(oi, ai)]
-            logger.debug(f'  overriding status for (AGASC ID {ai}, OBSID {oi}): '
+            logger.debug(f'  overriding status for (AGASC ID {ai}, observation ID {oi}): '
                          f'{status["status"]}, {status["comments"]}')
             comment = status['comments']
         try:
-            telem = Table(get_telemetry(o))
-            obs_stat = get_obs_stats(o, telem={k: telem[k] for k in telem.colnames})
-            last_obs_time = CxoTime(o['mp_starcat_time']).cxcsec
+            telem = Table(get_telemetry(obs))
+            obs_stat = get_obs_stats(obs, telem={k: telem[k] for k in telem.colnames})
+            last_obs_time = CxoTime(obs['mp_starcat_time']).cxcsec
             obs_stat.update({
                 'obs_ok': (
                     ~excluded_obs[i]
@@ -852,12 +858,15 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             if not obs_stat['obs_ok'] and not excluded_obs[i]:
                 obs_stat['obs_suspect'] = True
                 failures.append(
-                    dict(MagStatsException(msg='Suspect observation', agasc_id=ai, obsid=oi)))
+                    dict(MagStatsException(msg='Suspect observation',
+                                           agasc_id=obs['agasc_id'],
+                                           obsid=obs['obsid'],
+                                           observation_id=obs["mp_starcat_time"],)))
         except MagStatsException as e:
             # this except branch deals with exceptions thrown by get_telemetry
             all_telem.append(None)
             # length-zero telemetry short-circuits any new call to get_telemetry
-            obs_stat = get_obs_stats(o, telem=[])
+            obs_stat = get_obs_stats(obs, telem=[])
             obs_stat.update({
                 'obs_ok': False,
                 'obs_suspect': False,
@@ -866,7 +875,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             })
             stats.append(obs_stat)
             if not excluded_obs[i]:
-                logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}, obsid={o["obsid"]}): {e}')
+                logger.debug(
+                    f'  Error in get_agasc_id_stats({agasc_id=}, obsid={obs["obsid"]}): {e}')
                 failures.append(dict(e))
 
     stats = Table(stats)

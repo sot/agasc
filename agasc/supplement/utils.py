@@ -2,22 +2,45 @@
 from pathlib import Path
 import logging
 import warnings
+import numpy as np
 
 from ska_helpers.utils import lru_cache_timed
 import tables
 from cxotime import CxoTime
-from astropy.table import Table
+from astropy.table import Table, vstack, unique
 
 from ..paths import SUPPLEMENT_FILENAME, default_agasc_dir
 
 
-__all__ = ['get_supplement_table', 'save_version']
+__all__ = ['get_supplement_table', 'save_version',
+           'update_mags_table', 'update_obs_table', 'add_bad_star']
 
 
 logger = logging.getLogger('agasc.supplement')
 
 
 AGASC_SUPPLEMENT_TABLES = ('mags', 'bad', 'obs', 'last_updated', 'agasc_versions')
+
+
+BAD_DTYPE = np.dtype([
+    ('agasc_id', np.int32),
+    ('source', np.int16)
+])
+
+MAGS_DTYPE = np.dtype([
+    ('agasc_id', np.int32),
+    ('mag_aca', np.float32),
+    ('mag_aca_err', np.float32),
+    ('last_obs_time', np.float64)
+])
+
+OBS_DTYPE = np.dtype([
+    ('observation_id', '<U21'),
+    ('agasc_id', np.int32),
+    ('obsid', np.int32),
+    ('status', np.int32),
+    ('comments', '<U80')
+])
 
 
 @lru_cache_timed(timeout=3600)
@@ -28,7 +51,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
 
     - ``bad``: Bad stars (agasc_id, source)
     - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)
-    - ``obs``: Star-obsid status for mag estimation (agasc_id, obsid, ok,
+    - ``obs``: Star-observation status for mag estimation (observation_id, agasc_id, obsid, status,
       comments)
 
     This function is cached with a timeout of an hour, so you can call it
@@ -39,7 +62,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
 
     If ``as_dict=True`` then the table is returned as a dict of {key: value}
     pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the
-    key is the ``(agasc_id, obsid)`` tuple. In all cases the value is a dict
+    key is the ``(agasc_id, observation_id)`` tuple. In all cases the value is a dict
     of the remaining columns.
 
     :param name: Table name within the AGASC supplement HDF5 file
@@ -68,7 +91,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
         keys_names = {
             'mags': ['agasc_id'],
             'bad': ['agasc_id'],
-            'obs': ['agasc_id', 'obsid']}
+            'obs': ['agasc_id', 'observation_id']}
         key_names = keys_names[name]
         for row in dat:
             # Make the key, coercing the values from numpy to native Python
@@ -81,18 +104,6 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
         out = Table(dat)
 
     return out
-
-
-def _load_or_create(filename, table_name):
-    try:
-        table = Table.read(filename, format='hdf5', path=table_name)
-    except OSError as e:
-        logger.debug(f'Creating agasc supplement table "{table_name}"')
-        if not filename.exists() or str(e) == f'Path {table_name} does not exist':
-            table = Table()
-        else:
-            raise
-    return table
 
 
 def save_version(filename, table_name):
@@ -119,8 +130,8 @@ def save_version(filename, table_name):
     import agasc
     filename = Path(filename)
 
-    versions = _load_or_create(filename, 'agasc_versions')
-    last_updated = _load_or_create(filename, 'last_updated')
+    versions = _get_table(filename, 'agasc_versions', create=True)
+    last_updated = _get_table(filename, 'last_updated', create=True)
 
     time = CxoTime.now()
     time.precision = 0
@@ -134,3 +145,209 @@ def save_version(filename, table_name):
                    append=True, overwrite=True)
     last_updated.write(str(filename), format='hdf5', path='last_updated',
                        append=True, overwrite=True)
+
+
+def update_table(filename, table, path, dtype, keys, dry_run=False, create=False):
+    """
+    Update a table of the AGASC supplement.
+
+    This overwrites all rows already in the supplement table and appends that rows not yet in the
+    supplement table.
+
+    :param filename:
+    :param table: table.Table
+    :param path: str
+        the path of the table in the supplement ('obs', 'mags')
+    :param dtype: np.dtype
+        the dtype of the table. Used only if the table is not in the supplement already.
+        If it is not given, and the table does not exist in the supplement,
+        an exception will be raised.
+    :param keys: list
+        a list of columns that uniquely identify a row in the table.
+        In case of duplicates, the last appearance is kept.
+    :param dry_run: bool
+    :param create: bool
+        Create a supplement file if it does not exist
+    """
+    filename = Path(filename)
+
+    if len(table) == 0:
+        logger.info('Nothing to update')
+        return
+
+    suppl_table = _get_table(filename, path, dtype, create=create)
+    table = Table(table if len(table) else None, dtype=dtype)
+    table = unique(table, keys=keys, keep='last')
+
+    # for now I require no masked elements.
+    if table.mask is not None and np.any(table.mask):
+        masked = [name for name in table.colnames if np.any(table[name].mask)]
+        raise Exception('"{path}" table should have no masked elements, '
+                        'but element in these columns are masked: ',
+                        ', '.join(masked))
+
+    # entries already in supplement
+    intersect = (table[keys[0]][None, :] == suppl_table[keys[0]][:, None])
+    for key in keys[1:]:
+        intersect &= (table[key][None, :] == suppl_table[key][:, None])
+    i, j = np.argwhere(intersect).T
+
+    # entries not yet in supplement
+    append = (~np.in1d(table[keys[0]], suppl_table[keys[0]]))
+    for key in keys[1:]:
+        append |= (~np.in1d(table[key], suppl_table[key]))
+    k = np.argwhere(append).T
+
+    if not len(i) and not len(k[0]):
+        return
+
+    logger.info(f'updating "{path}" table in {filename}')
+
+    if len(i):
+        suppl_table[i] = table[j]
+    if len(k[0]):
+        suppl_table = vstack([suppl_table, table[k[0]]])
+
+    if not dry_run:
+        suppl_table.write(str(filename), format='hdf5', path=path, append=True, overwrite=True)
+        save_version(filename, path)
+    else:
+        logger.info('dry run, not saving anything')
+
+
+def _get_table(filename, path, dtype=None, create=False):
+    """
+    Gets a table from an HDF5 file.
+
+    If the file does not exist, it either raises an exception or issues a warning, depending on the
+    input arguments. If the table does not exist, it returns a newly created table.
+
+    :param filename: str or pathlib.Path
+        The name of the HDF5 file.
+    :param path: str
+        Path of the table in the supplement ('obs', 'mags')
+    :param dtype: np.dtype
+        Numpy dtype of the table. If the table exists, the dtype is ignored. If the table does not
+        exist and no dtype is given, an exception will be raised.
+    :param create: bool
+        Issues a warning if the supplement file does not exist
+    :returns: table.Table
+    """
+    filename = Path(filename)
+    if not filename.exists():
+        if not create:
+            raise FileExistsError(filename)
+        logger.warning(f'AGASC supplement file does not exist: {filename}. Will create it.')
+
+    try:
+        result = Table.read(filename, format='hdf5', path=path)
+    except OSError as e:
+        if not filename.exists() or str(e) == f'Path {path} does not exist':
+            result = Table(dtype=dtype)
+        else:
+            raise
+
+    return result
+
+
+def add_bad_star(filename, bad, dry_run=False, create=False):
+    """
+    Update the 'bad' table of the AGASC supplement.
+
+    :param filename: pathlib.Path
+        AGASC supplement filename.
+    :param bad: list
+        List of pairs (agasc_id, source)
+    :param dry_run: bool
+        Do not save the table.
+    :param create: bool
+        Create a supplement file if it does not exist
+    """
+    filename = Path(filename)
+
+    if not len(bad):
+        logger.info('Nothing to update')
+        return
+
+    logger.info(f'updating "bad" table in {filename}')
+
+    dat = _get_table(filename, 'bad', BAD_DTYPE, create=create)
+    default = dat['source'].max() + 1 if len(dat) > 0 else 1
+
+    bad = [[agasc_id, default if source is None else source]
+           for agasc_id, source in bad]
+
+    bad_star_ids, bad_star_source = np.array(bad).astype(int).T
+
+    update = False
+    for agasc_id, source in zip(bad_star_ids, bad_star_source):
+        if agasc_id not in dat['agasc_id']:
+            dat.add_row((agasc_id, source))
+            logger.info(f'Appending {agasc_id=} with {source=}')
+            update = True
+    if not update:
+        return
+
+    logger.info('')
+    logger.info('IMPORTANT:')
+    logger.info('Edit following if source ID is new:')
+    logger.info('  https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually')
+    logger.info('')
+    logger.info('The wiki page also includes instructions for test, review, approval')
+    logger.info('and installation.')
+    if not dry_run:
+        dat.write(str(filename), format='hdf5', path='bad', append=True, overwrite=True)
+        save_version(filename, 'bad')
+
+
+def update_obs_table(filename, obs, dry_run=False, create=False):
+    """
+    Update the 'obs' table of the AGASC supplement.
+
+    :param filename:
+        AGASC supplement filename
+    :param obs: list of dict or table.Table
+        Dictionary with status flag for specific observations.
+        list entries are dictionaries like::
+
+            {'agasc_id': 1,
+             'observation_id': '2009:310:17:26:44.706',
+             'obsid': 0,
+             'status': 0,
+             'comments': 'some comment'}
+
+        All the keys are optional except 'status', as long as the observations are uniquely defined.
+        If 'agasc_id' is not given, then it applies to all stars in that observation.
+    :param dry_run: bool
+        Do not save the table.
+    :param create: bool
+        Create a supplement file if it does not exist
+    """
+
+    update_table(filename, obs, 'obs', OBS_DTYPE,
+                 keys=['agasc_id', 'observation_id'],
+                 dry_run=dry_run,
+                 create=create)
+
+
+def update_mags_table(filename, mags, dry_run=False, create=False):
+    """
+    Update the 'mags' table of the AGASC supplement.
+
+    :param filename:
+        AGASC supplement filename
+    :param mags: list of dict or table.Table
+        list entries are dictionaries like::
+
+            {'agasc_id': 1,
+             'mag_aca': 9.,
+             'mag_aca_err': 0.2,
+             'last_obs_time': 541074324.949}
+
+    :param dry_run: bool
+        Do not save the table.
+    """
+    update_table(filename, mags, 'mags', MAGS_DTYPE,
+                 keys=['agasc_id'],
+                 dry_run=dry_run,
+                 create=create)
