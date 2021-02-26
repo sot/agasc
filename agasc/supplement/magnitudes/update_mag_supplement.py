@@ -74,12 +74,15 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
             obs_stats.append(obs_stat)
             fails += obs_fail
         except mag_estimate.MagStatsException as e:
+            msg = str(e)
+            logger.debug(msg)
             fails.append(dict(e))
         except Exception as e:
             # transform Exception to MagStatsException for standard book keeping
-            logger.debug(f'Unexpected Error: {e}')
-            fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=str(e))))
-            raise
+            msg = f'Unexpected Error: {e}'
+            logger.debug(msg)
+            fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=msg)))
+
     bar.close()
     logger.debug('-' * 80)
 
@@ -137,9 +140,16 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
         bar.close()
 
     fails = []
-    failed_agasc_ids = [i for arg, job in zip(args, jobs) if not job.successful() for i in arg]
-    for agasc_id in failed_agasc_ids:
-        fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg='Failed job')))
+    for arg, job in zip(args, jobs):
+        if job.successful():
+            continue
+        try:
+            job.get()
+        except Exception as e:
+            for agasc_id in arg:
+                fails.append(dict(
+                    mag_estimate.MagStatsException(agasc_id=agasc_id, msg=f'Failed job: {e}')
+                ))
 
     results = [job.get() for job in jobs if job.successful()]
 
@@ -215,6 +225,9 @@ def update_supplement(agasc_stats, filename, include_all=True):
         if False, only OK entries marked 'selected_*'
     :return:
     """
+    if len(agasc_stats) == 0:
+        return [], []
+
     if include_all:
         outliers_new = agasc_stats[
             (agasc_stats['n_obsids_ok'] > 0)

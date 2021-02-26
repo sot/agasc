@@ -313,7 +313,7 @@ def get_telemetry(obs):
 
     if len(times) == 0:
         # the intersection was null.
-        raise MagStatsException('Time mismatch between cheta and level0',
+        raise MagStatsException('No matching times between cheta and level0',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
                                 mp_starcat_time=obs["mp_starcat_time"])
