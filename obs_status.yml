@@ -222,7 +222,7 @@ obs:
   - observation_id: 2010:359:04:11:19.911
     status: 1
     agasc_id: [239080480]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2005:038:01:15:06.000
     status: 1
     agasc_id: [257953336]
@@ -258,19 +258,19 @@ obs:
   - observation_id: 2016:324:12:21:46.079
     status: 1
     agasc_id: [314186320]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2016:324:12:21:46.079
     status: 1
     agasc_id: [314189096]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2016:324:12:21:46.079
     status: 1
     agasc_id: [314318832]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2016:324:12:21:46.079
     status: 1
     agasc_id: [314321208]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2012:279:07:23:25.438
     status: 1
     agasc_id: [327945264]
@@ -338,23 +338,23 @@ obs:
   - observation_id: 2014:284:03:45:32.148
     status: 1
     agasc_id: [396501520]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2014:284:07:21:19.725
     status: 1
     agasc_id: [396501520]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2020:240:12:46:53.718
     status: 1
     agasc_id: [396501520]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2020:243:11:17:18.150
     status: 1
     agasc_id: [396501520]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2020:266:08:19:47.944
     status: 1
     agasc_id: [405276920]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG; tracking interval is spurious.
   - observation_id: 2016:062:05:39:12.185
     status: 1
     agasc_id: [417611952]
@@ -382,7 +382,7 @@ obs:
   - observation_id: 2014:159:03:53:31.631
     status: 1
     agasc_id: [505545160]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2010:285:03:11:03.570
     status: 1
     agasc_id: [612763008]
@@ -430,7 +430,7 @@ obs:
   - observation_id: 2016:027:20:27:48.432
     status: 1
     agasc_id: [643702120]
-    comments: Suspect observation
+    comments: Sparse periods of track at 12.5 mag; set mag to MAXMAG
   - observation_id: 2011:108:03:39:32.321
     status: 1
     agasc_id: [647762704]
@@ -476,9 +476,9 @@ obs:
     agasc_id: [665715168]
     comments: Mismatch in telemetry between aca_l0 and cheta
   - observation_id: 2007:231:04:53:28.518
-    status: 1
+    status: 0
     agasc_id: [676336280]
-    comments: Suspect observation
+    comments: Available data look OK, lack of track not understood
   - observation_id: 2003:221:17:58:51.959
     status: 1
     agasc_id: [686557584]
@@ -506,11 +506,11 @@ obs:
   - observation_id: 2020:267:05:49:07.272
     status: 1
     agasc_id: [690625640]
-    comments: Suspect observation
+    comments: Never acquired; set mag to MAXMAG
   - observation_id: 2007:289:08:56:36.694
     status: 1
     agasc_id: [693243160]
-    comments: Suspect observation
+    comments: Too bright; set mag 4.5 +/- 0.1
   - observation_id: 2020:228:13:19:56.547
     status: 1
     agasc_id: [694561568]
@@ -532,9 +532,9 @@ obs:
     agasc_id: [723521752]
     comments: Suspect observation
   - observation_id: 2005:074:22:44:33.953
-    status: 1
+    status: 0
     agasc_id: [723651200]
-    comments: Suspect observation
+    comments: Mostly tracking 12.0 mag star; supplement estimate is 13.9
   - observation_id: 2005:074:22:44:33.953
     status: 1
     agasc_id: [723657296]
@@ -542,7 +542,7 @@ obs:
   - observation_id: 2005:348:06:20:08.102
     status: 1
     agasc_id: [728370040]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: Observation and ACA data nominal; suspect processing issue
   - observation_id: 2018:158:10:17:36.762
     status: 1
     agasc_id: [738075032]
@@ -602,27 +602,27 @@ obs:
   - observation_id: 2019:248:14:52:31.156
     status: 1
     agasc_id: [759694976]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM due to ACA high background during observation
   - observation_id: 2019:248:14:52:31.156
     status: 1
     agasc_id: [759696752]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM due to ACA high background during observation
   - observation_id: 2019:248:14:52:31.156
     status: 1
     agasc_id: [759698088]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM due to ACA high background during observation
   - observation_id: 2019:248:14:52:31.156
     status: 1
     agasc_id: [759701600]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM due to ACA high background during observation
   - observation_id: 2006:212:07:39:07.107
     status: 1
     agasc_id: [763893760]
-    comments: Suspect observation
+    comments: Mostly tracking 11.6 mag star; supplement estimate is 13.8 mag
   - observation_id: 2011:285:11:34:00.061
     status: 1
     agasc_id: [764150080]
-    comments: Suspect observation
+    comments: Never acquired; set mag 12.0 +/- 0.1
   - observation_id: 2017:196:02:40:43.206
     status: 1
     agasc_id: [770973104]
@@ -634,7 +634,7 @@ obs:
   - observation_id: 2020:083:13:35:57.577
     status: 1
     agasc_id: [798760200]
-    comments: Suspect observation
+    comments: Never acquired; set mag 11.2 +/- 0.1
   - observation_id: 2010:089:12:06:07.502
     status: 1
     agasc_id: [805966472]
@@ -654,19 +654,19 @@ obs:
   - observation_id: 2020:145:13:55:06.000
     status: 1
     agasc_id: [844368576]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: Safe mode at start of observation
   - observation_id: 2020:145:13:55:06.000
     status: 1
     agasc_id: [844375152]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: Safe mode at start of observation
   - observation_id: 2020:145:13:55:06.000
     status: 1
     agasc_id: [845289720]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: Safe mode at start of observation
   - observation_id: 2020:145:13:55:06.000
     status: 1
     agasc_id: [845293880]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: Safe mode at start of observation
   - observation_id: 2003:357:02:49:14.852
     status: 1
     agasc_id: [857375576]
@@ -746,11 +746,11 @@ obs:
   - observation_id: 2013:312:22:02:15.039
     status: 1
     agasc_id: [898124000]
-    comments: Suspect observation
+    comments: Venus (should not be processed)
   - observation_id: 2013:312:22:02:15.039
     status: 1
     agasc_id: [898125104]
-    comments: Suspect observation
+    comments: Venus (should not be processed)
   - observation_id: 2013:313:03:14:15.039
     status: 1
     agasc_id: [898125104]
@@ -770,19 +770,19 @@ obs:
   - observation_id: 2014:207:06:36:50.665
     status: 1
     agasc_id: [910562920]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2014:207:06:36:50.665
     status: 1
     agasc_id: [910693856]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2014:207:06:36:50.665
     status: 1
     agasc_id: [911082032]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2014:207:06:36:50.665
     status: 1
     agasc_id: [911083616]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: NSM at start of observation
   - observation_id: 2014:207:06:36:50.665
     status: 1
     agasc_id: [911089528]
@@ -794,7 +794,7 @@ obs:
   - observation_id: 2014:244:14:47:42.617
     status: 1
     agasc_id: [915541320]
-    comments: Suspect observation
+    comments: Never acquired; set mag 11.6 +/- 0.1
   - observation_id: 2014:252:07:42:35.429
     status: 1
     agasc_id: [915939232]
@@ -818,19 +818,19 @@ obs:
   - observation_id: 2017:068:16:27:18.823
     status: 1
     agasc_id: [991169936]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: BSH at start of observation
   - observation_id: 2017:068:16:27:18.823
     status: 1
     agasc_id: [991175320]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: BSH at start of observation
   - observation_id: 2017:068:16:27:18.823
     status: 1
     agasc_id: [991564392]
-    comments: Mismatch in telemetry between aca_l0 and cheta
+    comments: BSH at start of observation
   - observation_id: 2007:130:19:34:45.821
     status: 1
     agasc_id: [1020796600]
-    comments: Suspect observation
+    comments: Never acquired; set mag 11.5 +/- 0.1
   - observation_id: 2011:343:07:05:57.421
     status: 1
     agasc_id: [1058938112]
@@ -838,7 +838,7 @@ obs:
   - observation_id: 2013:105:10:22:09.169
     status: 1
     agasc_id: [1081092600]
-    comments: Suspect observation
+    comments: Never acquired; set mag 11.0 +/- 0.1
   - observation_id: 2012:028:20:14:46.841
     status: 1
     agasc_id: [1092619768]
@@ -867,4 +867,46 @@ obs:
     status: 1
     agasc_id: [1178221128]
     comments: Suspect observation
-  
+mags:
+  - agasc_id: 1081092600
+    mag_aca: 11.0  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 1020796600
+    mag_aca: 11.5  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 915541320
+    mag_aca: 11.6  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 798760200
+    mag_aca: 11.2  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 764150080
+    mag_aca: 12.0  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 693243160
+    mag_aca: 4.5  # Fabricated for too-bright star
+    mag_aca_err: 0.1
+  - agasc_id: 690625640
+    mag_aca: 11.2  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 643702120
+    mag_aca: 11.4  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 505545160
+    mag_aca: 10.8  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 405271520
+    mag_aca: 11.2  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 396501520
+    mag_aca: 10.3  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 239080480
+    mag_aca: 10.2  # MAXMAG
+    mag_aca_err: 0.1
+  - agasc_id: 763893760
+    mag_aca: 11.6  # ACA estimate from mica
+    mag_aca_err: 0.1
+  - agasc_id: 723651200
+    mag_aca: 12.0  # ACA estimate
+    mag_aca_err: 0.1
