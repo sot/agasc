@@ -58,7 +58,7 @@ EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code
 
 
 class MagStatsException(Exception):
-    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, observation_id=None,
+    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, mp_starcat_time=None,
                  **kwargs):
         super().__init__(msg)
         self.error_code = EXCEPTION_CODES[msg]
@@ -66,14 +66,14 @@ class MagStatsException(Exception):
         self.agasc_id = agasc_id
         self.obsid = obsid[0] if type(obsid) is list and len(obsid) == 1 else obsid
         self.timeline_id = timeline_id
-        self.observation_id = (observation_id[0] if type(observation_id) is list
-                               and len(observation_id) == 1 else observation_id)
+        self.mp_starcat_time = (mp_starcat_time[0] if type(mp_starcat_time) is list
+                                and len(mp_starcat_time) == 1 else mp_starcat_time)
         for k in kwargs:
             setattr(self, k, kwargs[k])
 
     def __str__(self):
         return f'MagStatsException: {self.msg} (agasc_id: {self.agasc_id}, ' \
-               f'obsid: {self.obsid}, observation_id: {self.observation_id})'
+               f'obsid: {self.obsid}, mp_starcat_time: {self.mp_starcat_time})'
 
     def __iter__(self):
         yield 'error_code', self.error_code
@@ -81,7 +81,7 @@ class MagStatsException(Exception):
         yield 'agasc_id', self.agasc_id
         yield 'obsid', self.obsid
         yield 'timeline_id', self.timeline_id
-        yield 'observation_id', self.observation_id
+        yield 'mp_starcat_time', self.mp_starcat_time
 
 
 def _magnitude_correction(time, mag_aca):
@@ -299,7 +299,7 @@ def get_telemetry(obs):
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
-                                observation_id=obs["mp_starcat_time"],
+                                mp_starcat_time=obs["mp_starcat_time"],
                                 time_range=[start, stop],
                                 slot=obs['slot'])
     tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
@@ -316,7 +316,7 @@ def get_telemetry(obs):
         raise MagStatsException('Time mismatch between cheta and level0',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
-                                observation_id=obs["mp_starcat_time"])
+                                mp_starcat_time=obs["mp_starcat_time"])
 
     # Now that we have the times, we get the rest of the MSIDs
     telem = {
@@ -339,7 +339,7 @@ def get_telemetry(obs):
     if len(telem['AOACASEQ']) != len(telem['IMGSIZE']):
         raise MagStatsException(
             "Mismatch in telemetry between aca_l0 and cheta",
-            agasc_id=obs['agasc_id'], obsid=obs['obsid'], observation_id=obs["mp_starcat_time"]
+            agasc_id=obs['agasc_id'], obsid=obs['obsid'], mp_starcat_time=obs["mp_starcat_time"]
         )
     for name in ['AOACIIR', 'AOACISP', 'AOACYAN', 'AOACZAN', 'AOACMAG', 'AOACFCT']:
         telem[name] = telem[f'{name}{slot}']
@@ -567,7 +567,7 @@ def get_obs_stats(obs, telem=None):
 
     stats = {k: obs[k] for k in
              ['agasc_id', 'obsid', 'slot', 'type', 'mp_starcat_time', 'timeline_id']}
-    stats['observation_id'] = stats['mp_starcat_time']
+    stats['mp_starcat_time'] = stats['mp_starcat_time']
     droop_shift = get_droop_systematic_shift(star['MAG_ACA'])
     responsivity = get_responsivity(start)
     stats.update({'tstart': start,
@@ -833,7 +833,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         comment = ''
         if (oi, ai) in obs_status_override:
             status = obs_status_override[(oi, ai)]
-            logger.debug(f'  overriding status for (AGASC ID {ai}, observation ID {oi}): '
+            logger.debug(f'  overriding status for (AGASC ID {ai}, starcat time {oi}): '
                          f'{status["status"]}, {status["comments"]}')
             comment = status['comments']
         try:
@@ -860,7 +860,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                     dict(MagStatsException(msg='Suspect observation',
                                            agasc_id=obs['agasc_id'],
                                            obsid=obs['obsid'],
-                                           observation_id=obs["mp_starcat_time"],)))
+                                           mp_starcat_time=obs["mp_starcat_time"],)))
         except MagStatsException as e:
             # this except branch deals with exceptions thrown by get_telemetry
             all_telem.append(None)

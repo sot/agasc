@@ -35,7 +35,7 @@ MAGS_DTYPE = np.dtype([
 ])
 
 OBS_DTYPE = np.dtype([
-    ('observation_id', '<U21'),
+    ('mp_starcat_time', '<U21'),
     ('agasc_id', np.int32),
     ('obsid', np.int32),
     ('status', np.int32),
@@ -51,7 +51,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
 
     - ``bad``: Bad stars (agasc_id, source)
     - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)
-    - ``obs``: Star-observation status for mag estimation (observation_id, agasc_id, obsid, status,
+    - ``obs``: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,
       comments)
 
     This function is cached with a timeout of an hour, so you can call it
@@ -62,7 +62,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
 
     If ``as_dict=True`` then the table is returned as a dict of {key: value}
     pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the
-    key is the ``(agasc_id, observation_id)`` tuple. In all cases the value is a dict
+    key is the ``(agasc_id, mp_starcat_time)`` tuple. In all cases the value is a dict
     of the remaining columns.
 
     :param name: Table name within the AGASC supplement HDF5 file
@@ -91,7 +91,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
         keys_names = {
             'mags': ['agasc_id'],
             'bad': ['agasc_id'],
-            'obs': ['agasc_id', 'observation_id']}
+            'obs': ['agasc_id', 'mp_starcat_time']}
         key_names = keys_names[name]
         for row in dat:
             # Make the key, coercing the values from numpy to native Python
@@ -311,7 +311,7 @@ def update_obs_table(filename, obs, dry_run=False, create=False):
         list entries are dictionaries like::
 
             {'agasc_id': 1,
-             'observation_id': '2009:310:17:26:44.706',
+             'mp_starcat_time': '2009:310:17:26:44.706',
              'obsid': 0,
              'status': 0,
              'comments': 'some comment'}
@@ -325,7 +325,7 @@ def update_obs_table(filename, obs, dry_run=False, create=False):
     """
 
     update_table(filename, obs, 'obs', OBS_DTYPE,
-                 keys=['agasc_id', 'observation_id'],
+                 keys=['agasc_id', 'mp_starcat_time'],
                  dry_run=dry_run,
                  create=create)
 

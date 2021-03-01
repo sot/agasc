@@ -290,25 +290,25 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
     obs = []
     if obs_stats and len(obs_stats):
         obs_stats = obs_stats[~obs_stats['obs_ok']]
-        observation_ids = np.unique(obs_stats['observation_id'])
-        for observation_id in observation_ids:
-            rows = obs_stats[obs_stats['observation_id'] == observation_id]
+        mp_starcat_times = np.unique(obs_stats['mp_starcat_time'])
+        for mp_starcat_time in mp_starcat_times:
+            rows = obs_stats[obs_stats['mp_starcat_time'] == mp_starcat_time]
             rows.sort(keys='agasc_id')
             obs.append({
-                'observation_id': observation_id,
+                'mp_starcat_time': mp_starcat_time,
                 'agasc_id': list(rows['agasc_id']),
                 'status': 1,
                 'comments': obs_stats['comment']
             })
     for fail in fails:
-        if fail['agasc_id'] is None or fail['observation_id'] is None:
+        if fail['agasc_id'] is None or fail['mp_starcat_time'] is None:
             continue
-        observation_ids = fail['observation_id'] if type(fail['observation_id']) is list \
-            else [fail['observation_id']]
+        mp_starcat_times = fail['mp_starcat_time'] if type(fail['mp_starcat_time']) is list \
+            else [fail['mp_starcat_time']]
         agasc_id = fail['agasc_id']
-        for observation_id in observation_ids:
+        for mp_starcat_time in mp_starcat_times:
             obs.append({
-                'observation_id': observation_id,
+                'mp_starcat_time': mp_starcat_time,
                 'agasc_id': [agasc_id],
                 'status': 1,
                 'comments': fail['msg']
@@ -318,7 +318,7 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
 
     yaml_template = """obs:
   {%- for obs in observations %}
-  - observation_id: {{ obs.observation_id }}
+  - mp_starcat_time: {{ obs.mp_starcat_time }}
     status: {{ obs.status }}
     agasc_id: [{% for agasc_id in obs.agasc_id -%}
                   {{ agasc_id }}{%- if not loop.last %}, {% endif -%}
@@ -416,7 +416,7 @@ def do(start,
                 obs_status_override = table.Table(h5.root.obs[:])
                 obs_status_override.convert_bytestring_to_unicode()
                 obs_status_override = {
-                    (r['observation_id'], r['agasc_id']):
+                    (r['mp_starcat_time'], r['agasc_id']):
                         {'status': r['status'], 'comments': r['comments']}
                     for r in obs_status_override
                 }
