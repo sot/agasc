@@ -294,7 +294,7 @@ def get_telemetry(obs):
     slot_data = aca_l0.get_slot_data(start, stop, slot=obs['slot'],
                                      centered_8x8=True, columns=slot_data_cols)
 
-    msid = fetch.MSID(f'AOACMAG{slot}', start, stop)
+    msid = fetch.Msid(f'AOACMAG{slot}', start, stop)
     if len(slot_data) == 0:
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
@@ -340,7 +340,7 @@ def get_telemetry(obs):
     names = ['AOACASEQ', 'AOPCADMD',
              f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
              f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
-    msids = fetch.MSIDset(names, times[0] - 4, times[-1] + 4)
+    msids = fetch.Msidset(names, times[0] - 4, times[-1] + 4)
 
     for name in names:
         msid_vals = msids[name].vals
