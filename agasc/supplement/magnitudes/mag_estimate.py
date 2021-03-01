@@ -523,7 +523,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     dark = np.zeros([len(slot_data), 8, 8], dtype=np.float64)
     staggered_aca_slice(dark_cal.astype(float), dark, 512 + imgrow_8x8, 512 + imgcol_8x8)
     img_sub = slot_data['IMGRAW'] - dark * 1.696 / 5
-    img_sub.mask *= MASK['mouse_bit']
+    img_sub.mask |= MASK['mouse_bit']
 
     # calculate magnitude
     mag = np.ones(len(slot_data)) * MAX_MAG
