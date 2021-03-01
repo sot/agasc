@@ -897,9 +897,17 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
 
-    result['n_obsids_fail'] = len(failures)
-    result['n_obsids_suspect'] = np.sum(stats['obs_suspect'])
-    result['n_obsids'] = n_obsids
+    star = get_star(agasc_id, date=all_telem['times'][0])
+
+    result.update({
+        'last_obs_time': last_obs_time,
+        'mag_aca': star['MAG_ACA'],
+        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
+        'color': star['COLOR1'],
+        'n_obsids_fail': len(failures),
+        'n_obsids_suspect': np.sum(stats['obs_suspect']),
+        'n_obsids': n_obsids,
+    })
 
     if not np.any(~excluded_obs):
         logger.debug(f'  Skipping star in get_agasc_id_stats({agasc_id=}).'
@@ -934,13 +942,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     f_ok = np.sum(ok) / len(ok)
 
-    star = get_star(agasc_id, date=all_telem['times'][0])
     result.update({
-        'last_obs_time': last_obs_time,
-        'mag_aca': star['MAG_ACA'],
-        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'mag_obs_err': min_mag_obs_err,
-        'color': star['COLOR1'],
         'n_obsids_ok': np.sum(stats['obs_ok']),
         'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
         'n': len(ok),
