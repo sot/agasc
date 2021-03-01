@@ -299,7 +299,7 @@ class MagEstimateReport:
         timeline = timeline.as_array()
 
         ok = (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
-             (telem['AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT')
+             (telem['AOPCADMD'] == 'NPNT')
         ok = ok & (telem['dr'] < 5)
 
         # set the limits of the plot beforehand
@@ -507,7 +507,7 @@ class MagEstimateReport:
 
         if len(telemetry) > 0:
             timeline = telemetry[['times', 'mags', 'obsid', 'obs_ok', 'dr', 'AOACFCT',
-                                  'AOACASEQ', 'AOACIIR', 'AOACISP', 'AOPCADMD',
+                                  'AOACASEQ', 'AOACIIR', 'AOPCADMD',
                                   ]]
             timeline['x'] = np.arange(len(timeline))
             timeline['y'] = np.ones(len(timeline))
@@ -517,7 +517,6 @@ class MagEstimateReport:
                       & (timeline['AOPCADMD'] == 'NPNT')
                       & (timeline['AOACFCT'] == 'TRAK')
                       & (timeline['AOACIIR'] == 'OK')
-                      & (timeline['AOACISP'] == 'OK')
                       & (timeline['dr'] < 3)
                       )
             flags = [
@@ -526,7 +525,6 @@ class MagEstimateReport:
                             & (timeline['AOACFCT'] == 'TRAK')
                             & (timeline['dr'] >= 5))),
                 ('Ion. rad.', (timeline['AOACIIR'] != 'OK')),
-                ('Sat. pixel.', (timeline['AOACISP'] != 'OK')),
                 ('not track', ((timeline['AOACASEQ'] == 'KALM')
                                & (timeline['AOPCADMD'] == 'NPNT')
                                & (timeline['AOACFCT'] != 'TRAK'))),
@@ -536,7 +534,7 @@ class MagEstimateReport:
         else:
             timeline_dtype = np.dtype(
                 [(n, float) for n in ['times', 'mags', 'obsid', 'obs_ok', 'dr']]
-                + [(n, int) for n in ['AOACFCT', 'AOACASEQ', 'AOACIIR', 'AOACISP', 'AOPCADMD',
+                + [(n, int) for n in ['AOACFCT', 'AOACASEQ', 'AOACIIR', 'AOPCADMD',
                                       'x', 'y']]
             )
             timeline = np.array([], dtype=timeline_dtype)
@@ -544,7 +542,6 @@ class MagEstimateReport:
             flags = [
                 ('dr > 5', np.array([], dtype=bool)),
                 ('Ion. rad.', np.array([], dtype=bool)),
-                ('Sat. pixel.', np.array([], dtype=bool)),
                 ('not track', np.array([], dtype=bool)),
                 ('not Kalman', np.array([], dtype=bool)),
             ]

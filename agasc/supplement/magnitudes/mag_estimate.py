@@ -363,8 +363,7 @@ def get_telemetry(obs):
     for name in ['AOACIIR', 'AOACISP']:
         telem[name] = np.char.rstrip(telem[name])
     ok = (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
-         (telem['AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT') & \
-         (telem['AOACFCT'] == 'TRAK')
+         (telem['AOPCADMD'] == 'NPNT') & (telem['AOACFCT'] == 'TRAK')
 
     # etc...
     logger.debug('    Adding magnitude estimates')
@@ -660,8 +659,7 @@ def calc_obs_stats(telem):
     times = telem['times']
 
     kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
-    track = (telem['AOACIIR'] == 'OK') & (telem['AOACISP'] == 'OK') & \
-            (telem['AOACFCT'] == 'TRAK')
+    track = (telem['AOACIIR'] == 'OK') & (telem['AOACFCT'] == 'TRAK')
     dr3 = (telem['dr'] < 3)
     dr5 = (telem['dr'] < 5)
 
