@@ -335,10 +335,11 @@ def get_telemetry(obs):
         for excluded_range in excluded_ranges:
             excluded |= ((times >= excluded_range[0]) & (times <= excluded_range[1]))
         telem.update({k: telem[k][~excluded] for k in telem})
+        slot_data = slot_data[~excluded]
 
     names = ['AOACASEQ', 'AOPCADMD',
-                f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
-                f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
+             f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
+             f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
     msids = fetch.MSIDset(names, times[0] - 4, times[-1] + 4)
 
     for name in names:
