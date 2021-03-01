@@ -897,7 +897,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
 
-    star = get_star(agasc_id, date=all_telem['times'][0])
+    star = get_star(agasc_id)
 
     result.update({
         'last_obs_time': last_obs_time,
