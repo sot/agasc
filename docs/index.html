@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGASC Catalog Description and History &#8212; Agasc 4.10.2 documentation</title>
+    <title>AGASC Catalog Description and History &#8212; Agasc 4.11.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -53,7 +53,7 @@
 	</a>
       </li>
       <li>
-	<a href="#">Agasc 4.10.2 documentation</a>
+	<a href="#">Agasc 4.11.0 documentation</a>
 	 &#187;
       </li>
       
@@ -82,6 +82,17 @@
 </ul>
 </div>
 </div>
+<div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>The most common usage of the <code class="docutils literal notranslate"><span class="pre">agasc</span></code> package is getting the AGASC catalog data
+for stars near a location on the sky or by AGASC ID.</p>
+<p>The three main functions are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="api.html#agasc.agasc.get_agasc_cone" title="agasc.agasc.get_agasc_cone"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_agasc_cone()</span></code></a>: Get stars within a radius of RA, Dec</p></li>
+<li><p><a class="reference internal" href="api.html#agasc.agasc.get_star" title="agasc.agasc.get_star"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_star()</span></code></a>: Get information for one star by AGASC ID</p></li>
+<li><p><a class="reference internal" href="api.html#agasc.agasc.get_stars" title="agasc.agasc.get_stars"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_stars()</span></code></a>: Get information for a list of stars by AGASC ID</p></li>
+</ul>
+</div>
 <div class="section" id="agasc-package-api-documentation">
 <h1><code class="docutils literal notranslate"><span class="pre">agasc</span></code> package API documentation<a class="headerlink" href="#agasc-package-api-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
@@ -95,10 +106,14 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="supplement.html">Updating the AGASC Supplement</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supplement.html#guidelines-and-procedure-to-update-the-supplement">Guidelines and Procedure to Update the Supplement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supplement.html#bad-stars-and-star-observations">Bad Stars and Star Observations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supplement.html#the-magnitude-supplement">The Magnitude Supplement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supplement.html#magnitude-supplement-reports">Magnitude Supplement Reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="supplement.html#scripts">Scripts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="supplement.html#module-agasc.supplement.magnitudes.mag_estimate">Magnitude Supplement API</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="maintainer_api.html">Magnitude Supplement API</a></li>
 </ul>
 </div>
 </div>
@@ -112,6 +127,7 @@
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">AGASC Catalog Description and History</a></li>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
 <li><a class="reference internal" href="#agasc-package-api-documentation"><code class="docutils literal notranslate"><span class="pre">agasc</span></code> package API documentation</a></li>
 <li><a class="reference internal" href="#topics-for-maintainers">Topics For Maintainers</a></li>
 </ul>

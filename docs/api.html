@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API documentation &#8212; Agasc 4.10.2 documentation</title>
+    <title>API documentation &#8212; Agasc 4.11.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.10.2 documentation</a>
+	<a href="index.html">Agasc 4.11.0 documentation</a>
 	 &#187;
       </li>
       
@@ -78,20 +78,31 @@
 <span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-agasc.agasc" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt id="agasc.agasc.get_agasc_cone">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_agasc_cone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra</span></em>, <em class="sig-param"><span class="n">dec</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pm_filter</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_mag_est</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_agasc_cone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra</span></em>, <em class="sig-param"><span class="n">dec</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">pm_filter</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_supplement</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get AGASC catalog entries within <code class="docutils literal notranslate"><span class="pre">radius</span></code> degrees of <code class="docutils literal notranslate"><span class="pre">ra</span></code>, <code class="docutils literal notranslate"><span class="pre">dec</span></code>.</p>
 <p>The star positions are corrected for proper motion using the <code class="docutils literal notranslate"><span class="pre">date</span></code>
 argument, which defaults to the current date if not supplied.  The
 corrected positions are available in the <code class="docutils literal notranslate"><span class="pre">RA_PMCORR</span></code> and <code class="docutils literal notranslate"><span class="pre">DEC_PMCORR</span></code>
 columns, respectively.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">use_mag_est</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, then stars with available mag estimates in
-the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
+<p>By default, stars with available mag estimates or bad star entries
+in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_ACA</span></code> and <code class="docutils literal notranslate"><span class="pre">MAG_ACA_ERR</span></code> are set according to the supplement.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">MAG_CATID_SUPPLEMENT</span></code> (128).</p></li>
-<li><p>If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">agasc.MAG_CATID_SUPPLEMENT</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">COLOR1</span></code> is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+Those particular values do not matter except that they are different from
+the “status flag” values of 0.7 (no color =&gt; very unreliable mag estimate)
+or 1.5 (red star =&gt; somewhat unreliable mag estimate) that have special
+meaning based on deep heritage in the AGASC catalog itself.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">AGASC_ID</span></code> is in the supplement bad stars table then CLASS is set to
+<code class="docutils literal notranslate"><span class="pre">agasc.BAD_CLASS_SUPPLEMENT</span></code>.</p></li>
 </ul>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/miniagasc.h5</span></code></p>
+<p>To disable the magnitude / bad star updates from the AGASC supplement, see
+the <code class="docutils literal notranslate"><span class="pre">set_supplement_enabled</span></code> context manager / decorator.</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/miniagasc.h5</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;</span></code> is either the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined
+or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stars</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_agasc_cone</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
@@ -108,7 +119,8 @@ the AGASC supplement are updated in-place in the output <code class="docutils li
 <li><p><strong>agasc_file</strong> – Mini-agasc HDF5 file sorted by Dec (optional)</p></li>
 <li><p><strong>pm_filter</strong> – Use PM-corrected positions in filtering</p></li>
 <li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color</p></li>
-<li><p><strong>use_mag_est</strong> – Use estimated mag from AGASC supplement where available (default=False)</p></li>
+<li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
+(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -119,16 +131,27 @@ the AGASC supplement are updated in-place in the output <code class="docutils li
 
 <dl class="py function">
 <dt id="agasc.agasc.get_star">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_star</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_mag_est</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_star" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_star</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_supplement</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_star" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get AGASC catalog entry for star with requested id.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">use_mag_est</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, then stars with available mag estimates in
-the AGASC supplement are updated in-place in the output star entry.</p>
+<p>By default, stars with available mag estimates or bad star entries
+in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_ACA</span></code> and <code class="docutils literal notranslate"><span class="pre">MAG_ACA_ERR</span></code> are set according to the supplement.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">MAG_CATID_SUPPLEMENT</span></code> (128).</p></li>
-<li><p>If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">agasc.MAG_CATID_SUPPLEMENT</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">COLOR1</span></code> is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+Those particular values do not matter except that they are different from
+the “status flag” values of 0.7 (no color =&gt; very unreliable mag estimate)
+or 1.5 (red star =&gt; somewhat unreliable mag estimate) that have special
+meaning based on deep heritage in the AGASC catalog itself.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">AGASC_ID</span></code> is in the supplement bad stars table then CLASS is set to
+<code class="docutils literal notranslate"><span class="pre">agasc.BAD_CLASS_SUPPLEMENT</span></code>.</p></li>
 </ul>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">/proj/sot/ska/data/agasc/miniagasc.h5</span></code></p>
+<p>To disable the magnitude / bad star updates from the AGASC supplement, see
+the <code class="docutils literal notranslate"><span class="pre">set_supplement_enabled</span></code> context manager / decorator.</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/miniagasc.h5</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;</span></code> is either the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined
+or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_star</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
@@ -159,7 +182,8 @@ the AGASC supplement are updated in-place in the output star entry.</p>
 <li><p><strong>id</strong> – AGASC id</p></li>
 <li><p><strong>date</strong> – Date for proper motion (default=Now)</p></li>
 <li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p></li>
-<li><p><strong>use_mag_est</strong> – Use estimated mag from AGASC supplement where available (default=False)</p></li>
+<li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
+(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -170,22 +194,39 @@ the AGASC supplement are updated in-place in the output star entry.</p>
 
 <dl class="py function">
 <dt id="agasc.agasc.get_stars">
-<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_stars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ids</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dates</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_mag_est</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_stars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_stars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">get_stars</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ids</span></em>, <em class="sig-param"><span class="n">agasc_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dates</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method_threshold</span><span class="o">=</span><span class="default_value">5000</span></em>, <em class="sig-param"><span class="n">fix_color1</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">use_supplement</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_stars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.get_stars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get AGASC catalog entries for star <code class="docutils literal notranslate"><span class="pre">ids</span></code> at <code class="docutils literal notranslate"><span class="pre">dates</span></code>.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">ids</span></code> and <code class="docutils literal notranslate"><span class="pre">dates</span></code> are broadcast together for the output shape
 (though note that the result is flattened in the end). If both are scalar
 inputs then the output is a Table Row, otherwise the output is a Table.</p>
+<p>This function has two possible methods for getting stars, either by using
+the HDF5 <code class="docutils literal notranslate"><span class="pre">tables.read_where()</span></code> function to get one star at a time from the
+HDF5 file, or by reading the entire table into memory and doing the search
+by making a dict index by AGASC ID. Tests indicate that the latter is faster
+for about 5000 or more stars, so this function will read the entire AGASC if
+the number of stars is greater than <code class="docutils literal notranslate"><span class="pre">method_threshold</span></code>.</p>
 <p>Unlike the similar <code class="docutils literal notranslate"><span class="pre">get_star</span></code> function, this adds a <code class="docutils literal notranslate"><span class="pre">DATE</span></code> column
 indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
 are computed.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">use_mag_est</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, then stars with available mag estimates in
-the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
+<p>By default, stars with available mag estimates or bad star entries
+in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_ACA</span></code> and <code class="docutils literal notranslate"><span class="pre">MAG_ACA_ERR</span></code> are set according to the supplement.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">MAG_CATID_SUPPLEMENT</span></code> (128).</p></li>
-<li><p>If COLOR1 is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">agasc.MAG_CATID_SUPPLEMENT</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">COLOR1</span></code> is 0.7 or 1.5 then it is changed to 0.69 or 1.49 respectively.
+Those particular values do not matter except that they are different from
+the “status flag” values of 0.7 (no color =&gt; very unreliable mag estimate)
+or 1.5 (red star =&gt; somewhat unreliable mag estimate) that have special
+meaning based on deep heritage in the AGASC catalog itself.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">AGASC_ID</span></code> is in the supplement bad stars table then CLASS is set to
+<code class="docutils literal notranslate"><span class="pre">agasc.BAD_CLASS_SUPPLEMENT</span></code>.</p></li>
 </ul>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/miniagasc.h5</span></code></p>
+<p>To disable the magnitude / bad star updates from the AGASC supplement, see
+the <code class="docutils literal notranslate"><span class="pre">set_supplement_enabled</span></code> context manager / decorator.</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/miniagasc.h5</span></code>, where
+<code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;</span></code> is either the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined
+or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
 <dl>
 <dt>Example::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_stars</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
@@ -218,11 +259,46 @@ the AGASC supplement are updated in-place in the output <code class="docutils li
 <li><p><strong>ids</strong> – AGASC ids (scalar or array)</p></li>
 <li><p><strong>dates</strong> – Dates for proper motion (scalar or array) (default=Now)</p></li>
 <li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p></li>
-<li><p><strong>use_mag_est</strong> – Use estimated mag from AGASC supplement where available (default=False)</p></li>
+<li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
+(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>astropy Table of AGASC entries, or Table Row of one entry for scalar input</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.agasc.set_supplement_enabled">
+<code class="sig-prename descclassname">agasc.agasc.</code><code class="sig-name descname">set_supplement_enabled</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#set_supplement_enabled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.agasc.set_supplement_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator / context manager to temporarily set the default for use of
+AGASC supplement in query functions.</p>
+<p>This sets the default for the <code class="docutils literal notranslate"><span class="pre">use_supplement</span></code> argument in AGASC function
+calls if the user does not supply that argument.</p>
+<p>This is mostly for testing or legacy applications to override the
+default behavior to use the AGASC supplement star mags when available.</p>
+<p>Examples:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">agasc</span>
+
+<span class="c1"># Disable use of the supplement for the context block</span>
+<span class="k">with</span> <span class="n">agasc</span><span class="o">.</span><span class="n">set_supplement_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">aca</span> <span class="o">=</span> <span class="n">proseco</span><span class="o">.</span><span class="n">get_aca_catalog</span><span class="p">(</span><span class="n">obsid</span><span class="o">=</span><span class="mi">8008</span><span class="p">)</span>
+
+<span class="c1"># Disable use of the supplement for the function</span>
+<span class="nd">@agasc</span><span class="o">.</span><span class="n">set_supplement_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_get_aca_catalog</span><span class="p">():</span>
+    <span class="n">aca</span> <span class="o">=</span> <span class="n">proseco</span><span class="o">.</span><span class="n">get_aca_catalog</span><span class="p">(</span><span class="n">obsid</span><span class="o">=</span><span class="mi">8008</span><span class="p">)</span>
+    <span class="o">...</span>
+
+<span class="c1"># Globally disable use of the supplement everywhere</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">agasc</span><span class="o">.</span><span class="n">SUPPLEMENT_ENABLED_VAR</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;False&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – bool
+Whether to use the AGASC supplement in the context / decorator</p>
 </dd>
 </dl>
 </dd></dl>
@@ -245,6 +321,163 @@ of 2 to 3.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>angular separation distance (deg)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-agasc.paths"></span><dl class="py function">
+<dt id="agasc.paths.default_agasc_dir">
+<code class="sig-prename descclassname">agasc.paths.</code><code class="sig-name descname">default_agasc_dir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/paths.html#default_agasc_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.paths.default_agasc_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the AGASC directory.</p>
+<p>This returns the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined, otherwise
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.paths.default_agasc_file">
+<code class="sig-prename descclassname">agasc.paths.</code><code class="sig-name descname">default_agasc_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/paths.html#default_agasc_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.paths.default_agasc_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default main AGASC file <code class="docutils literal notranslate"><span class="pre">agasc_dir()</span> <span class="pre">/</span> <span class="pre">miniagasc.h5</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-agasc.supplement.utils"></span><dl class="py function">
+<dt id="agasc.supplement.utils.add_bad_star">
+<code class="sig-prename descclassname">agasc.supplement.utils.</code><code class="sig-name descname">add_bad_star</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">bad</span></em>, <em class="sig-param"><span class="n">dry_run</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">create</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/utils.html#add_bad_star"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.utils.add_bad_star" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the ‘bad’ table of the AGASC supplement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – pathlib.Path
+AGASC supplement filename.</p></li>
+<li><p><strong>bad</strong> – list
+List of pairs (agasc_id, source)</p></li>
+<li><p><strong>dry_run</strong> – bool
+Do not save the table.</p></li>
+<li><p><strong>create</strong> – bool
+Create a supplement file if it does not exist</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.utils.get_supplement_table">
+<code class="sig-prename descclassname">agasc.supplement.utils.</code><code class="sig-name descname">get_supplement_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">agasc_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">as_dict</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/utils.html#get_supplement_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.utils.get_supplement_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get one of the tables in the AGASC supplement.</p>
+<p>This function gets one of the supplement tables, specified with <code class="docutils literal notranslate"><span class="pre">name</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bad</span></code>: Bad stars (agasc_id, source)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mags</span></code>: Estimated mags (agasc_id, mag_aca mag_aca_err)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">obs</span></code>: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,
+comments)</p></li>
+</ul>
+<p>This function is cached with a timeout of an hour, so you can call it
+repeatedly with no penalty in performance.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">as_dict=False</span></code> (default) then the table is returned as an astropy
+<code class="docutils literal notranslate"><span class="pre">Table</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">as_dict=True</span></code> then the table is returned as a dict of {key: value}
+pairs. For <code class="docutils literal notranslate"><span class="pre">mags</span></code> and <code class="docutils literal notranslate"><span class="pre">bad</span></code>, the key is <code class="docutils literal notranslate"><span class="pre">agasc_id</span></code>. For <code class="docutils literal notranslate"><span class="pre">obs</span></code> the
+key is the <code class="docutils literal notranslate"><span class="pre">(agasc_id,</span> <span class="pre">mp_starcat_time)</span></code> tuple. In all cases the value is a dict
+of the remaining columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Table name within the AGASC supplement HDF5 file</p></li>
+<li><p><strong>data_root</strong> – directory containing the AGASC supplement HDF5 file
+(default=same directory as the AGASC file)</p></li>
+<li><p><strong>as_dict</strong> – return result as a dictionary (default=False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>supplement table as <code class="docutils literal notranslate"><span class="pre">Table</span></code> or <code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.utils.save_version">
+<code class="sig-prename descclassname">agasc.supplement.utils.</code><code class="sig-name descname">save_version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">table_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/utils.html#save_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.utils.save_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the version of a supplement table to the “versions” table.</p>
+<p>Along with the version, the time of update is also added to another table called “last_updated”</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">agasc.supplement.utils</span> <span class="kn">import</span> <span class="n">save_version</span>
+<span class="n">save_version</span><span class="p">(</span><span class="s1">&#39;agasc_supplement.h5&#39;</span><span class="p">,</span> <span class="n">mags</span><span class="o">=</span><span class="s1">&#39;4.10.2&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The different versions can be retrieved from the default supplement:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">agasc.supplement.utils</span> <span class="kn">import</span> <span class="n">get_supplement_table</span>
+<span class="n">versions</span> <span class="o">=</span> <span class="n">get_supplement_table</span><span class="p">(</span><span class="s1">&#39;agasc_versions&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – pathlib.Path</p></li>
+<li><p><strong>table_name</strong> – str or list</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.utils.update_mags_table">
+<code class="sig-prename descclassname">agasc.supplement.utils.</code><code class="sig-name descname">update_mags_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">mags</span></em>, <em class="sig-param"><span class="n">dry_run</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">create</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/utils.html#update_mags_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.utils.update_mags_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the ‘mags’ table of the AGASC supplement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – AGASC supplement filename</p></li>
+<li><p><strong>mags</strong> – <p>list of dict or table.Table
+list entries are dictionaries like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+ <span class="s1">&#39;mag_aca&#39;</span><span class="p">:</span> <span class="mf">9.</span><span class="p">,</span>
+ <span class="s1">&#39;mag_aca_err&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+ <span class="s1">&#39;last_obs_time&#39;</span><span class="p">:</span> <span class="mf">541074324.949</span><span class="p">}</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>dry_run</strong> – bool
+Do not save the table.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.utils.update_obs_table">
+<code class="sig-prename descclassname">agasc.supplement.utils.</code><code class="sig-name descname">update_obs_table</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">obs</span></em>, <em class="sig-param"><span class="n">dry_run</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">create</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/utils.html#update_obs_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.utils.update_obs_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the ‘obs’ table of the AGASC supplement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> – AGASC supplement filename</p></li>
+<li><p><strong>obs</strong> – <p>list of dict or table.Table
+Dictionary with status flag for specific observations.
+list entries are dictionaries like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+ <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">:</span> <span class="s1">&#39;2009:310:17:26:44.706&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;obsid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+ <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="s1">&#39;some comment&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>All the keys are optional except ‘status’, as long as the observations are uniquely defined.
+If ‘agasc_id’ is not given, then it applies to all stars in that observation.</p>
+</p></li>
+<li><p><strong>dry_run</strong> – bool
+Do not save the table.</p></li>
+<li><p><strong>create</strong> – bool
+Create a supplement file if it does not exist</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

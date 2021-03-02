@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>agasc.supplement.utils &#8212; Agasc 4.11.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska!</span><span id="logotext2">agasc</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Agasc 4.11.0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for agasc.supplement.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">ska_helpers.utils</span> <span class="kn">import</span> <span class="n">lru_cache_timed</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">vstack</span><span class="p">,</span> <span class="n">unique</span>
+
+<span class="kn">from</span> <span class="nn">..paths</span> <span class="kn">import</span> <span class="n">SUPPLEMENT_FILENAME</span><span class="p">,</span> <span class="n">default_agasc_dir</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_supplement_table&#39;</span><span class="p">,</span> <span class="s1">&#39;save_version&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;update_mags_table&#39;</span><span class="p">,</span> <span class="s1">&#39;update_obs_table&#39;</span><span class="p">,</span> <span class="s1">&#39;add_bad_star&#39;</span><span class="p">]</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;agasc.supplement&#39;</span><span class="p">)</span>
+
+
+<span class="n">AGASC_SUPPLEMENT_TABLES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;mags&#39;</span><span class="p">,</span> <span class="s1">&#39;bad&#39;</span><span class="p">,</span> <span class="s1">&#39;obs&#39;</span><span class="p">,</span> <span class="s1">&#39;last_updated&#39;</span><span class="p">,</span> <span class="s1">&#39;agasc_versions&#39;</span><span class="p">)</span>
+
+
+<span class="n">BAD_DTYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+    <span class="p">(</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="n">MAGS_DTYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+    <span class="p">(</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="n">OBS_DTYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+    <span class="p">(</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;U21&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;obsid&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;U80&#39;</span><span class="p">)</span>
+<span class="p">])</span>
+
+
+<div class="viewcode-block" id="get_supplement_table"><a class="viewcode-back" href="../../../api.html#agasc.supplement.utils.get_supplement_table">[docs]</a><span class="nd">@lru_cache_timed</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_supplement_table</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">agasc_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get one of the tables in the AGASC supplement.</span>
+
+<span class="sd">    This function gets one of the supplement tables, specified with ``name``:</span>
+
+<span class="sd">    - ``bad``: Bad stars (agasc_id, source)</span>
+<span class="sd">    - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)</span>
+<span class="sd">    - ``obs``: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,</span>
+<span class="sd">      comments)</span>
+
+<span class="sd">    This function is cached with a timeout of an hour, so you can call it</span>
+<span class="sd">    repeatedly with no penalty in performance.</span>
+
+<span class="sd">    If ``as_dict=False`` (default) then the table is returned as an astropy</span>
+<span class="sd">    ``Table``.</span>
+
+<span class="sd">    If ``as_dict=True`` then the table is returned as a dict of {key: value}</span>
+<span class="sd">    pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the</span>
+<span class="sd">    key is the ``(agasc_id, mp_starcat_time)`` tuple. In all cases the value is a dict</span>
+<span class="sd">    of the remaining columns.</span>
+
+<span class="sd">    :param name: Table name within the AGASC supplement HDF5 file</span>
+<span class="sd">    :param data_root: directory containing the AGASC supplement HDF5 file</span>
+<span class="sd">        (default=same directory as the AGASC file)</span>
+<span class="sd">    :param as_dict: return result as a dictionary (default=False)</span>
+
+<span class="sd">    :returns: supplement table as ``Table`` or ``dict``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">agasc_dir</span> <span class="o">=</span> <span class="n">default_agasc_dir</span><span class="p">()</span> <span class="k">if</span> <span class="n">agasc_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">agasc_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AGASC_SUPPLEMENT_TABLES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;table name must be one of </span><span class="si">{</span><span class="n">AGASC_SUPPLEMENT_TABLES</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">supplement_file</span> <span class="o">=</span> <span class="n">agasc_dir</span> <span class="o">/</span> <span class="n">SUPPLEMENT_FILENAME</span>
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">supplement_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dat</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">)[:]</span>
+        <span class="k">except</span> <span class="n">tables</span><span class="o">.</span><span class="n">NoSuchNodeError</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No dataset &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; in </span><span class="si">{</span><span class="n">supplement_file</span><span class="si">}</span><span class="s2">,&quot;</span>
+                          <span class="s2">&quot; returning empty table&quot;</span><span class="p">)</span>
+            <span class="n">dat</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">keys_names</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;mags&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;bad&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;obs&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]}</span>
+        <span class="n">key_names</span> <span class="o">=</span> <span class="n">keys_names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dat</span><span class="p">:</span>
+            <span class="c1"># Make the key, coercing the values from numpy to native Python</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">key_names</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Make the value from the remaining non-key column names</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">nm</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">nm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_names</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="save_version"><a class="viewcode-back" href="../../../api.html#agasc.supplement.utils.save_version">[docs]</a><span class="k">def</span> <span class="nf">save_version</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save the version of a supplement table to the &quot;versions&quot; table.</span>
+
+<span class="sd">    Along with the version, the time of update is also added to another table called &quot;last_updated&quot;</span>
+
+<span class="sd">    Example usage::</span>
+
+<span class="sd">        from agasc.supplement.utils import save_version</span>
+<span class="sd">        save_version(&#39;agasc_supplement.h5&#39;, mags=&#39;4.10.2&#39;)</span>
+
+<span class="sd">    The different versions can be retrieved from the default supplement::</span>
+
+<span class="sd">        from agasc.supplement.utils import get_supplement_table</span>
+<span class="sd">        versions = get_supplement_table(&#39;agasc_versions&#39;)</span>
+
+<span class="sd">    :param filename: pathlib.Path</span>
+<span class="sd">    :param table_name: str or list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
+
+    <span class="kn">import</span> <span class="nn">agasc</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="n">versions</span> <span class="o">=</span> <span class="n">_get_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;agasc_versions&#39;</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">last_updated</span> <span class="o">=</span> <span class="n">_get_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;last_updated&#39;</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">table_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;supplement&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">table_name</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Adding &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; to supplement &quot;agasc_versions&quot; and &quot;last_updated&quot; table&#39;</span><span class="p">)</span>
+        <span class="n">versions</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">agasc</span><span class="o">.</span><span class="n">__version__</span><span class="p">]</span>
+        <span class="n">last_updated</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="o">.</span><span class="n">iso</span><span class="p">]</span>
+
+    <span class="n">versions</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;hdf5&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;agasc_versions&#39;</span><span class="p">,</span>
+                   <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">last_updated</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;hdf5&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;last_updated&#39;</span><span class="p">,</span>
+                       <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">update_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update a table of the AGASC supplement.</span>
+
+<span class="sd">    This overwrites all rows already in the supplement table and appends that rows not yet in the</span>
+<span class="sd">    supplement table.</span>
+
+<span class="sd">    :param filename:</span>
+<span class="sd">    :param table: table.Table</span>
+<span class="sd">    :param path: str</span>
+<span class="sd">        the path of the table in the supplement (&#39;obs&#39;, &#39;mags&#39;)</span>
+<span class="sd">    :param dtype: np.dtype</span>
+<span class="sd">        the dtype of the table. Used only if the table is not in the supplement already.</span>
+<span class="sd">        If it is not given, and the table does not exist in the supplement,</span>
+<span class="sd">        an exception will be raised.</span>
+<span class="sd">    :param keys: list</span>
+<span class="sd">        a list of columns that uniquely identify a row in the table.</span>
+<span class="sd">        In case of duplicates, the last appearance is kept.</span>
+<span class="sd">    :param dry_run: bool</span>
+<span class="sd">    :param create: bool</span>
+<span class="sd">        Create a supplement file if it does not exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Nothing to update&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">suppl_table</span> <span class="o">=</span> <span class="n">_get_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">table</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">unique</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
+
+    <span class="c1"># for now I require no masked elements.</span>
+    <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">mask</span><span class="p">):</span>
+        <span class="n">masked</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">colnames</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">)]</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">{path}</span><span class="s1">&quot; table should have no masked elements, &#39;</span>
+                        <span class="s1">&#39;but element in these columns are masked: &#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">masked</span><span class="p">))</span>
+
+    <span class="c1"># entries already in supplement</span>
+    <span class="n">intersect</span> <span class="o">=</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">==</span> <span class="n">suppl_table</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]][:,</span> <span class="kc">None</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">intersect</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">==</span> <span class="n">suppl_table</span><span class="p">[</span><span class="n">key</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">])</span>
+    <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">intersect</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># entries not yet in supplement</span>
+    <span class="n">append</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">suppl_table</span><span class="p">[</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">append</span> <span class="o">|=</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">suppl_table</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">append</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">return</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;updating &quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&quot; table in </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">suppl_table</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">suppl_table</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">([</span><span class="n">suppl_table</span><span class="p">,</span> <span class="n">table</span><span class="p">[</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]]])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="n">suppl_table</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;hdf5&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">save_version</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;dry run, not saving anything&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets a table from an HDF5 file.</span>
+
+<span class="sd">    If the file does not exist, it either raises an exception or issues a warning, depending on the</span>
+<span class="sd">    input arguments. If the table does not exist, it returns a newly created table.</span>
+
+<span class="sd">    :param filename: str or pathlib.Path</span>
+<span class="sd">        The name of the HDF5 file.</span>
+<span class="sd">    :param path: str</span>
+<span class="sd">        Path of the table in the supplement (&#39;obs&#39;, &#39;mags&#39;)</span>
+<span class="sd">    :param dtype: np.dtype</span>
+<span class="sd">        Numpy dtype of the table. If the table exists, the dtype is ignored. If the table does not</span>
+<span class="sd">        exist and no dtype is given, an exception will be raised.</span>
+<span class="sd">    :param create: bool</span>
+<span class="sd">        Issues a warning if the supplement file does not exist</span>
+<span class="sd">    :returns: table.Table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;AGASC supplement file does not exist: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">. Will create it.&#39;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;hdf5&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="sa">f</span><span class="s1">&#39;Path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1"> does not exist&#39;</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="add_bad_star"><a class="viewcode-back" href="../../../api.html#agasc.supplement.utils.add_bad_star">[docs]</a><span class="k">def</span> <span class="nf">add_bad_star</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">bad</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the &#39;bad&#39; table of the AGASC supplement.</span>
+
+<span class="sd">    :param filename: pathlib.Path</span>
+<span class="sd">        AGASC supplement filename.</span>
+<span class="sd">    :param bad: list</span>
+<span class="sd">        List of pairs (agasc_id, source)</span>
+<span class="sd">    :param dry_run: bool</span>
+<span class="sd">        Do not save the table.</span>
+<span class="sd">    :param create: bool</span>
+<span class="sd">        Create a supplement file if it does not exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Nothing to update&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;updating &quot;bad&quot; table in </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">dat</span> <span class="o">=</span> <span class="n">_get_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;bad&#39;</span><span class="p">,</span> <span class="n">BAD_DTYPE</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+
+    <span class="n">bad</span> <span class="o">=</span> <span class="p">[[</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">default</span> <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">source</span><span class="p">]</span>
+           <span class="k">for</span> <span class="n">agasc_id</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">bad</span><span class="p">]</span>
+
+    <span class="n">bad_star_ids</span><span class="p">,</span> <span class="n">bad_star_source</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">update</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">agasc_id</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bad_star_ids</span><span class="p">,</span> <span class="n">bad_star_source</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">agasc_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dat</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]:</span>
+            <span class="n">dat</span><span class="o">.</span><span class="n">add_row</span><span class="p">((</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">source</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Appending </span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s1"> with </span><span class="si">{</span><span class="n">source</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">update</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;IMPORTANT:&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Edit following if source ID is new:&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;  https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;The wiki page also includes instructions for test, review, approval&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;and installation.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="n">dat</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;hdf5&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;bad&#39;</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">save_version</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;bad&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_obs_table"><a class="viewcode-back" href="../../../api.html#agasc.supplement.utils.update_obs_table">[docs]</a><span class="k">def</span> <span class="nf">update_obs_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the &#39;obs&#39; table of the AGASC supplement.</span>
+
+<span class="sd">    :param filename:</span>
+<span class="sd">        AGASC supplement filename</span>
+<span class="sd">    :param obs: list of dict or table.Table</span>
+<span class="sd">        Dictionary with status flag for specific observations.</span>
+<span class="sd">        list entries are dictionaries like::</span>
+
+<span class="sd">            {&#39;agasc_id&#39;: 1,</span>
+<span class="sd">             &#39;mp_starcat_time&#39;: &#39;2009:310:17:26:44.706&#39;,</span>
+<span class="sd">             &#39;obsid&#39;: 0,</span>
+<span class="sd">             &#39;status&#39;: 0,</span>
+<span class="sd">             &#39;comments&#39;: &#39;some comment&#39;}</span>
+
+<span class="sd">        All the keys are optional except &#39;status&#39;, as long as the observations are uniquely defined.</span>
+<span class="sd">        If &#39;agasc_id&#39; is not given, then it applies to all stars in that observation.</span>
+<span class="sd">    :param dry_run: bool</span>
+<span class="sd">        Do not save the table.</span>
+<span class="sd">    :param create: bool</span>
+<span class="sd">        Create a supplement file if it does not exist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">update_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="s1">&#39;obs&#39;</span><span class="p">,</span> <span class="n">OBS_DTYPE</span><span class="p">,</span>
+                 <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">],</span>
+                 <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
+                 <span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_mags_table"><a class="viewcode-back" href="../../../api.html#agasc.supplement.utils.update_mags_table">[docs]</a><span class="k">def</span> <span class="nf">update_mags_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mags</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the &#39;mags&#39; table of the AGASC supplement.</span>
+
+<span class="sd">    :param filename:</span>
+<span class="sd">        AGASC supplement filename</span>
+<span class="sd">    :param mags: list of dict or table.Table</span>
+<span class="sd">        list entries are dictionaries like::</span>
+
+<span class="sd">            {&#39;agasc_id&#39;: 1,</span>
+<span class="sd">             &#39;mag_aca&#39;: 9.,</span>
+<span class="sd">             &#39;mag_aca_err&#39;: 0.2,</span>
+<span class="sd">             &#39;last_obs_time&#39;: 541074324.949}</span>
+
+<span class="sd">    :param dry_run: bool</span>
+<span class="sd">        Do not save the table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">update_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mags</span><span class="p">,</span> <span class="s1">&#39;mags&#39;</span><span class="p">,</span> <span class="n">MAGS_DTYPE</span><span class="p">,</span>
+                 <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span>
+                 <span class="n">dry_run</span><span class="o">=</span><span class="n">dry_run</span><span class="p">,</span>
+                 <span class="n">create</span><span class="o">=</span><span class="n">create</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

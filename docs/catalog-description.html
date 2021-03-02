@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE AXAF Guide and Acquisition Star Catalog V1.7 &#8212; Agasc 4.10.2 documentation</title>
+    <title>THE AXAF Guide and Acquisition Star Catalog V1.7 &#8212; Agasc 4.11.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.10.2 documentation</a>
+	<a href="index.html">Agasc 4.11.0 documentation</a>
 	 &#187;
       </li>
       
@@ -218,223 +218,225 @@ for each data item for each star are as follows:</p>
 <h3>Summary of the AGASC Version 1.7 Entries<a class="headerlink" href="#summary-of-the-agasc-version-1-7-entries" title="Permalink to this headline">¶</a></h3>
 <p>Each of the FITS regions files in the AGASC1.7 will contain the
 following fields for each entry:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">BYTES</span> <span class="n">NAME</span> <span class="o">-</span> <span class="n">brief</span> <span class="n">description</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>BYTES NAME - brief description
 
-<span class="mi">4</span>    <span class="n">AGASC_ID</span> <span class="o">-</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">used</span> <span class="k">for</span> <span class="n">identification</span><span class="o">.</span>
-    <span class="n">Currently</span> <span class="n">a</span> <span class="n">binary</span><span class="o">-</span><span class="n">packing</span> <span class="n">of</span> <span class="n">the</span> <span class="n">region</span> <span class="n">number</span><span class="p">,</span> <span class="n">Hubble</span> <span class="n">GSC</span> <span class="n">star</span>
-    <span class="n">number</span><span class="p">,</span> <span class="ow">and</span> <span class="n">Tycho</span> <span class="n">Output</span> <span class="n">Catalog</span> <span class="n">identifier</span> <span class="n">TYC3</span><span class="o">.</span>
-    <span class="n">No</span> <span class="n">default</span> <span class="n">value</span> <span class="p">(</span><span class="n">must</span> <span class="n">have</span> <span class="n">an</span> <span class="n">entry</span><span class="p">)</span><span class="o">.</span>
+4    AGASC_ID - a unique long integer used for identification.
+    Currently a binary-packing of the region number, Hubble GSC star
+    number, and Tycho Output Catalog identifier TYC3.
+    No default value (must have an entry).
 
-<span class="mi">8</span>    <span class="n">RA</span> <span class="o">-</span> <span class="n">double</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">right</span> <span class="n">ascension</span> <span class="ow">in</span> <span class="n">decimal</span> <span class="n">degrees</span><span class="o">.</span>
-    <span class="n">No</span> <span class="n">default</span> <span class="n">value</span> <span class="p">(</span><span class="n">must</span> <span class="n">have</span> <span class="n">an</span> <span class="n">entry</span><span class="p">)</span><span class="o">.</span>
+8    RA - double variable expressing right ascension in decimal degrees.
+    No default value (must have an entry).
 
-<span class="mi">8</span>    <span class="n">DEC</span> <span class="o">-</span> <span class="n">double</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">declination</span> <span class="ow">in</span> <span class="n">decimal</span> <span class="n">degrees</span><span class="o">.</span>
-    <span class="n">No</span> <span class="n">default</span> <span class="n">value</span> <span class="p">(</span><span class="n">must</span> <span class="n">have</span> <span class="n">an</span> <span class="n">entry</span><span class="p">)</span><span class="o">.</span>
+8    DEC - double variable expressing declination in decimal degrees.
+    No default value (must have an entry).
 
-<span class="mi">2</span>    <span class="n">POS_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">value</span> <span class="n">of</span> <span class="n">position</span> <span class="n">uncertainty</span><span class="p">,</span> <span class="ow">in</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mi">9999</span> <span class="n">indicates</span> <span class="n">no</span> <span class="n">error</span> <span class="n">available</span><span class="p">,</span> <span class="ow">or</span> <span class="n">POS_ERR</span><span class="o">&gt;</span><span class="mf">32767.</span>
+2    POS_ERR - short integer value of position uncertainty, in milli-arcsec.
+    Default value of -9999 indicates no error available, or POS_ERR&gt;32767.
 
-<span class="mi">1</span>    <span class="n">POS_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
-    <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="ow">and</span> <span class="n">pos_err</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
-        <span class="mi">0</span> <span class="o">-</span> <span class="n">no</span> <span class="n">associated</span> <span class="n">catalog</span>
-        <span class="mi">1</span> <span class="o">-</span> <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span>
-        <span class="mi">2</span> <span class="o">-</span> <span class="n">PPM</span>
-        <span class="mi">3</span> <span class="o">-</span> <span class="n">Tycho</span> <span class="n">Output</span> <span class="n">Catalog</span> <span class="p">(</span><span class="n">Tycho</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="mi">4</span> <span class="o">-</span> <span class="n">ACT</span>
-        <span class="mi">5</span> <span class="o">-</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span>
-        <span class="mi">6</span> <span class="o">-</span> <span class="n">GSC</span><span class="o">-</span><span class="n">ACT</span>
+1    POS_CATID - unsigned integer identifying the source of the
+    ra, dec, and pos_err.  Default value is 0.
+        0 - no associated catalog
+        1 - GSC1.1
+        2 - PPM
+        3 - Tycho Output Catalog (Tycho-1)
+        4 - ACT
+        5 - Tycho-2
+        6 - GSC-ACT
 
-<span class="mi">4</span>    <span class="n">EPOCH</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">epoch</span> <span class="n">of</span> <span class="n">the</span> <span class="n">ra</span> <span class="ow">and</span> <span class="n">dec</span>
-    <span class="n">measurements</span><span class="o">.</span> <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.0</span>
+4    EPOCH - float variable identifying the epoch of the ra and dec
+    measurements. Default value of -9999.0
 
-<span class="mi">2</span>    <span class="n">PM_RA</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">proper</span> <span class="n">motion</span> <span class="ow">in</span> <span class="n">ra</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
-    <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span> <span class="n">per</span> <span class="n">year</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    PM_RA - short integer variable expressing proper motion in ra in units of
+    milli-arcsec per year.     Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">PM_DEC</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">proper</span> <span class="n">motion</span> <span class="ow">in</span> <span class="n">dec</span> <span class="ow">in</span> <span class="n">units</span>
-    <span class="n">of</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span> <span class="n">per</span> <span class="n">year</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    PM_DEC - short integer variable expressing proper motion in dec in units
+    of milli-arcsec per year.    Default value of -9999.
 
-<span class="mi">1</span>    <span class="n">PM_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
-    <span class="n">pm_ra</span> <span class="ow">and</span> <span class="n">pm_dec</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+1    PM_CATID - unsigned integer identifying the source of the
+    pm_ra and pm_dec.  The codes are the same as listed for pos_catid.
+    Default value is 0.
 
-<span class="mi">2</span>    <span class="n">PLX</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">parallax</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
-    <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    PLX - short integer variable expressing parallax in units of
+    milli-arcsec.    Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">PLX_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">parallax</span> <span class="n">error</span>
-    <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    PLX_ERR - short integer variable expressing parallax error
+    in units of milli-arcsec.    Default value of -9999.
 
-<span class="mi">1</span>    <span class="n">PLX_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
-    <span class="n">pm_ra</span> <span class="ow">and</span> <span class="n">pm_dec</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+1    PLX_CATID - unsigned integer identifying the source of the
+    pm_ra and pm_dec.  The codes are the same as listed for pos_catid.
+    Default value is 0.
 
-<span class="mi">4</span>    <span class="n">MAG_ACA</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">calculated</span> <span class="n">magnitude</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">AXAF</span>
-    <span class="n">ACA</span> <span class="n">bandpass</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span> <span class="n">magnitude</span><span class="o">.</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+4    MAG_ACA - float variable expressing the calculated magnitude in the AXAF
+    ACA bandpass in units of magnitude. There is no default value.
 
-<span class="mi">2</span>    <span class="n">MAG_ACA_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">uncertainty</span> <span class="n">of</span> <span class="n">mag_aca</span> <span class="ow">in</span>
-    <span class="n">units</span> <span class="n">of</span> <span class="mf">0.01</span><span class="n">mag</span><span class="o">.</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+2    MAG_ACA_ERR - short integer expressing the uncertainty of mag_aca in
+    units of 0.01mag. There is no default value.
 
-<span class="mi">2</span>    <span class="n">CLASS</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">identifying</span> <span class="n">classification</span> <span class="n">of</span> <span class="n">entry</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
-        <span class="mi">0</span> <span class="o">-</span> <span class="n">star</span>
-        <span class="mi">1</span> <span class="o">-</span> <span class="n">galaxy</span>
-        <span class="mi">2</span> <span class="o">-</span> <span class="n">blend</span> <span class="ow">or</span> <span class="n">member</span> <span class="n">of</span> <span class="n">incorrectly</span> <span class="n">resolved</span> <span class="n">blend</span><span class="o">.</span>
-        <span class="mi">3</span> <span class="o">-</span> <span class="n">non</span><span class="o">-</span><span class="n">star</span>
-        <span class="mi">5</span> <span class="o">-</span> <span class="n">potential</span> <span class="n">artifact</span>
-        <span class="mi">6</span> <span class="o">-</span> <span class="n">known</span> <span class="n">multiple</span> <span class="n">system</span>
-        <span class="mi">7</span> <span class="o">-</span> <span class="n">close</span> <span class="n">to</span> <span class="n">galaxy</span> <span class="ow">or</span> <span class="n">other</span> <span class="n">extended</span> <span class="nb">object</span>
+2    CLASS - short integer code identifying classification of entry.
+    Default value of 0.
+        0 - star
+        1 - galaxy
+        2 - blend or member of incorrectly resolved blend.
+        3 - non-star
+        5 - potential artifact
+        6 - known multiple system
+        7 - close to galaxy or other extended object
+     &gt;100 - bad star in AGASC supplement (only via agasc package query);
+            class = 100 + bad star source ID.
 
-    <span class="n">Note</span> <span class="n">that</span> <span class="n">code</span> <span class="mi">1</span> <span class="ow">is</span> <span class="n">used</span> <span class="n">only</span> <span class="k">for</span> <span class="n">a</span> <span class="n">few</span> <span class="n">hand</span><span class="o">-</span><span class="n">entered</span> <span class="n">errata</span> <span class="ow">in</span>
-    <span class="ow">or</span> <span class="k">for</span> <span class="n">galaxies</span> <span class="k">with</span> <span class="n">matches</span> <span class="n">to</span> <span class="n">preliminary</span> <span class="mi">2</span><span class="n">MASS</span> <span class="n">galaxy</span> <span class="n">catalog</span><span class="o">.</span>
-    <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span> <span class="n">galaxies</span>   <span class="n">successfully</span> <span class="n">processed</span> <span class="n">by</span> <span class="n">the</span> <span class="n">STSci</span> <span class="n">software</span> <span class="n">have</span>
-    <span class="n">a</span> <span class="n">classification</span> <span class="n">of</span> <span class="mi">3</span> <span class="p">(</span><span class="n">non</span><span class="o">-</span><span class="n">stellar</span><span class="p">)</span><span class="o">.</span>
+    Note that code 1 is used only for a few hand-entered errata in
+    or for galaxies with matches to preliminary 2MASS galaxy catalog.
+    GSC1.1 galaxies   successfully processed by the STSci software have
+    a classification of 3 (non-stellar).
 
-<span class="mi">4</span>    <span class="n">MAG</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">magnitude</span><span class="p">,</span> <span class="ow">in</span> <span class="n">mags</span><span class="o">.</span>  <span class="n">Spectral</span>
-    <span class="n">band</span> <span class="k">for</span> <span class="n">which</span> <span class="n">magnitude</span> <span class="ow">is</span> <span class="n">derived</span> <span class="ow">is</span> <span class="n">summarized</span> <span class="ow">in</span> <span class="n">entry</span> <span class="n">MAG_BAND</span><span class="o">.</span>
-    <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+4    MAG - float variable expressing magnitude, in mags.  Spectral
+    band for which magnitude is derived is summarized in entry MAG_BAND.
+    There is no default value.
 
-<span class="mi">2</span>    <span class="n">MAG_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">value</span> <span class="n">of</span> <span class="n">magnitude</span> <span class="n">uncertainty</span><span class="p">,</span> <span class="ow">in</span>
-    <span class="mf">0.01</span><span class="n">mag</span> <span class="n">units</span><span class="o">.</span> <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+2    MAG_ERR - short integer value of magnitude uncertainty, in
+    0.01mag units. There is no default value.
 
-<span class="mi">2</span>    <span class="n">MAG_BAND</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">which</span> <span class="n">identifies</span> <span class="n">the</span> <span class="n">spectral</span> <span class="n">band</span>
-    <span class="k">for</span> <span class="n">which</span> <span class="n">the</span> <span class="n">magnitude</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">derived</span><span class="o">.</span>
-    <span class="n">There</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">default</span> <span class="n">value</span><span class="o">.</span>
+2    MAG_BAND - short integer code which identifies the spectral band
+    for which the magnitude value is derived.
+    There is no default value.
 
-        <span class="n">Mag</span> <span class="n">alpha</span> <span class="n">Emulsion</span> <span class="o">+</span> <span class="n">Filter</span>
-        <span class="o">---</span> <span class="o">-----</span> <span class="o">----------------</span>
-        <span class="mi">0</span>  <span class="mf">0.72</span>  <span class="n">IIIaJ</span> <span class="o">+</span> <span class="n">GG395</span>
-        <span class="mi">1</span> <span class="o">-</span><span class="mf">0.15</span>  <span class="n">IIaD</span>  <span class="o">+</span> <span class="n">W12</span>
-        <span class="mi">3</span>  <span class="mf">1.28</span>  <span class="n">Tycho</span> <span class="n">B</span>
-        <span class="mi">4</span>  <span class="mf">0.106</span> <span class="n">Tycho</span> <span class="n">V</span>
-        <span class="mi">6</span> <span class="o">-</span><span class="mf">0.10</span>  <span class="n">IIaD</span>  <span class="o">+</span> <span class="n">GG495</span>
-        <span class="mi">8</span> <span class="o">-</span><span class="mf">0.71</span>  <span class="mi">103</span><span class="n">aE</span> <span class="o">+</span> <span class="n">Red</span> <span class="n">Plexiglass</span>
-        <span class="mi">10</span>  <span class="mf">0.78</span>  <span class="n">yellow</span> <span class="n">objective</span> <span class="o">+</span> <span class="n">IIaD</span> <span class="o">+</span> <span class="n">GG4</span>
-        <span class="mi">11</span>  <span class="mf">1.16</span>  <span class="n">blue</span> <span class="n">objective</span> <span class="o">+</span><span class="mi">103</span><span class="n">aO</span>
-        <span class="mi">12</span>  <span class="mf">1.16</span>  <span class="n">blue</span> <span class="n">objective</span> <span class="o">+</span><span class="mi">103</span><span class="n">aO</span>
-        <span class="mi">13</span>  <span class="mf">0.13</span>  <span class="n">yellow</span> <span class="n">objective</span> <span class="o">+</span> <span class="mi">103</span><span class="n">aG</span> <span class="o">+</span> <span class="n">GG</span>
-        <span class="mi">14</span>  <span class="mf">0.78</span>  <span class="n">yellow</span> <span class="n">objective</span> <span class="o">+</span> <span class="mi">103</span><span class="n">aG</span> <span class="o">+</span> <span class="n">GG</span>
-        <span class="mi">16</span>  <span class="mf">0.00</span>  <span class="n">IIIaJ</span> <span class="o">+</span> <span class="n">GG495</span>
-        <span class="mi">18</span>  <span class="mf">0.72</span>  <span class="n">IIIaJ</span> <span class="o">+</span> <span class="n">GG385</span>
-        <span class="mi">21</span>  <span class="mf">0.00</span>  <span class="n">PPM</span> <span class="n">V</span> <span class="n">mag</span>
-        <span class="mi">22</span>  <span class="mf">1.00</span>  <span class="n">PPM</span> <span class="n">B</span> <span class="n">mag</span>
+        Mag alpha Emulsion + Filter
+        --- ----- ----------------
+        0  0.72  IIIaJ + GG395
+        1 -0.15  IIaD  + W12
+        3  1.28  Tycho B
+        4  0.106 Tycho V
+        6 -0.10  IIaD  + GG495
+        8 -0.71  103aE + Red Plexiglass
+        10  0.78  yellow objective + IIaD + GG4
+        11  1.16  blue objective +103aO
+        12  1.16  blue objective +103aO
+        13  0.13  yellow objective + 103aG + GG
+        14  0.78  yellow objective + 103aG + GG
+        16  0.00  IIIaJ + GG495
+        18  0.72  IIIaJ + GG385
+        21  0.00  PPM V mag
+        22  1.00  PPM B mag
 
-<span class="mi">1</span>    <span class="n">MAG_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">the</span>
-    <span class="n">mag</span><span class="p">,</span> <span class="n">mag_err</span><span class="p">,</span> <span class="ow">and</span> <span class="n">mag_band</span><span class="o">.</span>  <span class="n">Codes</span> <span class="n">are</span> <span class="k">as</span> <span class="n">follows</span><span class="p">:</span>
+1    MAG_CATID - unsigned integer identifying the source of the
+    mag, mag_err, and mag_band.  Codes are as follows:
 
-        <span class="mi">0</span> <span class="o">-</span> <span class="n">no</span> <span class="n">associated</span> <span class="n">catalog</span>
-        <span class="mi">1</span> <span class="o">-</span> <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span>
-        <span class="mi">2</span> <span class="o">-</span> <span class="n">PPM</span>
-        <span class="mi">3</span> <span class="o">-</span> <span class="n">Tycho</span> <span class="n">Output</span> <span class="n">Catalog</span> <span class="p">(</span><span class="n">Tycho</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="mi">4</span> <span class="o">-</span> <span class="n">ACT</span>
-        <span class="mi">5</span> <span class="o">-</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span>
-        <span class="mi">6</span> <span class="o">-</span> <span class="n">GSC</span><span class="o">-</span><span class="n">ACT</span>
-      <span class="mi">128</span> <span class="o">-</span> <span class="n">Chandra</span> <span class="n">ACA</span> <span class="n">estimated</span> <span class="n">magnitude</span> <span class="p">(</span><span class="n">only</span> <span class="n">via</span> <span class="n">agasc</span> <span class="n">package</span> <span class="n">query</span><span class="p">)</span>
+        0 - no associated catalog
+        1 - GSC1.1
+        2 - PPM
+        3 - Tycho Output Catalog (Tycho-1)
+        4 - ACT
+        5 - Tycho-2
+        6 - GSC-ACT
+      100 - Chandra ACA estimated magnitude (only via agasc package query)
 
-<span class="mi">4</span>    <span class="n">COLOR1</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">cataloged</span> <span class="ow">or</span> <span class="n">estimated</span> <span class="n">B</span><span class="o">-</span><span class="n">V</span> <span class="n">color</span><span class="p">,</span>
-    <span class="n">used</span> <span class="k">for</span> <span class="n">mag_aca</span><span class="p">,</span> <span class="ow">in</span> <span class="n">mag</span><span class="o">.</span>  <span class="n">If</span> <span class="n">no</span> <span class="n">colors</span> <span class="n">are</span> <span class="n">available</span><span class="p">,</span> <span class="n">the</span> <span class="n">default</span>
-    <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.7000</span><span class="o">.</span>  <span class="n">If</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">data</span> <span class="n">show</span> <span class="n">colors</span> <span class="n">redder</span> <span class="n">than</span>
-    <span class="p">(</span><span class="n">B</span><span class="o">-</span><span class="n">V</span><span class="p">)</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">then</span> <span class="n">the</span> <span class="n">default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">1.5000</span><span class="o">.</span>  <span class="kc">True</span> <span class="n">cataloged</span>
-    <span class="n">color</span> <span class="n">values</span> <span class="n">are</span> <span class="n">stored</span> <span class="ow">in</span> <span class="n">COLOR2</span><span class="o">.</span>
+4    COLOR1 - float variable expressing the cataloged or estimated B-V color,
+    used for mag_aca, in mag.  If no colors are available, the default
+    value is 0.7000.  If Tycho-2 data show colors redder than
+    (B-V)=1.5, then the default value is 1.5000.  True cataloged
+    color values are stored in COLOR2.
 
-<span class="mi">2</span>    <span class="n">COL0R1_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">color1</span> <span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
-    <span class="mf">0.01</span> <span class="n">mag</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    COL0R1_ERR - short integer expressing the error in color1 in units of
+    0.01 mag.  Default value of -9999.
 
-<span class="mi">1</span>    <span class="n">C1_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">color1</span> <span class="ow">and</span>
-    <span class="n">color1_err</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+1    C1_CATID - unsigned integer identifying the source of color1 and
+    color1_err.  The codes are the same as listed for pos_catid.
+    Default value is 0.
 
-<span class="mi">4</span>    <span class="n">COLOR2</span> <span class="o">-</span> <span class="nb">float</span> <span class="n">variable</span> <span class="n">expressing</span> <span class="n">a</span> <span class="n">different</span> <span class="n">color</span><span class="p">,</span> <span class="ow">in</span> <span class="n">mag</span><span class="o">.</span>
-    <span class="n">For</span> <span class="n">Tycho</span> <span class="n">catalogs</span><span class="p">,</span> <span class="n">this</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">Tycho</span> <span class="n">BT</span><span class="o">-</span><span class="n">VT</span> <span class="n">color</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.0</span>
+4    COLOR2 - float variable expressing a different color, in mag.
+    For Tycho catalogs, this is the Tycho BT-VT color.
+    Default value of -9999.0
 
-<span class="mi">2</span>    <span class="n">COLOR2_ERR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">expressing</span> <span class="n">the</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">color2</span><span class="p">,</span> <span class="n">iun</span>
-    <span class="n">units</span> <span class="n">of</span> <span class="mf">0.01</span><span class="n">mag</span><span class="o">.</span>    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    COLOR2_ERR - short integer expressing the error in color2, iun
+    units of 0.01mag.    Default value of -9999.
 
-<span class="mi">1</span>    <span class="n">C2_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">color2</span> <span class="ow">and</span>
-    <span class="n">color2_err</span><span class="o">.</span>  <span class="n">The</span> <span class="n">codes</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span> <span class="k">as</span> <span class="n">listed</span> <span class="k">for</span> <span class="n">pos_catid</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="ow">is</span> <span class="mf">0.</span>
+1    C2_CATID - unsigned integer identifying the source of color2 and
+    color2_err.  The codes are the same as listed for pos_catid.
+    Default value is 0.
 
-<span class="mi">4</span>    <span class="n">RSV1</span> <span class="o">-</span> <span class="n">APASS</span> <span class="n">V</span> <span class="o">-</span> <span class="n">i</span> <span class="n">magnitude</span> <span class="p">(</span><span class="n">COLOR3</span><span class="p">)</span><span class="o">.</span> <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+4    RSV1 - APASS V - i magnitude (COLOR3). Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">RSV2</span> <span class="o">-</span> <span class="n">APASS</span> <span class="n">V</span> <span class="n">magnitude</span><span class="o">.</span> <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    RSV2 - APASS V magnitude. Default value of -9999.
 
-<span class="mi">1</span>    <span class="n">RSV3</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="k">if</span> <span class="n">the</span> <span class="n">MAG_ACA</span> <span class="ow">and</span> <span class="n">MAG_ACA_ERR</span>
-    <span class="n">were</span> <span class="n">updated</span> <span class="n">compared</span> <span class="n">to</span> <span class="n">AGASC1</span><span class="o">.</span><span class="mi">6</span> <span class="p">(</span><span class="mi">1</span> <span class="o">==</span> <span class="n">updated</span><span class="p">,</span> <span class="mi">0</span> <span class="o">==</span> <span class="ow">not</span> <span class="n">updated</span><span class="p">)</span><span class="o">.</span>
+1    RSV3 - unsigned integer indicating if the MAG_ACA and MAG_ACA_ERR
+    were updated compared to AGASC1.6 (1 == updated, 0 == not updated).
 
-<span class="mi">2</span>    <span class="n">VAR</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">providing</span> <span class="n">information</span> <span class="n">on</span> <span class="n">known</span> <span class="ow">or</span> <span class="n">suspected</span>
-    <span class="n">variable</span> <span class="n">stars</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
-        <span class="mi">1</span> <span class="o">-</span> <span class="n">suspected</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">a</span> <span class="n">suspected</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="n">mag</span>
-        <span class="mi">2</span> <span class="o">-</span> <span class="n">suspected</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">a</span> <span class="n">suspected</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="n">mag</span>
-        <span class="mi">3</span> <span class="o">-</span> <span class="n">known</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">an</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&gt;</span> <span class="mf">0.2</span> <span class="n">mag</span>
-        <span class="mi">4</span> <span class="o">-</span> <span class="n">known</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">large</span> <span class="n">amplitude</span> <span class="p">(</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="n">mag</span><span class="p">),</span> <span class="k">for</span> <span class="n">which</span> <span class="n">an</span>
-            <span class="n">ephemeris</span> <span class="n">was</span> <span class="n">necessary</span>
-        <span class="mi">5</span> <span class="o">-</span> <span class="n">known</span> <span class="n">variable</span><span class="p">,</span> <span class="k">with</span> <span class="n">an</span> <span class="n">amplitude</span> <span class="n">variation</span> <span class="o">&lt;</span> <span class="mf">0.2</span> <span class="n">mag</span>
+2    VAR - short integer code providing information on known or suspected
+    variable stars.     Default value of -9999.
+        1 - suspected variable, with a suspected amplitude variation &lt; 2 mag
+        2 - suspected variable, with a suspected amplitude variation &gt; 2 mag
+        3 - known variable, with an amplitude variation &gt; 0.2 mag
+        4 - known variable, with large amplitude ( &gt; 2 mag), for which an
+            ephemeris was necessary
+        5 - known variable, with an amplitude variation &lt; 0.2 mag
 
-<span class="mi">1</span>    <span class="n">VAR_CATID</span> <span class="o">-</span> <span class="n">unsigned</span> <span class="n">integer</span> <span class="n">code</span> <span class="n">identifying</span> <span class="n">the</span> <span class="n">source</span> <span class="n">of</span> <span class="n">VAR</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
+1    VAR_CATID - unsigned integer code identifying the source of VAR
+    Default value of 0.
 
-<span class="mi">2</span>    <span class="n">ASPQ1</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">spoiler</span> <span class="n">code</span> <span class="k">for</span> <span class="n">aspect</span> <span class="n">stars</span><span class="o">.</span>
-    <span class="n">An</span> <span class="n">estimate</span><span class="p">,</span> <span class="ow">in</span> <span class="mi">50</span><span class="n">milliarcsec</span> <span class="n">units</span><span class="p">,</span> <span class="n">of</span> <span class="n">the</span> <span class="n">worst</span> <span class="n">centroid</span>
-    <span class="n">offset</span> <span class="n">caused</span> <span class="n">by</span> <span class="nb">any</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">80</span><span class="n">arcsec</span><span class="o">.</span> <span class="n">The</span> <span class="n">simulated</span> <span class="n">PSF</span>
-    <span class="n">centroid</span> <span class="n">offsets</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">ACA</span> <span class="n">are</span> <span class="kn">from</span> <span class="nn">offset_lookup.fits</span><span class="p">,</span> <span class="n">indexed</span>
-    <span class="n">brightness</span> <span class="n">difference</span> <span class="n">dm</span><span class="p">,</span> <span class="ow">and</span> <span class="n">radial</span> <span class="n">positional</span> <span class="n">separation</span> <span class="n">dr</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
+2    ASPQ1 - short integer spoiler code for aspect stars.
+    An estimate, in 50milliarcsec units, of the worst centroid
+    offset caused by any star within 80arcsec. The simulated PSF
+    centroid offsets in the ACA are from offset_lookup.fits, indexed
+    brightness difference dm, and radial positional separation dr.
+    Default value of 0.
 
-<span class="mi">2</span>    <span class="n">ASPQ2</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">proper</span> <span class="n">motion</span> <span class="n">flag</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">0.</span>
-        <span class="mi">0</span> <span class="o">-</span> <span class="n">unknown</span> <span class="n">proper</span> <span class="n">motion</span><span class="p">,</span> <span class="ow">or</span> <span class="n">proper</span> <span class="n">motion</span> <span class="o">&lt;</span><span class="mi">500</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">/</span><span class="n">year</span>
-        <span class="mi">1</span> <span class="o">-</span> <span class="n">proper</span> <span class="n">motion</span> <span class="o">&gt;=</span> <span class="mi">500</span> <span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="o">/</span><span class="n">year</span>
+2    ASPQ2 - short integer proper motion flag.
+    Default value of 0.
+        0 - unknown proper motion, or proper motion &lt;500 milli-arcsec/year
+        1 - proper motion &gt;= 500 milli-arcsec/year
 
-<span class="mi">2</span>    <span class="n">ASPQ3</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">distance</span> <span class="p">(</span><span class="k">for</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">stars</span> <span class="n">only</span><span class="p">)</span> <span class="n">to</span>
-    <span class="n">nearest</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">star</span><span class="p">,</span> <span class="n">giving</span> <span class="n">distance</span> <span class="p">(</span><span class="ow">in</span> <span class="n">units</span> <span class="n">of</span>
-    <span class="mi">100</span><span class="n">milli</span><span class="o">-</span><span class="n">arcsec</span><span class="p">)</span> <span class="n">computed</span> <span class="k">for</span> <span class="n">the</span> <span class="n">epoch</span> <span class="mf">1991.25</span><span class="o">.</span>  <span class="n">The</span> <span class="n">maximum</span>
-    <span class="n">value</span> <span class="n">recorded</span> <span class="k">for</span> <span class="n">Tycho</span><span class="o">-</span><span class="mi">2</span> <span class="n">stars</span> <span class="ow">is</span> <span class="mf">999.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="mf">999.</span>
+2    ASPQ3 - short integer distance (for Tycho-2 stars only) to
+    nearest Tycho-2 star, giving distance (in units of
+    100milli-arcsec) computed for the epoch 1991.25.  The maximum
+    value recorded for Tycho-2 stars is 999.
+    Default value of 999.
 
-<span class="mi">2</span>    <span class="n">ACQQ1</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
-    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mf">53.3</span><span class="s2">&quot; of this star, and this star, in units</span>
-    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    ACQQ1 - short integer indicating magnitude difference between the
+    brightest star within 53.3&quot; of this star, and this star, in units
+    of 0.01 mags.     Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">ACQQ2</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
-    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">107</span><span class="s2">&quot; of this star, and this star, in units</span>
-    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    ACQQ2 - short integer indicating magnitude difference between the
+    brightest star within 107&quot; of this star, and this star, in units
+    of 0.01 mags.     Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">ACQQ3</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
-    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mf">160.5</span><span class="s2">&quot; of this star, and this star, in units</span>
-    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    ACQQ3 - short integer indicating magnitude difference between the
+    brightest star within 160.5&quot; of this star, and this star, in units
+    of 0.01 mags.     Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">ACQQ4</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
-    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">214</span><span class="s2">&quot; of this star, and this star, in units</span>
-    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    ACQQ4 - short integer indicating magnitude difference between the
+    brightest star within 214&quot; of this star, and this star, in units
+    of 0.01 mags.     Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">ACQQ5</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
-    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mf">267.5</span><span class="s2">&quot; of this star, and this star, in units</span>
-    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    ACQQ5 - short integer indicating magnitude difference between the
+    brightest star within 267.5&quot; of this star, and this star, in units
+    of 0.01 mags.     Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">ACQQ6</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">indicating</span> <span class="n">magnitude</span> <span class="n">difference</span> <span class="n">between</span> <span class="n">the</span>
-    <span class="n">brightest</span> <span class="n">star</span> <span class="n">within</span> <span class="mi">321</span><span class="s2">&quot; of this star, and this star, in units</span>
-    <span class="n">of</span> <span class="mf">0.01</span> <span class="n">mags</span><span class="o">.</span>     <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    ACQQ6 - short integer indicating magnitude difference between the
+    brightest star within 321&quot; of this star, and this star, in units
+    of 0.01 mags.     Default value of -9999.
 
-<span class="mi">4</span>    <span class="n">XREF_ID1</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">star</span> <span class="n">number</span> <span class="ow">in</span> <span class="n">the</span>
-    <span class="n">AGASC</span> <span class="n">Version</span> <span class="mf">1.0</span> <span class="p">(</span><span class="o">=</span> <span class="n">GSC1</span><span class="o">.</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span>  <span class="n">This</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">identifier</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+4    XREF_ID1 - long integer which is the star number in the
+    AGASC Version 1.0 (= GSC1.1).  This is not a unique identifier.
+    Default value of -9999.
 
-<span class="mi">4</span>    <span class="n">XREF_ID2</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">PPM</span><span class="o">.</span>
-    <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+4    XREF_ID2 - long integer which maps the entry to that in the PPM.
+    Default value of -9999.
 
-<span class="mi">4</span>    <span class="n">XREF_ID3</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Tycho</span> <span class="n">Output</span>
-    <span class="n">Catalog</span> <span class="p">(</span><span class="n">TYC2</span><span class="p">)</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+4    XREF_ID3 - long integer which maps the entry to that in the Tycho Output
+    Catalog (TYC2).  Default value of -9999.
 
-<span class="mi">4</span>    <span class="n">XREF_ID4</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">Tycho</span> <span class="n">Output</span>
-    <span class="n">Catalog</span> <span class="p">(</span><span class="n">TYC3</span><span class="p">)</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+4    XREF_ID4 - long integer which maps the entry to that in the Tycho Output
+    Catalog (TYC3).  Default value of -9999.
 
-<span class="mi">4</span>    <span class="n">XREF_ID5</span> <span class="o">-</span> <span class="n">long</span> <span class="n">integer</span> <span class="n">which</span> <span class="n">maps</span> <span class="n">the</span> <span class="n">entry</span> <span class="n">to</span> <span class="n">that</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">future</span>
-    <span class="n">catalog</span><span class="o">.</span>      <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+4    XREF_ID5 - long integer which maps the entry to that in a future
+    catalog.      Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">RSV4</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">reserved</span> <span class="k">for</span> <span class="n">future</span> <span class="n">use</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    RSV4 - short integer reserved for future use.  Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">RSV5</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">reserved</span> <span class="k">for</span> <span class="n">future</span> <span class="n">use</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    RSV5 - short integer reserved for future use.  Default value of -9999.
 
-<span class="mi">2</span>    <span class="n">RSV6</span> <span class="o">-</span> <span class="n">short</span> <span class="n">integer</span> <span class="n">reserved</span> <span class="k">for</span> <span class="n">future</span> <span class="n">use</span><span class="o">.</span>  <span class="n">Default</span> <span class="n">value</span> <span class="n">of</span> <span class="o">-</span><span class="mf">9999.</span>
+2    RSV6 - short integer reserved for future use.  Default value of -9999.
 </pre></div>
 </div>
 </div>
