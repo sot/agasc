@@ -4,6 +4,7 @@ import numpy as np
 import pathlib
 from astropy import table
 import tables
+import builtins
 
 from agasc.supplement.magnitudes import star_obs_catalogs
 from agasc.scripts import update_supplement
@@ -283,12 +284,19 @@ TEST_DATA = {
 }
 
 
-def _open(filename):
-    return io.StringIO(TEST_YAML[filename])
+def _open(filename, mode='r', **kwargs):
+    if filename in TEST_YAML and mode == 'r':
+        return io.StringIO(TEST_YAML[filename])
+    return builtins.default_open(filename, mode, **kwargs)
 
 
-def test_parse_file(monkeypatch):
+@pytest.fixture
+def mock_open(monkeypatch):
+    monkeypatch.setitem(__builtins__, 'default_open', builtins.open)
     monkeypatch.setitem(__builtins__, 'open', _open)
+
+
+def test_parse_file(monkeypatch, mock_open):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     for filename in TEST_YAML:
@@ -307,9 +315,7 @@ def test_parse_file(monkeypatch):
             f'update_supplement._sanitize_args should be idempotent'
 
 
-def test_parse_args_file(monkeypatch):
-    monkeypatch.setitem(__builtins__, 'open', _open)
-
+def test_parse_args_file(monkeypatch, mock_open):
     with pytest.raises(RuntimeError, match=r"catalog"):
         _ = update_supplement.parse_args(filename='file_4.yml')
 
@@ -327,8 +333,7 @@ def test_parse_args_file(monkeypatch):
         assert TEST_DATA[filename] == ref
 
 
-def test_parse_args_bad(monkeypatch):
-    monkeypatch.setitem(__builtins__, 'open', _open)
+def test_parse_args_bad(monkeypatch, mock_open):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     #######################
@@ -355,8 +360,7 @@ def test_parse_args_bad(monkeypatch):
         )
 
 
-def test_parse_args_obs(monkeypatch):
-    monkeypatch.setitem(__builtins__, 'open', _open)
+def test_parse_args_obs(monkeypatch, mock_open):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     #######################
@@ -443,9 +447,8 @@ def test_parse_args_obs(monkeypatch):
     assert status == ref
 
 
-def test_parse_args(monkeypatch):
+def test_parse_args(monkeypatch, mock_open):
     import copy
-    monkeypatch.setitem(__builtins__, 'open', _open)
 
     # calling function before catalog is initialized gives an exception
     with pytest.raises(RuntimeError, match=r"catalog"):
@@ -534,8 +537,7 @@ def test_update_obs_skip(monkeypatch):
                                        dry_run=False)
 
 
-def test_update_obs_blank_slate(monkeypatch):
-    monkeypatch.setitem(__builtins__, 'open', _open)
+def test_update_obs_blank_slate(monkeypatch, mock_open):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     def mock_write(fname, *args, **kwargs):
@@ -563,8 +565,7 @@ def test_update_obs_blank_slate(monkeypatch):
     assert len(mock_write.calls) > 0, 'Table.write was never called'
 
 
-def test_update_obs(monkeypatch):
-    monkeypatch.setitem(__builtins__, 'open', _open)
+def test_update_obs(monkeypatch, mock_open):
     monkeypatch.setattr(star_obs_catalogs, 'STARS_OBS', STARS_OBS)
 
     def mock_write(*args, **kwargs):
