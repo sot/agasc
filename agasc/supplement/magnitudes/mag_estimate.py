@@ -294,7 +294,7 @@ def get_telemetry(obs):
     slot_data = aca_l0.get_slot_data(start, stop, slot=obs['slot'],
                                      centered_8x8=True, columns=slot_data_cols)
 
-    msid = fetch.MSID(f'AOACMAG{slot}', start, stop)
+    msid = fetch.Msid(f'AOACMAG{slot}', start, stop)
     if len(slot_data) == 0:
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
@@ -318,24 +318,40 @@ def get_telemetry(obs):
                                 obsid=obs["obsid"],
                                 observation_id=obs["mp_starcat_time"])
 
+    # get the normal sun and safe sun mode intervals, which will be removed
+    excluded_ranges = []
+    for event in [events.normal_suns, events.safe_suns]:
+        excluded_ranges += event.intervals(times[0] - 4, times[-1] + 4)
+    excluded_ranges = [(CxoTime(t[0]).cxcsec, CxoTime(t[1]).cxcsec) for t in excluded_ranges]
+
     # Now that we have the times, we get the rest of the MSIDs
     telem = {
         'times': times
     }
     telem.update({k: slot_data[k] for k in slot_data_cols[2:]})
 
+    if excluded_ranges:
+        excluded = np.zeros_like(times, dtype=bool)
+        for excluded_range in excluded_ranges:
+            excluded |= ((times >= excluded_range[0]) & (times <= excluded_range[1]))
+        telem.update({k: telem[k][~excluded] for k in telem})
+        slot_data = slot_data[~excluded]
+
     names = ['AOACASEQ', 'AOPCADMD',
              f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
              f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
-    msids = fetch.MSIDset(names, times[0] - 4, times[-1] + 4)
+    msids = fetch.Msidset(names, times[0] - 4, times[-1] + 4)
 
     for name in names:
-        msids[name].remove_intervals(events.normal_suns)
-        msids[name].remove_intervals(events.safe_suns)
+        msid_vals = msids[name].vals
+        msid_times = msids[name].times
+        for excluded_range in excluded_ranges:
+            ok = (msids[name].times < excluded_range[0]) | (msids[name].times > excluded_range[1])
+            msid_vals = msid_vals[ok]
+            msid_times = msid_times[ok]
+        t = np.in1d(msid_times, times)
+        telem[name] = msid_vals[t]
 
-    # the following just works...
-    t = np.in1d(msids[names[0]].times, times)
-    telem.update({n: msids[n].vals[t] for n in names})
     if len(telem['AOACASEQ']) != len(telem['IMGSIZE']):
         raise MagStatsException(
             "Mismatch in telemetry between aca_l0 and cheta",
