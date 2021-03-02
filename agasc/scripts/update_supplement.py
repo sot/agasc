@@ -61,14 +61,14 @@ def _sanitize_args(status):
     for value in status['obs']:
         if cat.STARS_OBS is None:
             raise RuntimeError('Observation catalog is not initialized')
-        if 'observation_id' in value:
+        if 'mp_starcat_time' in value:
             key = 'mp_starcat_time'
-            rows = cat.STARS_OBS[cat.STARS_OBS['mp_starcat_time'] == value['observation_id']]
+            rows = cat.STARS_OBS[cat.STARS_OBS['mp_starcat_time'] == value['mp_starcat_time']]
         elif 'obsid' in value:
             key = 'obsid'
             rows = cat.STARS_OBS[cat.STARS_OBS['obsid'] == value['obsid']]
         else:
-            raise Exception('Need to specify observation_id or OBSID')
+            raise Exception('Need to specify mp_starcat_time or OBSID')
         if len(rows) == 0:
             raise Exception(
                 f'Observation catalog has no observation with {key}={value[key]}'
@@ -80,8 +80,8 @@ def _sanitize_args(status):
             value['agasc_id'] = (list(np.atleast_1d(value['agasc_id'])))
         if 'comments' not in value:
             value['comments'] = ''
-        if 'observation_id' not in value:
-            value['observation_id'] = rows['mp_starcat_time'][0]
+        if 'mp_starcat_time' not in value:
+            value['mp_starcat_time'] = rows['mp_starcat_time'][0]
         if 'obsid' not in value:
             value['obsid'] = rows['obsid'][0]
 
@@ -91,7 +91,7 @@ def _sanitize_args(status):
         # matching mp_starcat_time and OBSID
         if rows['obsid'][0] != value['obsid']:
             raise Exception(f'inconsistent observation spec {value}')
-        if rows['mp_starcat_time'][0] != value['observation_id']:
+        if rows['mp_starcat_time'][0] != value['mp_starcat_time']:
             raise Exception(f'inconsistent observation spec {value}')
 
     rows = []
@@ -105,7 +105,7 @@ def _sanitize_args(status):
 
 
 def parse_args(filename=None, bad_star_id=None, bad_star_source=None,
-               obsid=None, status=None, comments='', agasc_id=None, observation_id=None,
+               obsid=None, status=None, comments='', agasc_id=None, mp_starcat_time=None,
                **_
                ):
     """
@@ -122,7 +122,7 @@ def parse_args(filename=None, bad_star_id=None, bad_star_source=None,
     :param status: int
     :param comments: str
     :param agasc_id: int
-    :param observation_id: str
+    :param mp_starcat_time: str
     :return:
     """
     obs_status_override = []
@@ -139,15 +139,15 @@ def parse_args(filename=None, bad_star_id=None, bad_star_source=None,
         obs_status_override = status_file['obs']
         mags = status_file['mags']
 
-    if (obsid is not None or observation_id is not None) and status is not None:
+    if (obsid is not None or mp_starcat_time is not None) and status is not None:
         row = {
-            'observation_id': observation_id,
+            'mp_starcat_time': mp_starcat_time,
             'agasc_id': agasc_id,
             'obsid': obsid,
             'status': status,
             'comments': comments
         }
-        optional = ['obsid', 'observation_id', 'agasc_id', 'comments']
+        optional = ['obsid', 'mp_starcat_time', 'agasc_id', 'comments']
         obs_status_override.append(
             {key: row[key] for key in row if key not in optional or row[key] is not None}
         )
@@ -179,8 +179,8 @@ def get_obs_status_parser():
     status.add_argument('--obs-status-file',
                         help='YAML file with star/observation status. '
                              'More info at https://sot.github.io/agasc/supplement.html')
-    status.add_argument('--observation-id',
-                        help='Observation ID for status override. '
+    status.add_argument('--mp-starcat-time',
+                        help='Observation starcat time for status override. '
                              'Usually the mission planning catalog time')
     status.add_argument('--obsid', help='OBSID for status override.')
     status.add_argument('--agasc-id', help='AGASC ID for status override.')

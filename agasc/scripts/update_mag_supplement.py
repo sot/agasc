@@ -108,10 +108,10 @@ def main():
         format="%(asctime)s %(message)s"
     )
 
-    if (((args.obsid or args.observation_id) and not args.status)
-            or (not (args.obsid or args.observation_id) and args.status)):
+    if (((args.obsid or args.mp_starcat_time) and not args.status)
+            or (not (args.obsid or args.mp_starcat_time) and args.status)):
         logger.error(
-            'To override OBS status, both --obs/observation-id and --status options are needed.')
+            'To override OBS status, both --obs/mp-starcat-time and --status options are needed.')
         the_parser.exit(1)
 
     star_obs_catalogs.load(args.stop)
