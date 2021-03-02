@@ -333,29 +333,44 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
     return tpl.render(observations=obs)
 
 
-def do(output_dir,
-       reports_dir,
+def do(start,
+       stop,
+       output_dir,
        agasc_ids=None,
-       multi_process=False,
-       start=None,
-       stop=None,
-       whole_history=False,
        report=False,
-       email='',
+       reports_dir=None,
+       report_date=None,
+       multi_process=False,
        include_bad=False,
        dry_run=False,
-       no_progress=None):
+       no_progress=None,
+       email='',
+       ):
     """
 
-    :param output_dir:
-    :param reports_dir:
-    :param agasc_ids:
-    :param multi_process:
-    :param start:
-    :param stop:
-    :param whole_history:
-    :param report:
-    :param email:
+    :param start: cxotime.CxoTime
+        Start time. Only stars with at least one observation between start/stop are considered.
+    :param stop: cxotime.CxoTime
+        Stop time. Only stars with at least one observation between start/stop are considered.
+    :param output_dir: pathlib.Path
+        Directory where to place all output.
+    :param agasc_ids: list
+        List of AGASC IDs. Otional. If not given, all observations within start/stop are used.
+    :param report: bool
+        Generate an HTML report.
+    :param reports_dir: pathlib.Path
+        Directory where to write reports.
+    :param report_date: cxotime.CxoTime
+        The report date (report_date.date[:8] will be the report directory name)
+    :param multi_process: bool
+        Run on mulyiple processes.
+    :param include_bad: bool
+        Consider stars that are in the 'bad' supplement table.
+    :param dry_run: bool
+        Only parse options and not actually run the magnitude estimates
+    :param no_progress: bool
+        Hide progress bar
+    :param email: str
     :return:
     """
     # PyTables is not really unicode-compatible, but python 3 is basically unicode.
@@ -371,24 +386,13 @@ def do(output_dir,
         get_stats = get_agasc_id_stats
 
     skip = True
-    if agasc_ids is not None:
-        agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
-        skip = False
-
-    # set start/stop times and agasc_ids
-    if whole_history or agasc_ids is not None:
-        if start or stop:
-            raise ValueError('incompatible arguments: whole_history and start/stop')
-        start = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).min().date
-        stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
-        if agasc_ids is None:
-            agasc_ids = sorted(star_obs_catalogs.STARS_OBS['agasc_id'])
-    else:
-        stop = CxoTime(stop).date if stop else CxoTime.now().date
-        start = CxoTime(start).date if start else (CxoTime(stop) - 14 * u.day).date
+    if agasc_ids is None:
         obs_in_time = ((star_obs_catalogs.STARS_OBS['mp_starcat_time'] >= start)
                        & (star_obs_catalogs.STARS_OBS['mp_starcat_time'] <= stop))
         agasc_ids = sorted(star_obs_catalogs.STARS_OBS[obs_in_time]['agasc_id'])
+    else:
+        agasc_ids = np.intersect1d(agasc_ids, star_obs_catalogs.STARS_OBS['agasc_id'])
+        skip = False
 
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
@@ -498,20 +502,21 @@ def do(output_dir,
                 logger.error(f'Error sending email to {email}: {e}')
 
     if report:
-        report_date = CxoTime(stop)
-        # the nominal date for reports is the first Monday after the stop date.
-        report_date += ((7 - report_date.datetime.weekday()) % 7) * u.day
+        if report_date is None:
+            report_dir = reports_dir
+            report_data_file = report_dir / f'report_data.pkl'
+            nav_links = None
+            report_date = CxoTime.now()
+        else:
+            report_dir = reports_dir / f'{report_date.date[:8]}'
+            report_data_file = report_dir / f'report_data_{report_date.date[:8]}.pkl'
 
-        directory = reports_dir / f'{report_date.date[:8]}'
-        report_data_dir = directory
-        report_data_file = report_data_dir / f'report_data_{report_date.date[:8]}.pkl'
-
-        week = time.TimeDelta(7 * u.day)
-        nav_links = {
-            'previous': f'../{(report_date - week).date[:8]}/index.html',
-            'up': '..',
-            'next': f'../{(report_date + week).date[:8]}/index.html'
-        }
+            week = time.TimeDelta(7 * u.day)
+            nav_links = {
+                'previous': f'../{(report_date - week).date[:8]}/index.html',
+                'up': '..',
+                'next': f'../{(report_date + week).date[:8]}/index.html'
+            }
 
         # If the report data file exists, the arguments for the report from the file are
         # modified according to the current run. Otherwise, they are created from scratch.
@@ -564,7 +569,7 @@ def do(output_dir,
             report = msr.MagEstimateReport(
                 agasc_stats=output_dir / 'mag_stats_agasc.fits',
                 obs_stats=output_dir / 'mag_stats_obsid.fits',
-                directory=directory
+                directory=report_dir
             )
             report.multi_star_html(**multi_star_html_args)
             latest = reports_dir / 'latest'
@@ -572,17 +577,17 @@ def do(output_dir,
                 logger.debug('Removing existing "latest" symlink')
                 latest.unlink()
             logger.debug('Creating "latest" symlink')
-            latest.symlink_to(directory.absolute())
+            latest.symlink_to(report_dir.absolute())
         except Exception as e:
-            report_data_dir = output_dir
+            report_dir = output_dir
             logger.error(f'Error when creating report: {e}')
         finally:
-            report_data_file = report_data_dir / report_data_file.name
-            if not report_data_dir.exists():
-                report_data_dir.mkdir(parents=True)
+            report_data_file = report_dir / report_data_file.name
+            if not report_dir.exists():
+                report_dir.mkdir(parents=True)
             report_data = {
                 'args': multi_star_html_args,
-                'directory': directory
+                'directory': report_dir
             }
             with open(report_data_file, 'wb') as fh:
                 pickle.dump(report_data, fh)

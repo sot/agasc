@@ -816,7 +816,6 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     n_obsids = len(star_obs)
 
-    print('obs_status_override', obs_status_override)
     # exclude star_obs that are in obs_status_override with status != 0
     excluded_obs = np.array([((oi, ai) in obs_status_override
                              and obs_status_override[(oi, ai)]['status'] != 0)
