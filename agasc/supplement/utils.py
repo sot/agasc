@@ -3,7 +3,6 @@ from pathlib import Path
 import logging
 import warnings
 import numpy as np
-from collections import defaultdict
 
 from ska_helpers.utils import lru_cache_timed
 import tables
@@ -75,7 +74,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
     """
     agasc_dir = default_agasc_dir() if agasc_dir is None else Path(agasc_dir)
 
-    dtypes = defaultdict(lambda: [], {'bad': BAD_DTYPE, 'mags': MAGS_DTYPE, 'obs': OBS_DTYPE})
+    dtypes = {'bad': BAD_DTYPE, 'mags': MAGS_DTYPE, 'obs': OBS_DTYPE}
 
     if name not in AGASC_SUPPLEMENT_TABLES:
         raise ValueError(f"table name must be one of {AGASC_SUPPLEMENT_TABLES}")
@@ -87,7 +86,7 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
         except tables.NoSuchNodeError:
             warnings.warn(f"No dataset '{name}' in {supplement_file},"
                           " returning empty table")
-            dat = np.array([], dtype=dtypes[name])
+            dat = np.array([], dtype=dtypes.get(name, []))
 
     if as_dict:
         if name in ['agasc_versions', 'last_updated']:
