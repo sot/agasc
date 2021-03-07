@@ -851,9 +851,9 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                          f'{status["status"]}, {status["comments"]}')
             comment = status['comments']
         try:
+            last_obs_time = CxoTime(obs['mp_starcat_time']).cxcsec
             telem = Table(get_telemetry(obs))
             obs_stat = get_obs_stats(obs, telem={k: telem[k] for k in telem.colnames})
-            last_obs_time = CxoTime(obs['mp_starcat_time']).cxcsec
             obs_stat.update({
                 'obs_ok': (
                     ~excluded_obs[i]
