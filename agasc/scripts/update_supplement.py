@@ -184,7 +184,7 @@ def get_obs_status_parser():
                              'Usually the mission planning catalog time')
     status.add_argument('--obsid', help='OBSID for status override.', type=int)
     status.add_argument('--agasc-id', help='AGASC ID for status override.', type=int)
-    status.add_argument('--status', help='Status to override.', type=int)
+    status.add_argument('--status', help='Status to override.')
     status.add_argument('--comments', help='Comments for status override.', default='')
     status.add_argument('--bad-star-id', help='AGASC ID of bad star.',
                         default=[], action='append', type=int)
