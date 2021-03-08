@@ -316,7 +316,7 @@ def get_telemetry(obs):
 
     if len(times) == 0:
         # the intersection was null.
-        raise MagStatsException('No matching times between cheta and level0',
+        raise MagStatsException('Either no telemetry or no matching times between cheta and level0',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
                                 mp_starcat_time=obs["mp_starcat_time"])
@@ -343,6 +343,13 @@ def get_telemetry(obs):
             excluded |= ((times >= excluded_range[0]) & (times <= excluded_range[1]))
         telem.update({k: telem[k][~excluded] for k in telem})
         slot_data = slot_data[~excluded]
+
+    if len(slot_data) == 0:
+        # the intersection was null.
+        raise MagStatsException('Nothing left after removing excluded ranges',
+                                agasc_id=obs["agasc_id"],
+                                obsid=obs["obsid"],
+                                mp_starcat_time=obs["mp_starcat_time"])
 
     for name in ['AOACIIR', 'AOACISP', 'AOACYAN', 'AOACZAN', 'AOACMAG', 'AOACFCT']:
         telem[name] = telem[f'{name}{slot}']
