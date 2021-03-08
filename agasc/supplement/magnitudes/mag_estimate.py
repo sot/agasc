@@ -279,7 +279,7 @@ def get_telemetry(obs):
     """
     star_obs_catalogs.load()
     dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
-    star = get_star(obs['agasc_id'], date=dwell['tstart'])
+    star = get_star(obs['agasc_id'], date=dwell['tstart'], use_supplement=False)
     start = dwell['tstart']
     stop = dwell['tstop']
     slot = obs['slot']
@@ -562,7 +562,7 @@ def get_obs_stats(obs, telem=None):
 
     star_obs_catalogs.load()
 
-    star = get_star(obs['agasc_id'])
+    star = get_star(obs['agasc_id'], use_supplement=False)
     dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
     start = dwell['tstart']
     stop = dwell['tstop']
@@ -884,7 +884,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
 
-    star = get_star(agasc_id)
+    star = get_star(agasc_id, use_supplement=False)
 
     result.update({
         'last_obs_time': last_obs_time,
