@@ -279,7 +279,7 @@ def get_telemetry(obs):
     """
     star_obs_catalogs.load()
     dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
-    star = get_star(obs['agasc_id'], date=dwell['tstart'])
+    star = get_star(obs['agasc_id'], date=dwell['tstart'], use_supplement=False)
     start = dwell['tstart']
     stop = dwell['tstop']
     slot = obs['slot']
@@ -294,7 +294,10 @@ def get_telemetry(obs):
     slot_data = aca_l0.get_slot_data(start, stop, slot=obs['slot'],
                                      centered_8x8=True, columns=slot_data_cols)
 
-    msid = fetch.Msid(f'AOACMAG{slot}', start, stop)
+    names = ['AOACASEQ', 'AOPCADMD', 'CVCMJCTR', 'CVCMNCTR',
+             f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
+             f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
+    msids = fetch.Msidset(names, start, stop)
     if len(slot_data) == 0:
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
@@ -302,33 +305,37 @@ def get_telemetry(obs):
                                 mp_starcat_time=obs["mp_starcat_time"],
                                 time_range=[start, stop],
                                 slot=obs['slot'])
-    tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(msid.times)])
-    t1 = np.round((msid.times - tmin) / 1.025)
+    times = msids[f'AOACMAG{slot}'].times
+    tmin = np.min([np.min(slot_data['END_INTEG_TIME']), np.min(times)])
+    t1 = np.round((times - tmin) / 1.025)
     t2 = np.round((slot_data['END_INTEG_TIME'].data - tmin) / 1.025)
-    c, i1, i2 = np.intersect1d(t1, t2, return_indices=True)
-    times = msid.times[i1]
+    _, i1, i2 = np.intersect1d(t1, t2, return_indices=True)
 
-    # the following line removes a couple of points at the edges. I have not checked why they differ
+    times = times[i1]
     slot_data = slot_data[i2]
 
     if len(times) == 0:
         # the intersection was null.
-        raise MagStatsException('Time mismatch between cheta and level0',
+        raise MagStatsException('Either no telemetry or no matching times between cheta and level0',
                                 agasc_id=obs["agasc_id"],
                                 obsid=obs["obsid"],
                                 mp_starcat_time=obs["mp_starcat_time"])
-
-    # get the normal sun and safe sun mode intervals, which will be removed
-    excluded_ranges = []
-    for event in [events.normal_suns, events.safe_suns]:
-        excluded_ranges += event.intervals(times[0] - 4, times[-1] + 4)
-    excluded_ranges = [(CxoTime(t[0]).cxcsec, CxoTime(t[1]).cxcsec) for t in excluded_ranges]
 
     # Now that we have the times, we get the rest of the MSIDs
     telem = {
         'times': times
     }
     telem.update({k: slot_data[k] for k in slot_data_cols[2:]})
+    telem.update({
+        name: msids[name].vals[np.in1d(msids[name].times, times)]
+        for name in names
+    })
+
+    # get the normal sun and safe sun mode intervals, which will be removed
+    excluded_ranges = []
+    for event in [events.normal_suns, events.safe_suns]:
+        excluded_ranges += event.intervals(times[0] - 4, times[-1] + 4)
+    excluded_ranges = [(CxoTime(t[0]).cxcsec, CxoTime(t[1]).cxcsec) for t in excluded_ranges]
 
     if excluded_ranges:
         excluded = np.zeros_like(times, dtype=bool)
@@ -337,34 +344,20 @@ def get_telemetry(obs):
         telem.update({k: telem[k][~excluded] for k in telem})
         slot_data = slot_data[~excluded]
 
-    names = ['AOACASEQ', 'AOPCADMD',
-             f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
-             f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
-    msids = fetch.Msidset(names, times[0] - 4, times[-1] + 4)
+    if len(slot_data) == 0:
+        # the intersection was null.
+        raise MagStatsException('Nothing left after removing excluded ranges',
+                                agasc_id=obs["agasc_id"],
+                                obsid=obs["obsid"],
+                                mp_starcat_time=obs["mp_starcat_time"])
 
-    for name in names:
-        msid_vals = msids[name].vals
-        msid_times = msids[name].times
-        for excluded_range in excluded_ranges:
-            ok = (msids[name].times < excluded_range[0]) | (msids[name].times > excluded_range[1])
-            msid_vals = msid_vals[ok]
-            msid_times = msid_times[ok]
-        t = np.in1d(msid_times, times)
-        telem[name] = msid_vals[t]
-
-    if len(telem['AOACASEQ']) != len(telem['IMGSIZE']):
-        raise MagStatsException(
-            "Mismatch in telemetry between aca_l0 and cheta",
-            agasc_id=obs['agasc_id'], obsid=obs['obsid'], mp_starcat_time=obs["mp_starcat_time"]
-        )
     for name in ['AOACIIR', 'AOACISP', 'AOACYAN', 'AOACZAN', 'AOACMAG', 'AOACFCT']:
         telem[name] = telem[f'{name}{slot}']
         del telem[f'{name}{slot}']
     for name in ['AOACIIR', 'AOACISP']:
         telem[name] = np.char.rstrip(telem[name])
     ok = (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
-         (telem['AOACISP'] == 'OK') & (telem['AOPCADMD'] == 'NPNT') & \
-         (telem['AOACFCT'] == 'TRAK')
+         (telem['AOPCADMD'] == 'NPNT') & (telem['AOACFCT'] == 'TRAK')
 
     # etc...
     logger.debug('    Adding magnitude estimates')
@@ -523,7 +516,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     dark = np.zeros([len(slot_data), 8, 8], dtype=np.float64)
     staggered_aca_slice(dark_cal.astype(float), dark, 512 + imgrow_8x8, 512 + imgcol_8x8)
     img_sub = slot_data['IMGRAW'] - dark * 1.696 / 5
-    img_sub.mask *= MASK['mouse_bit']
+    img_sub.mask |= MASK['mouse_bit']
 
     # calculate magnitude
     mag = np.ones(len(slot_data)) * MAX_MAG
@@ -576,7 +569,7 @@ def get_obs_stats(obs, telem=None):
 
     star_obs_catalogs.load()
 
-    star = get_star(obs['agasc_id'])
+    star = get_star(obs['agasc_id'], use_supplement=False)
     dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
     start = dwell['tstart']
     stop = dwell['tstop']
@@ -660,8 +653,7 @@ def calc_obs_stats(telem):
     times = telem['times']
 
     kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
-    track = (telem['AOACIIR'] == 'OK') & (telem['AOACISP'] == 'OK') & \
-            (telem['AOACFCT'] == 'TRAK')
+    track = (telem['AOACIIR'] == 'OK') & (telem['AOACFCT'] == 'TRAK')
     dr3 = (telem['dr'] < 3)
     dr5 = (telem['dr'] < 5)
 
@@ -853,9 +845,9 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                          f'{status["status"]}, {status["comments"]}')
             comment = status['comments']
         try:
+            last_obs_time = CxoTime(obs['mp_starcat_time']).cxcsec
             telem = Table(get_telemetry(obs))
             obs_stat = get_obs_stats(obs, telem={k: telem[k] for k in telem.colnames})
-            last_obs_time = CxoTime(obs['mp_starcat_time']).cxcsec
             obs_stat.update({
                 'obs_ok': (
                     ~excluded_obs[i]
@@ -899,9 +891,17 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     stats['mean_corrected'] = np.nan
     stats['weighted_mean'] = np.nan
 
-    result['n_obsids_fail'] = len(failures)
-    result['n_obsids_suspect'] = np.sum(stats['obs_suspect'])
-    result['n_obsids'] = n_obsids
+    star = get_star(agasc_id, use_supplement=False)
+
+    result.update({
+        'last_obs_time': last_obs_time,
+        'mag_aca': star['MAG_ACA'],
+        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
+        'color': star['COLOR1'],
+        'n_obsids_fail': len(failures),
+        'n_obsids_suspect': np.sum(stats['obs_suspect']),
+        'n_obsids': n_obsids,
+    })
 
     if not np.any(~excluded_obs):
         logger.debug(f'  Skipping star in get_agasc_id_stats({agasc_id=}).'
@@ -936,13 +936,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     f_ok = np.sum(ok) / len(ok)
 
-    star = get_star(agasc_id, date=all_telem['times'][0])
     result.update({
-        'last_obs_time': last_obs_time,
-        'mag_aca': star['MAG_ACA'],
-        'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'mag_obs_err': min_mag_obs_err,
-        'color': star['COLOR1'],
         'n_obsids_ok': np.sum(stats['obs_ok']),
         'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
         'n': len(ok),

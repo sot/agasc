@@ -72,6 +72,7 @@
         <tr>
           <th data-toggle="tooltip" data-placement="top" title="OBSID"> OBSID </th>
           <th data-toggle="tooltip" data-placement="top" title="MP starcat time"> Time </th>
+          <th data-toggle="tooltip" data-placement="top" title="Slot"> Slot </th>
           <th data-toggle="tooltip" data-placement="top" title="Pixel row"> Row </th>
           <th data-toggle="tooltip" data-placement="top" title="Pixel column"> Col </th>
           <!-- th data-toggle="tooltip" data-placement="top" data-html="true" title="Observation is considered in the calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> OK </th -->
@@ -91,6 +92,7 @@
         <tr {%- if not s.obs_ok %} class="table-danger" {% endif %}>
           <td> <a href="https://web-kadi.cfa.harvard.edu/mica/?obsid_or_date={{ s.obsid }}"> {{ s.obsid }} </td>
           <td> {{ s.mp_starcat_time }} </td>
+          <td> {{ s.slot }} </td>
           <td> {{ "%.1f" | format(s.row) }} </td>
           <td> {{ "%.1f" | format(s.col) }} </td>
           <!-- td> {{ s.obs_ok }} </td -->
