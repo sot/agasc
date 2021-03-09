@@ -13,6 +13,7 @@ entry_points = {
         'agasc-magnitudes-report=agasc.scripts.mag_estimate_report:main',
         'agasc-update-magnitudes=agasc.scripts.update_mag_supplement:main',
         'agasc-update-supplement=agasc.scripts.update_supplement:main',
+        'agasc-supplement-tasks=agasc.scripts.supplement_tasks:main',
     ]
 }
 
