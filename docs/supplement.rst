@@ -6,7 +6,7 @@ Guidelines and Procedure to Update the Supplement
 -------------------------------------------------
 
 The AGASC supplement is updated weekly as part of the Aspect group operations.
-The update and promotion process follows these steps described below.
+The update and promotion process follows the steps described below.
 
 Candidate supplement update
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -92,7 +92,7 @@ Bad Stars and Star Observations
 
 The tables of bad stars and of star observation status in the AGASC supplement
 can be updated using the `agasc-update-supplement`_ script.  This is normally
-done using a YAML file, but script also accepts command-line arguments to
+done using a YAML file, but the script also accepts command-line arguments to
 specify the bad star and star observation information (more info below).
 
 Calling the script with a YAML file can be done as follows::
@@ -116,12 +116,19 @@ An example `status.yml` file is:
     bad:
       77073552: 9
       23434: 10
+    mags:
+      - agasc_id: 1081092600
+        mag_aca: 11.0
+        mag_aca_err: 0.1
 
-The above file will cause the script to add AGASC IDs 77073552 and 23434 to the
-bad star list, with sources 9 and 10 respectively. The observations of all stars
-observed in OBSID 56311 will be added to the "obs" table with status=1, and the
-observation of AGASC ID 806750112 in OBSID 56308 will be added with status=0. It
-is possible to specify a comment string with the observation info.
+The above file will cause the script to add:
+
+- AGASC IDs 77073552 and 23434 to the bad star list, with sources 9 and 10 respectively,
+- AGASC ID 1081092600 to the "mags" table with a magnitude of 11.0 and uncertainty of 0.1,
+- the observations of all stars observed in OBSID 56311 to the "obs" table with status=1,
+- the observation of AGASC ID 806750112 in OBSID 56308 to the "obs" table with status=0,
+- the observations of 1019348536 and 1019350904 in OBSID 11849 to the “obs” table,
+  with status=1 and an optional comment string.
 
 By default, the `agasc-update-supplement`_ script updates the supplement file in
 the current working directory, but this can be specified in the command-line.
