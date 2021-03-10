@@ -70,15 +70,15 @@ Promotion
 Once satisfied, the ACA reviewer runs the following to *schedule* the update
 for promotion on the following Sunday::
 
-  agasc-supplement-tasks promote
+  agasc-supplement-tasks schedule-promotion
 
-The scheduling is done in that tool using a linux ``at`` command on the HEAD
-``kady`` machine as the ``aca`` user. In the unlikely event needing to cancel
-the promotion, inspect the ``at`` queue and remove the job.
+This tool schedules the promotion by copying the relevant files into the
+``$SKA/data/agasc/rc/promote`` directory. In the unlikely event of needing to
+cancel the promotion, remove all files from ``$SKA/data/agasc/rc/promote``.
 
-The actual promotion consists of copying relevant files from the release
-candidate directory into the flight directory. This is done prior to the weekly
-automated cron task to generate updated magnitude estimates.
+The actual promotion consists of copying all files from
+``$SKA/data/agasc/rc/promote`` into the flight directory. This is done prior
+to the weekly automated cron task to generate updated magnitude estimates.
 
 Details
 -------
