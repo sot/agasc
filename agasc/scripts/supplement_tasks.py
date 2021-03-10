@@ -5,7 +5,7 @@ The available tasks are:
 
 * update-rc: update the supplement in $SKA/data/agasc/rc
 * disposition: modify the observation status according to $SKA/data/agasc/rc/obs-status.yml
-* stage-promotion: schedule supplement promotion
+* schedule-promotion: schedule supplement promotion
 * promote: copy files from $SKA/data/agasc/rc/promote into $SKA/data/agasc
 """
 
@@ -73,7 +73,7 @@ def promote():
 TASKS = {
     'update-rc': update_rc,
     'disposition': disposition,
-    'stage-promotion': stage_promotion,
+    'schedule-promotion': stage_promotion,
     'promote': promote
 }
 
