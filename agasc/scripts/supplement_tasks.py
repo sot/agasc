@@ -56,11 +56,9 @@ def stage_promotion():
     """
     promote_dir = AGASC_DATA / 'rc' / 'promote'
     rc_dir = AGASC_DATA / 'rc'
-    if not promote_dir.exists():
-        promote_dir.mkdir()
+    promote_dir.mkdir(exist_ok=True)
     for filename in ['agasc_supplement.h5', 'mag_stats_agasc.fits', 'mag_stats_obsid.fits']:
-        if (rc_dir / filename).exists():
-            shutil.copy(rc_dir / filename, promote_dir / filename)
+        shutil.copy(rc_dir / filename, promote_dir / filename)
 
 
 TASKS = {
