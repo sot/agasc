@@ -21,7 +21,6 @@ entry_points = {
 data_files = [(
     os.path.join('share', 'agasc'),
     ['task_schedules/task_schedule_supplement_dispositions.cfg',
-     'task_schedules/task_schedule_promote_supplement.cfg',
      'task_schedules/task_schedule_update_supplement_rc.cfg']
 )]
 
