@@ -13,11 +13,16 @@ entry_points = {
         'agasc-magnitudes-report=agasc.scripts.mag_estimate_report:main',
         'agasc-update-magnitudes=agasc.scripts.update_mag_supplement:main',
         'agasc-update-supplement=agasc.scripts.update_supplement:main',
+        'agasc-supplement-tasks=agasc.scripts.supplement_tasks:main',
     ]
 }
 
 
-data_files = [(os.path.join('share', 'agasc'), ['task_schedule.cfg'])]
+data_files = [(
+    os.path.join('share', 'agasc'),
+    ['task_schedules/task_schedule_supplement_dispositions.cfg',
+     'task_schedules/task_schedule_update_supplement_rc.cfg']
+)]
 
 
 setup(name='agasc',
