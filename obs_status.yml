@@ -1,3 +1,46 @@
+mags:
+- agasc_id: 1081092600
+  mag_aca: 11.0
+  mag_aca_err: 0.1
+- agasc_id: 1020796600
+  mag_aca: 11.5
+  mag_aca_err: 0.1
+- agasc_id: 915541320
+  mag_aca: 11.6
+  mag_aca_err: 0.1
+- agasc_id: 798760200
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 764150080
+  mag_aca: 12.0
+  mag_aca_err: 0.1
+- agasc_id: 693243160
+  mag_aca: 4.5
+  mag_aca_err: 0.1
+- agasc_id: 690625640
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 643702120
+  mag_aca: 11.4
+  mag_aca_err: 0.1
+- agasc_id: 505545160
+  mag_aca: 10.8
+  mag_aca_err: 0.1
+- agasc_id: 405271520
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 396501520
+  mag_aca: 10.3
+  mag_aca_err: 0.1
+- agasc_id: 239080480
+  mag_aca: 10.2
+  mag_aca_err: 0.1
+- agasc_id: 763893760
+  mag_aca: 11.6
+  mag_aca_err: 0.1
+- agasc_id: 723651200
+  mag_aca: 12.0
+  mag_aca_err: 0.1
 obs:
 - agasc_id:
   - 901664112
@@ -131,7 +174,7 @@ obs:
   status: 1
 - agasc_id:
   - 757735584
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2006:086:15:29:13.448
   status: 1
 - agasc_id:
@@ -141,22 +184,22 @@ obs:
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2006:086:19:12:53.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2006:086:21:04:43.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2006:086:22:56:33.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2006:087:00:48:23.448
   status: 1
 - agasc_id:
@@ -176,7 +219,7 @@ obs:
   status: 1
 - agasc_id:
   - 763893760
-  comments: Suspect observation
+  comments: Mostly tracking 11.6 mag star; supplement estimate is 13.8 mag
   mp_starcat_time: 2006:212:07:39:07.107
   status: 1
 - agasc_id:
@@ -216,14 +259,14 @@ obs:
   status: 1
 - agasc_id:
   - 1020796600
-  comments: Suspect observation
+  comments: Never acquired; set mag 11.5 +/- 0.1
   mp_starcat_time: 2007:130:19:34:45.821
   status: 1
 - agasc_id:
   - 676336280
-  comments: Suspect observation
+  comments: Available data look OK, lack of track not understood
   mp_starcat_time: 2007:231:04:53:28.518
-  status: 1
+  status: 0
 - agasc_id:
   - 35000432
   comments: Suspect observation
@@ -431,7 +474,7 @@ obs:
   status: 1
 - agasc_id:
   - 239080480
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2010:359:04:11:19.911
   status: 1
 - agasc_id:
@@ -551,7 +594,7 @@ obs:
   status: 1
 - agasc_id:
   - 764150080
-  comments: Suspect observation
+  comments: Never acquired; set mag 12.0 +/- 0.1
   mp_starcat_time: 2011:285:11:34:00.061
   status: 1
 - agasc_id:
@@ -706,7 +749,7 @@ obs:
   status: 1
 - agasc_id:
   - 1081092600
-  comments: Suspect observation
+  comments: Never acquired; set mag 11.0 +/- 0.1
   mp_starcat_time: 2013:105:10:22:09.169
   status: 1
 - agasc_id:
@@ -756,7 +799,7 @@ obs:
   status: 1
 - agasc_id:
   - 897996696
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:03:11:14.093
   status: 1
 - agasc_id:
@@ -776,7 +819,7 @@ obs:
   status: 1
 - agasc_id:
   - 897996696
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:06:21:15.039
   status: 1
 - agasc_id:
@@ -796,7 +839,7 @@ obs:
   status: 1
 - agasc_id:
   - 897996696
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:08:58:05.039
   status: 1
 - agasc_id:
@@ -811,12 +854,12 @@ obs:
   status: 1
 - agasc_id:
   - 897996696
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:11:34:55.039
   status: 1
 - agasc_id:
   - 897999536
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:11:34:55.039
   status: 1
 - agasc_id:
@@ -836,12 +879,12 @@ obs:
   status: 1
 - agasc_id:
   - 897999536
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:14:11:45.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:14:11:45.039
   status: 1
 - agasc_id:
@@ -851,7 +894,7 @@ obs:
   status: 1
 - agasc_id:
   - 897988944
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:16:48:35.039
   status: 1
 - agasc_id:
@@ -861,7 +904,7 @@ obs:
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:16:48:35.039
   status: 1
 - agasc_id:
@@ -871,7 +914,7 @@ obs:
   status: 1
 - agasc_id:
   - 897988944
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:19:25:25.039
   status: 1
 - agasc_id:
@@ -881,27 +924,27 @@ obs:
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:19:25:25.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:312:22:02:15.039
   status: 1
 - agasc_id:
   - 898124000
-  comments: Suspect observation
+  comments: Venus (should not be processed); Venus observation
   mp_starcat_time: 2013:312:22:02:15.039
   status: 1
 - agasc_id:
   - 898125104
-  comments: Suspect observation
+  comments: Venus (should not be processed); Venus observation
   mp_starcat_time: 2013:312:22:02:15.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation
+  comments: Suspect observation; Venus observation
   mp_starcat_time: 2013:313:00:39:05.039
   status: 1
 - agasc_id:
@@ -951,12 +994,12 @@ obs:
   status: 1
 - agasc_id:
   - 505545160
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2014:159:03:53:31.631
   status: 1
 - agasc_id:
   - 910562920
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
@@ -966,12 +1009,12 @@ obs:
   status: 1
 - agasc_id:
   - 910693856
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
   - 911082032
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
@@ -986,7 +1029,7 @@ obs:
   status: 1
 - agasc_id:
   - 911083616
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
@@ -1001,7 +1044,7 @@ obs:
   status: 1
 - agasc_id:
   - 915541320
-  comments: Suspect observation
+  comments: Never acquired; set mag 11.6 +/- 0.1
   mp_starcat_time: 2014:244:14:47:42.617
   status: 1
 - agasc_id:
@@ -1016,12 +1059,12 @@ obs:
   status: 1
 - agasc_id:
   - 396501520
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2014:284:03:45:32.148
   status: 1
 - agasc_id:
   - 396501520
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2014:284:07:21:19.725
   status: 1
 - agasc_id:
@@ -1161,7 +1204,7 @@ obs:
   status: 1
 - agasc_id:
   - 643702120
-  comments: Suspect observation
+  comments: Sparse periods of track at 12.5 mag; set mag to MAXMAG
   mp_starcat_time: 2016:027:20:27:48.432
   status: 1
 - agasc_id:
@@ -1236,12 +1279,12 @@ obs:
   status: 1
 - agasc_id:
   - 314186320
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2016:324:12:21:46.079
   status: 1
 - agasc_id:
   - 314189096
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2016:324:12:21:46.079
   status: 1
 - agasc_id:
@@ -1251,12 +1294,12 @@ obs:
   status: 1
 - agasc_id:
   - 314318832
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2016:324:12:21:46.079
   status: 1
 - agasc_id:
   - 314321208
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2016:324:12:21:46.079
   status: 1
 - agasc_id:
@@ -1326,7 +1369,7 @@ obs:
   status: 1
 - agasc_id:
   - 991169936
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
@@ -1361,7 +1404,7 @@ obs:
   status: 1
 - agasc_id:
   - 991564392
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
@@ -1581,7 +1624,7 @@ obs:
   status: 1
 - agasc_id:
   - 798760200
-  comments: Suspect observation
+  comments: Never acquired; set mag 11.2 +/- 0.1
   mp_starcat_time: 2020:083:13:35:57.577
   status: 1
 - agasc_id:
@@ -1606,12 +1649,12 @@ obs:
   status: 1
 - agasc_id:
   - 396501520
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2020:240:12:46:53.718
   status: 1
 - agasc_id:
   - 396501520
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2020:243:11:17:18.150
   status: 1
 - agasc_id:
@@ -1626,12 +1669,12 @@ obs:
   status: 1
 - agasc_id:
   - 405276920
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG; tracking interval is spurious.
   mp_starcat_time: 2020:266:08:19:47.944
   status: 1
 - agasc_id:
   - 690625640
-  comments: Suspect observation
+  comments: Never acquired; set mag to MAXMAG
   mp_starcat_time: 2020:267:05:49:07.272
   status: 1
 - agasc_id:
