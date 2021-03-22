@@ -54,7 +54,7 @@ Applying review
 If no star dispositions were required then this step does not apply.
 
 After deciding on the status of suspect star observations, the ACA reviewer
-edits ``$SKA/data/agasc/obs-status.yml`` accordingly. In order to apply the
+edits ``$SKA/data/agasc/rc/obs-status.yml`` accordingly. In order to apply the
 changes the reviewer runs::
 
   agasc-supplement-tasks disposition
