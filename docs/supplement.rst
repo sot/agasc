@@ -80,6 +80,50 @@ The actual promotion consists of copying all files from
 ``$SKA/data/agasc/rc/promote`` into the flight directory. This is done prior
 to the weekly automated cron task to generate updated magnitude estimates.
 
+
+Rubric for disposition of bad observations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following is a list of annotations we have used when dispositioning bad observations.
+When reviewing a suspect observation, the reviewer might look at telemetry to figure out whether
+the star was ever acquired, it was in the field of view, and the magnitude was not significantly
+affected by instrument effects. They serve as guide on how to disposition, and can refer to:
+
+- Whether the star is seen in the field of view.
+- Reasons for accepting/rejecting the observation.
+- Confidence that the magnitude is correct or a limit.
+
+Common annotations:
+
+- **Faint star**. The star is discernible in image telemetry. E.g.: a faint star is poorly tracked
+  even though it is always in the field of view and not spoiled/affected by imposters, in which case
+  the magnitude is good.
+- **Almost never acquired**. Star is discernible and residual < 5arcsec in a few sparse images. Maybe the
+  magnitude information can still be used.
+- **Never acquired**. The star was never discernible by eye in image telemetry. No magnitude
+  information can be gleaned from telemetry. It is usually added as a bad star with source=9,
+  and its magnitude set by hand.
+- **Partially/slightly spoiled**. A spoiler shifted the centroid.
+- **Out of view**. Something shifted the centroid so much that it was not within the window.
+  Magnitude at these times is meaningless.
+- **Tracking affected by imposter(s)**. The imposter drags the centroid away from the expected
+  location, in which case the magnitude is close to correct when centroids match, and becomes larger
+  as the angular distance increases (slot 7 in OBSID 50294, slot 1 in OBSID 48668).
+- **Venus observation**.
+- **Normal Sun Mode**. Nothing left after removing kadi.events.normal_suns time ranges.
+- **Safe mode**. Nothing left after removing excluded kadi.events.safe_suns time ranges.
+- **High Background Event**. Decided not to use the entire observation because of a large magnitude
+  shift due to a high background event (we could include the event number).
+- **High Background**. Even though there was no high background event, decided not to use the entire
+  observation because of large magnitude shift due to what appears to be high background.
+- **Marginally acceptable**. The magnitude estimate is not great, but will do, especially if this is
+  the only observation of the star. Take this observation and be done with it.
+- **Set mag to MAXMAG**. The magnitude is set by hand to MAXMAG from the starcheck catalog.
+  One can navigate from the mag-stats dashboard to the mica OBSID page and from there to the
+  starcheck catalog.
+- **Set mag 12.0 +/- 0.1**. The magnitude is set by hand to some value determined by ACA reviewer.
+- tracking interval is spurious. (What does this mean?)
+
 Details
 -------
 
