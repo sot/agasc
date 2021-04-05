@@ -54,7 +54,7 @@ Applying review
 If no star dispositions were required then this step does not apply.
 
 After deciding on the status of suspect star observations, the ACA reviewer
-edits ``$SKA/data/agasc/obs-status.yml`` accordingly. In order to apply the
+edits ``$SKA/data/agasc/rc/obs-status.yml`` accordingly. In order to apply the
 changes the reviewer runs::
 
   agasc-supplement-tasks disposition
@@ -79,6 +79,50 @@ cancel the promotion, remove all files from ``$SKA/data/agasc/rc/promote``.
 The actual promotion consists of copying all files from
 ``$SKA/data/agasc/rc/promote`` into the flight directory. This is done prior
 to the weekly automated cron task to generate updated magnitude estimates.
+
+
+Rubric for disposition of bad observations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following is a list of annotations we have used when dispositioning bad observations.
+When reviewing a suspect observation, the reviewer might look at telemetry to figure out whether
+the star was ever acquired, it was in the field of view, and the magnitude was not significantly
+affected by instrument effects. They serve as guide on how to disposition, and can refer to:
+
+- Whether the star is seen in the field of view.
+- Reasons for accepting/rejecting the observation.
+- Confidence that the magnitude is correct or a limit.
+
+Common annotations:
+
+- **Faint star**. The star is discernible in image telemetry. E.g.: a faint star is poorly tracked
+  even though it is always in the field of view and not spoiled/affected by imposters, in which case
+  the magnitude is good.
+- **Almost never acquired**. Star is discernible and residual < 5arcsec in a few sparse images. Maybe the
+  magnitude information can still be used.
+- **Never acquired**. The star was never discernible by eye in image telemetry. No magnitude
+  information can be gleaned from telemetry. It is usually added as a bad star with source=9,
+  and its magnitude set by hand.
+- **Partially/slightly spoiled**. A spoiler shifted the centroid.
+- **Out of view**. Something shifted the centroid so much that it was not within the window.
+  Magnitude at these times is meaningless.
+- **Tracking affected by imposter(s)**. The imposter drags the centroid away from the expected
+  location, in which case the magnitude is close to correct when centroids match, and becomes larger
+  as the angular distance increases (slot 7 in OBSID 50294, slot 1 in OBSID 48668).
+- **Venus observation**.
+- **Normal Sun Mode**. Nothing left after removing kadi.events.normal_suns time ranges.
+- **Safe mode**. Nothing left after removing excluded kadi.events.safe_suns time ranges.
+- **High Background Event**. Decided not to use the entire observation because of a large magnitude
+  shift due to a high background event (we could include the event number).
+- **High Background**. Even though there was no high background event, decided not to use the entire
+  observation because of large magnitude shift due to what appears to be high background.
+- **Marginally acceptable**. The magnitude estimate is not great, but will do, especially if this is
+  the only observation of the star. Take this observation and be done with it.
+- **Set mag to MAXMAG**. The magnitude is set by hand to MAXMAG from the starcheck catalog.
+  One can navigate from the mag-stats dashboard to the mica OBSID page and from there to the
+  starcheck catalog.
+- **Set mag 12.0 +/- 0.1**. The magnitude is set by hand to some value determined by ACA reviewer.
+- tracking interval is spurious. (What does this mean?)
 
 Details
 -------
@@ -242,3 +286,195 @@ Scripts
 .. argparse::
    :ref: agasc.scripts.supplement_tasks.get_parser
    :prog: agasc-supplement-tasks
+
+
+Data products
+-------------
+
+There are a few data products resulting from the update of the supplement. The only essential one
+is the supplement itself. All the others are not required for regular operations.
+
+agasc_supplement.h5
+^^^^^^^^^^^^^^^^^^^
+
+The supplement is an HDF5 which contains the following tables:
+
+bad
+"""
+
+====================  =======  ===========================
+        name           dtype           description
+====================  =======  ===========================
+            agasc_id    int32         AGASC ID of the star
+              source    int16  Bad star disposition source
+====================  =======  ===========================
+
+
+mags
+""""
+
+====================  =======  =================================================
+        name           dtype                      description
+====================  =======  =================================================
+            agasc_id    int32                               AGASC ID of the star
+             mag_aca  float32                 Star magnitude determined with ACA
+         mag_aca_err  float32     Star magnitude uncertainty determined with ACA
+       last_obs_time  float64  mp_starcat_time of the last observation of a star
+====================  =======  =================================================
+
+obs
+"""
+
+===============  =======  =========================================================================================
+      name        dtype                                         description
+===============  =======  =========================================================================================
+mp_starcat_time      str     Timestamp from kadi.commands for starcat command preceding the dwell of an observation
+       agasc_id    int32                                                                       AGASC ID of the star
+          obsid    int32                             The OBSID corresponding to the dwell of an observation is made
+         status    int32  Flag to tell include/excude the observation when estimating magnitude (0 means "include")
+       comments      str                                                                           General comments
+===============  =======  =========================================================================================
+
+
+mag_stats_obsid.fits
+^^^^^^^^^^^^^^^^^^^^
+
+`mag_stats_obsid.fits` is an optional file that contains a single table. The table has one row for
+each star-observation. This file is updated in each update, thus providing a summary of all
+star-observations to date, but if it is created if it does not exist already.
+
+====================  =======  ================================================================================================
+        name           dtype                                             description
+====================  =======  ================================================================================================
+            agasc_id    int64                                                                              AGASC ID of the star
+               obsid    int64                                     OBSID corresponding to the dwell when the observation is made
+                slot    int64                                                                                       Slot number
+                type   bytes3                                                                                       GUI/ACQ/BOT
+     mp_starcat_time  bytes21  Unique timestamp (from kadi.commands) for starcat command preceding the dwell of an observation.
+         timeline_id    int64                                           starcat command timeline_id from kadi.commands.get_cmds
+              tstart  float64                                                          Dwell start time from kadi.events.manvrs
+               tstop  float64                                                            Dwell end time from kadi.events.manvrs
+      mag_correction  float64                                              Overall correction applied to the magnitude estimate
+        responsivity  float64                                         Responsivity correction applied to the magnitude estimate
+         droop_shift  float64                                          Droop shift correction applied to the magnitude estimate
+             mag_aca  float32                                                         ACA star magnitude from the AGASC catalog
+         mag_aca_err  float64                                             ACA star magnitude uncertainty from the AGASC catalog
+                 row  float64          Expected row number, based on star location and yanf/zang from mica.archive.starcheck DB
+                 col  float64          Expected col number, based on star location and yanf/zang from mica.archive.starcheck DB
+             mag_img  float64                                             Magnitude estimate from image telemetry (uncorrected)
+             mag_obs  float64                                                                      Estimated ACA star magnitude
+         mag_obs_err  float64                                                          Estimated ACA star magnitude uncertainty
+        aoacmag_mean  float64                                                                    Mean of AOACMAG from telemetry
+         aoacmag_err  float64                                                      Standard deviation of AOACMAG from telemetry
+         aoacmag_q25  float64                                                            1st quartile of AOACMAG from telemetry
+      aoacmag_median  float64                                                                  Median of AOACMAG from telemetry
+         aoacmag_q75  float64                                                            3rd quartile of AOACMAG from telemetry
+          counts_img  float64                                 Raw counts from image telemetry, summed over the mouse-bit window
+         counts_dark  float64                                 Expected counts from background, summed over the mouse-bit window
+            f_kalman  float64              Fraction of all samples where AOACASEQ == "KALM" and AOPCADMD == "NPNT" (n_kalman/n)
+             f_track  float64          Fraction of kalman samples with AOACIIR == "OK" and AOACFCT == "TRAK" (n_track/n_kalman)
+               f_dr5  float64                Fraction of "track" samples with angle residual less than 5 arcsec (n_dr5/n_track)
+               f_dr3  float64                Fraction of "track" samples with angle residual less than 3 arcsec (n_dr3/n_track)
+                f_ok  float64                              Fraction of all samples with (kalman & track & dr5) == True (n_ok/n)
+                 q25  float64                                                               1st quartile of estimated magnitude
+              median  float64                                                                     Median of estimated magnitude
+                 q75  float64                                                               1st quartile of estimated magnitude
+                mean  float64                                                                       Mean of estimated magnitude
+            mean_err  float64                                                     Uncrtainty in the mean of estimated magnitude
+                 std  float64                                                         Standard deviation of estimated magnitude
+                skew  float64                                                                   Skewness of estimated magnitude
+                kurt  float64                                                                   Kurtosis of estimated magnitude
+              t_mean  float64                                               Mean of estimated magnitude after removing outliers
+          t_mean_err  float64                            Uncertainty in the mean of estimated magnitude after removing outliers
+               t_std  float64                                 Standard deviation of estimated magnitude after removing outliers
+              t_skew  float64                                           Skewness of estimated magnitude after removing outliers
+              t_kurt  float64                                           Kurtosis of estimated magnitude after removing outliers
+                   n    int64                                                                                 Number of samples
+                n_ok    int64                                             Number of samples with (kalman & track & dr5) == True
+            outliers    int64                                                                     Number of outliers (+- 3 IQR)
+ lf_variability_100s  float64                                            Rolling mean of OK magnitudes with a 100 second window
+ lf_variability_500s  float64                                            Rolling mean of OK magnitudes with a 500 second window
+lf_variability_1000s  float64                                           Rolling mean of OK magnitudes with a 1000 second window
+             tempccd  float64                                                                                   CCD temperature
+             dr_star  float64                                                                                    Angle residual
+              obs_ok     bool                                                 Boolean flag: everything OK with this observation
+         obs_suspect     bool                                                       Boolean flag: this observation is "suspect"
+            obs_fail     bool                   Boolean flag: a processing error when estimating magnitude for this observation
+            comments  bytes54                                                                                  General comments
+                   w  float64                                                      Weight to be used on a weighted mean (1/std)
+      mean_corrected  float64                                    Corrected mean used in weighted mean (t_mean + mag_correction)
+       weighted_mean  float64                                         Mean weighted by inverse of standard deviation (mean/std)
+====================  =======  ================================================================================================
+
+
+mag_stats_agasc.fits
+^^^^^^^^^^^^^^^^^^^^
+
+`mag_stats_agasc.fits` is an optional file that contains a single table. The table has one row for
+each star. This file is updated in each update, thus providing a summary of all
+star-observations to date, but if it is created if it does not exist already.
+
+====================  =======  ======================================================================================================================================
+        name           dtype                                                                description
+====================  =======  ======================================================================================================================================
+       last_obs_time  float64                                                                      CXC seconds corresponding to the last mp_starcat_time for the star
+            agasc_id    int64                                                                                                                    AGASC ID of the star
+             mag_aca  float64                                                                                               ACA star magnitude from the AGASC catalog
+         mag_aca_err  float64                                                                                   ACA star magnitude uncertainty from the AGASC catalog
+             mag_obs  float64                                                                                                            Estimated ACA star magnitude
+         mag_obs_err  float64                                                                                                Estimated ACA star magnitude uncertainty
+         mag_obs_std  float64                                                                                         Estimated ACA star magnitude standard deviation
+               color  float64                                                                                                       Star color from the AGASC catalog
+            n_obsids    int64                                                                                                     Number of observations for the star
+       n_obsids_fail    int64                                                                                   Number of observations which give an unexpected error
+    n_obsids_suspect    int64                                                           Number of observations deemed "suspect" and ignored in the magnitude estimate
+         n_obsids_ok    int64                                                                             Number of observations considered in the magnitude estimate
+          n_no_track    int64                                                                                 Number of observations where the star was never tracked
+                   n    int64                                                                                              Total number of image samples for the star
+                n_ok    int64                                                               Total number of image samples included in magnitude estimate for the star
+                f_ok  float64                                                                            Fraction of the total samples included in magnitude estimate
+              median  float64                                                                                                  Median magnitude over OK image samples
+         sigma_minus  float64                                                                                       15.8% quantile of magnitude over OK image samples
+          sigma_plus  float64                                                                                       84.2% quantile of magnitude over OK image samples
+                mean  float64                                                                                                 Mean of magnitude over OK image samples
+                 std  float64                                                                                   Standard deviation of magnitude over OK image samples
+   mag_weighted_mean  float64                                               Average of magnitudes over observations, weighed by the inverse of its standard deviation
+    mag_weighted_std  float64                                                                                              Uncertainty in the weighted magnitude mean
+              t_mean  float64                                                                       Mean magnitude after removing outliers on a per-observation basis
+               t_std  float64                                                         Magnitude standard deviation after removing outliers on a per-observation basis
+           n_outlier    int64                                                                                  Number of outliers, removed on a per-observation basis
+            t_mean_1  float64                                                                                          Mean magnitude after removing 1.5*IQR outliers
+             t_std_1  float64                                                                            Magnitude standard deviation after removing 1.5*IQR outliers
+         n_outlier_1    int64                                                                                                              Number of 1.5*IQR outliers
+            t_mean_2  float64                                                                                            Mean magnitude after removing 3*IQR outliers
+             t_std_2  float64                                                                              Magnitude standard deviation after removing 3*IQR outliers
+         n_outlier_2    int64                                                                                                                Number of 3*IQR outliers
+       selected_atol     bool                                                                                                            abs(mag_obs - mag_aca) > 0.3
+       selected_rtol     bool                                                                                                abs(mag_obs - mag_aca) > 3 * mag_aca_err
+selected_mag_aca_err     bool                                                                                                                       mag_aca_err > 0.2
+      selected_color     bool                                                                                                         (color == 1.5) | (color == 0.7)
+          t_mean_dr3  float64                Truncated mean magnitude after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+           t_std_dr3  float64  Truncated magnitude standard deviation after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+      t_mean_dr3_not  float64
+       t_std_dr3_not  float64
+            mean_dr3  float64                          Mean magnitude after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+             std_dr3  float64            Magnitude standard deviation after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+               f_dr3  float64                                                                   Fraction of OK image samples with angular residual less than 3 arcsec
+               n_dr3    int64                                                                     Number of OK image samples with angular residual less than 3 arcsec
+      n_dr3_outliers    int64            Number of magnitude outliers after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+          median_dr3  float64                        Median magnitude after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+     sigma_minus_dr3  float64             15.8% quantile of magnitude after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+      sigma_plus_dr3  float64             84.2% quantile of magnitude after removing outliers and samples with angular residual > 3 arcsec on a per-observation basis
+          t_mean_dr5  float64                Truncated mean magnitude after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+           t_std_dr5  float64  Truncated magnitude standard deviation after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+      t_mean_dr5_not  float64
+       t_std_dr5_not  float64
+            mean_dr5  float64                          Mean magnitude after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+             std_dr5  float64            Magnitude standard deviation after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+               f_dr5  float64                                                                   Fraction of OK image samples with angular residual less than 5 arcsec
+               n_dr5    int64                                                                     Number of OK image samples with angular residual less than 5 arcsec
+      n_dr5_outliers    int64            Number of magnitude outliers after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+          median_dr5  float64                        Median magnitude after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+     sigma_minus_dr5  float64             15.8% quantile of magnitude after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+      sigma_plus_dr5  float64             84.2% quantile of magnitude after removing outliers and samples with angular residual > 5 arcsec on a per-observation basis
+====================  =======  ======================================================================================================================================
