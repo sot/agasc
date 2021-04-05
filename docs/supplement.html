@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Updating the AGASC Supplement &#8212; Agasc 4.11.0 documentation</title>
+    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.11.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,11 +60,11 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.11.0 documentation</a>
+	<a href="index.html">Agasc 4.11.1 documentation</a>
 	 &#187;
       </li>
       
-      <li>Updating the AGASC Supplement</li> 
+      <li>Maintaining the AGASC Supplement</li> 
     </ul>
 </div>
   
@@ -74,29 +74,135 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="updating-the-agasc-supplement">
-<h1>Updating the AGASC Supplement<a class="headerlink" href="#updating-the-agasc-supplement" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="maintaining-the-agasc-supplement">
+<h1>Maintaining the AGASC Supplement<a class="headerlink" href="#maintaining-the-agasc-supplement" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="guidelines-and-procedure-to-update-the-supplement">
 <h2>Guidelines and Procedure to Update the Supplement<a class="headerlink" href="#guidelines-and-procedure-to-update-the-supplement" title="Permalink to this headline">¶</a></h2>
-<p>Currently, the guidelines for adding bad stars to the supplement are spelled out in
-<a class="reference external" href="https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually">the wiki page of the agasc module Github repository</a>.</p>
-<p>Additionally, the table of magnitudes in the supplement is updated regularly. Whenever the magnitudes are updated, a
-report is placed in <a class="reference external" href="https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement_reports">agasc/supplement_reports</a>.
-Upon reviewing these reports we can decide to exclude/include specific star observations from the magnitude estimation.
-To accomplish this, we need to add the corresponding observations to the “obs” table in the supplement.
-The approval procedure for this update is not yet specified, but after approval the supplement will be updated as
-detailed below.</p>
+<p>The AGASC supplement is updated weekly as part of the Aspect group operations.
+The update and promotion process follows the steps described below.</p>
+<div class="section" id="candidate-supplement-update">
+<h3>Candidate supplement update<a class="headerlink" href="#candidate-supplement-update" title="Permalink to this headline">¶</a></h3>
+<p>The table of magnitudes in the supplement is updated by an automated cron task
+that normally runs on Sunday afternoon each week. This process updates
+magnitudes in the release candidate version of the supplement that resides in
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc</span></code>. It makes no changes to the flight version.</p>
+<p>The processing creates a series of reports, including a report of “suspect”
+observations, which require inspection and do not impact the supplement until
+a disposition by the reviewer.</p>
+<p>Reports are placed in
+<a class="reference external" href="https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement_reports">https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement_reports</a>.</p>
 </div>
-<div class="section" id="bad-stars-and-star-observations">
-<h2>Bad Stars and Star Observations<a class="headerlink" href="#bad-stars-and-star-observations" title="Permalink to this headline">¶</a></h2>
-<p>The tables of bad stars and of star observation status in the AGASC supplement are updated using the
-<a class="reference internal" href="#agasc-supplement-obs-status">agasc-supplement-obs-status</a> script. This script accepts command-line arguments to specify the bad star and
-star observation information (more info below). It is also possible to use a yaml file. For example, calling the script
-in this way:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span> <span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span><span class="o">-</span><span class="n">file</span> <span class="n">status</span><span class="o">.</span><span class="n">yml</span>
+<div class="section" id="report-review">
+<h3>Report review<a class="headerlink" href="#report-review" title="Permalink to this headline">¶</a></h3>
+<p>The on-call ACA reviewer inspects the reports during the normal work week,
+checking that the processing and indicated magnitude updates appear reasonable.
+Most of the time this is the case and no further review is required.</p>
+<p>For star observations that are suspect or are otherwise unusual, a disposition
+will be made based on the report and by examining star image telemetry or other
+available data as needed. Dispositions may include:</p>
+<ul class="simple">
+<li><p>Exclude or include specific star observations from the magnitude estimation.
+This informs the processing code about whether the data from a star
+observation can be used to compute the estimated star magnitude.</p></li>
+<li><p>Add the star to the AGASC supplement bad star table. This prevents it from
+being used in star selection and is independent of the magnitude estimate.</p></li>
+<li><p>Manually set a star magnitude to a given value in the case that the
+automated code is unable to determine a value. The most common case is where a
+guide star is never acquired despite repeated search attempts by OBC
+commanding. In this case the magnitude would typically be be set to the
+catalog <code class="docutils literal notranslate"><span class="pre">MAXMAG</span></code> to indicate a lower limit to the magnitude, and the star
+would normally be added to the bad stars table.</p></li>
+</ul>
+<p>Other team members may be consulted at the discretion of the ACA reviewer.</p>
+</div>
+<div class="section" id="applying-review">
+<h3>Applying review<a class="headerlink" href="#applying-review" title="Permalink to this headline">¶</a></h3>
+<p>If no star dispositions were required then this step does not apply.</p>
+<p>After deciding on the status of suspect star observations, the ACA reviewer
+edits <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/obs-status.yml</span></code> accordingly. In order to apply the
+changes the reviewer runs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">tasks</span> <span class="n">disposition</span>
 </pre></div>
 </div>
-<p>With a <cite>status.yml</cite> file like the following:</p>
+<p>This command updates the release candidate version of the supplement in
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc</span></code> as well as the weekly reports. The ACA reviewer then
+checks the updated reports to validate that any dispositions have been applied
+correctly.</p>
+</div>
+<div class="section" id="promotion">
+<h3>Promotion<a class="headerlink" href="#promotion" title="Permalink to this headline">¶</a></h3>
+<p>Once satisfied, the ACA reviewer runs the following to <em>schedule</em> the update
+for promotion on the following Sunday:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">tasks</span> <span class="n">schedule</span><span class="o">-</span><span class="n">promotion</span>
+</pre></div>
+</div>
+<p>This tool schedules the promotion by copying the relevant files into the
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/promote</span></code> directory. In the unlikely event of needing to
+cancel the promotion, remove all files from <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/promote</span></code>.</p>
+<p>The actual promotion consists of copying all files from
+<code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/promote</span></code> into the flight directory. This is done prior
+to the weekly automated cron task to generate updated magnitude estimates.</p>
+</div>
+<div class="section" id="rubric-for-disposition-of-bad-observations">
+<h3>Rubric for disposition of bad observations<a class="headerlink" href="#rubric-for-disposition-of-bad-observations" title="Permalink to this headline">¶</a></h3>
+<p>The following is a list of annotations we have used when dispositioning bad observations.
+When reviewing a suspect observation, the reviewer might look at telemetry to figure out whether
+the star was ever acquired, it was in the field of view, and the magnitude was not significantly
+affected by instrument effects. They serve as guide on how to disposition, and can refer to:</p>
+<ul class="simple">
+<li><p>Whether the star is seen in the field of view.</p></li>
+<li><p>Reasons for accepting/rejecting the observation.</p></li>
+<li><p>Confidence that the magnitude is correct or a limit.</p></li>
+</ul>
+<p>Common annotations:</p>
+<ul class="simple">
+<li><p><strong>Faint star</strong>. The star is discernible in image telemetry. E.g.: a faint star is poorly tracked
+even though it is always in the field of view and not spoiled/affected by imposters, in which case
+the magnitude is good.</p></li>
+<li><p><strong>Almost never acquired</strong>. Star is discernible and residual &lt; 5arcsec in a few sparse images. Maybe the
+magnitude information can still be used.</p></li>
+<li><p><strong>Never acquired</strong>. The star was never discernible by eye in image telemetry. No magnitude
+information can be gleaned from telemetry. It is usually added as a bad star with source=9,
+and its magnitude set by hand.</p></li>
+<li><p><strong>Partially/slightly spoiled</strong>. A spoiler shifted the centroid.</p></li>
+<li><p><strong>Out of view</strong>. Something shifted the centroid so much that it was not within the window.
+Magnitude at these times is meaningless.</p></li>
+<li><p><strong>Tracking affected by imposter(s)</strong>. The imposter drags the centroid away from the expected
+location, in which case the magnitude is close to correct when centroids match, and becomes larger
+as the angular distance increases (slot 7 in OBSID 50294, slot 1 in OBSID 48668).</p></li>
+<li><p><strong>Venus observation</strong>.</p></li>
+<li><p><strong>Normal Sun Mode</strong>. Nothing left after removing kadi.events.normal_suns time ranges.</p></li>
+<li><p><strong>Safe mode</strong>. Nothing left after removing excluded kadi.events.safe_suns time ranges.</p></li>
+<li><p><strong>High Background Event</strong>. Decided not to use the entire observation because of a large magnitude
+shift due to a high background event (we could include the event number).</p></li>
+<li><p><strong>High Background</strong>. Even though there was no high background event, decided not to use the entire
+observation because of large magnitude shift due to what appears to be high background.</p></li>
+<li><p><strong>Marginally acceptable</strong>. The magnitude estimate is not great, but will do, especially if this is
+the only observation of the star. Take this observation and be done with it.</p></li>
+<li><p><strong>Set mag to MAXMAG</strong>. The magnitude is set by hand to MAXMAG from the starcheck catalog.
+One can navigate from the mag-stats dashboard to the mica OBSID page and from there to the
+starcheck catalog.</p></li>
+<li><p><strong>Set mag 12.0 +/- 0.1</strong>. The magnitude is set by hand to some value determined by ACA reviewer.</p></li>
+<li><p>tracking interval is spurious. (What does this mean?)</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="details">
+<h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
+<p>The following sections provide more detailed information on the underlying
+tools used to manage the AGASC supplement. In most cases these will not be
+run manually during production processing.</p>
+<div class="section" id="bad-stars-and-star-observations">
+<h3>Bad Stars and Star Observations<a class="headerlink" href="#bad-stars-and-star-observations" title="Permalink to this headline">¶</a></h3>
+<p>The tables of bad stars and of star observation status in the AGASC supplement
+can be updated using the <a class="reference internal" href="#agasc-update-supplement">agasc-update-supplement</a> script.  This is normally
+done using a YAML file, but the script also accepts command-line arguments to
+specify the bad star and star observation information (more info below).</p>
+<p>Calling the script with a YAML file can be done as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">supplement</span> <span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span><span class="o">-</span><span class="n">file</span> <span class="n">status</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
+</div>
+<p>An example <cite>status.yml</cite> file is:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">obs</span><span class="p">:</span>
   <span class="p p-Indicator">-</span> <span class="nt">obsid</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">56311</span>
     <span class="nt">status</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
@@ -110,85 +216,791 @@ in this way:</p>
 <span class="nt">bad</span><span class="p">:</span>
   <span class="nt">77073552</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">9</span>
   <span class="nt">23434</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="nt">mags</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">agasc_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1081092600</span>
+    <span class="nt">mag_aca</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">11.0</span>
+    <span class="nt">mag_aca_err</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
 </pre></div>
 </div>
-<p>will cause the script to add AGASC IDs 77073552 and 23434 to the bad star list, with sources 9 and 10 respectively.
-The observations of all stars observed in OBSID 56311 will be added to the “obs” table with status=1, and the
-observation of AGASC ID 806750112 in OBSID 56308 will be added with status=0. It is possible to specify a comment
-string with the observation info.</p>
-<p>By default, the <a class="reference internal" href="#agasc-supplement-obs-status">agasc-supplement-obs-status</a> script updates the supplement file in the current working directory, but
-this can be specified in the command-line.</p>
-<p>Alternatively, the following call adds a single bad star:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span> <span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="nb">id</span> <span class="mi">77073552</span> <span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="n">source</span> <span class="mi">9</span>
-</pre></div>
-</div>
-<p>and the following adds a single star observation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span> <span class="o">--</span><span class="n">obs</span> <span class="mi">11849</span> <span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="mi">1019348536</span> <span class="o">--</span><span class="n">status</span> <span class="kc">False</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="the-magnitude-supplement">
-<h2>The Magnitude Supplement<a class="headerlink" href="#the-magnitude-supplement" title="Permalink to this headline">¶</a></h2>
-<p>The AGASC magnitude supplement is automatically updated on a weekly basis using the <a class="reference internal" href="#agasc-supplement-update">agasc-supplement-update</a> script.
-A call like the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">update</span> <span class="o">--</span><span class="n">report</span>
-</pre></div>
-</div>
-<p>Does the following:</p>
+<p>The above file will cause the script to add:</p>
 <ul class="simple">
-<li><p>updates/creates the supplement file located in the current working directory (<code class="docutils literal notranslate"><span class="pre">agasc_supplement.h5</span></code>),</p></li>
-<li><p>updates/creates a file with star-observation statistics (<code class="docutils literal notranslate"><span class="pre">mag_stats_obsid.fits</span></code>),</p></li>
-<li><p>updates/creates a file with star statistics (<code class="docutils literal notranslate"><span class="pre">mag_stats_agasc.fits</span></code>),</p></li>
-<li><p>produces HTML reports in the <cite>supplement_reports/weekly</cite> directory, relative to the ($CWD)</p></li>
+<li><p>AGASC IDs 77073552 and 23434 to the bad star list, with sources 9 and 10 respectively,</p></li>
+<li><p>AGASC ID 1081092600 to the “mags” table with a magnitude of 11.0 and uncertainty of 0.1,</p></li>
+<li><p>the observations of all stars observed in OBSID 56311 to the “obs” table with status=1,</p></li>
+<li><p>the observation of AGASC ID 806750112 in OBSID 56308 to the “obs” table with status=0,</p></li>
+<li><p>the observations of 1019348536 and 1019350904 in OBSID 11849 to the “obs” table,
+with status=1 and an optional comment string.</p></li>
 </ul>
-<p>Here are some other usage examples. Other useful command-line options are shown in the <a class="reference internal" href="#agasc-supplement-update">agasc-supplement-update</a> section.
+<p>By default, the <a class="reference internal" href="#agasc-update-supplement">agasc-update-supplement</a> script updates the supplement file in
+the current working directory, but this can be specified in the command-line.</p>
+<p>Alternatively, the following call adds a single bad star:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">supplement</span> <span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="nb">id</span> <span class="mi">77073552</span> <span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="n">source</span> <span class="mi">9</span>
+</pre></div>
+</div>
+<p>The following adds a single star observation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">supplement</span> <span class="o">--</span><span class="n">obs</span> <span class="mi">11849</span> <span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="mi">1019348536</span> <span class="o">--</span><span class="n">status</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<div class="section" id="updating-via-mica-tools">
+<h4>Updating via mica tools<a class="headerlink" href="#updating-via-mica-tools" title="Permalink to this headline">¶</a></h4>
+<p>Prior to version 4.11.0 of the <cite>agasc</cite> package (including functionality to
+generate, maintain, and use the AGASC supplement), the process for adding bad
+stars to the supplement was spelled out in <a class="reference external" href="https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually">the wiki page of the agasc module
+Github repository</a>.
+The process in that page has been superceded and the page is now considered
+archived.</p>
+</div>
+</div>
+<div class="section" id="magnitude-supplement">
+<h3>Magnitude Supplement<a class="headerlink" href="#magnitude-supplement" title="Permalink to this headline">¶</a></h3>
+<p>The AGASC magnitude supplement is automatically updated on a weekly basis using
+the <a class="reference internal" href="#agasc-update-magnitudes">agasc-update-magnitudes</a> script. A typical usage is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="o">--</span><span class="n">report</span>
+</pre></div>
+</div>
+<p>That command does the following:</p>
+<ul class="simple">
+<li><p>Update/create the supplement file located in the current working directory (<code class="docutils literal notranslate"><span class="pre">agasc_supplement.h5</span></code>).</p></li>
+<li><p>Update/create a file with star-observation statistics (<code class="docutils literal notranslate"><span class="pre">mag_stats_obsid.fits</span></code>).</p></li>
+<li><p>Update/create a file with star statistics (<code class="docutils literal notranslate"><span class="pre">mag_stats_agasc.fits</span></code>).</p></li>
+<li><p>Produce HTML reports in the <cite>supplement_reports/weekly</cite> directory, relative to the ($CWD).</p></li>
+</ul>
+<p>Here are some other usage examples. Other useful command-line options are shown in the <a class="reference internal" href="#agasc-update-magnitudes">agasc-update-magnitudes</a> section.
 The following commands will update all observations since 2019:000 until the end of 2019, ignoring all observations
 after the stopping time:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">update</span> <span class="o">--</span><span class="n">start</span> <span class="mi">2019</span><span class="p">:</span><span class="mi">000</span> <span class="o">--</span><span class="n">stop</span> <span class="mi">2020</span><span class="p">:</span><span class="mi">000</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="o">--</span><span class="n">start</span> <span class="mi">2019</span><span class="p">:</span><span class="mi">000</span> <span class="o">--</span><span class="n">stop</span> <span class="mi">2020</span><span class="p">:</span><span class="mi">000</span>
 </pre></div>
 </div>
 <p>By default, the script will update stars observed in the two weeks prior. Depending on OS, that is equivalent to one
 of these:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span># CentOS 7
-agasc-supplement-update --start `date --date=&quot;14 days ago&quot; &quot;+%Y-%m-%dT%H:%M:%S&quot;` --stop `date &quot;+%Y-%m-%dT%H:%M:%S&quot;`
+agasc-update-magnitudes --start `date --date=&quot;14 days ago&quot; &quot;+%Y-%m-%dT%H:%M:%S&quot;` --stop `date &quot;+%Y-%m-%dT%H:%M:%S&quot;`
 # OS-X
-agasc-supplement-update --start `date -v-2d &quot;+%Y-%m-%dT%H:%M:%S&quot;` --stop `date &quot;+%Y-%m-%dT%H:%M:%S&quot;`
+agasc-update-magnitudes --start `date -v-2d &quot;+%Y-%m-%dT%H:%M:%S&quot;` --stop `date &quot;+%Y-%m-%dT%H:%M:%S&quot;`
 </pre></div>
 </div>
 <p>This updates the magnitudes of all stars after a nominal start date (2003:000):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">update</span> <span class="o">--</span><span class="n">whole</span><span class="o">-</span><span class="n">history</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="o">--</span><span class="n">whole</span><span class="o">-</span><span class="n">history</span>
 </pre></div>
 </div>
 <p>This updates only the magnitudes of the AGASC IDs specified in the file agasc_ids.txt:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">update</span> <span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">file</span> <span class="n">agasc_ids</span><span class="o">.</span><span class="n">txt</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">file</span> <span class="n">agasc_ids</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="magnitude-supplement-reports">
-<h2>Magnitude Supplement Reports<a class="headerlink" href="#magnitude-supplement-reports" title="Permalink to this headline">¶</a></h2>
-<p>Weekly reports are produced as magnitudes are estimated. Additionally, a report of <cite>suspicious</cite> observations
+<h3>Magnitude Supplement Reports<a class="headerlink" href="#magnitude-supplement-reports" title="Permalink to this headline">¶</a></h3>
+<p>Weekly reports are produced as magnitudes are estimated. Additionally, a report of <cite>suspect</cite> observations
 (over the last 90 days) is created in the <cite>supplement_reports/suspect</cite> directory, relative to the working directory,
 by running:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">mag</span><span class="o">-</span><span class="n">estimate</span><span class="o">-</span><span class="n">report</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">magnitudes</span><span class="o">-</span><span class="n">report</span>
 </pre></div>
 </div>
 <p>For this to work, the script needs to use two files that contain observed magnitude data.
 These files are placed in the same directory as the supplement file whenever the supplement is updated.
 The location of these files can also be specified in the command line. More information below.</p>
 </div>
+</div>
 <div class="section" id="scripts">
 <h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="agasc-supplement-obs-status">
-<span id="id1"></span><h3><a class="reference internal" href="#agasc-supplement-obs-status"><span class="std std-ref">agasc-supplement-obs-status</span></a><a class="headerlink" href="#agasc-supplement-obs-status" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="agasc-update-supplement">
+<span id="id1"></span><h3><a class="reference internal" href="#agasc-update-supplement"><span class="std std-ref">agasc-update-supplement</span></a><a class="headerlink" href="#agasc-update-supplement" title="Permalink to this headline">¶</a></h3>
+<p><p>Update the ‘bad’ and ‘obs’ tables in the agasc supplement (agasc_supplement.h5).</p>
+<p>This file is a supplement to the stable AGASC to inform star selection
+and star catalog checking.</p>
+<p>This script can add one or many bad stars to the bad star table, as well as observation status
+information relevant for the magnitude estimation from acq data.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">supplement</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span><span class="o">-</span><span class="n">file</span> <span class="n">OBS_STATUS_FILE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">mp</span><span class="o">-</span><span class="n">starcat</span><span class="o">-</span><span class="n">time</span> <span class="n">MP_STARCAT_TIME</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">obsid</span> <span class="n">OBSID</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGASC_ID</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">status</span> <span class="n">STATUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">comments</span> <span class="n">COMMENTS</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="nb">id</span> <span class="n">BAD_STAR_ID</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="n">source</span> <span class="n">BAD_STAR_SOURCE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span> <span class="p">{</span><span class="n">debug</span><span class="p">,</span><span class="n">info</span><span class="p">,</span><span class="n">warning</span><span class="p">,</span><span class="n">error</span><span class="p">}]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
+</pre></div>
 </div>
-<div class="section" id="agasc-supplement-update">
-<span id="id2"></span><h3><a class="reference internal" href="#agasc-supplement-update"><span class="std std-ref">agasc-supplement-update</span></a><a class="headerlink" href="#agasc-supplement-update" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="Named Arguments">
+<h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--output-dir</kbd></dt>
+<dd><p>Directory containing agasc_supplement.h5 (default=’.’)</p>
+<p>Default: .</p>
+</dd>
+<dt><kbd>--log-level</kbd></dt>
+<dd><p>Possible choices: debug, info, warning, error</p>
+<p>Default: “info”</p>
+</dd>
+<dt><kbd>--dry-run</kbd></dt>
+<dd><p>Dry run (no actual file or database updates)</p>
+<p>Default: False</p>
+</dd>
+</dl>
 </div>
-<div class="section" id="agasc-mag-estimate-report">
-<span id="id3"></span><h3><a class="reference internal" href="#agasc-mag-estimate-report"><span class="std std-ref">agasc-mag-estimate-report</span></a><a class="headerlink" href="#agasc-mag-estimate-report" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="OBS/star status">
+<h4>OBS/star status<a class="headerlink" href="#OBS/star status" title="Permalink to this headline">¶</a></h4>
+<p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
+<dl class="option-list">
+<dt><kbd>--obs-status-file</kbd></dt>
+<dd><p>YAML file with star/observation status. More info at <a class="reference external" href="https://sot.github.io/agasc/supplement.html">https://sot.github.io/agasc/supplement.html</a></p>
+</dd>
+<dt><kbd>--mp-starcat-time</kbd></dt>
+<dd><p>Observation starcat time for status override. Usually the mission planning catalog time</p>
+</dd>
+<dt><kbd>--obsid</kbd></dt>
+<dd><p>OBSID for status override.</p>
+</dd>
+<dt><kbd>--agasc-id</kbd></dt>
+<dd><p>AGASC ID for status override.</p>
+</dd>
+<dt><kbd>--status</kbd></dt>
+<dd><p>Status to override.</p>
+</dd>
+<dt><kbd>--comments</kbd></dt>
+<dd><p>Comments for status override.</p>
+<p>Default: “”</p>
+</dd>
+<dt><kbd>--bad-star-id</kbd></dt>
+<dd><p>AGASC ID of bad star.</p>
+<p>Default: []</p>
+</dd>
+<dt><kbd>--bad-star-source</kbd></dt>
+<dd><p>Source identifier indicating provenance.</p>
+</dd>
+</dl>
 </div>
-<div class="section" id="agasc-supplement-bad-star">
-<span id="id4"></span><h3><a class="reference internal" href="#agasc-supplement-bad-star"><span class="std std-ref">agasc-supplement-bad-star</span></a><a class="headerlink" href="#agasc-supplement-bad-star" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="agasc-update-magnitudes">
+<span id="id2"></span><h3><a class="reference internal" href="#agasc-update-magnitudes"><span class="std std-ref">agasc-update-magnitudes</span></a><a class="headerlink" href="#agasc-update-magnitudes" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="agasc-magnitudes-report">
+<span id="id3"></span><h3><a class="reference internal" href="#agasc-magnitudes-report"><span class="std std-ref">agasc-magnitudes-report</span></a><a class="headerlink" href="#agasc-magnitudes-report" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="agasc-supplement-tasks">
+<span id="id4"></span><h3><a class="reference internal" href="#agasc-supplement-tasks"><span class="std std-ref">agasc-supplement-tasks</span></a><a class="headerlink" href="#agasc-supplement-tasks" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="data-products">
+<h2>Data products<a class="headerlink" href="#data-products" title="Permalink to this headline">¶</a></h2>
+<p>There are a few data products resulting from the update of the supplement. The only essential one
+is the supplement itself. All the others are not required for regular operations.</p>
+<div class="section" id="agasc-supplement-h5">
+<h3>agasc_supplement.h5<a class="headerlink" href="#agasc-supplement-h5" title="Permalink to this headline">¶</a></h3>
+<p>The supplement is an HDF5 which contains the following tables:</p>
+<div class="section" id="bad">
+<h4>bad<a class="headerlink" href="#bad" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 13%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>agasc_id</p></td>
+<td><p>int32</p></td>
+<td><p>AGASC ID of the star</p></td>
+</tr>
+<tr class="row-odd"><td><p>source</p></td>
+<td><p>int16</p></td>
+<td><p>Bad star disposition source</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="mags">
+<h4>mags<a class="headerlink" href="#mags" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 9%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>agasc_id</p></td>
+<td><p>int32</p></td>
+<td><p>AGASC ID of the star</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_aca</p></td>
+<td><p>float32</p></td>
+<td><p>Star magnitude determined with ACA</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_aca_err</p></td>
+<td><p>float32</p></td>
+<td><p>Star magnitude uncertainty determined with ACA</p></td>
+</tr>
+<tr class="row-odd"><td><p>last_obs_time</p></td>
+<td><p>float64</p></td>
+<td><p>mp_starcat_time of the last observation of a star</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="obs">
+<h4>obs<a class="headerlink" href="#obs" title="Permalink to this headline">¶</a></h4>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 6%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>mp_starcat_time</p></td>
+<td><p>str</p></td>
+<td><p>Timestamp from kadi.commands for starcat command preceding the dwell of an observation</p></td>
+</tr>
+<tr class="row-odd"><td><p>agasc_id</p></td>
+<td><p>int32</p></td>
+<td><p>AGASC ID of the star</p></td>
+</tr>
+<tr class="row-even"><td><p>obsid</p></td>
+<td><p>int32</p></td>
+<td><p>The OBSID corresponding to the dwell of an observation is made</p></td>
+</tr>
+<tr class="row-odd"><td><p>status</p></td>
+<td><p>int32</p></td>
+<td><p>Flag to tell include/excude the observation when estimating magnitude (0 means “include”)</p></td>
+</tr>
+<tr class="row-even"><td><p>comments</p></td>
+<td><p>str</p></td>
+<td><p>General comments</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="mag-stats-obsid-fits">
+<h3>mag_stats_obsid.fits<a class="headerlink" href="#mag-stats-obsid-fits" title="Permalink to this headline">¶</a></h3>
+<p><cite>mag_stats_obsid.fits</cite> is an optional file that contains a single table. The table has one row for
+each star-observation. This file is updated in each update, thus providing a summary of all
+star-observations to date, but if it is created if it does not exist already.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 6%" />
+<col style="width: 78%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>agasc_id</p></td>
+<td><p>int64</p></td>
+<td><p>AGASC ID of the star</p></td>
+</tr>
+<tr class="row-odd"><td><p>obsid</p></td>
+<td><p>int64</p></td>
+<td><p>OBSID corresponding to the dwell when the observation is made</p></td>
+</tr>
+<tr class="row-even"><td><p>slot</p></td>
+<td><p>int64</p></td>
+<td><p>Slot number</p></td>
+</tr>
+<tr class="row-odd"><td><p>type</p></td>
+<td><p>bytes3</p></td>
+<td><p>GUI/ACQ/BOT</p></td>
+</tr>
+<tr class="row-even"><td><p>mp_starcat_time</p></td>
+<td><p>bytes21</p></td>
+<td><p>Unique timestamp (from kadi.commands) for starcat command preceding the dwell of an observation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>timeline_id</p></td>
+<td><p>int64</p></td>
+<td><p>starcat command timeline_id from kadi.commands.get_cmds</p></td>
+</tr>
+<tr class="row-even"><td><p>tstart</p></td>
+<td><p>float64</p></td>
+<td><p>Dwell start time from kadi.events.manvrs</p></td>
+</tr>
+<tr class="row-odd"><td><p>tstop</p></td>
+<td><p>float64</p></td>
+<td><p>Dwell end time from kadi.events.manvrs</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_correction</p></td>
+<td><p>float64</p></td>
+<td><p>Overall correction applied to the magnitude estimate</p></td>
+</tr>
+<tr class="row-odd"><td><p>responsivity</p></td>
+<td><p>float64</p></td>
+<td><p>Responsivity correction applied to the magnitude estimate</p></td>
+</tr>
+<tr class="row-even"><td><p>droop_shift</p></td>
+<td><p>float64</p></td>
+<td><p>Droop shift correction applied to the magnitude estimate</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_aca</p></td>
+<td><p>float32</p></td>
+<td><p>ACA star magnitude from the AGASC catalog</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_aca_err</p></td>
+<td><p>float64</p></td>
+<td><p>ACA star magnitude uncertainty from the AGASC catalog</p></td>
+</tr>
+<tr class="row-odd"><td><p>row</p></td>
+<td><p>float64</p></td>
+<td><p>Expected row number, based on star location and yanf/zang from mica.archive.starcheck DB</p></td>
+</tr>
+<tr class="row-even"><td><p>col</p></td>
+<td><p>float64</p></td>
+<td><p>Expected col number, based on star location and yanf/zang from mica.archive.starcheck DB</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_img</p></td>
+<td><p>float64</p></td>
+<td><p>Magnitude estimate from image telemetry (uncorrected)</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_obs</p></td>
+<td><p>float64</p></td>
+<td><p>Estimated ACA star magnitude</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_obs_err</p></td>
+<td><p>float64</p></td>
+<td><p>Estimated ACA star magnitude uncertainty</p></td>
+</tr>
+<tr class="row-even"><td><p>aoacmag_mean</p></td>
+<td><p>float64</p></td>
+<td><p>Mean of AOACMAG from telemetry</p></td>
+</tr>
+<tr class="row-odd"><td><p>aoacmag_err</p></td>
+<td><p>float64</p></td>
+<td><p>Standard deviation of AOACMAG from telemetry</p></td>
+</tr>
+<tr class="row-even"><td><p>aoacmag_q25</p></td>
+<td><p>float64</p></td>
+<td><p>1st quartile of AOACMAG from telemetry</p></td>
+</tr>
+<tr class="row-odd"><td><p>aoacmag_median</p></td>
+<td><p>float64</p></td>
+<td><p>Median of AOACMAG from telemetry</p></td>
+</tr>
+<tr class="row-even"><td><p>aoacmag_q75</p></td>
+<td><p>float64</p></td>
+<td><p>3rd quartile of AOACMAG from telemetry</p></td>
+</tr>
+<tr class="row-odd"><td><p>counts_img</p></td>
+<td><p>float64</p></td>
+<td><p>Raw counts from image telemetry, summed over the mouse-bit window</p></td>
+</tr>
+<tr class="row-even"><td><p>counts_dark</p></td>
+<td><p>float64</p></td>
+<td><p>Expected counts from background, summed over the mouse-bit window</p></td>
+</tr>
+<tr class="row-odd"><td><p>f_kalman</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of all samples where AOACASEQ == “KALM” and AOPCADMD == “NPNT” (n_kalman/n)</p></td>
+</tr>
+<tr class="row-even"><td><p>f_track</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of kalman samples with AOACIIR == “OK” and AOACFCT == “TRAK” (n_track/n_kalman)</p></td>
+</tr>
+<tr class="row-odd"><td><p>f_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of “track” samples with angle residual less than 5 arcsec (n_dr5/n_track)</p></td>
+</tr>
+<tr class="row-even"><td><p>f_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of “track” samples with angle residual less than 3 arcsec (n_dr3/n_track)</p></td>
+</tr>
+<tr class="row-odd"><td><p>f_ok</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of all samples with (kalman &amp; track &amp; dr5) == True (n_ok/n)</p></td>
+</tr>
+<tr class="row-even"><td><p>q25</p></td>
+<td><p>float64</p></td>
+<td><p>1st quartile of estimated magnitude</p></td>
+</tr>
+<tr class="row-odd"><td><p>median</p></td>
+<td><p>float64</p></td>
+<td><p>Median of estimated magnitude</p></td>
+</tr>
+<tr class="row-even"><td><p>q75</p></td>
+<td><p>float64</p></td>
+<td><p>1st quartile of estimated magnitude</p></td>
+</tr>
+<tr class="row-odd"><td><p>mean</p></td>
+<td><p>float64</p></td>
+<td><p>Mean of estimated magnitude</p></td>
+</tr>
+<tr class="row-even"><td><p>mean_err</p></td>
+<td><p>float64</p></td>
+<td><p>Uncrtainty in the mean of estimated magnitude</p></td>
+</tr>
+<tr class="row-odd"><td><p>std</p></td>
+<td><p>float64</p></td>
+<td><p>Standard deviation of estimated magnitude</p></td>
+</tr>
+<tr class="row-even"><td><p>skew</p></td>
+<td><p>float64</p></td>
+<td><p>Skewness of estimated magnitude</p></td>
+</tr>
+<tr class="row-odd"><td><p>kurt</p></td>
+<td><p>float64</p></td>
+<td><p>Kurtosis of estimated magnitude</p></td>
+</tr>
+<tr class="row-even"><td><p>t_mean</p></td>
+<td><p>float64</p></td>
+<td><p>Mean of estimated magnitude after removing outliers</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_mean_err</p></td>
+<td><p>float64</p></td>
+<td><p>Uncertainty in the mean of estimated magnitude after removing outliers</p></td>
+</tr>
+<tr class="row-even"><td><p>t_std</p></td>
+<td><p>float64</p></td>
+<td><p>Standard deviation of estimated magnitude after removing outliers</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_skew</p></td>
+<td><p>float64</p></td>
+<td><p>Skewness of estimated magnitude after removing outliers</p></td>
+</tr>
+<tr class="row-even"><td><p>t_kurt</p></td>
+<td><p>float64</p></td>
+<td><p>Kurtosis of estimated magnitude after removing outliers</p></td>
+</tr>
+<tr class="row-odd"><td><p>n</p></td>
+<td><p>int64</p></td>
+<td><p>Number of samples</p></td>
+</tr>
+<tr class="row-even"><td><p>n_ok</p></td>
+<td><p>int64</p></td>
+<td><p>Number of samples with (kalman &amp; track &amp; dr5) == True</p></td>
+</tr>
+<tr class="row-odd"><td><p>outliers</p></td>
+<td><p>int64</p></td>
+<td><p>Number of outliers (+- 3 IQR)</p></td>
+</tr>
+<tr class="row-even"><td><p>lf_variability_100s</p></td>
+<td><p>float64</p></td>
+<td><p>Rolling mean of OK magnitudes with a 100 second window</p></td>
+</tr>
+<tr class="row-odd"><td><p>lf_variability_500s</p></td>
+<td><p>float64</p></td>
+<td><p>Rolling mean of OK magnitudes with a 500 second window</p></td>
+</tr>
+<tr class="row-even"><td><p>lf_variability_1000s</p></td>
+<td><p>float64</p></td>
+<td><p>Rolling mean of OK magnitudes with a 1000 second window</p></td>
+</tr>
+<tr class="row-odd"><td><p>tempccd</p></td>
+<td><p>float64</p></td>
+<td><p>CCD temperature</p></td>
+</tr>
+<tr class="row-even"><td><p>dr_star</p></td>
+<td><p>float64</p></td>
+<td><p>Angle residual</p></td>
+</tr>
+<tr class="row-odd"><td><p>obs_ok</p></td>
+<td><p>bool</p></td>
+<td><p>Boolean flag: everything OK with this observation</p></td>
+</tr>
+<tr class="row-even"><td><p>obs_suspect</p></td>
+<td><p>bool</p></td>
+<td><p>Boolean flag: this observation is “suspect”</p></td>
+</tr>
+<tr class="row-odd"><td><p>obs_fail</p></td>
+<td><p>bool</p></td>
+<td><p>Boolean flag: a processing error when estimating magnitude for this observation</p></td>
+</tr>
+<tr class="row-even"><td><p>comments</p></td>
+<td><p>bytes54</p></td>
+<td><p>General comments</p></td>
+</tr>
+<tr class="row-odd"><td><p>w</p></td>
+<td><p>float64</p></td>
+<td><p>Weight to be used on a weighted mean (1/std)</p></td>
+</tr>
+<tr class="row-even"><td><p>mean_corrected</p></td>
+<td><p>float64</p></td>
+<td><p>Corrected mean used in weighted mean (t_mean + mag_correction)</p></td>
+</tr>
+<tr class="row-odd"><td><p>weighted_mean</p></td>
+<td><p>float64</p></td>
+<td><p>Mean weighted by inverse of standard deviation (mean/std)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="mag-stats-agasc-fits">
+<h3>mag_stats_agasc.fits<a class="headerlink" href="#mag-stats-agasc-fits" title="Permalink to this headline">¶</a></h3>
+<p><cite>mag_stats_agasc.fits</cite> is an optional file that contains a single table. The table has one row for
+each star. This file is updated in each update, thus providing a summary of all
+star-observations to date, but if it is created if it does not exist already.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 4%" />
+<col style="width: 83%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>last_obs_time</p></td>
+<td><p>float64</p></td>
+<td><p>CXC seconds corresponding to the last mp_starcat_time for the star</p></td>
+</tr>
+<tr class="row-odd"><td><p>agasc_id</p></td>
+<td><p>int64</p></td>
+<td><p>AGASC ID of the star</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_aca</p></td>
+<td><p>float64</p></td>
+<td><p>ACA star magnitude from the AGASC catalog</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_aca_err</p></td>
+<td><p>float64</p></td>
+<td><p>ACA star magnitude uncertainty from the AGASC catalog</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_obs</p></td>
+<td><p>float64</p></td>
+<td><p>Estimated ACA star magnitude</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_obs_err</p></td>
+<td><p>float64</p></td>
+<td><p>Estimated ACA star magnitude uncertainty</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_obs_std</p></td>
+<td><p>float64</p></td>
+<td><p>Estimated ACA star magnitude standard deviation</p></td>
+</tr>
+<tr class="row-odd"><td><p>color</p></td>
+<td><p>float64</p></td>
+<td><p>Star color from the AGASC catalog</p></td>
+</tr>
+<tr class="row-even"><td><p>n_obsids</p></td>
+<td><p>int64</p></td>
+<td><p>Number of observations for the star</p></td>
+</tr>
+<tr class="row-odd"><td><p>n_obsids_fail</p></td>
+<td><p>int64</p></td>
+<td><p>Number of observations which give an unexpected error</p></td>
+</tr>
+<tr class="row-even"><td><p>n_obsids_suspect</p></td>
+<td><p>int64</p></td>
+<td><p>Number of observations deemed “suspect” and ignored in the magnitude estimate</p></td>
+</tr>
+<tr class="row-odd"><td><p>n_obsids_ok</p></td>
+<td><p>int64</p></td>
+<td><p>Number of observations considered in the magnitude estimate</p></td>
+</tr>
+<tr class="row-even"><td><p>n_no_track</p></td>
+<td><p>int64</p></td>
+<td><p>Number of observations where the star was never tracked</p></td>
+</tr>
+<tr class="row-odd"><td><p>n</p></td>
+<td><p>int64</p></td>
+<td><p>Total number of image samples for the star</p></td>
+</tr>
+<tr class="row-even"><td><p>n_ok</p></td>
+<td><p>int64</p></td>
+<td><p>Total number of image samples included in magnitude estimate for the star</p></td>
+</tr>
+<tr class="row-odd"><td><p>f_ok</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of the total samples included in magnitude estimate</p></td>
+</tr>
+<tr class="row-even"><td><p>median</p></td>
+<td><p>float64</p></td>
+<td><p>Median magnitude over OK image samples</p></td>
+</tr>
+<tr class="row-odd"><td><p>sigma_minus</p></td>
+<td><p>float64</p></td>
+<td><p>15.8% quantile of magnitude over OK image samples</p></td>
+</tr>
+<tr class="row-even"><td><p>sigma_plus</p></td>
+<td><p>float64</p></td>
+<td><p>84.2% quantile of magnitude over OK image samples</p></td>
+</tr>
+<tr class="row-odd"><td><p>mean</p></td>
+<td><p>float64</p></td>
+<td><p>Mean of magnitude over OK image samples</p></td>
+</tr>
+<tr class="row-even"><td><p>std</p></td>
+<td><p>float64</p></td>
+<td><p>Standard deviation of magnitude over OK image samples</p></td>
+</tr>
+<tr class="row-odd"><td><p>mag_weighted_mean</p></td>
+<td><p>float64</p></td>
+<td><p>Average of magnitudes over observations, weighed by the inverse of its standard deviation</p></td>
+</tr>
+<tr class="row-even"><td><p>mag_weighted_std</p></td>
+<td><p>float64</p></td>
+<td><p>Uncertainty in the weighted magnitude mean</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_mean</p></td>
+<td><p>float64</p></td>
+<td><p>Mean magnitude after removing outliers on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>t_std</p></td>
+<td><p>float64</p></td>
+<td><p>Magnitude standard deviation after removing outliers on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>n_outlier</p></td>
+<td><p>int64</p></td>
+<td><p>Number of outliers, removed on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>t_mean_1</p></td>
+<td><p>float64</p></td>
+<td><p>Mean magnitude after removing 1.5*IQR outliers</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_std_1</p></td>
+<td><p>float64</p></td>
+<td><p>Magnitude standard deviation after removing 1.5*IQR outliers</p></td>
+</tr>
+<tr class="row-even"><td><p>n_outlier_1</p></td>
+<td><p>int64</p></td>
+<td><p>Number of 1.5*IQR outliers</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_mean_2</p></td>
+<td><p>float64</p></td>
+<td><p>Mean magnitude after removing 3*IQR outliers</p></td>
+</tr>
+<tr class="row-even"><td><p>t_std_2</p></td>
+<td><p>float64</p></td>
+<td><p>Magnitude standard deviation after removing 3*IQR outliers</p></td>
+</tr>
+<tr class="row-odd"><td><p>n_outlier_2</p></td>
+<td><p>int64</p></td>
+<td><p>Number of 3*IQR outliers</p></td>
+</tr>
+<tr class="row-even"><td><p>selected_atol</p></td>
+<td><p>bool</p></td>
+<td><p>abs(mag_obs - mag_aca) &gt; 0.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>selected_rtol</p></td>
+<td><p>bool</p></td>
+<td><p>abs(mag_obs - mag_aca) &gt; 3 * mag_aca_err</p></td>
+</tr>
+<tr class="row-even"><td><p>selected_mag_aca_err</p></td>
+<td><p>bool</p></td>
+<td><p>mag_aca_err &gt; 0.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>selected_color</p></td>
+<td><p>bool</p></td>
+<td><p>(color == 1.5) | (color == 0.7)</p></td>
+</tr>
+<tr class="row-even"><td><p>t_mean_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Truncated mean magnitude after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_std_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Truncated magnitude standard deviation after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>t_mean_dr3_not</p></td>
+<td><p>float64</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>t_std_dr3_not</p></td>
+<td><p>float64</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>mean_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Mean magnitude after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>std_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Magnitude standard deviation after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>f_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of OK image samples with angular residual less than 3 arcsec</p></td>
+</tr>
+<tr class="row-odd"><td><p>n_dr3</p></td>
+<td><p>int64</p></td>
+<td><p>Number of OK image samples with angular residual less than 3 arcsec</p></td>
+</tr>
+<tr class="row-even"><td><p>n_dr3_outliers</p></td>
+<td><p>int64</p></td>
+<td><p>Number of magnitude outliers after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>median_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>Median magnitude after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>sigma_minus_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>15.8% quantile of magnitude after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>sigma_plus_dr3</p></td>
+<td><p>float64</p></td>
+<td><p>84.2% quantile of magnitude after removing outliers and samples with angular residual &gt; 3 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>t_mean_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Truncated mean magnitude after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>t_std_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Truncated magnitude standard deviation after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>t_mean_dr5_not</p></td>
+<td><p>float64</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>t_std_dr5_not</p></td>
+<td><p>float64</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>mean_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Mean magnitude after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>std_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Magnitude standard deviation after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>f_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Fraction of OK image samples with angular residual less than 5 arcsec</p></td>
+</tr>
+<tr class="row-odd"><td><p>n_dr5</p></td>
+<td><p>int64</p></td>
+<td><p>Number of OK image samples with angular residual less than 5 arcsec</p></td>
+</tr>
+<tr class="row-even"><td><p>n_dr5_outliers</p></td>
+<td><p>int64</p></td>
+<td><p>Number of magnitude outliers after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>median_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>Median magnitude after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-even"><td><p>sigma_minus_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>15.8% quantile of magnitude after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+<tr class="row-odd"><td><p>sigma_plus_dr5</p></td>
+<td><p>float64</p></td>
+<td><p>84.2% quantile of magnitude after removing outliers and samples with angular residual &gt; 5 arcsec on a per-observation basis</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -201,16 +1013,44 @@ The location of these files can also be specified in the command line. More info
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">Updating the AGASC Supplement</a><ul>
-<li><a class="reference internal" href="#guidelines-and-procedure-to-update-the-supplement">Guidelines and Procedure to Update the Supplement</a></li>
-<li><a class="reference internal" href="#bad-stars-and-star-observations">Bad Stars and Star Observations</a></li>
-<li><a class="reference internal" href="#the-magnitude-supplement">The Magnitude Supplement</a></li>
+<li><a class="reference internal" href="#">Maintaining the AGASC Supplement</a><ul>
+<li><a class="reference internal" href="#guidelines-and-procedure-to-update-the-supplement">Guidelines and Procedure to Update the Supplement</a><ul>
+<li><a class="reference internal" href="#candidate-supplement-update">Candidate supplement update</a></li>
+<li><a class="reference internal" href="#report-review">Report review</a></li>
+<li><a class="reference internal" href="#applying-review">Applying review</a></li>
+<li><a class="reference internal" href="#promotion">Promotion</a></li>
+<li><a class="reference internal" href="#rubric-for-disposition-of-bad-observations">Rubric for disposition of bad observations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#details">Details</a><ul>
+<li><a class="reference internal" href="#bad-stars-and-star-observations">Bad Stars and Star Observations</a><ul>
+<li><a class="reference internal" href="#updating-via-mica-tools">Updating via mica tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#magnitude-supplement">Magnitude Supplement</a></li>
 <li><a class="reference internal" href="#magnitude-supplement-reports">Magnitude Supplement Reports</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#scripts">Scripts</a><ul>
-<li><a class="reference internal" href="#agasc-supplement-obs-status"><span class="xref std std-ref">agasc-supplement-obs-status</span></a></li>
-<li><a class="reference internal" href="#agasc-supplement-update"><span class="xref std std-ref">agasc-supplement-update</span></a></li>
-<li><a class="reference internal" href="#agasc-mag-estimate-report"><span class="xref std std-ref">agasc-mag-estimate-report</span></a></li>
-<li><a class="reference internal" href="#agasc-supplement-bad-star"><span class="xref std std-ref">agasc-supplement-bad-star</span></a></li>
+<li><a class="reference internal" href="#agasc-update-supplement"><span class="xref std std-ref">agasc-update-supplement</span></a><ul>
+<li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#OBS/star status">OBS/star status</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agasc-update-magnitudes"><span class="xref std std-ref">agasc-update-magnitudes</span></a></li>
+<li><a class="reference internal" href="#agasc-magnitudes-report"><span class="xref std std-ref">agasc-magnitudes-report</span></a></li>
+<li><a class="reference internal" href="#agasc-supplement-tasks"><span class="xref std std-ref">agasc-supplement-tasks</span></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#data-products">Data products</a><ul>
+<li><a class="reference internal" href="#agasc-supplement-h5">agasc_supplement.h5</a><ul>
+<li><a class="reference internal" href="#bad">bad</a></li>
+<li><a class="reference internal" href="#mags">mags</a></li>
+<li><a class="reference internal" href="#obs">obs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mag-stats-obsid-fits">mag_stats_obsid.fits</a></li>
+<li><a class="reference internal" href="#mag-stats-agasc-fits">mag_stats_agasc.fits</a></li>
 </ul>
 </li>
 </ul>
