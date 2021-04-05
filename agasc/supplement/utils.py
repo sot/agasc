@@ -43,6 +43,22 @@ OBS_DTYPE = np.dtype([
 ])
 
 
+COLUMN_DESCRIPTION = {
+    'agasc_id': 'The unique AGASC ID.',
+    'source': 'Bad star disposition source.',
+    'mag_aca': 'Star magnitude determined with ACA.',
+    'mag_aca_err': 'Star magnitude uncertainty determined with ACA.',
+    'last_obs_time': 'mp_starcat_time of the last observation of a star',
+    'mp_starcat_time':
+        'timestamp from kadi.commands for starcat command preceding the dwell of an observation',
+    'obsid':
+        'The OBSID corresponding to the dwell when an observation is made. Might not be unique.',
+    'status':
+        'Flag to tell include/excude the observation when estimating magnitude (0 means "include")',
+    'comments': '',
+}
+
+
 @lru_cache_timed(timeout=3600)
 def get_supplement_table(name, agasc_dir=None, as_dict=False):
     """Get one of the tables in the AGASC supplement.

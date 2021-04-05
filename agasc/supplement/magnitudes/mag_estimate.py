@@ -552,6 +552,74 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     }
 
 
+OBS_STATS_INFO = {
+    'agasc_id': 'AGASC ID of the star',
+    'obsid': 'OBSID corresponding to the dwell when the observation is made',
+    'slot': 'Slot number',
+    'type': 'GUI/ACQ/BOT',
+    'mp_starcat_time':
+        'Timestamp (from kadi.commands) for starcat command '
+        'preceding the dwell of an observation.',
+    'timeline_id': 'starcat command timeline_id from kadi.commands.get_cmds',
+    'tstart': 'Dwell start time from kadi.events.manvrs',
+    'tstop': 'Dwell end time from kadi.events.manvrs',
+    'mag_correction': 'Overall correction applied to the magnitude estimate',
+    'responsivity': 'Responsivity correction applied to the magnitude estimate',
+    'droop_shift': 'Droop shift correction applied to the magnitude estimate',
+    'mag_aca': 'ACA star magnitude from the AGASC catalog',
+    'mag_aca_err': 'ACA star magnitude uncertainty from the AGASC catalog',
+    'row':
+        'Expected row number, based on star location and yanf/zang from mica.archive.starcheck DB',
+    'col':
+        'Expected col number, based on star location and yanf/zang from mica.archive.starcheck DB',
+    'mag_img': 'Magnitude estimate from image telemetry (uncorrected)',
+    'mag_obs': 'Estimated ACA star magnitude',
+    'mag_obs_err': 'Estimated ACA star magnitude uncertainty',
+    'aoacmag_mean': 'Mean of AOACMAG from telemetry',
+    'aoacmag_err': 'Standard deviation of AOACMAG from telemetry',
+    'aoacmag_q25': '1st quartile of AOACMAG from telemetry',
+    'aoacmag_median': 'Median of AOACMAG from telemetry',
+    'aoacmag_q75': '3rd quartile of AOACMAG from telemetry',
+    'counts_img': 'Raw counts from image telemetry, summed over the mouse-bit window',
+    'counts_dark': 'Expected counts from background, summed over the mouse-bit window',
+    'f_kalman':
+        'Fraction of all samples where AOACASEQ == "KALM" and AOPCADMD == "NPNT" (n_kalman/n)',
+    'f_track':
+        'Fraction of kalman samples with AOACIIR == "OK" and AOACFCT == "TRAK" (n_track/n_kalman)',
+    'f_dr5': 'Fraction of "track" samples with angle residual less than 5 arcsec (n_dr5/n_track)',
+    'f_dr3': 'Fraction of "track" samples with angle residual less than 3 arcsec (n_dr3/n_track)',
+    'f_ok': 'Fraction of all samples with (kalman & track & dr5) == True (n_ok/n)',
+    'q25': '1st quartile of estimated magnitude',
+    'median': 'Median of estimated magnitude',
+    'q75': '1st quartile of estimated magnitude',
+    'mean': 'Mean of estimated magnitude',
+    'mean_err': 'Uncrtainty in the mean of estimated magnitude',
+    'std': 'Standard deviation of estimated magnitude',
+    'skew': 'Skewness of estimated magnitude',
+    'kurt': 'Kurtosis of estimated magnitude',
+    't_mean': 'Mean of estimated magnitude after removing outliers',
+    't_mean_err': 'Uncertainty in the mean of estimated magnitude after removing outliers',
+    't_std': 'Standard deviation of estimated magnitude after removing outliers',
+    't_skew': 'Skewness of estimated magnitude after removing outliers',
+    't_kurt': 'Kurtosis of estimated magnitude after removing outliers',
+    'n': 'Number of samples',
+    'n_ok': 'Number of samples with (kalman & track & dr5) == True',
+    'outliers': 'Number of outliers (+- 3 IQR)',
+    'lf_variability_100s': 'Rolling mean of OK magnitudes with a 100 second window',
+    'lf_variability_500s': 'Rolling mean of OK magnitudes with a 500 second window',
+    'lf_variability_1000s': 'Rolling mean of OK magnitudes with a 1000 second window',
+    'tempccd': 'CCD temperature',
+    'dr_star': 'Angle residual',
+    'obs_ok': 'Boolean flag: everything OK with this observation',
+    'obs_suspect': 'Boolean flag: this observation is "suspect"',
+    'obs_fail': 'Boolean flag: a processing error when estimating magnitude for this observation',
+    'comments': '',
+    'w': 'Weight to be used on a weighted mean (1/std)',
+    'mean_corrected': 'Corrected mean used in weighted mean (t_mean + mag_correction)',
+    'weighted_mean': 'Mean weighted by inverse of standard deviation (mean/std)',
+}
+
+
 def get_obs_stats(obs, telem=None):
     """
     Get summary magnitude statistics for an observation.
@@ -737,6 +805,102 @@ def calc_obs_stats(telem):
     })
 
     return stats
+
+
+AGASC_ID_STATS_INFO = {
+    'last_obs_time': 'CXC seconds corresponding to the last mp_starcat_time for the star',
+    'agasc_id': 'AGASC ID of the star',
+    'mag_aca': 'ACA star magnitude from the AGASC catalog',
+    'mag_aca_err': 'ACA star magnitude uncertainty from the AGASC catalog',
+    'mag_obs': 'Estimated ACA star magnitude',
+    'mag_obs_err': 'Estimated ACA star magnitude uncertainty',
+    'mag_obs_std': 'Estimated ACA star magnitude standard deviation',
+    'color': 'Star color from the AGASC catalog',
+    'n_obsids': 'Number of observations for the star',
+    'n_obsids_fail': 'Number of observations which give an unexpected error',
+    'n_obsids_suspect':
+        'Number of observations deemed "suspect" and ignored in the magnitude estimate',
+    'n_obsids_ok': 'Number of observations considered in the magnitude estimate',
+    'n_no_track': 'Number of observations where the star was never tracked',
+    'n': 'Total number of image samples for the star',
+    'n_ok': 'Total number of image samples included in magnitude estimate for the star',
+    'f_ok': 'Fraction of the total samples included in magnitude estimate',
+    'median': 'Median magnitude over OK image samples',
+    'sigma_minus': '15.8% quantile of magnitude over OK image samples',
+    'sigma_plus': '84.2% quantile of magnitude over OK image samples',
+    'mean': 'Mean of magnitude over OK image samples',
+    'std': 'Standard deviation of magnitude over OK image samples',
+    'mag_weighted_mean':
+        'Average of magnitudes over observations, weighed by the inverse of its standard deviation',
+    'mag_weighted_std':
+        'Uncertainty in the weighted magnitude mean',
+    't_mean': 'Mean magnitude after removing outliers on a per-observation basis',
+    't_std': 'Magnitude standard deviation after removing outliers on a per-observation basis',
+    'n_outlier': 'Number of outliers, removed on a per-observation basis',
+    't_mean_1': 'Mean magnitude after removing 1.5*IQR outliers',
+    't_std_1': 'Magnitude standard deviation after removing 1.5*IQR outliers',
+    'n_outlier_1': 'Number of 1.5*IQR outliers',
+    't_mean_2': 'Mean magnitude after removing 3*IQR outliers',
+    't_std_2': 'Magnitude standard deviation after removing 3*IQR outliers',
+    'n_outlier_2': 'Number of 3*IQR outliers',
+    'selected_atol': 'abs(mag_obs - mag_aca) > 0.3',
+    'selected_rtol': 'abs(mag_obs - mag_aca) > 3 * mag_aca_err',
+    'selected_mag_aca_err': 'mag_aca_err > 0.2',
+    'selected_color': '(color == 1.5) | (color == 0.7)',
+    't_mean_dr3':
+        'Truncated mean magnitude after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    't_std_dr3':
+        'Truncated magnitude standard deviation after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    'mean_dr3':
+        'Mean magnitude after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    'std_dr3':
+        'Magnitude standard deviation after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    'f_dr3': 'Fraction of OK image samples with angular residual less than 3 arcsec',
+    'n_dr3': 'Number of OK image samples with angular residual less than 3 arcsec',
+    'n_dr3_outliers':
+        'Number of magnitude outliers after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    'median_dr3':
+        'Median magnitude after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    'sigma_minus_dr3':
+        '15.8% quantile of magnitude after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+    'sigma_plus_dr3':
+        '84.2% quantile of magnitude after removing outliers and samples with '
+        'angular residual > 3 arcsec on a per-observation basis',
+
+    't_mean_dr5':
+        'Truncated mean magnitude after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    't_std_dr5':
+        'Truncated magnitude standard deviation after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    'mean_dr5':
+        'Mean magnitude after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    'std_dr5':
+        'Magnitude standard deviation after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    'f_dr5': 'Fraction of OK image samples with angular residual less than 5 arcsec',
+    'n_dr5': 'Number of OK image samples with angular residual less than 5 arcsec',
+    'n_dr5_outliers':
+        'Number of magnitude outliers after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    'median_dr5':
+        'Median magnitude after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    'sigma_minus_dr5':
+        '15.8% quantile of magnitude after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+    'sigma_plus_dr5':
+        '84.2% quantile of magnitude after removing outliers and samples with '
+        'angular residual > 5 arcsec on a per-observation basis',
+}
 
 
 def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):

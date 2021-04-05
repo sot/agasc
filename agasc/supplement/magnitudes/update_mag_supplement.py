@@ -198,6 +198,9 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
             agasc_stats = _update_table(table.Table.read(filename), agasc_stats,
                                         keys=['agasc_id'])
             os.remove(filename)
+        for column in agasc_stats.colnames:
+            if column in mag_estimate.AGASC_ID_STATS_INFO:
+                agasc_stats[column].description = mag_estimate.AGASC_ID_STATS_INFO[column]
         agasc_stats.write(filename)
     if obs_stats is not None and len(obs_stats):
         filename = outdir / 'mag_stats_obsid.fits'
@@ -206,6 +209,9 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
             obs_stats = _update_table(table.Table.read(filename), obs_stats,
                                       keys=['agasc_id', 'obsid', 'timeline_id'])
             os.remove(filename)
+        for column in obs_stats.colnames:
+            if column in mag_estimate.OBS_STATS_INFO:
+                obs_stats[column].description = mag_estimate.OBS_STATS_INFO[column]
         obs_stats.write(filename)
     if len(fails):
         filename = outdir / 'mag_stats_fails.pkl'
