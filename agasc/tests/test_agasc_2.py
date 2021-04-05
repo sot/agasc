@@ -529,7 +529,7 @@ def test_get_supplement_table_mags_dict():
 def test_get_supplement_table_obs():
     obs = agasc.get_supplement_table('obs')
     assert isinstance(obs, Table)
-    assert obs.colnames == ['obsid', 'agasc_id', 'ok', 'comments']
+    assert obs.colnames == ['mp_starcat_time', 'agasc_id', 'obsid', 'status', 'comments']
 
 
 @pytest.mark.skipif(NO_OBS_IN_SUPPLEMENT, reason='no obs in supplement')
