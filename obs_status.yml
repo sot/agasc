@@ -1,3 +1,74 @@
+bad:
+  33690776: 9
+  38535536: 9
+  62922104: 9
+  68956456: 9
+  92812824: 9
+  110493968: 9
+  111028544: 9
+  118359864: 9
+  118498608: 9
+  120457376: 9
+  145113736: 9
+  152831696: 9
+  166993856: 9
+  185871616: 9
+  187829568: 9
+  188482256: 9
+  188501784: 9
+  188623712: 9
+  195167088: 9
+  225576592: 9
+  257953336: 9
+  288753656: 9
+  306200176: 9
+  311824376: 9
+  327945264: 9
+  328077952: 9
+  373564272: 9
+  377102496: 9
+  391120072: 9
+  444743456: 11
+  450103168: 9
+  458500128: 13  # new value
+  497824592: 9
+  614482704: 9
+  615914552: 9
+  616699752: 9
+  626667256: 12
+  639635448: 9
+  647762704: 9
+  652480464: 9
+  653529952: 9
+  653919168: 9
+  654050016: 9
+  686557584: 9
+  686557784: 9
+  689441328: 9
+  694561568: 9
+  720504096: 9
+  723657296: 12
+  740693864: 9
+  771756656: 9
+  805966472: 9
+  821318496: 9
+  836372744: 9
+  836381648: 9
+  879768704: 9
+  891159184: 9
+  897878136: 9
+  898125104: 9
+  899950912: 9
+  901664112: 9
+  915939232: 9
+  962998672: 9
+  974791856: 9
+  1058938112: 9
+  1105592952: 9
+  1117787424: 9
+  1130649544: 9
+  1139171624: 9
+  1197635184: 9
 mags:
 - agasc_id: 1081092600
   mag_aca: 11.0
@@ -59,19 +130,19 @@ mags:
 - agasc_id: 118498608
   mag_aca: 12.7
   mag_aca_err: 0.1
-- mag_aca: 653919168
+- agasc_id: 653919168
   mag_aca: 13.1
   mag_aca_err: 0.1
-- mag_aca: 82972168
+- agasc_id: 82972168
   mag_aca: 11.2
   mag_aca_err: 0.1
-- mag_aca: 689441328
+- agasc_id: 689441328
   mag_aca: 12.0
   mag_aca_err: 0.1
-- mag_aca: 694561568
+- agasc_id: 694561568
   mag_aca: 9.8
   mag_aca_err: 0.1
-- mag_aca: 836381648
+- agasc_id: 836381648
   mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 33690776
@@ -123,7 +194,7 @@ mags:
   mag_aca: 10.953
   mag_aca_err: 0.1
 - agasc_id: 311824376
-  mag_aca: 11.250
+  mag_aca: 11.25
   mag_aca_err: 0.1
 - agasc_id: 377102496
   mag_aca: 10.797
@@ -153,59 +224,137 @@ mags:
   mag_aca: 10.719
   mag_aca_err: 0.1
 - agasc_id: 897878136
-  mag_aca: 10.750
+  mag_aca: 10.75
   mag_aca_err: 0.1
 - agasc_id: 974791856
   mag_aca: 11.375
   mag_aca_err: 0.1
-
-
-bad:
-  110493968: 9
-  187829568: 9
-  195167088: 9
-  639635448: 9
-  450103168: 9
-  118498608: 9
-  653919168: 9
-  82972168: 9
-  689441328: 9
-  694561568: 9
-  836381648: 9
-  458500128: 13  # new value
-  33690776:  9
-  38535536:  9
-  68956456:  9
-  120457376: 9
-  145113736: 9
-  152831696: 9
-  166993856: 9
-  185871616: 9
-  188482256: 9
-  257953336: 9
-  288753656: 9
-  306200176: 9
-  311824376: 9
-  377102496: 9
-  444743456: 11
-  626667256: 12
-  654050016: 9
-  720504096: 9
-  723657296: 12
-  771756656: 9
-  821318496: 9
-  897878136: 9
-  974791856: 9
-
+- agasc_id: 186125624
+  mag_aca: 11.6
+  mag_aca_err: 0.2
+- agasc_id: 797847184
+  mag_aca: 12.3
+  mag_aca_err: 0.2
+- agasc_id: 1143744224
+  mag_aca: 10.6
+  mag_aca_err: 0.1
+- agasc_id: 92812824
+  mag_aca: 11.141
+  mag_aca_err: 0.1
+- agasc_id: 118359864
+  mag_aca: 11.25
+  mag_aca_err: 0.1
+- agasc_id: 188501784
+  mag_aca: 10.453
+  mag_aca_err: 0.1
+- agasc_id: 327945264
+  mag_aca: 11.25
+  mag_aca_err: 0.1
+- agasc_id: 614482704
+  mag_aca: 11.25
+  mag_aca_err: 0.1
+- agasc_id: 647762704
+  mag_aca: 11.453
+  mag_aca_err: 0.1
+- agasc_id: 652480464
+  mag_aca: 10.075
+  mag_aca_err: 0.1
+- agasc_id: 686557584
+  mag_aca: 9.609
+  mag_aca_err: 0.1
+- agasc_id: 686557784
+  mag_aca: 9.047
+  mag_aca_err: 0.1
+- agasc_id: 740693864
+  mag_aca: 11.875
+  mag_aca_err: 0.1
+- agasc_id: 836372744
+  mag_aca: 11.609
+  mag_aca_err: 0.1
+- agasc_id: 879768704
+  mag_aca: 10.859
+  mag_aca_err: 0.1
+- agasc_id: 891159184
+  mag_aca: 11.203
+  mag_aca_err: 0.1
+- agasc_id: 898125104
+  mag_aca: 11.203
+  mag_aca_err: 0.1
+- agasc_id: 1117787424
+  mag_aca: 11.172
+  mag_aca_err: 0.1
+- agasc_id: 1130649544
+  mag_aca: 8.062
+  mag_aca_err: 0.1
+- agasc_id: 1139171624
+  mag_aca: 10.297
+  mag_aca_err: 0.1
+- agasc_id: 1197635184
+  mag_aca: 10.578
+  mag_aca_err: 0.1
+- agasc_id: 62922104
+  mag_aca: 10.891
+  mag_aca_err: 0.1
+- agasc_id: 111028544
+  mag_aca: 10.516
+  mag_aca_err: 0.1
+- agasc_id: 188623712
+  mag_aca: 11.297
+  mag_aca_err: 0.1
+- agasc_id: 225576592
+  mag_aca: 11.297
+  mag_aca_err: 0.1
+- agasc_id: 328077952
+  mag_aca: 11.016
+  mag_aca_err: 0.1
+- agasc_id: 373564272
+  mag_aca: 11.578
+  mag_aca_err: 0.1
+- agasc_id: 391120072
+  mag_aca: 11.297
+  mag_aca_err: 0.1
+- agasc_id: 497824592
+  mag_aca: 13.078
+  mag_aca_err: 0.1
+- agasc_id: 615914552
+  mag_aca: 10.797
+  mag_aca_err: 0.1
+- agasc_id: 616699752
+  mag_aca: 11.484
+  mag_aca_err: 0.1
+- agasc_id: 653529952
+  mag_aca: 10.844
+  mag_aca_err: 0.1
+- agasc_id: 805966472
+  mag_aca: 11.703
+  mag_aca_err: 0.1
+- agasc_id: 899950912
+  mag_aca: 11.688
+  mag_aca_err: 0.1
+- agasc_id: 901664112
+  mag_aca: 10.406
+  mag_aca_err: 0.1
+- agasc_id: 915939232
+  mag_aca: 12.906
+  mag_aca_err: 0.1
+- agasc_id: 962998672
+  mag_aca: 11.406
+  mag_aca_err: 0.1
+- agasc_id: 1058938112
+  mag_aca: 10.906
+  mag_aca_err: 0.1
+- agasc_id: 1105592952
+  mag_aca: 10.734
+  mag_aca_err: 0.1
 obs:
 - agasc_id:
   - 901664112
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2003:129:13:39:37.186
   status: 1
 - agasc_id:
   - 686557584
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2003:221:17:58:51.959
   status: 1
 - agasc_id:
@@ -245,12 +394,12 @@ obs:
   status: 1
 - agasc_id:
   - 897607632
-  comments: Suspect observation
+  comments: Large magnitude variation. Variable?
   mp_starcat_time: 2004:212:17:56:19.266
   status: 1
 - agasc_id:
   - 76813072
-  comments: Seems to be a mag 8.15 spoiler ~20 arcsec away
+  comments: mag 8.1 spoiler 15 arcsec away
   mp_starcat_time: 2004:277:04:10:18.167
   status: 1
 - agasc_id:
@@ -270,12 +419,12 @@ obs:
   status: 1
 - agasc_id:
   - 652480464
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2005:150:01:28:35.423
   status: 1
 - agasc_id:
   - 615914552
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2005:281:04:44:20.882
   status: 1
 - agasc_id:
@@ -285,17 +434,17 @@ obs:
   status: 1
 - agasc_id:
   - 1197635184
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2005:353:06:48:26.153
   status: 1
 - agasc_id:
   - 1197635184
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2005:354:14:42:59.384
   status: 1
 - agasc_id:
   - 1197635184
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2005:355:23:10:36.631
   status: 1
 - agasc_id:
@@ -310,52 +459,52 @@ obs:
   status: 1
 - agasc_id:
   - 758255832
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:03:56:54.298
   status: 1
 - agasc_id:
   - 758255832
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:06:10:03.448
   status: 1
 - agasc_id:
   - 758255832
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:08:01:53.448
   status: 1
 - agasc_id:
   - 759958456
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:08:01:53.448
   status: 1
 - agasc_id:
   - 757735584
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:15:29:13.448
   status: 1
 - agasc_id:
   - 759961200
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:17:21:03.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:19:12:53.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:21:04:43.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2006:086:22:56:33.448
   status: 1
 - agasc_id:
   - 759439008
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2006:087:00:48:23.448
   status: 1
 - agasc_id:
@@ -380,37 +529,37 @@ obs:
   status: 1
 - agasc_id:
   - 1117787424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:220:05:35:23.362
   status: 1
 - agasc_id:
   - 1117787424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:220:06:30:11.687
   status: 1
 - agasc_id:
   - 1117787424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:220:07:13:11.687
   status: 1
 - agasc_id:
   - 1117787424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:220:07:56:11.687
   status: 1
 - agasc_id:
   - 1117787424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:220:08:39:11.687
   status: 1
 - agasc_id:
   - 1117787424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:220:09:22:11.687
   status: 1
 - agasc_id:
   - 879768704
-  comments: Suspect observation
+  comments: Almost never tracked. Set mag to MAXMAG
   mp_starcat_time: 2007:085:18:25:58.626
   status: 1
 - agasc_id:
@@ -425,32 +574,32 @@ obs:
   status: 0
 - agasc_id:
   - 35000432
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2007:302:21:17:28.912
   status: 1
 - agasc_id:
   - 34997808
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2007:302:23:45:40.189
   status: 1
 - agasc_id:
   - 35398128
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2007:303:01:44:10.189
   status: 1
 - agasc_id:
   - 35001864
-  comments: Poorly tracked.
+  comments: Venus observation
   mp_starcat_time: 2007:303:03:42:40.189
   status: 1
 - agasc_id:
   - 35004328
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2007:303:03:42:40.189
   status: 1
 - agasc_id:
   - 35004456
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2007:303:05:41:10.189
   status: 1
 - agasc_id:
@@ -535,12 +684,12 @@ obs:
   status: 1
 - agasc_id:
   - 616699752
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:290:21:44:31.992
   status: 1
 - agasc_id:
   - 373564272
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:335:11:29:27.547
   status: 1
 - agasc_id:
@@ -550,32 +699,32 @@ obs:
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:355:12:36:00.392
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:356:09:31:17.829
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:357:03:32:22.942
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:357:23:28:34.822
   status: 1
 - agasc_id:
   - 497824592
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2010:004:19:53:30.715
   status: 1
 - agasc_id:
   - 391120072
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2010:042:06:34:25.316
   status: 1
 - agasc_id:
@@ -585,12 +734,12 @@ obs:
   status: 0
 - agasc_id:
   - 805966472
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2010:089:12:06:07.502
   status: 1
 - agasc_id:
   - 962998672
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2010:142:09:25:14.003
   status: 1
 - agasc_id:
@@ -620,7 +769,7 @@ obs:
   status: 1
 - agasc_id:
   - 692723624
-  comments: Suspect observation
+  comments: Poorly tracked
   mp_starcat_time: 2010:298:18:43:27.892
   status: 1
 - agasc_id:
@@ -670,7 +819,7 @@ obs:
   status: 1
 - agasc_id:
   - 186125624
-  comments: Suspect observation
+  comments: Tracked the wrong star except for an 8-second period. Set mag to 11.6
   mp_starcat_time: 2011:076:10:15:21.875
   status: 1
 - agasc_id:
@@ -680,7 +829,7 @@ obs:
   status: 1
 - agasc_id:
   - 647762704
-  comments: Suspect observation
+  comments: Almost never acquired. Set mag to MAXMAG
   mp_starcat_time: 2011:108:03:39:32.321
   status: 1
 - agasc_id:
@@ -735,12 +884,12 @@ obs:
   status: 1
 - agasc_id:
   - 225576592
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2011:248:04:00:06.000
   status: 1
 - agasc_id:
   - 614482704
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2011:269:04:58:50.064
   status: 1
 - agasc_id:
@@ -770,7 +919,7 @@ obs:
   status: 1
 - agasc_id:
   - 1058938112
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2011:343:07:05:57.421
   status: 1
 - agasc_id:
@@ -785,7 +934,7 @@ obs:
   status: 1
 - agasc_id:
   - 118359864
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2012:092:01:34:23.764
   status: 1
 - agasc_id:
@@ -795,12 +944,12 @@ obs:
   status: 1
 - agasc_id:
   - 653529952
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2012:187:04:30:17.984
   status: 1
 - agasc_id:
   - 740693864
-  comments: Suspect observation
+  comments: Faint star. Poorly tracked. Set mag to MAXMAG
   mp_starcat_time: 2012:187:04:42:13.694
   status: 1
 - agasc_id:
@@ -810,7 +959,7 @@ obs:
   status: 1
 - agasc_id:
   - 327945264
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2012:279:07:23:25.438
   status: 1
 - agasc_id:
@@ -820,7 +969,7 @@ obs:
   status: 1
 - agasc_id:
   - 1139171624
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2012:347:23:39:03.772
   status: 1
 - agasc_id:
@@ -835,7 +984,7 @@ obs:
   status: 1
 - agasc_id:
   - 1105592952
-  comments: Suspect observation
+  comments: Almost never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:059:15:13:52.208
   status: 1
 - agasc_id:
@@ -845,17 +994,17 @@ obs:
   status: 1
 - agasc_id:
   - 62922104
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:070:01:06:51.112
   status: 1
 - agasc_id:
   - 188623712
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:085:22:55:02.786
   status: 1
 - agasc_id:
   - 879768704
-  comments: Suspect observation
+  comments: Almost never tracked. Set mag to MAXMAG
   mp_starcat_time: 2013:088:15:35:07.782
   status: 1
 - agasc_id:
@@ -915,7 +1064,7 @@ obs:
   status: 1
 - agasc_id:
   - 836372744
-  comments: Suspect observation
+  comments: Almost never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:207:12:48:00.907
   status: 1
 - agasc_id:
@@ -950,167 +1099,167 @@ obs:
   status: 1
 - agasc_id:
   - 1143744224
-  comments: Suspect observation
+  comments: Poorly tracked. Set mag to 10.6 +- 0.1
   mp_starcat_time: 2013:299:20:58:47.949
   status: 1
 - agasc_id:
   - 897996696
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:03:11:14.093
   status: 1
 - agasc_id:
   - 898002928
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:03:11:14.093
   status: 1
 - agasc_id:
   - 898026352
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:03:11:14.093
   status: 1
 - agasc_id:
   - 897995504
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:06:21:15.039
   status: 1
 - agasc_id:
   - 897996696
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:06:21:15.039
   status: 1
 - agasc_id:
   - 898002928
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:06:21:15.039
   status: 1
 - agasc_id:
   - 898026352
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:06:21:15.039
   status: 1
 - agasc_id:
   - 897995504
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:08:58:05.039
   status: 1
 - agasc_id:
   - 897996696
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:08:58:05.039
   status: 1
 - agasc_id:
   - 898002928
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:08:58:05.039
   status: 1
 - agasc_id:
   - 898026352
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:08:58:05.039
   status: 1
 - agasc_id:
   - 897996696
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:11:34:55.039
   status: 1
 - agasc_id:
   - 897999536
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:11:34:55.039
   status: 1
 - agasc_id:
   - 898002928
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:11:34:55.039
   status: 1
 - agasc_id:
   - 898026352
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:11:34:55.039
   status: 1
 - agasc_id:
   - 897995504
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:14:11:45.039
   status: 1
 - agasc_id:
   - 897999536
-  comments: Never acquired; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:14:11:45.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:14:11:45.039
   status: 1
 - agasc_id:
   - 898026352
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:14:11:45.039
   status: 1
 - agasc_id:
   - 897988944
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:16:48:35.039
   status: 1
 - agasc_id:
   - 897995504
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:16:48:35.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:16:48:35.039
   status: 1
 - agasc_id:
   - 898026352
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:16:48:35.039
   status: 1
 - agasc_id:
   - 897988944
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:19:25:25.039
   status: 1
 - agasc_id:
   - 897995504
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:19:25:25.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:19:25:25.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:22:02:15.039
   status: 1
 - agasc_id:
   - 898124000
-  comments: Venus (should not be processed); Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:22:02:15.039
   status: 1
 - agasc_id:
   - 898125104
-  comments: Venus (should not be processed); Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:312:22:02:15.039
   status: 1
 - agasc_id:
   - 898004384
-  comments: Suspect observation; Venus observation
+  comments: Venus observation
   mp_starcat_time: 2013:313:00:39:05.039
   status: 1
 - agasc_id:
   - 898135232
-  comments: Suspect observation
+  comments: Venus observation
   mp_starcat_time: 2013:313:00:39:05.039
   status: 1
 - agasc_id:
   - 898125104
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:313:03:14:15.039
   status: 1
 - agasc_id:
@@ -1145,7 +1294,7 @@ obs:
   status: 1
 - agasc_id:
   - 328077952
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2014:154:19:18:14.391
   status: 1
 - agasc_id:
@@ -1210,7 +1359,7 @@ obs:
   status: 1
 - agasc_id:
   - 915939232
-  comments: Suspect observation
+  comments: Not tracked. Set mag to MAXMAG
   mp_starcat_time: 2014:252:07:42:35.429
   status: 1
 - agasc_id:
@@ -1315,12 +1464,12 @@ obs:
   status: 1
 - agasc_id:
   - 262408104
-  comments: Suspect observation
+  comments: Short run. Magnitude seems ok.
   mp_starcat_time: 2015:201:22:05:03.421
-  status: 1
+  status: 0
 - agasc_id:
   - 653529952
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2015:212:20:00:08.125
   status: 1
 - agasc_id:
@@ -1345,7 +1494,7 @@ obs:
   status: 1
 - agasc_id:
   - 376724944
-  comments: Suspect observation
+  comments: Mag 6.5 spoiler 45 arcsec away
   mp_starcat_time: 2015:331:14:10:26.457
   status: 1
 - agasc_id:
@@ -1380,7 +1529,7 @@ obs:
   status: 0
 - agasc_id:
   - 118359864
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2016:141:00:48:34.306
   status: 1
 - agasc_id:
@@ -1615,12 +1764,12 @@ obs:
   status: 1
 - agasc_id:
   - 92812824
-  comments: Suspect observation
+  comments: Almost never tracked. Set mag to MAXMAG
   mp_starcat_time: 2017:354:04:35:24.949
   status: 1
 - agasc_id:
   - 653529952
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2018:002:23:37:48.551
   status: 1
 - agasc_id:
@@ -1630,12 +1779,12 @@ obs:
   status: 1
 - agasc_id:
   - 797847184
-  comments: Suspect observation
+  comments: Tracking affected by imposter. Set mag to 12.3 +- 0.2
   mp_starcat_time: 2018:068:11:54:25.784
   status: 1
 - agasc_id:
   - 1105068512
-  comments: Suspect observation
+  comments: spoiler 22 arcsec away
   mp_starcat_time: 2018:069:03:04:54.838
   status: 1
 - agasc_id:
@@ -1650,12 +1799,12 @@ obs:
   status: 0
 - agasc_id:
   - 899950912
-  comments: Suspect observation
+  comments: Faint star. Affected by hot pixels. Set mag to MAXMAG
   mp_starcat_time: 2018:155:22:59:34.754
   status: 1
 - agasc_id:
   - 738075032
-  comments: Suspect observation
+  comments: Spoiler 30 arcsec away
   mp_starcat_time: 2018:158:10:17:36.762
   status: 1
 - agasc_id:
@@ -1665,7 +1814,7 @@ obs:
   status: 1
 - agasc_id:
   - 745014832
-  comments: Suspect observation
+  comments: Tracking affected by imposter
   mp_starcat_time: 2018:198:01:56:54.706
   status: 1
 - agasc_id:
@@ -1675,7 +1824,7 @@ obs:
   status: 1
 - agasc_id:
   - 8395104
-  comments: Suspect observation
+  comments: Magnitude changes within observation. Eclipsing binary
   mp_starcat_time: 2018:295:05:40:26.899
   status: 1
 - agasc_id:
@@ -1700,7 +1849,7 @@ obs:
   status: 1
 - agasc_id:
   - 188501784
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2019:113:10:12:41.647
   status: 1
 - agasc_id:
@@ -1735,7 +1884,7 @@ obs:
   status: 1
 - agasc_id:
   - 122159368
-  comments:  Affected by imposters.
+  comments: Affected by imposters.
   mp_starcat_time: 2019:357:18:41:21.840
   status: 0
 - agasc_id:
@@ -1760,7 +1909,7 @@ obs:
   status: 1
 - agasc_id:
   - 111028544
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2020:059:19:29:07.754
   status: 1
 - agasc_id:
@@ -1790,12 +1939,12 @@ obs:
   status: 1
 - agasc_id:
   - 891159184
-  comments: Suspect observation
+  comments: Almost never tracked. Set mag to MAXMAG
   mp_starcat_time: 2020:139:21:23:16.181
   status: 1
 - agasc_id:
   - 891159184
-  comments: Suspect observation
+  comments: Almost never tracked. Set mag to MAXMAG
   mp_starcat_time: 2020:140:00:46:15.767
   status: 1
 - agasc_id:
@@ -1835,22 +1984,22 @@ obs:
   status: 1
 - agasc_id:
   - 686557584
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2020:272:02:24:05.125
   status: 1
 - agasc_id:
   - 686557784
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2020:272:02:24:05.125
   status: 1
 - agasc_id:
   - 80616784
-  comments: Suspect observation
+  comments: Tracking affected by imposter
   mp_starcat_time: 2020:280:11:16:08.609
   status: 1
 - agasc_id:
   - 82972168
-  comments: Never acquired. Set mag to MAXMAG. Acquired imposter, out of view. NEEDS DECISION.
+  comments: Acquired imposter, out of view.
   mp_starcat_time: 2020:304:03:02:34.117
   status: 1
 - agasc_id:
