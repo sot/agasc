@@ -225,6 +225,11 @@ of these::
     # OS-X
     agasc-update-magnitudes --start `date -v-2d "+%Y-%m-%dT%H:%M:%S"` --stop `date "+%Y-%m-%dT%H:%M:%S"`
 
+This runs the update using the same arguments used for the last update/report::
+
+    agasc-update-magnitudes --log-level debug --output-dir $SKA/data/agasc/rc --report \
+        --args-file $SKA/data/agasc/rc/supplement_reports/weekly/latest/call_args.yml
+
 This updates the magnitudes of all stars after a nominal start date (2003:000)::
 
     agasc-update-magnitudes --whole-history
