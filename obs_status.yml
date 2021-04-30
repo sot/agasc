@@ -1,50 +1,78 @@
 bad:
+  5115672: 9
   33690776: 9
+  34996472: 9
   38535536: 9
+  40113272: 9
+  45616472: 9
+  47846640: 9
+  48892720: 9
+  49818760: 9
   62922104: 9
   68956456: 9
   92812824: 9
+  107881800: 9
+  109061768: 9
   110493968: 9
   111028544: 9
+  111807640: 9
   118359864: 9
   118498608: 9
   120457376: 9
+  144714600: 9
   145113736: 9
   152831696: 9
+  161357600: 9
   166993856: 9
   185871616: 9
   187829568: 9
   188482256: 9
   188501784: 9
   188623712: 9
+  188750920: 9
   195167088: 9
   225576592: 9
+  239080480: 9
   257953336: 9
+  264115840: 9
   288753656: 9
   306200176: 9
   311824376: 9
   327945264: 9
   328077952: 9
+  330967424: 9
+  350392600: 11
   373564272: 9
   377102496: 9
   391120072: 9
+  396501520: 9
+  405276920: 9
+  417611952: 11
   444743456: 11
   450103168: 9
   458500128: 13  # new value
   497824592: 9
+  505545160: 9
+  612370792: 9
   614482704: 9
+  615257632: 9
   615914552: 9
   616699752: 9
   626667256: 12
   639635448: 9
+  643702120: 9
   647762704: 9
+  649070072: 9
   652480464: 9
   653529952: 9
   653919168: 9
   654050016: 9
+  656409216: 9
+  664279632: 9
   686557584: 9
   686557784: 9
   689441328: 9
+  690625640: 9
   694561568: 9
   720504096: 9
   723657296: 12
@@ -60,114 +88,86 @@ bad:
   898125104: 9
   899950912: 9
   901664112: 9
+  904010616: 9
+  913441888: 9
   915939232: 9
   962998672: 9
   974791856: 9
   1058938112: 9
+  1092619768: 9
   1105592952: 9
+  1108353064: 9
   1117787424: 9
   1130649544: 9
   1139171624: 9
+  1178221128: 9
   1197635184: 9
 mags:
-- agasc_id: 1081092600
-  mag_aca: 11.0
-  mag_aca_err: 0.1
-- agasc_id: 1020796600
-  mag_aca: 11.5
-  mag_aca_err: 0.1
-- agasc_id: 915541320
-  mag_aca: 11.6
-  mag_aca_err: 0.1
-- agasc_id: 798760200
-  mag_aca: 11.2
-  mag_aca_err: 0.1
-- agasc_id: 764150080
-  mag_aca: 12.0
-  mag_aca_err: 0.1
-- agasc_id: 693243160
-  mag_aca: 4.5
-  mag_aca_err: 0.1
-- agasc_id: 690625640
-  mag_aca: 11.2
-  mag_aca_err: 0.1
-- agasc_id: 643702120
-  mag_aca: 11.4
-  mag_aca_err: 0.1
-- agasc_id: 505545160
-  mag_aca: 10.8
-  mag_aca_err: 0.1
-- agasc_id: 405271520
-  mag_aca: 11.2
-  mag_aca_err: 0.1
-- agasc_id: 396501520
-  mag_aca: 10.3
-  mag_aca_err: 0.1
-- agasc_id: 239080480
-  mag_aca: 10.2
-  mag_aca_err: 0.1
-- agasc_id: 763893760
-  mag_aca: 11.6
-  mag_aca_err: 0.1
-- agasc_id: 723651200
-  mag_aca: 12.0
-  mag_aca_err: 0.1
-- agasc_id: 110493968
-  mag_aca: 10.3
-  mag_aca_err: 0.1
-- agasc_id: 187829568
-  mag_aca: 11.2
-  mag_aca_err: 0.1
-- agasc_id: 195167088
-  mag_aca: 12.7
-  mag_aca_err: 0.1
-- agasc_id: 639635448
-  mag_aca: 11.2
-  mag_aca_err: 0.1
-- agasc_id: 450103168
-  mag_aca: 12.2
-  mag_aca_err: 0.1
-- agasc_id: 118498608
-  mag_aca: 12.7
-  mag_aca_err: 0.1
-- agasc_id: 653919168
-  mag_aca: 13.1
-  mag_aca_err: 0.1
-- agasc_id: 82972168
-  mag_aca: 11.2
-  mag_aca_err: 0.1
-- agasc_id: 689441328
-  mag_aca: 12.0
-  mag_aca_err: 0.1
-- agasc_id: 694561568
-  mag_aca: 9.8
-  mag_aca_err: 0.1
-- agasc_id: 836381648
-  mag_aca: 11.203
+- agasc_id: 5115672
+  mag_aca: 11.422
   mag_aca_err: 0.1
 - agasc_id: 33690776
   mag_aca: 9.984
   mag_aca_err: 0.1
-- agasc_id: 33690776
-  mag_aca: 9.984
-  mag_aca_err: 0.1
-- agasc_id: 33690776
-  mag_aca: 9.984
-  mag_aca_err: 0.1
-- agasc_id: 33690776
-  mag_aca: 9.984
+- agasc_id: 34996472
+  mag_aca: 10.562
   mag_aca_err: 0.1
 - agasc_id: 38535536
   mag_aca: 10.719
   mag_aca_err: 0.1
-- agasc_id: 38535536
-  mag_aca: 10.719
+- agasc_id: 40113272
+  mag_aca: 11.781
+  mag_aca_err: 0.1
+- agasc_id: 45616472
+  mag_aca: 11.422
+  mag_aca_err: 0.1
+- agasc_id: 47846640
+  mag_aca: 10.891
+  mag_aca_err: 0.1
+- agasc_id: 48892720
+  mag_aca: 11.484
+  mag_aca_err: 0.1
+- agasc_id: 49818760
+  mag_aca: 10.859
+  mag_aca_err: 0.1
+- agasc_id: 62922104
+  mag_aca: 10.891
   mag_aca_err: 0.1
 - agasc_id: 68956456
   mag_aca: 11.328
   mag_aca_err: 0.1
+- agasc_id: 82972168
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 92812824
+  mag_aca: 11.141
+  mag_aca_err: 0.1
+- agasc_id: 107881800
+  mag_aca: 10.969
+  mag_aca_err: 0.1
+- agasc_id: 109061768
+  mag_aca: 11.621  # need to check, not from starcheck report
+  mag_aca_err: 0.1
+- agasc_id: 110493968
+  mag_aca: 10.3
+  mag_aca_err: 0.1
+- agasc_id: 111028544
+  mag_aca: 10.516
+  mag_aca_err: 0.1
+- agasc_id: 111807640
+  mag_aca: 12.266
+  mag_aca_err: 0.1
+- agasc_id: 118359864
+  mag_aca: 11.25
+  mag_aca_err: 0.1
+- agasc_id: 118498608
+  mag_aca: 12.7
+  mag_aca_err: 0.1
 - agasc_id: 120457376
   mag_aca: 11.547
+  mag_aca_err: 0.1
+- agasc_id: 144714600
+  mag_aca: 10.097  # need to check, not from starcheck report
   mag_aca_err: 0.1
 - agasc_id: 145113736
   mag_aca: 11.234
@@ -175,17 +175,47 @@ mags:
 - agasc_id: 152831696
   mag_aca: 10.656
   mag_aca_err: 0.1
+- agasc_id: 161357600
+  mag_aca: 11.094
+  mag_aca_err: 0.1
 - agasc_id: 166993856
   mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 185871616
   mag_aca: 11.391
   mag_aca_err: 0.1
+- agasc_id: 186125624
+  mag_aca: 11.6
+  mag_aca_err: 0.2
+- agasc_id: 187829568
+  mag_aca: 11.2
+  mag_aca_err: 0.1
 - agasc_id: 188482256
   mag_aca: 8.266
   mag_aca_err: 0.1
+- agasc_id: 188501784
+  mag_aca: 10.453
+  mag_aca_err: 0.1
+- agasc_id: 188623712
+  mag_aca: 11.297
+  mag_aca_err: 0.1
+- agasc_id: 188750920
+  mag_aca: 11.469
+  mag_aca_err: 0.1
+- agasc_id: 195167088
+  mag_aca: 12.7
+  mag_aca_err: 0.1
+- agasc_id: 225576592
+  mag_aca: 11.297
+  mag_aca_err: 0.1
+- agasc_id: 239080480
+  mag_aca: 10.2
+  mag_aca_err: 0.1
 - agasc_id: 257953336
   mag_aca: 11.594
+  mag_aca_err: 0.1
+- agasc_id: 264115840
+  mag_aca: 12.844
   mag_aca_err: 0.1
 - agasc_id: 288753656
   mag_aca: 11.359
@@ -196,14 +226,89 @@ mags:
 - agasc_id: 311824376
   mag_aca: 11.25
   mag_aca_err: 0.1
+- agasc_id: 327945264
+  mag_aca: 11.25
+  mag_aca_err: 0.1
+- agasc_id: 328077952
+  mag_aca: 11.016
+  mag_aca_err: 0.1
+- agasc_id: 330967424
+  mag_aca: 10.947  # need to check, not from starcheck report
+  mag_aca_err: 0.1
+- agasc_id: 350392600
+  mag_aca: 5.0  # need to check
+  mag_aca_err: 0.1
+- agasc_id: 373564272
+  mag_aca: 11.578
+  mag_aca_err: 0.1
 - agasc_id: 377102496
   mag_aca: 10.797
+  mag_aca_err: 0.1
+- agasc_id: 391120072
+  mag_aca: 11.297
+  mag_aca_err: 0.1
+- agasc_id: 396501520
+  mag_aca: 10.3
+  mag_aca_err: 0.1
+- agasc_id: 405271520
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 405276920
+  mag_aca: 11.225  # need to check, not from starcheck report
+  mag_aca_err: 0.1
+- agasc_id: 417611952
+  mag_aca: 5.0  # need to check
   mag_aca_err: 0.1
 - agasc_id: 444743456
   mag_aca: 5.0
   mag_aca_err: 0.1
+- agasc_id: 450103168
+  mag_aca: 12.2
+  mag_aca_err: 0.1
+- agasc_id: 497824592
+  mag_aca: 13.078
+  mag_aca_err: 0.1
+- agasc_id: 505545160
+  mag_aca: 10.8
+  mag_aca_err: 0.1
+- agasc_id: 612370792
+  mag_aca: 12.177  # need to check, not from starcheck report
+  mag_aca_err: 0.1
+- agasc_id: 614482704
+  mag_aca: 11.25
+  mag_aca_err: 0.1
+- agasc_id: 615257632
+  mag_aca: 11.031
+  mag_aca_err: 0.1
+- agasc_id: 615914552
+  mag_aca: 10.797
+  mag_aca_err: 0.1
+- agasc_id: 616699752
+  mag_aca: 11.484
+  mag_aca_err: 0.1
 - agasc_id: 626667256
   mag_aca: 10.85
+  mag_aca_err: 0.1
+- agasc_id: 639635448
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 643702120
+  mag_aca: 11.4
+  mag_aca_err: 0.1
+- agasc_id: 647762704
+  mag_aca: 11.453
+  mag_aca_err: 0.1
+- agasc_id: 649070072
+  mag_aca: 12.719
+  mag_aca_err: 0.1
+- agasc_id: 652480464
+  mag_aca: 10.075
+  mag_aca_err: 0.1
+- agasc_id: 653529952
+  mag_aca: 10.844
+  mag_aca_err: 0.1
+- agasc_id: 653919168
+  mag_aca: 13.1
   mag_aca_err: 0.1
 - agasc_id: 654050016
   mag_aca: 11.625
@@ -211,53 +316,8 @@ mags:
 - agasc_id: 656409216
   mag_aca: 11.0
   mag_aca_err: 0.1
-- agasc_id: 720504096
-  mag_aca: 11.344
-  mag_aca_err: 0.1
-- agasc_id: 723657296
-  mag_aca: 11.547
-  mag_aca_err: 0.1
-- agasc_id: 771756656
-  mag_aca: 11.641
-  mag_aca_err: 0.1
-- agasc_id: 821318496
-  mag_aca: 10.719
-  mag_aca_err: 0.1
-- agasc_id: 897878136
-  mag_aca: 10.75
-  mag_aca_err: 0.1
-- agasc_id: 974791856
-  mag_aca: 11.375
-  mag_aca_err: 0.1
-- agasc_id: 186125624
-  mag_aca: 11.6
-  mag_aca_err: 0.2
-- agasc_id: 797847184
-  mag_aca: 12.3
-  mag_aca_err: 0.2
-- agasc_id: 1143744224
-  mag_aca: 10.6
-  mag_aca_err: 0.1
-- agasc_id: 92812824
-  mag_aca: 11.141
-  mag_aca_err: 0.1
-- agasc_id: 118359864
-  mag_aca: 11.25
-  mag_aca_err: 0.1
-- agasc_id: 188501784
-  mag_aca: 10.453
-  mag_aca_err: 0.1
-- agasc_id: 327945264
-  mag_aca: 11.25
-  mag_aca_err: 0.1
-- agasc_id: 614482704
-  mag_aca: 11.25
-  mag_aca_err: 0.1
-- agasc_id: 647762704
-  mag_aca: 11.453
-  mag_aca_err: 0.1
-- agasc_id: 652480464
-  mag_aca: 10.075
+- agasc_id: 664279632
+  mag_aca: 11.672
   mag_aca_err: 0.1
 - agasc_id: 686557584
   mag_aca: 9.609
@@ -265,11 +325,56 @@ mags:
 - agasc_id: 686557784
   mag_aca: 9.047
   mag_aca_err: 0.1
+- agasc_id: 689441328
+  mag_aca: 12.0
+  mag_aca_err: 0.1
+- agasc_id: 690625640
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 693243160
+  mag_aca: 4.5
+  mag_aca_err: 0.1
+- agasc_id: 694561568
+  mag_aca: 9.8
+  mag_aca_err: 0.1
+- agasc_id: 720504096
+  mag_aca: 11.344
+  mag_aca_err: 0.1
+- agasc_id: 723651200
+  mag_aca: 12.0
+  mag_aca_err: 0.1
+- agasc_id: 723657296
+  mag_aca: 11.547
+  mag_aca_err: 0.1
 - agasc_id: 740693864
   mag_aca: 11.875
   mag_aca_err: 0.1
+- agasc_id: 763893760
+  mag_aca: 11.6
+  mag_aca_err: 0.1
+- agasc_id: 764150080
+  mag_aca: 12.0
+  mag_aca_err: 0.1
+- agasc_id: 771756656
+  mag_aca: 11.641
+  mag_aca_err: 0.1
+- agasc_id: 797847184
+  mag_aca: 12.3
+  mag_aca_err: 0.2
+- agasc_id: 798760200
+  mag_aca: 11.2
+  mag_aca_err: 0.1
+- agasc_id: 805966472
+  mag_aca: 11.703
+  mag_aca_err: 0.1
+- agasc_id: 821318496
+  mag_aca: 10.719
+  mag_aca_err: 0.1
 - agasc_id: 836372744
   mag_aca: 11.609
+  mag_aca_err: 0.1
+- agasc_id: 836381648
+  mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 879768704
   mag_aca: 10.859
@@ -277,8 +382,53 @@ mags:
 - agasc_id: 891159184
   mag_aca: 11.203
   mag_aca_err: 0.1
+- agasc_id: 897878136
+  mag_aca: 10.75
+  mag_aca_err: 0.1
 - agasc_id: 898125104
   mag_aca: 11.203
+  mag_aca_err: 0.1
+- agasc_id: 899950912
+  mag_aca: 11.688
+  mag_aca_err: 0.1
+- agasc_id: 901664112
+  mag_aca: 10.406
+  mag_aca_err: 0.1
+- agasc_id: 904010616
+  mag_aca: 10.902  # need to check, not from starcheck report
+  mag_aca_err: 0.1
+- agasc_id: 913441888
+  mag_aca: 10.031
+  mag_aca_err: 0.1
+- agasc_id: 915541320
+  mag_aca: 11.6
+  mag_aca_err: 0.1
+- agasc_id: 915939232
+  mag_aca: 12.906
+  mag_aca_err: 0.1
+- agasc_id: 962998672
+  mag_aca: 11.406
+  mag_aca_err: 0.1
+- agasc_id: 974791856
+  mag_aca: 11.375
+  mag_aca_err: 0.1
+- agasc_id: 1020796600
+  mag_aca: 11.5
+  mag_aca_err: 0.1
+- agasc_id: 1058938112
+  mag_aca: 10.906
+  mag_aca_err: 0.1
+- agasc_id: 1081092600
+  mag_aca: 11.0
+  mag_aca_err: 0.1
+- agasc_id: 1092619768
+  mag_aca: 11.288  # need to check, not from starcheck report
+  mag_aca_err: 0.1
+- agasc_id: 1105592952
+  mag_aca: 10.734
+  mag_aca_err: 0.1
+- agasc_id: 1108353064
+  mag_aca: 10.91  # need to check, not from starcheck report
   mag_aca_err: 0.1
 - agasc_id: 1117787424
   mag_aca: 11.172
@@ -289,62 +439,14 @@ mags:
 - agasc_id: 1139171624
   mag_aca: 10.297
   mag_aca_err: 0.1
+- agasc_id: 1143744224
+  mag_aca: 10.6
+  mag_aca_err: 0.1
+- agasc_id: 1178221128
+  mag_aca: 10.031
+  mag_aca_err: 0.1
 - agasc_id: 1197635184
   mag_aca: 10.578
-  mag_aca_err: 0.1
-- agasc_id: 62922104
-  mag_aca: 10.891
-  mag_aca_err: 0.1
-- agasc_id: 111028544
-  mag_aca: 10.516
-  mag_aca_err: 0.1
-- agasc_id: 188623712
-  mag_aca: 11.297
-  mag_aca_err: 0.1
-- agasc_id: 225576592
-  mag_aca: 11.297
-  mag_aca_err: 0.1
-- agasc_id: 328077952
-  mag_aca: 11.016
-  mag_aca_err: 0.1
-- agasc_id: 373564272
-  mag_aca: 11.578
-  mag_aca_err: 0.1
-- agasc_id: 391120072
-  mag_aca: 11.297
-  mag_aca_err: 0.1
-- agasc_id: 497824592
-  mag_aca: 13.078
-  mag_aca_err: 0.1
-- agasc_id: 615914552
-  mag_aca: 10.797
-  mag_aca_err: 0.1
-- agasc_id: 616699752
-  mag_aca: 11.484
-  mag_aca_err: 0.1
-- agasc_id: 653529952
-  mag_aca: 10.844
-  mag_aca_err: 0.1
-- agasc_id: 805966472
-  mag_aca: 11.703
-  mag_aca_err: 0.1
-- agasc_id: 899950912
-  mag_aca: 11.688
-  mag_aca_err: 0.1
-- agasc_id: 901664112
-  mag_aca: 10.406
-  mag_aca_err: 0.1
-- agasc_id: 915939232
-  mag_aca: 12.906
-  mag_aca_err: 0.1
-- agasc_id: 962998672
-  mag_aca: 11.406
-  mag_aca_err: 0.1
-- agasc_id: 1058938112
-  mag_aca: 10.906
-  mag_aca_err: 0.1
-- agasc_id: 1105592952
-  mag_aca: 10.734
   mag_aca_err: 0.1
 obs:
 - agasc_id:
@@ -429,7 +531,8 @@ obs:
   status: 1
 - agasc_id:
   - 839385704
-  comments: Suspect observation
+  comments: Almost never acquired. When acquired, it was too bright. Star has been
+    observed other times and is a known symbiotic star.
   mp_starcat_time: 2005:282:18:53:05.394
   status: 1
 - agasc_id:
@@ -454,7 +557,7 @@ obs:
   status: 1
 - agasc_id:
   - 330967424
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2006:064:07:51:01.152
   status: 1
 - agasc_id:
@@ -509,17 +612,17 @@ obs:
   status: 1
 - agasc_id:
   - 46794712
-  comments: Suspect observation
+  comments: Faint star affected by imposter. Marginally acceptable
   mp_starcat_time: 2006:159:12:19:26.972
-  status: 1
+  status: 0
 - agasc_id:
   - 46794712
-  comments: Suspect observation
+  comments: Faint star affected by imposter. Marginally acceptable
   mp_starcat_time: 2006:159:22:22:16.972
-  status: 1
+  status: 0
 - agasc_id:
   - 48892720
-  comments: Suspect observation
+  comments: Faint star. Affected by imposter. Set mag to MAXMAG
   mp_starcat_time: 2006:162:12:54:27.115
   status: 1
 - agasc_id:
@@ -679,7 +782,7 @@ obs:
   status: 1
 - agasc_id:
   - 185871616
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:073:15:34:21.422
   status: 1
 - agasc_id:
@@ -694,7 +797,7 @@ obs:
   status: 1
 - agasc_id:
   - 161357600
-  comments: Suspect observation
+  comments: Almost never acquired. Set mag to MAXMAG
   mp_starcat_time: 2009:345:18:09:20.636
   status: 1
 - agasc_id:
@@ -754,7 +857,7 @@ obs:
   status: 1
 - agasc_id:
   - 47846640
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2010:247:10:06:38.225
   status: 1
 - agasc_id:
@@ -809,12 +912,12 @@ obs:
   status: 1
 - agasc_id:
   - 1158028568
-  comments: Suspect observation
+  comments: Faint star. Affected by imposters. Marginally acceptable.
   mp_starcat_time: 2011:033:21:23:13.132
-  status: 1
+  status: 0
 - agasc_id:
   - 185871616
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2011:073:16:05:38.707
   status: 1
 - agasc_id:
@@ -834,7 +937,7 @@ obs:
   status: 1
 - agasc_id:
   - 648676152
-  comments: Suspect observation
+  comments: High Background Event
   mp_starcat_time: 2011:122:08:00:41.258
   status: 1
 - agasc_id:
@@ -894,7 +997,7 @@ obs:
   status: 1
 - agasc_id:
   - 83631240
-  comments: Suspect observation
+  comments: High background event
   mp_starcat_time: 2011:275:21:41:33.299
   status: 1
 - agasc_id:
@@ -904,12 +1007,12 @@ obs:
   status: 1
 - agasc_id:
   - 766774840
-  comments: Suspect observation
+  comments: Never acquired
   mp_starcat_time: 2011:287:18:23:11.490
   status: 1
 - agasc_id:
   - 618535032
-  comments: Suspect observation
+  comments: Almost never acquired
   mp_starcat_time: 2011:309:05:29:06.000
   status: 1
 - agasc_id:
@@ -924,12 +1027,12 @@ obs:
   status: 1
 - agasc_id:
   - 1092619768
-  comments: Suspect observation
+  comments: Almost never tracked. Set mag to MAXMAG
   mp_starcat_time: 2012:028:20:14:46.841
   status: 1
 - agasc_id:
   - 40113272
-  comments: Suspect observation
+  comments: Faint star. Affected by imposter. Set mag to MAXMAG
   mp_starcat_time: 2012:065:14:30:29.432
   status: 1
 - agasc_id:
@@ -939,7 +1042,7 @@ obs:
   status: 1
 - agasc_id:
   - 664279632
-  comments: Suspect observation
+  comments: Almost never acquired. Set mag to MAXMAG
   mp_starcat_time: 2012:174:04:58:32.901
   status: 1
 - agasc_id:
@@ -964,7 +1067,7 @@ obs:
   status: 1
 - agasc_id:
   - 613817792
-  comments: Suspect observation
+  comments: Almost never acquired
   mp_starcat_time: 2012:298:08:03:25.744
   status: 1
 - agasc_id:
@@ -979,7 +1082,7 @@ obs:
   status: 1
 - agasc_id:
   - 264115840
-  comments: Suspect observation
+  comments: Faint star. Set mag to MAXMAG
   mp_starcat_time: 2013:048:18:59:05.061
   status: 1
 - agasc_id:
@@ -989,7 +1092,7 @@ obs:
   status: 1
 - agasc_id:
   - 107881800
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:067:05:41:05.787
   status: 1
 - agasc_id:
@@ -1069,7 +1172,7 @@ obs:
   status: 1
 - agasc_id:
   - 139214712
-  comments: Suspect observation
+  comments: Faint star. Poorly tracked. Set mag to 11.35 +- 0.1
   mp_starcat_time: 2013:210:03:07:53.465
   status: 1
 - agasc_id:
@@ -1084,7 +1187,7 @@ obs:
   status: 1
 - agasc_id:
   - 612370792
-  comments: Suspect observation
+  comments: Faint star affected by imposters. Set mag to MAXMAG
   mp_starcat_time: 2013:247:07:54:46.000
   status: 1
 - agasc_id:
@@ -1094,9 +1197,9 @@ obs:
   status: 1
 - agasc_id:
   - 107743264
-  comments: Suspect observation
+  comments: Tracked for one minute
   mp_starcat_time: 2013:276:01:38:23.187
-  status: 1
+  status: 0
 - agasc_id:
   - 1143744224
   comments: Poorly tracked. Set mag to 10.6 +- 0.1
@@ -1264,12 +1367,12 @@ obs:
   status: 1
 - agasc_id:
   - 898135232
-  comments: Suspect observation
+  comments: Never acquired
   mp_starcat_time: 2013:313:03:14:15.039
   status: 1
 - agasc_id:
   - 5115672
-  comments: Suspect observation
+  comments: Faint star. Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2013:323:16:25:05.901
   status: 1
 - agasc_id:
@@ -1279,7 +1382,7 @@ obs:
   status: 1
 - agasc_id:
   - 188750920
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2014:099:03:23:57.530
   status: 1
 - agasc_id:
@@ -1289,7 +1392,7 @@ obs:
   status: 1
 - agasc_id:
   - 649070072
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2014:138:12:18:55.415
   status: 1
 - agasc_id:
@@ -1354,7 +1457,7 @@ obs:
   status: 1
 - agasc_id:
   - 840441888
-  comments: Suspect observation
+  comments: Almost never acquired
   mp_starcat_time: 2014:247:06:49:36.937
   status: 1
 - agasc_id:
@@ -1374,7 +1477,7 @@ obs:
   status: 1
 - agasc_id:
   - 440140240
-  comments: Suspect observation
+  comments: Stopped tracking
   mp_starcat_time: 2014:335:03:12:54.700
   status: 1
 - agasc_id:
@@ -1419,12 +1522,12 @@ obs:
   status: 1
 - agasc_id:
   - 788418168
-  comments: Suspect observation
+  comments: Never acquired
   mp_starcat_time: 2015:014:04:32:44.554
   status: 1
 - agasc_id:
   - 788418168
-  comments: Suspect observation
+  comments: Never acquired
   mp_starcat_time: 2015:022:03:00:16.542
   status: 1
 - agasc_id:
@@ -1444,7 +1547,7 @@ obs:
   status: 1
 - agasc_id:
   - 111807640
-  comments: Suspect observation
+  comments: Faint star. Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2015:032:15:55:37.026
   status: 1
 - agasc_id:
@@ -1454,12 +1557,12 @@ obs:
   status: 1
 - agasc_id:
   - 881460168
-  comments: Suspect observation
+  comments: Faint star. Affected by imposters
   mp_starcat_time: 2015:130:19:50:00.443
   status: 1
 - agasc_id:
   - 1092505568
-  comments: Suspect observation
+  comments: Faint star. Affected by imposters
   mp_starcat_time: 2015:159:15:26:54.646
   status: 1
 - agasc_id:
@@ -1479,17 +1582,17 @@ obs:
   status: 1
 - agasc_id:
   - 500706352
-  comments: Suspect observation
+  comments: Failed to track but there are snapshots
   mp_starcat_time: 2015:231:00:04:31.256
-  status: 1
+  status: 0
 - agasc_id:
   - 144714600
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2015:233:22:11:26.142
   status: 1
 - agasc_id:
   - 144714600
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2015:234:03:22:43.521
   status: 1
 - agasc_id:
@@ -1504,7 +1607,7 @@ obs:
   status: 1
 - agasc_id:
   - 615257632
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2016:021:00:11:54.978
   status: 1
 - agasc_id:
@@ -1514,7 +1617,7 @@ obs:
   status: 1
 - agasc_id:
   - 417611952
-  comments: Suspect observation
+  comments: Bright star. Fails to track. Set mag to 5.0
   mp_starcat_time: 2016:062:05:39:12.185
   status: 1
 - agasc_id:
@@ -1574,7 +1677,7 @@ obs:
   status: 1
 - agasc_id:
   - 615257632
-  comments: Suspect observation
+  comments: Almost never acquired. Set mag to MAXMAG
   mp_starcat_time: 2016:279:23:36:33.516
   status: 1
 - agasc_id:
@@ -1609,7 +1712,7 @@ obs:
   status: 1
 - agasc_id:
   - 27919752
-  comments: Suspect observation
+  comments: Mag 9.3 spoiler 26 arcsec away
   mp_starcat_time: 2016:365:19:22:11.253
   status: 1
 - agasc_id:
@@ -1624,7 +1727,7 @@ obs:
   status: 0
 - agasc_id:
   - 397935912
-  comments: Suspect observation
+  comments: Never acquired
   mp_starcat_time: 2017:065:23:42:36.433
   status: 1
 - agasc_id:
@@ -1669,7 +1772,7 @@ obs:
   status: 1
 - agasc_id:
   - 397935912
-  comments: Suspect observation
+  comments: Never acquired
   mp_starcat_time: 2017:068:13:20:24.092
   status: 1
 - agasc_id:
@@ -1714,7 +1817,7 @@ obs:
   status: 1
 - agasc_id:
   - 798238560
-  comments: Suspect observation
+  comments: Tracking affected by imposter
   mp_starcat_time: 2017:075:03:00:23.891
   status: 1
 - agasc_id:
@@ -1744,7 +1847,7 @@ obs:
   status: 1
 - agasc_id:
   - 45616472
-  comments: Suspect observation
+  comments: Faint star affected by imposter. Set mag to MAXMAG
   mp_starcat_time: 2017:119:02:36:19.023
   status: 1
 - agasc_id:
@@ -1754,12 +1857,12 @@ obs:
   status: 1
 - agasc_id:
   - 913441888
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2017:259:02:11:04.769
   status: 1
 - agasc_id:
   - 377102496
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2017:314:20:46:46.000
   status: 1
 - agasc_id:
@@ -1789,7 +1892,7 @@ obs:
   status: 1
 - agasc_id:
   - 872547280
-  comments: Suspect observation
+  comments: Large mag variation. Star is a known eclipsing binary
   mp_starcat_time: 2018:074:18:43:05.432
   status: 1
 - agasc_id:
@@ -1809,7 +1912,7 @@ obs:
   status: 1
 - agasc_id:
   - 49818760
-  comments: Suspect observation
+  comments: Faint star. Affected by imposter. Set mag to MAXMAG
   mp_starcat_time: 2018:165:06:34:21.353
   status: 1
 - agasc_id:
@@ -1819,9 +1922,9 @@ obs:
   status: 1
 - agasc_id:
   - 974925328
-  comments: Suspect observation
+  comments: Faint star. Tracking affected by imposters. Marginally acceptable
   mp_starcat_time: 2018:214:12:04:13.567
-  status: 1
+  status: 0
 - agasc_id:
   - 8395104
   comments: Magnitude changes within observation. Eclipsing binary
@@ -1834,7 +1937,7 @@ obs:
   status: 0
 - agasc_id:
   - 350392600
-  comments: Suspect observation
+  comments: Bright star. Never acquired. Set mag to 5.0
   mp_starcat_time: 2019:012:01:07:46.603
   status: 1
 - agasc_id:
@@ -1859,7 +1962,7 @@ obs:
   status: 1
 - agasc_id:
   - 1105998760
-  comments: Suspect observation
+  comments: Star gets 2 mags dimmer
   mp_starcat_time: 2019:190:08:02:57.107
   status: 1
 - agasc_id:
@@ -1879,7 +1982,7 @@ obs:
   status: 1
 - agasc_id:
   - 1178221128
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2019:336:03:32:40.722
   status: 1
 - agasc_id:
@@ -1889,7 +1992,7 @@ obs:
   status: 0
 - agasc_id:
   - 1108353064
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2020:026:14:02:58.573
   status: 1
 - agasc_id:
@@ -1904,7 +2007,7 @@ obs:
   status: 1
 - agasc_id:
   - 33690776
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG.
   mp_starcat_time: 2020:057:21:03:53.096
   status: 1
 - agasc_id:
@@ -1919,12 +2022,12 @@ obs:
   status: 1
 - agasc_id:
   - 33690776
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG.
   mp_starcat_time: 2020:063:06:09:44.589
   status: 1
 - agasc_id:
   - 33690776
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG.
   mp_starcat_time: 2020:063:09:21:38.457
   status: 1
 - agasc_id:
@@ -1964,12 +2067,12 @@ obs:
   status: 1
 - agasc_id:
   - 42864912
-  comments: Suspect observation
+  comments: Faint star. Set mag to 12.6 +- 0.3
   mp_starcat_time: 2020:259:07:03:15.474
   status: 1
 - agasc_id:
   - 77073552
-  comments: Suspect observation
+  comments: Faint star. Never acquired
   mp_starcat_time: 2020:261:23:04:56.959
   status: 1
 - agasc_id:
@@ -1999,17 +2102,17 @@ obs:
   status: 1
 - agasc_id:
   - 82972168
-  comments: Acquired imposter, out of view.
+  comments: Acquired imposter. Out of view.
   mp_starcat_time: 2020:304:03:02:34.117
   status: 1
 - agasc_id:
   - 171724672
-  comments: Suspect observation
+  comments: Mag 7.6 spoiler 13 arcsec away
   mp_starcat_time: 2020:343:22:17:15.214
   status: 1
 - agasc_id:
   - 171724672
-  comments: Suspect observation
+  comments: Mag 7.6 spoiler 13 arcsec away
   mp_starcat_time: 2020:346:13:43:10.884
   status: 1
 - agasc_id:
@@ -2034,11 +2137,11 @@ obs:
   status: 1
 - agasc_id:
   - 34996472
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2021:059:16:59:22.696
   status: 1
 - agasc_id:
   - 34996472
-  comments: Suspect observation
+  comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2021:062:03:37:20.040
   status: 1
