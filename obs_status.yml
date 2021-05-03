@@ -428,7 +428,7 @@ mags:
   mag_aca: 10.734
   mag_aca_err: 0.1
 - agasc_id: 1108353064
-  mag_aca: 10.91
+  mag_aca: 10.91  # need to check, not from starcheck report
   mag_aca_err: 0.1
 - agasc_id: 1117787424
   mag_aca: 11.172
@@ -486,12 +486,12 @@ obs:
   status: 1
 - agasc_id:
   - 920782072
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2004:200:06:56:32.527
   status: 1
 - agasc_id:
   - 920783352
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2004:200:06:56:32.527
   status: 1
 - agasc_id:
@@ -772,7 +772,7 @@ obs:
   status: 1
 - agasc_id:
   - 395055600
-  comments: Suspect observation
+  comments: UNKNOWN: Never acquired. Unknown issue with observation. Presume star is OK.
   mp_starcat_time: 2009:040:05:37:54.381
   status: 1
 - agasc_id:
@@ -1412,7 +1412,7 @@ obs:
   status: 1
 - agasc_id:
   - 910689000
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
@@ -1427,12 +1427,12 @@ obs:
   status: 1
 - agasc_id:
   - 911082200
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
   - 911082408
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
@@ -1442,12 +1442,12 @@ obs:
   status: 1
 - agasc_id:
   - 911089528
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2014:207:06:36:50.665
   status: 1
 - agasc_id:
   - 153631040
-  comments: Suspect observation
+  comments: UNKNOWN: Poorly tracked. Not too faint, not large residuals. Don't know why it tracks poorly.
   mp_starcat_time: 2014:241:18:41:28.744
   status: 1
 - agasc_id:
@@ -1637,27 +1637,27 @@ obs:
   status: 1
 - agasc_id:
   - 397673760
-  comments: Suspect observation
+  comments: UNKNOWN: SCS 107 at start of observation
   mp_starcat_time: 2016:234:07:04:56.469
   status: 1
 - agasc_id:
   - 397674472
-  comments: Suspect observation
+  comments: UNKNOWN: SCS 107 at start of observation
   mp_starcat_time: 2016:234:07:04:56.469
   status: 1
 - agasc_id:
   - 397675248
-  comments: Suspect observation
+  comments: UNKNOWN: SCS 107 at start of observation
   mp_starcat_time: 2016:234:07:04:56.469
   status: 1
 - agasc_id:
   - 397679944
-  comments: Suspect observation
+  comments: UNKNOWN: SCS 107 at start of observation
   mp_starcat_time: 2016:234:07:04:56.469
   status: 1
 - agasc_id:
   - 397680904
-  comments: Suspect observation
+  comments: UNKNOWN: SCS 107 at start of observation
   mp_starcat_time: 2016:234:07:04:56.469
   status: 1
 - agasc_id:
@@ -1682,7 +1682,7 @@ obs:
   status: 1
 - agasc_id:
   - 302263576
-  comments: Suspect observation
+  comments: UNKNOWN: never acquired, but star has been observed at mag 9.3, MAXMAG=10.7
   mp_starcat_time: 2016:310:08:24:22.999
   status: 1
 - agasc_id:
@@ -1697,7 +1697,7 @@ obs:
   status: 1
 - agasc_id:
   - 314317160
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2016:324:12:21:46.079
   status: 1
 - agasc_id:
@@ -1732,42 +1732,42 @@ obs:
   status: 1
 - agasc_id:
   - 328077400
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328077488
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328078016
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328078824
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328080896
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328081232
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328081352
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
   - 328081440
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:065:23:54:36.113
   status: 1
 - agasc_id:
@@ -1782,32 +1782,32 @@ obs:
   status: 1
 - agasc_id:
   - 991170368
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
   - 991175320
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
   - 991559968
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
   - 991560432
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
   - 991560472
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
   - 991563000
-  comments: Suspect observation
+  comments: BSH at start of observation
   mp_starcat_time: 2017:068:16:27:18.823
   status: 1
 - agasc_id:
@@ -1822,27 +1822,27 @@ obs:
   status: 1
 - agasc_id:
   - 1200756680
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:090:18:27:10.378
   status: 1
 - agasc_id:
   - 1200757192
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:090:18:27:10.378
   status: 1
 - agasc_id:
   - 1200758760
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:090:18:27:10.378
   status: 1
 - agasc_id:
   - 1200760024
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:090:18:27:10.378
   status: 1
 - agasc_id:
   - 1200888464
-  comments: Suspect observation
+  comments: NSM at start of observation
   mp_starcat_time: 2017:090:18:27:10.378
   status: 1
 - agasc_id:
@@ -1947,7 +1947,7 @@ obs:
   status: 1
 - agasc_id:
   - 989727248
-  comments: Suspect observation
+  comments: UNKNOWN
   mp_starcat_time: 2019:092:13:40:47.000
   status: 1
 - agasc_id:
