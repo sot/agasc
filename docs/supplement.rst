@@ -141,8 +141,8 @@ The following sections provide more detailed information on the underlying
 tools used to manage the AGASC supplement. In most cases these will not be
 run manually during production processing.
 
-Bad Stars and Star Observations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bad Star and Star Observation Updates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The tables of bad stars and of star observation status in the AGASC supplement
 can be updated using the `agasc-update-supplement`_ script.  This is normally
@@ -206,8 +206,8 @@ Github repository
 The process in that page has been superceded and the page is now considered
 archived.
 
-Magnitude Supplement
-^^^^^^^^^^^^^^^^^^^^
+Magnitude Updates
+^^^^^^^^^^^^^^^^^
 
 The AGASC magnitude supplement is automatically updated on a weekly basis using
 the `agasc-update-magnitudes`_ script. A typical usage is as follows::
