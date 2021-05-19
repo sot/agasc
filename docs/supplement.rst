@@ -287,6 +287,14 @@ Scripts
    :ref: agasc.scripts.supplement_tasks.get_parser
    :prog: agasc-supplement-tasks
 
+.. _`agasc-supplement-diff`:
+
+:ref:`agasc-supplement-diff`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. argparse::
+   :ref: agasc.scripts.supplement_diff.get_parser
+   :prog: agasc-supplement-diff
 
 Data products
 -------------
