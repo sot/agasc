@@ -7,7 +7,6 @@ The available tasks are:
   update the supplement in $SKA/data/agasc/rc
 * disposition: modify the observation status according to $SKA/data/agasc/rc/obs-status.yml
 * schedule-promotion: schedule supplement promotion
-* promote: copy files from $SKA/data/agasc/rc/promote into $SKA/data/agasc
 """
 
 import os
