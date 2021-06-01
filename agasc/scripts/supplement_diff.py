@@ -4,6 +4,7 @@
 Generate diff between to supplement files and output in HTML format.
 """
 
+import os
 import tables
 from pathlib import Path
 import difflib
@@ -49,8 +50,8 @@ def read_file(filename, exclude=[]):
     return all_lines
 
 
-def diff_files(fromfile, tofile, include_mags=False):
-    exclude = [] if include_mags else ['mags']
+def diff_files(fromfile, tofile, exclude_mags=False):
+    exclude = ['mags'] if exclude_mags else []
     fromlines = read_file(fromfile, exclude)
     tolines = read_file(tofile, exclude)
     diff = difflib.unified_diff(fromlines, tolines, str(fromfile), str(tofile))
@@ -69,8 +70,8 @@ def diff_to_html(diff):
 
 def get_parser():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('fromfile', type=Path, help='The original supplement file.')
-    parser.add_argument('tofile', type=Path, help='The modified supplement file.')
+    parser.add_argument('--from', dest='fromfile', type=Path, help='The original supplement file.')
+    parser.add_argument('--to', dest='tofile', type=Path, help='The modified supplement file.')
     parser.add_argument(
         '-o',
         help='Output HTML file',
@@ -78,22 +79,28 @@ def get_parser():
         default='agasc_supplement_diff.html'
     )
     parser.add_argument(
-        '--include-mags', default=False, action='store_true',
-        help='Include changes in the "mags" table. There can be many of these.',
+        '--exclude-mags', default=False, action='store_true',
+        help='Exclude changes in the "mags" table. There can be many of these.',
     )
     return parser
 
 
 def main():
     args = get_parser().parse_args()
-    assert args.fromfile.exists()
-    assert args.tofile.exists()
+    if args.fromfile is None and 'SKA' in os.environ:
+        args.fromfile = Path(os.environ['SKA']) / 'data' / 'agasc' / 'agasc_supplement.h5'
+    if args.tofile is None and 'SKA' in os.environ:
+        args.tofile  = Path(os.environ['SKA']) / 'data' / 'agasc' / 'rc' / 'agasc_supplement.h5'
+    assert args.tofile, 'Option "--to" was not given and SKA is not defined'
+    assert args.fromfile, 'Option "--from" was not given and SKA is not defined'
+    assert args.fromfile.exists(), f'File {args.fromfile} does not exist'
+    assert args.tofile.exists(), f'File {args.tofile} does not exist'
 
     if not args.o.parent.exists():
         args.o.parent.mkdir()
 
     with open(args.o, 'w') as fh:
-        diff = diff_to_html(diff_files(args.fromfile, args.tofile, include_mags=args.include_mags))
+        diff = diff_to_html(diff_files(args.fromfile, args.tofile, exclude_mags=args.exclude_mags))
         fh.write(diff)
 
 
