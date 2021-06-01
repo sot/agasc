@@ -1068,12 +1068,15 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     })
 
     if not np.any(~excluded_obs):
+        # this happens when all observations have been flagged as not OK a priory (obs-status).
         logger.debug(f'  Skipping star in get_agasc_id_stats({agasc_id=}).'
                      ' All observations are flagged as not good.')
         return result, stats, failures
 
     if len(all_telem) - len(failures) <= 0:
-        logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}): No telemetry data')
+        # and we reach here if some observations were not flagged as bad, but all failed.
+        logger.debug(f'  Error in get_agasc_id_stats({agasc_id=}):'
+                     ' There is no OK observation.')
         return result, stats, failures
 
     excluded_obs += np.array([t is None for t in all_telem])
