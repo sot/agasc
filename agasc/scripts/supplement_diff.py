@@ -90,7 +90,7 @@ def main():
     if args.fromfile is None and 'SKA' in os.environ:
         args.fromfile = Path(os.environ['SKA']) / 'data' / 'agasc' / 'agasc_supplement.h5'
     if args.tofile is None and 'SKA' in os.environ:
-        args.tofile  = Path(os.environ['SKA']) / 'data' / 'agasc' / 'rc' / 'agasc_supplement.h5'
+        args.tofile = Path(os.environ['SKA']) / 'data' / 'agasc' / 'rc' / 'agasc_supplement.h5'
     assert args.tofile, 'Option "--to" was not given and SKA is not defined'
     assert args.fromfile, 'Option "--from" was not given and SKA is not defined'
     assert args.fromfile.exists(), f'File {args.fromfile} does not exist'
