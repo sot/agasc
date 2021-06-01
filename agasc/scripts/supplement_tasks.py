@@ -15,17 +15,46 @@ import subprocess
 import argparse
 from pathlib import Path
 import shutil
+import getpass
+import platform
+from email.mime.text import MIMEText
+
+from cxotime import CxoTime
 
 
 AGASC_DATA = Path(os.environ['SKA']) / 'data' / 'agasc'
+
+
+def email_promotion_report(
+    filenames,
+    destdir,
+    to,
+    sender=f"{getpass.getuser()}@{platform.uname()[1]}"
+):
+    date = CxoTime().date[:14]
+    filenames = "- " + "\n- ".join([str(f) for f in filenames])
+
+    msg = MIMEText(f"The following files were promoted to {destdir} on {date}:\n{filenames}")
+    msg["From"] = sender
+    msg["To"] = to
+    msg["Subject"] = "AGASC RC supplement promoted"
+    p = subprocess.Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=subprocess.PIPE)
+    p.communicate(msg.as_string().encode())
 
 
 def update_rc():
     """
     Update the supplement in $SKA/data/agasc/rc
     """
-    for file in (AGASC_DATA / 'rc' / 'promote').glob('*'):
-        file.rename(AGASC_DATA / file.name)
+    filenames = list((AGASC_DATA / 'rc' / 'promote').glob('*'))
+    if filenames:
+        for file in filenames:
+            file.rename(AGASC_DATA / file.name)
+        email_promotion_report(
+            filenames,
+            destdir=AGASC_DATA,
+            to='aca@cfa.harvard.edu'
+        )
 
     subprocess.run([
         'task_schedule3.pl',
