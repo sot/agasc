@@ -561,56 +561,6 @@ obs:
   mp_starcat_time: 2006:064:07:51:01.152
   status: 1
 - agasc_id:
-  - 758255832
-  comments: Venus observation
-  mp_starcat_time: 2006:086:03:56:54.298
-  status: 1
-- agasc_id:
-  - 758255832
-  comments: Venus observation
-  mp_starcat_time: 2006:086:06:10:03.448
-  status: 1
-- agasc_id:
-  - 758255832
-  comments: Venus observation
-  mp_starcat_time: 2006:086:08:01:53.448
-  status: 1
-- agasc_id:
-  - 759958456
-  comments: Venus observation
-  mp_starcat_time: 2006:086:08:01:53.448
-  status: 1
-- agasc_id:
-  - 757735584
-  comments: Venus observation
-  mp_starcat_time: 2006:086:15:29:13.448
-  status: 1
-- agasc_id:
-  - 759961200
-  comments: Venus observation
-  mp_starcat_time: 2006:086:17:21:03.448
-  status: 1
-- agasc_id:
-  - 759439008
-  comments: Venus observation
-  mp_starcat_time: 2006:086:19:12:53.448
-  status: 1
-- agasc_id:
-  - 759439008
-  comments: Venus observation
-  mp_starcat_time: 2006:086:21:04:43.448
-  status: 1
-- agasc_id:
-  - 759439008
-  comments: Venus observation
-  mp_starcat_time: 2006:086:22:56:33.448
-  status: 1
-- agasc_id:
-  - 759439008
-  comments: Venus observation
-  mp_starcat_time: 2006:087:00:48:23.448
-  status: 1
-- agasc_id:
   - 46794712
   comments: Faint star affected by imposter. Marginally acceptable
   mp_starcat_time: 2006:159:12:19:26.972
@@ -675,36 +625,6 @@ obs:
   comments: Available data look OK, lack of track not understood
   mp_starcat_time: 2007:231:04:53:28.518
   status: 0
-- agasc_id:
-  - 35000432
-  comments: Venus observation
-  mp_starcat_time: 2007:302:21:17:28.912
-  status: 1
-- agasc_id:
-  - 34997808
-  comments: Venus observation
-  mp_starcat_time: 2007:302:23:45:40.189
-  status: 1
-- agasc_id:
-  - 35398128
-  comments: Venus observation
-  mp_starcat_time: 2007:303:01:44:10.189
-  status: 1
-- agasc_id:
-  - 35001864
-  comments: Venus observation
-  mp_starcat_time: 2007:303:03:42:40.189
-  status: 1
-- agasc_id:
-  - 35004328
-  comments: Venus observation
-  mp_starcat_time: 2007:303:03:42:40.189
-  status: 1
-- agasc_id:
-  - 35004456
-  comments: Venus observation
-  mp_starcat_time: 2007:303:05:41:10.189
-  status: 1
 - agasc_id:
   - 38535536
   comments: Never acquired. Set mag to MAXMAG
@@ -1204,161 +1124,6 @@ obs:
   - 1143744224
   comments: Poorly tracked. Set mag to 10.6 +- 0.1
   mp_starcat_time: 2013:299:20:58:47.949
-  status: 1
-- agasc_id:
-  - 897996696
-  comments: Venus observation
-  mp_starcat_time: 2013:312:03:11:14.093
-  status: 1
-- agasc_id:
-  - 898002928
-  comments: Venus observation
-  mp_starcat_time: 2013:312:03:11:14.093
-  status: 1
-- agasc_id:
-  - 898026352
-  comments: Venus observation
-  mp_starcat_time: 2013:312:03:11:14.093
-  status: 1
-- agasc_id:
-  - 897995504
-  comments: Venus observation
-  mp_starcat_time: 2013:312:06:21:15.039
-  status: 1
-- agasc_id:
-  - 897996696
-  comments: Venus observation
-  mp_starcat_time: 2013:312:06:21:15.039
-  status: 1
-- agasc_id:
-  - 898002928
-  comments: Venus observation
-  mp_starcat_time: 2013:312:06:21:15.039
-  status: 1
-- agasc_id:
-  - 898026352
-  comments: Venus observation
-  mp_starcat_time: 2013:312:06:21:15.039
-  status: 1
-- agasc_id:
-  - 897995504
-  comments: Venus observation
-  mp_starcat_time: 2013:312:08:58:05.039
-  status: 1
-- agasc_id:
-  - 897996696
-  comments: Venus observation
-  mp_starcat_time: 2013:312:08:58:05.039
-  status: 1
-- agasc_id:
-  - 898002928
-  comments: Venus observation
-  mp_starcat_time: 2013:312:08:58:05.039
-  status: 1
-- agasc_id:
-  - 898026352
-  comments: Venus observation
-  mp_starcat_time: 2013:312:08:58:05.039
-  status: 1
-- agasc_id:
-  - 897996696
-  comments: Venus observation
-  mp_starcat_time: 2013:312:11:34:55.039
-  status: 1
-- agasc_id:
-  - 897999536
-  comments: Venus observation
-  mp_starcat_time: 2013:312:11:34:55.039
-  status: 1
-- agasc_id:
-  - 898002928
-  comments: Venus observation
-  mp_starcat_time: 2013:312:11:34:55.039
-  status: 1
-- agasc_id:
-  - 898026352
-  comments: Venus observation
-  mp_starcat_time: 2013:312:11:34:55.039
-  status: 1
-- agasc_id:
-  - 897995504
-  comments: Venus observation
-  mp_starcat_time: 2013:312:14:11:45.039
-  status: 1
-- agasc_id:
-  - 897999536
-  comments: Venus observation
-  mp_starcat_time: 2013:312:14:11:45.039
-  status: 1
-- agasc_id:
-  - 898004384
-  comments: Venus observation
-  mp_starcat_time: 2013:312:14:11:45.039
-  status: 1
-- agasc_id:
-  - 898026352
-  comments: Venus observation
-  mp_starcat_time: 2013:312:14:11:45.039
-  status: 1
-- agasc_id:
-  - 897988944
-  comments: Venus observation
-  mp_starcat_time: 2013:312:16:48:35.039
-  status: 1
-- agasc_id:
-  - 897995504
-  comments: Venus observation
-  mp_starcat_time: 2013:312:16:48:35.039
-  status: 1
-- agasc_id:
-  - 898004384
-  comments: Venus observation
-  mp_starcat_time: 2013:312:16:48:35.039
-  status: 1
-- agasc_id:
-  - 898026352
-  comments: Venus observation
-  mp_starcat_time: 2013:312:16:48:35.039
-  status: 1
-- agasc_id:
-  - 897988944
-  comments: Venus observation
-  mp_starcat_time: 2013:312:19:25:25.039
-  status: 1
-- agasc_id:
-  - 897995504
-  comments: Venus observation
-  mp_starcat_time: 2013:312:19:25:25.039
-  status: 1
-- agasc_id:
-  - 898004384
-  comments: Venus observation
-  mp_starcat_time: 2013:312:19:25:25.039
-  status: 1
-- agasc_id:
-  - 898004384
-  comments: Venus observation
-  mp_starcat_time: 2013:312:22:02:15.039
-  status: 1
-- agasc_id:
-  - 898124000
-  comments: Venus observation
-  mp_starcat_time: 2013:312:22:02:15.039
-  status: 1
-- agasc_id:
-  - 898125104
-  comments: Venus observation
-  mp_starcat_time: 2013:312:22:02:15.039
-  status: 1
-- agasc_id:
-  - 898004384
-  comments: Venus observation
-  mp_starcat_time: 2013:313:00:39:05.039
-  status: 1
-- agasc_id:
-  - 898135232
-  comments: Venus observation
-  mp_starcat_time: 2013:313:00:39:05.039
   status: 1
 - agasc_id:
   - 898125104
@@ -2144,4 +1909,131 @@ obs:
   - 34996472
   comments: Never acquired. Set mag to MAXMAG
   mp_starcat_time: 2021:062:03:37:20.040
+  status: 1
+
+- mp_starcat_time: 2006:086:03:56:54.298
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:06:10:03.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:08:01:53.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:09:53:43.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:11:45:33.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:13:37:23.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:15:29:13.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:17:21:03.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:19:12:53.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:21:04:43.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:086:22:56:33.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:087:00:48:23.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:302:21:17:28.912
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:302:23:45:40.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:01:44:10.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:03:42:40.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:05:41:10.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:07:41:20.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:09:41:30.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:11:41:40.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:13:41:50.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:15:42:00.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:17:42:10.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2007:303:19:42:20.189
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2006:087:00:48:23.448
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:03:11:14.093
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:06:21:15.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:08:58:05.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:11:34:55.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:14:11:45.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:16:48:35.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:19:25:25.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:312:22:02:15.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2013:313:00:39:05.039
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:009:17:46:38.297
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:009:20:04:50.875
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:009:21:53:20.875
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:009:23:41:50.875
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:010:01:30:20.875
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:010:03:18:50.875
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:010:05:07:20.875
+  comments: Venus observation
+  status: 1
+- mp_starcat_time: 2017:010:06:55:50.875
+  comments: Venus observation
   status: 1
