@@ -1,7 +1,5 @@
 bad:
   5115672: 9
-  33690776: 9
-  34996472: 9
   38535536: 9
   40113272: 9
   45616472: 9
@@ -14,7 +12,6 @@ bad:
   107881800: 9
   109061768: 9
   110493968: 9
-  111028544: 9
   111807640: 9
   118359864: 9
   118498608: 9
@@ -24,7 +21,6 @@ bad:
   152831696: 9
   161357600: 9
   166993856: 9
-  185871616: 9
   187829568: 9
   188482256: 9
   188501784: 9
@@ -41,14 +37,12 @@ bad:
   327945264: 9
   328077952: 9
   330967424: 9
-  350392600: 11
   373564272: 9
   377102496: 9
   391120072: 9
   396501520: 9
   405276920: 9
   417611952: 11
-  444743456: 11
   450103168: 9
   458500128: 13  # new value
   497824592: 9
@@ -67,7 +61,6 @@ bad:
   653529952: 9
   653919168: 9
   654050016: 9
-  656409216: 9
   664279632: 9
   686557584: 9
   686557784: 9
@@ -88,7 +81,6 @@ bad:
   898125104: 9
   899950912: 9
   901664112: 9
-  904010616: 9
   913441888: 9
   915939232: 9
   962998672: 9
@@ -97,20 +89,11 @@ bad:
   1092619768: 9
   1105592952: 9
   1108353064: 9
-  1117787424: 9
-  1130649544: 9
   1139171624: 9
   1178221128: 9
-  1197635184: 9
 mags:
 - agasc_id: 5115672
   mag_aca: 11.422
-  mag_aca_err: 0.1
-- agasc_id: 33690776
-  mag_aca: 9.984
-  mag_aca_err: 0.1
-- agasc_id: 34996472
-  mag_aca: 10.562
   mag_aca_err: 0.1
 - agasc_id: 38535536
   mag_aca: 10.719
@@ -151,9 +134,6 @@ mags:
 - agasc_id: 110493968
   mag_aca: 10.3
   mag_aca_err: 0.1
-- agasc_id: 111028544
-  mag_aca: 10.516
-  mag_aca_err: 0.1
 - agasc_id: 111807640
   mag_aca: 12.266
   mag_aca_err: 0.1
@@ -180,9 +160,6 @@ mags:
   mag_aca_err: 0.1
 - agasc_id: 166993856
   mag_aca: 11.203
-  mag_aca_err: 0.1
-- agasc_id: 185871616
-  mag_aca: 11.391
   mag_aca_err: 0.1
 - agasc_id: 186125624
   mag_aca: 11.6
@@ -235,9 +212,6 @@ mags:
 - agasc_id: 330967424
   mag_aca: 10.947  # need to check, not from starcheck report
   mag_aca_err: 0.1
-- agasc_id: 350392600
-  mag_aca: 5.0  # need to check
-  mag_aca_err: 0.1
 - agasc_id: 373564272
   mag_aca: 11.578
   mag_aca_err: 0.1
@@ -258,9 +232,6 @@ mags:
   mag_aca_err: 0.1
 - agasc_id: 417611952
   mag_aca: 5.0  # need to check
-  mag_aca_err: 0.1
-- agasc_id: 444743456
-  mag_aca: 5.0
   mag_aca_err: 0.1
 - agasc_id: 450103168
   mag_aca: 12.2
@@ -312,9 +283,6 @@ mags:
   mag_aca_err: 0.1
 - agasc_id: 654050016
   mag_aca: 11.625
-  mag_aca_err: 0.1
-- agasc_id: 656409216
-  mag_aca: 11.0
   mag_aca_err: 0.1
 - agasc_id: 664279632
   mag_aca: 11.672
@@ -394,9 +362,6 @@ mags:
 - agasc_id: 901664112
   mag_aca: 10.406
   mag_aca_err: 0.1
-- agasc_id: 904010616
-  mag_aca: 10.902  # need to check, not from starcheck report
-  mag_aca_err: 0.1
 - agasc_id: 913441888
   mag_aca: 10.031
   mag_aca_err: 0.1
@@ -430,12 +395,6 @@ mags:
 - agasc_id: 1108353064
   mag_aca: 10.91  # need to check, not from starcheck report
   mag_aca_err: 0.1
-- agasc_id: 1117787424
-  mag_aca: 11.172
-  mag_aca_err: 0.1
-- agasc_id: 1130649544
-  mag_aca: 8.062
-  mag_aca_err: 0.1
 - agasc_id: 1139171624
   mag_aca: 10.297
   mag_aca_err: 0.1
@@ -444,9 +403,6 @@ mags:
   mag_aca_err: 0.1
 - agasc_id: 1178221128
   mag_aca: 10.031
-  mag_aca_err: 0.1
-- agasc_id: 1197635184
-  mag_aca: 10.578
   mag_aca_err: 0.1
 obs:
 - agasc_id:
