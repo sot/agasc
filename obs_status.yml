@@ -414,12 +414,12 @@ obs:
   status: 1
 - agasc_id:
   - 857375576
-  comments: Expected star position is >1000 arcsec away during the whole obs
+  comments: Record of star catalog must be incorrect.
   mp_starcat_time: 2003:357:02:49:14.852
   status: 1
 - agasc_id:
   - 857375848
-  comments: Expected star position is >1000 arcsec away during the whole obs
+  comments: Record of star catalog must be incorrect.
   mp_starcat_time: 2003:357:02:49:14.852
   status: 1
 - agasc_id:
