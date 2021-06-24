@@ -44,7 +44,6 @@ bad:
   405276920: 9
   417611952: 11
   450103168: 9
-  458500128: 13  # new value
   497824592: 9
   505545160: 9
   612370792: 9
@@ -1348,9 +1347,9 @@ obs:
   status: 0
 - agasc_id:
   - 458500128
-  comments: Unexplained variability
+  comments: Looks to be a bad pixel region
   mp_starcat_time: 2016:136:08:42:06.470
-  status: 0
+  status: 1
 - agasc_id:
   - 118359864
   comments: Never acquired. Set mag to MAXMAG
