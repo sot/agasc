@@ -77,7 +77,6 @@ bad:
   879768704: 9
   891159184: 9
   897878136: 9
-  898125104: 9
   899950912: 9
   901664112: 9
   913441888: 9
@@ -351,9 +350,6 @@ mags:
   mag_aca_err: 0.1
 - agasc_id: 897878136
   mag_aca: 10.75
-  mag_aca_err: 0.1
-- agasc_id: 898125104
-  mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 899950912
   mag_aca: 11.688
@@ -1082,7 +1078,7 @@ obs:
   status: 1
 - agasc_id:
   - 898125104
-  comments: Never acquired. Set mag to MAXMAG
+  comments: Never acquired. Venus observation.
   mp_starcat_time: 2013:313:03:14:15.039
   status: 1
 - agasc_id:
