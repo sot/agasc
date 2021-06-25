@@ -2,6 +2,7 @@ bad:
   5115672: 9
   38535536: 9
   40113272: 9
+  42864912: 11
   45616472: 9
   47846640: 9
   48892720: 9
@@ -16,11 +17,14 @@ bad:
   118359864: 9
   118498608: 9
   120457376: 9
+  123874048: 11
+  139214712: 12
   144714600: 9
   145113736: 9
   152831696: 9
   161357600: 9
   166993856: 9
+  171724672: 10
   187829568: 9
   188482256: 9
   188501784: 9
@@ -44,7 +48,6 @@ bad:
   405276920: 9
   417611952: 11
   450103168: 9
-  458500128: 13  # new value
   497824592: 9
   505545160: 9
   612370792: 9
@@ -70,6 +73,7 @@ bad:
   720504096: 9
   723657296: 12
   740693864: 9
+  764150080: 12
   771756656: 9
   805966472: 9
   821318496: 9
@@ -78,16 +82,17 @@ bad:
   879768704: 9
   891159184: 9
   897878136: 9
-  898125104: 9
   899950912: 9
   901664112: 9
   913441888: 9
   915939232: 9
   962998672: 9
   974791856: 9
+  1020796600: 9
   1058938112: 9
   1092619768: 9
   1105592952: 9
+  1105068512: 10
   1108353064: 9
   1139171624: 9
   1178221128: 9
@@ -101,6 +106,9 @@ mags:
 - agasc_id: 40113272
   mag_aca: 11.781
   mag_aca_err: 0.1
+- agasc_id: 42864912
+  mag_aca: 12.6
+  mag_aca_err: 0.3
 - agasc_id: 45616472
   mag_aca: 11.422
   mag_aca_err: 0.1
@@ -145,6 +153,12 @@ mags:
   mag_aca_err: 0.1
 - agasc_id: 120457376
   mag_aca: 11.547
+  mag_aca_err: 0.1
+- agasc_id: 123874048
+  mag_aca: 5.0
+  mag_aca_err: 0.1
+- agasc_id: 139214712
+  mag_aca: 11.35
   mag_aca_err: 0.1
 - agasc_id: 144714600
   mag_aca: 10.672
@@ -224,9 +238,6 @@ mags:
 - agasc_id: 396501520
   mag_aca: 10.3
   mag_aca_err: 0.1
-- agasc_id: 405271520
-  mag_aca: 11.2
-  mag_aca_err: 0.1
 - agasc_id: 405276920
   mag_aca: 11.203
   mag_aca_err: 0.1
@@ -273,7 +284,7 @@ mags:
   mag_aca: 12.719
   mag_aca_err: 0.1
 - agasc_id: 652480464
-  mag_aca: 10.075
+  mag_aca: 11.578
   mag_aca_err: 0.1
 - agasc_id: 653529952
   mag_aca: 10.844
@@ -345,16 +356,13 @@ mags:
   mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 879768704
-  mag_aca: 10.859
+  mag_aca: 10.328
   mag_aca_err: 0.1
 - agasc_id: 891159184
   mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 897878136
   mag_aca: 10.75
-  mag_aca_err: 0.1
-- agasc_id: 898125104
-  mag_aca: 11.203
   mag_aca_err: 0.1
 - agasc_id: 899950912
   mag_aca: 11.688
@@ -422,12 +430,12 @@ obs:
   status: 1
 - agasc_id:
   - 857375576
-  comments: Expected star position is >1000 arcsec away during the whole obs
+  comments: Record of star catalog must be incorrect.
   mp_starcat_time: 2003:357:02:49:14.852
   status: 1
 - agasc_id:
   - 857375848
-  comments: Expected star position is >1000 arcsec away during the whole obs
+  comments: Record of star catalog must be incorrect.
   mp_starcat_time: 2003:357:02:49:14.852
   status: 1
 - agasc_id:
@@ -1083,7 +1091,7 @@ obs:
   status: 1
 - agasc_id:
   - 898125104
-  comments: Never acquired. Set mag to MAXMAG
+  comments: Never acquired. Venus observation.
   mp_starcat_time: 2013:313:03:14:15.039
   status: 1
 - agasc_id:
@@ -1348,9 +1356,9 @@ obs:
   status: 0
 - agasc_id:
   - 458500128
-  comments: Unexplained variability
+  comments: Looks to be a bad pixel region
   mp_starcat_time: 2016:136:08:42:06.470
-  status: 0
+  status: 1
 - agasc_id:
   - 118359864
   comments: Never acquired. Set mag to MAXMAG
@@ -1628,7 +1636,7 @@ obs:
   status: 1
 - agasc_id:
   - 738075032
-  comments: Spoiler 30 arcsec away
+  comments: Imposter region 30 arcsec away
   mp_starcat_time: 2018:158:10:17:36.762
   status: 1
 - agasc_id:
