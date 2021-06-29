@@ -442,7 +442,7 @@ def do(start,
                         {'status': r['status'], 'comments': r['comments']}
                     for r in obs_status_override
                 }
-            if 'mags' in h5.root:
+            if 'mags' in h5.root and len(stars_obs):
                 outliers_current = h5.root.mags[:]
                 times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
                     'agasc_id').groups.aggregate(lambda d: np.max(CxoTime(d)).date)
@@ -472,6 +472,10 @@ def do(start,
                     if len(update) - np.sum(update):
                         logger.info(f'Skipping {len(update) - np.sum(update)} '
                                     f'stars already in the supplement')
+
+    if len(stars_obs) == 0:
+        logger.info(f'There are no new observations to process')
+        return
 
     # do the processing
     logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
