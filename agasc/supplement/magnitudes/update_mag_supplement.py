@@ -491,14 +491,18 @@ def do(start,
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]
     failed_obs = [f for f in fails if f['obsid']]
-    logger.info(
+    msg = (
         f'Got:\n'
         f'  {0 if obs_stats is None else len(obs_stats)} OBSIDs,'
         f'  {0 if agasc_stats is None else len(agasc_stats)} stars,'
-        f'  {len(failed_stars)} failed stars,'
-        f'  {len(failed_obs)} failed observations,'
-        f'  {len(failed_global)} global errors'
     )
+    if failed_obs:
+        msg += f'  {len(failed_obs)} failed observations,'
+    if failed_stars:
+        msg += f'  {len(failed_stars)} failed stars,'
+    if failed_global:
+        msg += f'  {len(failed_global)} global errors'
+    logger.info(msg)
 
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
