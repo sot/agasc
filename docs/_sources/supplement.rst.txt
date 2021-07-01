@@ -54,8 +54,8 @@ Applying review
 If no star dispositions were required then this step does not apply.
 
 After deciding on the status of suspect star observations, the ACA reviewer
-edits ``$SKA/data/agasc/rc/obs-status.yml`` accordingly. In order to apply the
-changes the reviewer runs::
+edits ``$SKA/data/agasc/rc/obs_status.yml`` accordingly and shares this file with the ACA team
+for confirmation. In order to apply the changes, the reviewer logs on HEAD as user aca and runs::
 
   agasc-supplement-tasks disposition
 
@@ -99,16 +99,21 @@ Common annotations:
   even though it is always in the field of view and not spoiled/affected by imposters, in which case
   the magnitude is good.
 - **Almost never acquired**. Star is discernible and residual < 5arcsec in a few sparse images. Maybe the
-  magnitude information can still be used.
+  magnitude information can still be used. Usually, this happens when the star is fainter than MAXMAG,
+  but it gets a boost from hot pixels.
 - **Never acquired**. The star was never discernible by eye in image telemetry. No magnitude
   information can be gleaned from telemetry. It is usually added as a bad star with source=9,
   and its magnitude set by hand.
-- **Partially/slightly spoiled**. A spoiler shifted the centroid.
-- **Out of view**. Something shifted the centroid so much that it was not within the window.
+- **Mag X poiler at X arcsec**.
+- **Out of view**. Something shifted the centroid so much that the star was not within the window.
   Magnitude at these times is meaningless.
 - **Tracking affected by imposter(s)**. The imposter drags the centroid away from the expected
   location, in which case the magnitude is close to correct when centroids match, and becomes larger
   as the angular distance increases (slot 7 in OBSID 50294, slot 1 in OBSID 48668).
+- **Boosted by imposter(s)**. The star is fainter than MAXMAG and consequently not tracked.
+  The presence of the hot pixels tips it over the edge so it is tracked only when right on top of the
+  hot pixels. Magnitude is manually set to MAXMAG, and star is added to the bad list with source=9.
+  (slots 6 and 7 in OBSID 46388)
 - **Venus observation**.
 - **Normal Sun Mode**. Nothing left after removing kadi.events.normal_suns time ranges.
 - **Safe mode**. Nothing left after removing excluded kadi.events.safe_suns time ranges.
@@ -117,11 +122,16 @@ Common annotations:
 - **High Background**. Even though there was no high background event, decided not to use the entire
   observation because of large magnitude shift due to what appears to be high background.
 - **Marginally acceptable**. The magnitude estimate is not great, but will do, especially if this is
-  the only observation of the star. Take this observation and be done with it.
+  the only observation of the star. Take this observation and be done with it. Choosing this as
+  opposed to setting to MAXMAG is a judgment call, after checking that the start magnitude would not
+  be far off this estimate. Most times, there is contribution from hot pixels, which are subtracted
+  on average.
 - **Set mag to MAXMAG**. The magnitude is set by hand to MAXMAG from the starcheck catalog.
+  The star is also added to the bad star list with source=9.
   One can navigate from the mag-stats dashboard to the mica OBSID page and from there to the
   starcheck catalog.
 - **Set mag 12.0 +/- 0.1**. The magnitude is set by hand to some value determined by ACA reviewer.
+  It might or might not be added to the bad star list.
 - tracking interval is spurious. (What does this mean?)
 
 Details
@@ -131,8 +141,8 @@ The following sections provide more detailed information on the underlying
 tools used to manage the AGASC supplement. In most cases these will not be
 run manually during production processing.
 
-Bad Stars and Star Observations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bad Star and Star Observation Updates
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The tables of bad stars and of star observation status in the AGASC supplement
 can be updated using the `agasc-update-supplement`_ script.  This is normally
@@ -196,8 +206,8 @@ Github repository
 The process in that page has been superceded and the page is now considered
 archived.
 
-Magnitude Supplement
-^^^^^^^^^^^^^^^^^^^^
+Magnitude Updates
+^^^^^^^^^^^^^^^^^
 
 The AGASC magnitude supplement is automatically updated on a weekly basis using
 the `agasc-update-magnitudes`_ script. A typical usage is as follows::
@@ -224,6 +234,11 @@ of these::
     agasc-update-magnitudes --start `date --date="14 days ago" "+%Y-%m-%dT%H:%M:%S"` --stop `date "+%Y-%m-%dT%H:%M:%S"`
     # OS-X
     agasc-update-magnitudes --start `date -v-2d "+%Y-%m-%dT%H:%M:%S"` --stop `date "+%Y-%m-%dT%H:%M:%S"`
+
+This runs the update using the same arguments used for the last update/report::
+
+    agasc-update-magnitudes --log-level debug --output-dir $SKA/data/agasc/rc --report \
+        --args-file $SKA/data/agasc/rc/supplement_reports/weekly/latest/call_args.yml
 
 This updates the magnitudes of all stars after a nominal start date (2003:000)::
 
@@ -287,6 +302,14 @@ Scripts
    :ref: agasc.scripts.supplement_tasks.get_parser
    :prog: agasc-supplement-tasks
 
+.. _`agasc-supplement-diff`:
+
+:ref:`agasc-supplement-diff`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. argparse::
+   :ref: agasc.scripts.supplement_diff.get_parser
+   :prog: agasc-supplement-diff
 
 Data products
 -------------

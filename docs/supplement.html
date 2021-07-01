@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.11.1 documentation</title>
+    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.11.2 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.11.1 documentation</a>
+	<a href="index.html">Agasc 4.11.2 documentation</a>
 	 &#187;
       </li>
       
@@ -119,8 +119,8 @@ would normally be added to the bad stars table.</p></li>
 <h3>Applying review<a class="headerlink" href="#applying-review" title="Permalink to this headline">¶</a></h3>
 <p>If no star dispositions were required then this step does not apply.</p>
 <p>After deciding on the status of suspect star observations, the ACA reviewer
-edits <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/obs-status.yml</span></code> accordingly. In order to apply the
-changes the reviewer runs:</p>
+edits <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/obs_status.yml</span></code> accordingly and shares this file with the ACA team
+for confirmation. In order to apply the changes, the reviewer logs on HEAD as user aca and runs:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">tasks</span> <span class="n">disposition</span>
 </pre></div>
 </div>
@@ -160,16 +160,21 @@ affected by instrument effects. They serve as guide on how to disposition, and c
 even though it is always in the field of view and not spoiled/affected by imposters, in which case
 the magnitude is good.</p></li>
 <li><p><strong>Almost never acquired</strong>. Star is discernible and residual &lt; 5arcsec in a few sparse images. Maybe the
-magnitude information can still be used.</p></li>
+magnitude information can still be used. Usually, this happens when the star is fainter than MAXMAG,
+but it gets a boost from hot pixels.</p></li>
 <li><p><strong>Never acquired</strong>. The star was never discernible by eye in image telemetry. No magnitude
 information can be gleaned from telemetry. It is usually added as a bad star with source=9,
 and its magnitude set by hand.</p></li>
-<li><p><strong>Partially/slightly spoiled</strong>. A spoiler shifted the centroid.</p></li>
-<li><p><strong>Out of view</strong>. Something shifted the centroid so much that it was not within the window.
+<li><p><strong>Mag X poiler at X arcsec</strong>.</p></li>
+<li><p><strong>Out of view</strong>. Something shifted the centroid so much that the star was not within the window.
 Magnitude at these times is meaningless.</p></li>
 <li><p><strong>Tracking affected by imposter(s)</strong>. The imposter drags the centroid away from the expected
 location, in which case the magnitude is close to correct when centroids match, and becomes larger
 as the angular distance increases (slot 7 in OBSID 50294, slot 1 in OBSID 48668).</p></li>
+<li><p><strong>Boosted by imposter(s)</strong>. The star is fainter than MAXMAG and consequently not tracked.
+The presence of the hot pixels tips it over the edge so it is tracked only when right on top of the
+hot pixels. Magnitude is manually set to MAXMAG, and star is added to the bad list with source=9.
+(slots 6 and 7 in OBSID 46388)</p></li>
 <li><p><strong>Venus observation</strong>.</p></li>
 <li><p><strong>Normal Sun Mode</strong>. Nothing left after removing kadi.events.normal_suns time ranges.</p></li>
 <li><p><strong>Safe mode</strong>. Nothing left after removing excluded kadi.events.safe_suns time ranges.</p></li>
@@ -178,11 +183,16 @@ shift due to a high background event (we could include the event number).</p></l
 <li><p><strong>High Background</strong>. Even though there was no high background event, decided not to use the entire
 observation because of large magnitude shift due to what appears to be high background.</p></li>
 <li><p><strong>Marginally acceptable</strong>. The magnitude estimate is not great, but will do, especially if this is
-the only observation of the star. Take this observation and be done with it.</p></li>
+the only observation of the star. Take this observation and be done with it. Choosing this as
+opposed to setting to MAXMAG is a judgment call, after checking that the start magnitude would not
+be far off this estimate. Most times, there is contribution from hot pixels, which are subtracted
+on average.</p></li>
 <li><p><strong>Set mag to MAXMAG</strong>. The magnitude is set by hand to MAXMAG from the starcheck catalog.
+The star is also added to the bad star list with source=9.
 One can navigate from the mag-stats dashboard to the mica OBSID page and from there to the
 starcheck catalog.</p></li>
-<li><p><strong>Set mag 12.0 +/- 0.1</strong>. The magnitude is set by hand to some value determined by ACA reviewer.</p></li>
+<li><p><strong>Set mag 12.0 +/- 0.1</strong>. The magnitude is set by hand to some value determined by ACA reviewer.
+It might or might not be added to the bad star list.</p></li>
 <li><p>tracking interval is spurious. (What does this mean?)</p></li>
 </ul>
 </div>
@@ -192,8 +202,8 @@ starcheck catalog.</p></li>
 <p>The following sections provide more detailed information on the underlying
 tools used to manage the AGASC supplement. In most cases these will not be
 run manually during production processing.</p>
-<div class="section" id="bad-stars-and-star-observations">
-<h3>Bad Stars and Star Observations<a class="headerlink" href="#bad-stars-and-star-observations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="bad-star-and-star-observation-updates">
+<h3>Bad Star and Star Observation Updates<a class="headerlink" href="#bad-star-and-star-observation-updates" title="Permalink to this headline">¶</a></h3>
 <p>The tables of bad stars and of star observation status in the AGASC supplement
 can be updated using the <a class="reference internal" href="#agasc-update-supplement">agasc-update-supplement</a> script.  This is normally
 done using a YAML file, but the script also accepts command-line arguments to
@@ -251,8 +261,8 @@ The process in that page has been superceded and the page is now considered
 archived.</p>
 </div>
 </div>
-<div class="section" id="magnitude-supplement">
-<h3>Magnitude Supplement<a class="headerlink" href="#magnitude-supplement" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="magnitude-updates">
+<h3>Magnitude Updates<a class="headerlink" href="#magnitude-updates" title="Permalink to this headline">¶</a></h3>
 <p>The AGASC magnitude supplement is automatically updated on a weekly basis using
 the <a class="reference internal" href="#agasc-update-magnitudes">agasc-update-magnitudes</a> script. A typical usage is as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="o">--</span><span class="n">report</span>
@@ -277,6 +287,11 @@ of these:</p>
 agasc-update-magnitudes --start `date --date=&quot;14 days ago&quot; &quot;+%Y-%m-%dT%H:%M:%S&quot;` --stop `date &quot;+%Y-%m-%dT%H:%M:%S&quot;`
 # OS-X
 agasc-update-magnitudes --start `date -v-2d &quot;+%Y-%m-%dT%H:%M:%S&quot;` --stop `date &quot;+%Y-%m-%dT%H:%M:%S&quot;`
+</pre></div>
+</div>
+<p>This runs the update using the same arguments used for the last update/report:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>agasc-update-magnitudes --log-level debug --output-dir $SKA/data/agasc/rc --report \
+    --args-file $SKA/data/agasc/rc/supplement_reports/weekly/latest/call_args.yml
 </pre></div>
 </div>
 <p>This updates the magnitudes of all stars after a nominal start date (2003:000):</p>
@@ -380,6 +395,34 @@ information relevant for the magnitude estimation from acq data.</p>
 </div>
 <div class="section" id="agasc-supplement-tasks">
 <span id="id4"></span><h3><a class="reference internal" href="#agasc-supplement-tasks"><span class="std std-ref">agasc-supplement-tasks</span></a><a class="headerlink" href="#agasc-supplement-tasks" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="agasc-supplement-diff">
+<span id="id5"></span><h3><a class="reference internal" href="#agasc-supplement-diff"><span class="std std-ref">agasc-supplement-diff</span></a><a class="headerlink" href="#agasc-supplement-diff" title="Permalink to this headline">¶</a></h3>
+<p><p>Generate diff between to supplement files and output in HTML format.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">diff</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="kn">from</span> <span class="nn">FROMFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">to</span> <span class="n">TOFILE</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">O</span><span class="p">]</span>
+                             <span class="p">[</span><span class="o">--</span><span class="n">exclude</span><span class="o">-</span><span class="n">mags</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="Named Arguments">
+<h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--from</kbd></dt>
+<dd><p>The original supplement file.</p>
+</dd>
+<dt><kbd>--to</kbd></dt>
+<dd><p>The modified supplement file.</p>
+</dd>
+<dt><kbd>-o</kbd></dt>
+<dd><p>Output HTML file</p>
+<p>Default: agasc_supplement_diff.html</p>
+</dd>
+<dt><kbd>--exclude-mags</kbd></dt>
+<dd><p>Exclude changes in the “mags” table. There can be many of these.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</div>
 </div>
 </div>
 <div class="section" id="data-products">
@@ -1023,11 +1066,11 @@ star-observations to date, but if it is created if it does not exist already.</p
 </ul>
 </li>
 <li><a class="reference internal" href="#details">Details</a><ul>
-<li><a class="reference internal" href="#bad-stars-and-star-observations">Bad Stars and Star Observations</a><ul>
+<li><a class="reference internal" href="#bad-star-and-star-observation-updates">Bad Star and Star Observation Updates</a><ul>
 <li><a class="reference internal" href="#updating-via-mica-tools">Updating via mica tools</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#magnitude-supplement">Magnitude Supplement</a></li>
+<li><a class="reference internal" href="#magnitude-updates">Magnitude Updates</a></li>
 <li><a class="reference internal" href="#magnitude-supplement-reports">Magnitude Supplement Reports</a></li>
 </ul>
 </li>
@@ -1040,6 +1083,10 @@ star-observations to date, but if it is created if it does not exist already.</p
 <li><a class="reference internal" href="#agasc-update-magnitudes"><span class="xref std std-ref">agasc-update-magnitudes</span></a></li>
 <li><a class="reference internal" href="#agasc-magnitudes-report"><span class="xref std std-ref">agasc-magnitudes-report</span></a></li>
 <li><a class="reference internal" href="#agasc-supplement-tasks"><span class="xref std std-ref">agasc-supplement-tasks</span></a></li>
+<li><a class="reference internal" href="#agasc-supplement-diff"><span class="xref std std-ref">agasc-supplement-diff</span></a><ul>
+<li><a class="reference internal" href="#Named Arguments">Named Arguments</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#data-products">Data products</a><ul>
