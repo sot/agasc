@@ -442,7 +442,7 @@ def do(start,
                         {'status': r['status'], 'comments': r['comments']}
                     for r in obs_status_override
                 }
-            if 'mags' in h5.root:
+            if 'mags' in h5.root and len(stars_obs):
                 outliers_current = h5.root.mags[:]
                 times = stars_obs[['agasc_id', 'mp_starcat_time']].group_by(
                     'agasc_id').groups.aggregate(lambda d: np.max(CxoTime(d)).date)
@@ -473,6 +473,10 @@ def do(start,
                         logger.info(f'Skipping {len(update) - np.sum(update)} '
                                     f'stars already in the supplement')
 
+    if len(stars_obs) == 0:
+        logger.info(f'There are no new observations to process')
+        return
+
     # do the processing
     logger.info(f'Will process {len(agasc_ids)} stars on {len(stars_obs)} observations')
     logger.info(f'from {start} to {stop}')
@@ -487,14 +491,18 @@ def do(start,
     failed_global = [f for f in fails if not f['agasc_id'] and not f['obsid']]
     failed_stars = [f for f in fails if f['agasc_id'] and not f['obsid']]
     failed_obs = [f for f in fails if f['obsid']]
-    logger.info(
+    msg = (
         f'Got:\n'
         f'  {0 if obs_stats is None else len(obs_stats)} OBSIDs,'
         f'  {0 if agasc_stats is None else len(agasc_stats)} stars,'
-        f'  {len(failed_stars)} failed stars,'
-        f'  {len(failed_obs)} failed observations,'
-        f'  {len(failed_global)} global errors'
     )
+    if failed_obs:
+        msg += f'  {len(failed_obs)} failed observations,'
+    if failed_stars:
+        msg += f'  {len(failed_stars)} failed stars,'
+    if failed_global:
+        msg += f'  {len(failed_global)} global errors'
+    logger.info(msg)
 
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
