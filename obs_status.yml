@@ -326,9 +326,6 @@ mags:
 - agasc_id: 720504096
   mag_aca: 11.344
   mag_aca_err: 0.1
-- agasc_id: 723651200
-  mag_aca: 12.0
-  mag_aca_err: 0.1
 - agasc_id: 723657296
   mag_aca: 11.547
   mag_aca_err: 0.1
