@@ -1449,7 +1449,7 @@ obs:
   status: 1
 - agasc_id:
   - 27919752
-  comments: Mag 9.3 spoiler 26 arcsec away.  Set bad with bad position.
+  comments: Mag 9.3 star tracked 26 arcsec from cat position.  Set bad with bad position.
   mp_starcat_time: 2016:365:19:22:11.253
   status: 1
 - agasc_id:
