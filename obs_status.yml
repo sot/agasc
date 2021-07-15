@@ -1661,7 +1661,7 @@ obs:
   status: 0
 - agasc_id:
   - 8395104
-  comments: Magnitude changes within observation. Eclipsing binary
+  comments: Magnitude changes within observation. Bad pixel region
   mp_starcat_time: 2018:295:05:40:26.899
   status: 1
 - agasc_id:
