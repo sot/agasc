@@ -1,4 +1,5 @@
 bad:
+  897607632: 13
   1081092600: 12
   1143744224: 12
   82972168: 9
@@ -463,7 +464,8 @@ obs:
   status: 1
 - agasc_id:
   - 897607632
-  comments: Large magnitude variation. Known eclipsing binary
+  comments: Large magnitude variation. Known eclipsing binary.  Added to bad list
+    as variable star.
   mp_starcat_time: 2004:212:17:56:19.266
   status: 1
 - agasc_id:
