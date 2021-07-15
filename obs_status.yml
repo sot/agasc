@@ -1,4 +1,5 @@
 bad:
+  872547280: 13
   76813072: 10
   897607632: 13
   1081092600: 12
@@ -1627,7 +1628,8 @@ obs:
   status: 1
 - agasc_id:
   - 872547280
-  comments: Large mag variation. Star is a known eclipsing binary
+  comments: Large mag variation. Star is a known eclipsing binary.  Added to bad list
+    as variable star.
   mp_starcat_time: 2018:074:18:43:05.432
   status: 1
 - agasc_id:
