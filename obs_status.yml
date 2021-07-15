@@ -1,4 +1,5 @@
 bad:
+  376724944: 10
   27919752: 10
   1130649544: 11
   5115672: 9
@@ -1331,7 +1332,7 @@ obs:
   status: 1
 - agasc_id:
   - 376724944
-  comments: Mag 6.5 spoiler 45 arcsec away
+  comments: Mag 6.5 spoiler 45 arcsec away. Set bad with bad position.
   mp_starcat_time: 2015:331:14:10:26.457
   status: 1
 - agasc_id:
