@@ -473,7 +473,7 @@ obs:
   status: 1
 - agasc_id:
   - 76813072
-  comments: mag 8.1 spoiler 15 arcsec away
+  comments: mag 8.1 star tracked 15 arcsec from cat position. Set bad with bad position
   mp_starcat_time: 2004:277:04:10:18.167
   status: 1
 - agasc_id:
