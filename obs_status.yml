@@ -1,4 +1,14 @@
 bad:
+  839385704: 13
+  872547280: 13
+  76813072: 10
+  897607632: 13
+  1081092600: 12
+  1143744224: 12
+  82972168: 9
+  376724944: 10
+  27919752: 10
+  1130649544: 11
   5115672: 9
   38535536: 9
   40113272: 9
@@ -97,6 +107,9 @@ bad:
   1139171624: 9
   1178221128: 9
 mags:
+- agasc_id: 1130649544
+  mag_aca: 4.5
+  mag_aca_err: 0.1
 - agasc_id: 5115672
   mag_aca: 11.422
   mag_aca_err: 0.1
@@ -310,17 +323,11 @@ mags:
 - agasc_id: 690625640
   mag_aca: 11.2
   mag_aca_err: 0.1
-- agasc_id: 693243160
-  mag_aca: 4.5
-  mag_aca_err: 0.1
 - agasc_id: 694561568
   mag_aca: 9.8
   mag_aca_err: 0.1
 - agasc_id: 720504096
   mag_aca: 11.344
-  mag_aca_err: 0.1
-- agasc_id: 723651200
-  mag_aca: 12.0
   mag_aca_err: 0.1
 - agasc_id: 723657296
   mag_aca: 11.547
@@ -460,12 +467,13 @@ obs:
   status: 1
 - agasc_id:
   - 897607632
-  comments: Large magnitude variation. Known eclipsing binary
+  comments: Large magnitude variation. Known eclipsing binary.  Added to bad list
+    as variable star.
   mp_starcat_time: 2004:212:17:56:19.266
   status: 1
 - agasc_id:
   - 76813072
-  comments: mag 8.1 spoiler 15 arcsec away
+  comments: mag 8.1 star tracked 15 arcsec from cat position. Set bad with bad position
   mp_starcat_time: 2004:277:04:10:18.167
   status: 1
 - agasc_id:
@@ -686,22 +694,22 @@ obs:
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Never acquired. Set mag to MAXMAG
+  comments: Never acquired. Set mag to 4.5
   mp_starcat_time: 2009:355:12:36:00.392
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Never acquired. Set mag to MAXMAG
+  comments: Never acquired.
   mp_starcat_time: 2009:356:09:31:17.829
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Never acquired. Set mag to MAXMAG
+  comments: Never acquired.
   mp_starcat_time: 2009:357:03:32:22.942
   status: 1
 - agasc_id:
   - 1130649544
-  comments: Never acquired. Set mag to MAXMAG
+  comments: Never acquired.
   mp_starcat_time: 2009:357:23:28:34.822
   status: 1
 - agasc_id:
@@ -1326,7 +1334,7 @@ obs:
   status: 1
 - agasc_id:
   - 376724944
-  comments: Mag 6.5 spoiler 45 arcsec away
+  comments: Mag 6.5 star tracked 45 arcsec from cat position. Set bad with bad position.
   mp_starcat_time: 2015:331:14:10:26.457
   status: 1
 - agasc_id:
@@ -1441,7 +1449,7 @@ obs:
   status: 1
 - agasc_id:
   - 27919752
-  comments: Mag 9.3 spoiler 26 arcsec away
+  comments: Mag 9.3 star tracked 26 arcsec from cat position.  Set bad with bad position.
   mp_starcat_time: 2016:365:19:22:11.253
   status: 1
 - agasc_id:
@@ -1621,7 +1629,8 @@ obs:
   status: 1
 - agasc_id:
   - 872547280
-  comments: Large mag variation. Star is a known eclipsing binary
+  comments: Large mag variation. Star is a known eclipsing binary.  Added to bad list
+    as variable star.
   mp_starcat_time: 2018:074:18:43:05.432
   status: 1
 - agasc_id:
@@ -1656,7 +1665,7 @@ obs:
   status: 0
 - agasc_id:
   - 8395104
-  comments: Magnitude changes within observation. Eclipsing binary
+  comments: Magnitude changes within observation. Bad pixel region
   mp_starcat_time: 2018:295:05:40:26.899
   status: 1
 - agasc_id:
@@ -1831,7 +1840,7 @@ obs:
   status: 1
 - agasc_id:
   - 82972168
-  comments: Acquired imposter. Out of view
+  comments: Acquired imposter. Out of view. Set mag to MAXMAG
   mp_starcat_time: 2020:304:03:02:34.117
   status: 1
 - agasc_id:
