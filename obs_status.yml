@@ -1,4 +1,5 @@
 bad:
+  82972168: 9
   376724944: 10
   27919752: 10
   1130649544: 11
@@ -1837,7 +1838,7 @@ obs:
   status: 1
 - agasc_id:
   - 82972168
-  comments: Acquired imposter. Out of view
+  comments: Acquired imposter. Out of view. Set mag to MAXMAG
   mp_starcat_time: 2020:304:03:02:34.117
   status: 1
 - agasc_id:
