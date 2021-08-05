@@ -14,6 +14,7 @@ import numpy as np
 from astropy import table
 from astropy import time, units as u
 
+from mica.starcheck import get_starcheck_catalog
 from agasc.supplement.magnitudes import star_obs_catalogs, mag_estimate, mag_estimate_report as msr
 from agasc.supplement.utils import save_version, MAGS_DTYPE
 from cxotime import CxoTime
@@ -337,7 +338,29 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
     if len(obs) == 0:
         return
 
-    yaml_template = """obs:
+    agasc_ids = []
+    for o in obs:
+        cat = get_starcheck_catalog(o['obsid'])
+        if cat:
+            cat = cat['cat']
+            maxmags = dict(zip(cat['id'], cat['maxmag']))
+            agasc_ids += [(agasc_id, maxmags.get(agasc_id, -1)) for agasc_id in o['agasc_id']]
+        else:
+            agasc_ids += [(agasc_id, -1) for agasc_id in obs['agasc_id']]
+
+        agasc_ids = dict(sorted(agasc_ids))
+
+    yaml_template = """bad:
+  {%- for agasc_id, maxmag in agasc_ids.items() %}
+  {{ agasc_id }}: 0
+  {%- endfor %}
+mags:
+  {%- for agasc_id, maxmag in agasc_ids.items() %}
+  - agasc_id: {{ agasc_id }}
+    mag_aca: {{ maxmag }}
+    mag_aca_err: 0.1
+  {%- endfor %}
+obs:
   {%- for obs in observations %}
   - mp_starcat_time: {{ obs.mp_starcat_time }}
     obsid: {{ obs.obsid }}
@@ -351,7 +374,7 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
     tpl = jinja2.Template(yaml_template)
     if filename:
         with open(filename, 'w') as fh:
-            fh.write(tpl.render(observations=obs))
+            fh.write(tpl.render(observations=obs, agasc_ids=agasc_ids))
     return tpl.render(observations=obs)
 
 
