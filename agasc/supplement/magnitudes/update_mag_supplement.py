@@ -335,6 +335,8 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
                 'comments': fail['msg']
             })
     if len(obs) == 0:
+        if filename and filename.exists():
+            filename.unlink()
         return
 
     yaml_template = """obs:
