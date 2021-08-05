@@ -996,6 +996,13 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         logger.debug('  Excluding observations flagged in obs-status table: '
                      f'{list(star_obs[excluded_obs]["obsid"])}')
 
+    included_obs = np.array([((oi, ai) in obs_status_override
+                             and obs_status_override[(oi, ai)]['status'] == 0)
+                             for oi, ai in star_obs[['mp_starcat_time', 'agasc_id']]])
+    if np.any(included_obs):
+        logger.debug('  Including observations marked OK in obs-status table: '
+                     f'{list(star_obs[included_obs]["obsid"])}')
+
     failures = []
     all_telem = []
     stats = []
@@ -1014,10 +1021,12 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             obs_stat = get_obs_stats(obs, telem={k: telem[k] for k in telem.colnames})
             obs_stat.update({
                 'obs_ok': (
-                    ~excluded_obs[i]
-                    & (obs_stat['n'] > 10)
-                    & (obs_stat['f_track'] > 0.3)
-                    & (obs_stat['lf_variability_100s'] < 1)
+                    included_obs[i] | (
+                        ~excluded_obs[i]
+                        & (obs_stat['n'] > 10)
+                        & (obs_stat['f_track'] > 0.3)
+                        & (obs_stat['lf_variability_100s'] < 1)
+                    )
                 ),
                 'obs_suspect': False,
                 'obs_fail': False,
