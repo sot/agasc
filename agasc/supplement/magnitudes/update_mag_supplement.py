@@ -348,7 +348,7 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
         else:
             agasc_ids += [(agasc_id, -1) for agasc_id in obs['agasc_id']]
 
-        agasc_ids = dict(sorted(agasc_ids))
+    agasc_ids = dict(sorted(agasc_ids))
 
     yaml_template = """bad:
   {%- for agasc_id, maxmag in agasc_ids.items() %}
@@ -372,10 +372,11 @@ obs:
   {%- endfor %}
   """
     tpl = jinja2.Template(yaml_template)
+    result = tpl.render(observations=obs, agasc_ids=agasc_ids)
     if filename:
         with open(filename, 'w') as fh:
-            fh.write(tpl.render(observations=obs, agasc_ids=agasc_ids))
-    return tpl.render(observations=obs)
+            fh.write(result)
+    return result
 
 
 def do(start,
