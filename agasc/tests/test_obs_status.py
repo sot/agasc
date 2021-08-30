@@ -1,12 +1,13 @@
 import pytest
 import io
+import os
 import numpy as np
 import pathlib
 from astropy import table
 import tables
 import builtins
 
-from agasc.supplement.magnitudes import star_obs_catalogs
+from agasc.supplement.magnitudes import mag_estimate, star_obs_catalogs
 from agasc.scripts import update_supplement
 from agasc.supplement.utils import OBS_DTYPE, BAD_DTYPE
 
@@ -711,6 +712,246 @@ def test_update_mags(monkeypatch):
     assert mock_write.n_calls == 1, 'Table.write was never called'
 
 
+def test_save_version(monkeypatch):
+    # this test takes the following dictionary and passes it to save_version
+    # it then checks that a corresponding astropy table with the right structure is created and its
+    # write method is called
+    import agasc
+    versions = dict(obs=agasc.__version__, mags=agasc.__version__)
+
+    def mock_write(*args, **kwargs):
+        mock_write.calls.append((args, kwargs))
+        assert 'format' in kwargs and kwargs['format'] == 'hdf5'
+        assert 'path' in kwargs
+        assert kwargs['path'] in ['last_updated', 'agasc_versions']
+        assert len(args[0]) == 1
+        assert 'supplement' in args[0].colnames
+        if kwargs['path'] == 'agasc_versions':
+            for k, v in versions.items():
+                assert k in args[0].colnames
+                assert args[0][k][0] == versions[k]
+    mock_write.calls = []
+
+    monkeypatch.setattr(table.Table, 'write', mock_write)
+
+    from agasc.supplement.utils import save_version
+    save_version('test_save_version.h5', ['obs', 'mags'])
+    assert len(mock_write.calls) > 0, "Table.write was never called"
+
+
+def test_override(monkeypatch):
+    _monkeypatch_star_obs_catalogs_(
+        monkeypatch,
+        test_file=TEST_DATA_DIR / 'mag-stats.h5',
+        path='/obs_status'
+    )
+    telem = _monkeypatch_get_telemetry_(
+        monkeypatch,
+        test_file=TEST_DATA_DIR / 'mag-stats.h5',
+        path='/obs_status/telem'
+    )
+
+    # Case 1. There are two previously unknown suspect observations out of 5.
+    agasc_stats, obs_stats, fails = mag_estimate.get_agasc_id_stats(10492752)
+
+    assert len(fails) == 2
+    assert len(obs_stats) == 5
+    assert agasc_stats['n_obsids_fail'] == 2
+    assert agasc_stats['n_obsids_ok'] == 3
+    assert agasc_stats['n_obsids_suspect'] == 2  # two suspect count as "fail" in this context
+    assert not np.isclose(
+        np.mean(telem[np.in1d(telem['obsid'], [12800])]['mags']),
+        agasc_stats['mag_obs']
+    )
+    assert np.isclose(
+        np.mean(telem[np.in1d(telem['obsid'], [12800, 23682, 23683])]['mags']),
+        agasc_stats['mag_obs']
+    )
+
+    # Case 2. Four observations (including the suspect) are marked with non-zero status
+    # Only the remaining observation should be included
+    obs_status_override = {
+        ('2018:296:15:53:14.596', 10492752): {'status': 1, 'comments': ''},
+        ('2021:015:00:01:45.585', 10492752): {'status': 1, 'comments': ''},
+        ('2021:089:02:48:00.575', 10492752): {'status': 1, 'comments': ''},
+        ('2021:201:02:58:03.250', 10492752): {'status': 1, 'comments': ''}
+    }
+    agasc_stats, obs_stats, fails = \
+        mag_estimate.get_agasc_id_stats(10492752, obs_status_override=obs_status_override)
+
+    assert len(fails) == 0
+    assert agasc_stats['n_obsids_fail'] == 0
+    assert agasc_stats['n_obsids_ok'] == 1
+    assert agasc_stats['n_obsids_suspect'] == 0  # no fails because all status==1 skipped
+    assert np.isclose(
+        np.mean(telem[np.in1d(telem['obsid'], [12800])]['mags']),
+        agasc_stats['mag_obs']
+    )
+    assert not np.isclose(
+        np.mean(telem[np.in1d(telem['obsid'], [12800, 23682, 23683])]['mags']),
+        agasc_stats['mag_obs']
+    )
+
+    # Case 3:
+    # - One of the suspect observations is previously known and marked as OK (status=0)
+    # - One other observation is marked as not-OK
+    obs_status_override = {
+        ('2021:015:00:01:45.585', 10492752): {'status': 0, 'comments': ''},
+        ('2021:089:02:48:00.575', 10492752): {'status': 1, 'comments': ''},
+    }
+    agasc_stats, obs_stats, fails = \
+        mag_estimate.get_agasc_id_stats(10492752, obs_status_override=obs_status_override)
+
+    assert len(fails) == 1
+    assert agasc_stats['n_obsids_fail'] == 1
+    assert agasc_stats['n_obsids_ok'] == 3
+    assert agasc_stats['n_obsids_suspect'] == 1  # one failed
+    assert np.isclose(
+        np.mean(telem[np.in1d(telem['obsid'], [12800, 23681, 23683])]['mags']),
+        agasc_stats['mag_obs']
+    )
+
+
+def _remove_list_duplicates(a_list):
+    # removes duplicates while preserving order
+    a_list = a_list.copy()
+    remove = []
+    for i, item in enumerate(a_list):
+        if item in a_list[:i]:
+            remove.append(i)
+    for i in remove[::-1]:
+        del a_list[i]
+    return a_list
+
+
+def _monkeypatch_star_obs_catalogs_(monkeypatch, test_file, path):
+    tables = [
+        'STARCAT_CMDS',
+        'DWELLS_NP',
+        'STARS_OBS_INDICES',
+        'STARS_OBS_MAP',
+        'STARS_OBS',
+        'TIMELINES'
+    ]
+
+    res = {t: table.Table.read(test_file, path=f'{path}/cat/{t}') for t in tables}
+    for k in res:
+        res[k].convert_bytestring_to_unicode()
+    res['DWELLS_NP'] = res['DWELLS_NP'].as_array()
+    res['STARS_OBS_NP'] = res['STARS_OBS'].as_array()
+    res['DWELLS_MAP'] = {
+        res['DWELLS_NP']['mp_starcat_time'][idx]: idx for idx in range(len(res['DWELLS_NP']))
+    }
+    res['STARS_OBS'].add_index('agasc_id')
+    res['STARS_OBS'].add_index('mp_starcat_time')
+    res['STARS_OBS_MAP'] = {
+        row['agasc_id']: (row['idx0'], row['idx1']) for row in res['STARS_OBS_MAP']
+    }
+
+    for k in res:
+        monkeypatch.setattr(star_obs_catalogs, k, res[k])
+
+
+def _monkeypatch_get_telemetry_(monkeypatch, test_file, path):
+    telem = table.Table.read(test_file, path=path)
+
+    def get_telemetry(obs):
+        obsid = obs['obsid']
+        if obs['obsid'] in telem['obsid']:
+            return telem[telem['obsid'] == obs['obsid']]
+        raise Exception(f'{obsid=} not in test telemetry')
+    monkeypatch.setattr(mag_estimate, 'get_telemetry', get_telemetry)
+
+    return telem
+
+
+def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / 'mag-stats.h5'):
+    from astropy.table import vstack, Table
+
+    star_obs_catalogs.load()
+    mp_starcat_time = [
+        '2018:296:15:53:14.596',
+        '2021:201:02:58:03.250',
+        '2021:015:00:01:45.585',
+        '2011:288:06:14:49.501',
+        '2021:089:02:48:00.575'
+    ]
+    agasc_id = 10492752
+
+    STARCAT_CMDS = star_obs_catalogs.STARCAT_CMDS[
+        np.in1d(star_obs_catalogs.STARCAT_CMDS['mp_starcat_time'], mp_starcat_time)
+    ]
+    DWELLS_NP = Table(star_obs_catalogs.DWELLS_NP[
+        np.in1d(star_obs_catalogs.DWELLS_NP['mp_starcat_time'], mp_starcat_time)
+    ])
+    STARS_OBS = star_obs_catalogs.STARS_OBS[
+        np.in1d(star_obs_catalogs.STARS_OBS['mp_starcat_time'], mp_starcat_time)
+    ]
+
+    STARS_OBS = STARS_OBS.group_by('agasc_id')
+    STARS_OBS.add_index('agasc_id')
+    STARS_OBS.add_index('mp_starcat_time')
+    STARS_OBS.groups
+    indices = STARS_OBS.groups.indices
+    rows = []
+    for idx0, idx1 in zip(indices[:-1], indices[1:]):
+        agasc_id = STARS_OBS['agasc_id'][idx0]
+        rows.append((agasc_id, idx1 - idx0, idx0, idx1))
+
+    indices = STARS_OBS.groups.indices
+    rows = []
+    for idx0, idx1 in zip(indices[:-1], indices[1:]):
+        agasc_id = STARS_OBS['agasc_id'][idx0]
+        rows.append((agasc_id, idx1 - idx0, idx0, idx1))
+    STARS_OBS_INDICES = Table(rows=rows, names=['agasc_id', 'n_obs', 'idx0', 'idx1'])
+    STARS_OBS_INDICES.sort('n_obs')
+    STARS_OBS_INDICES.add_index('agasc_id')
+    STARS_OBS_MAP = Table(
+        [
+            {'agasc_id': row['agasc_id'], 'idx0': row['idx0'], 'idx1': row['idx1']}
+            for row in STARS_OBS_INDICES
+        ])
+
+    TIMELINES = star_obs_catalogs.TIMELINES[
+        np.in1d(star_obs_catalogs.TIMELINES['dir'], STARS_OBS['dir'])
+    ]
+
+    cat_tables = {
+        'STARCAT_CMDS': STARCAT_CMDS,
+        'DWELLS_NP': DWELLS_NP,
+        'STARS_OBS_INDICES': STARS_OBS_INDICES,
+        'STARS_OBS_MAP': STARS_OBS_MAP,
+        'STARS_OBS': STARS_OBS,
+        'TIMELINES': TIMELINES
+    }
+
+    STARS_OBS.remove_indices('mp_starcat_time')
+    TIMELINES.remove_indices('timeline_id')
+    TIMELINES.remove_indices('dir')
+
+    if os.path.exists(filename):
+        os.unlink(filename)
+
+    for t in cat_tables:
+        cat_tables[t].write(
+            filename,
+            path=f'/obs_status/cat/{t}',
+            serialize_meta=True,
+            append=True
+        )
+
+    telem = mag_estimate.get_telemetry_by_agasc_id(10492752)
+    t = vstack([g[:100].copy() for g in telem.group_by('obsid').groups])
+    ok = np.ones(len(t), dtype=bool)
+    ok[110:200] = False
+    delta = np.zeros_like(t['mags'])
+    delta[-100:] = 0.01 * np.exp(np.arange(100) / 20)
+    t['mags_img'] += delta
+    t['mags'] += delta
+    t = t[ok]
+    t.write(filename, path='/obs_status/telem', serialize_meta=True, append=True)
+
+
 def recreate_test_supplement(supplement_filename=TEST_DATA_DIR / 'agasc_supplement.h5'):
     # this is not a test function, but a function to generate the test supplement from scratch
     # whenever it needs updating, so all the data is actually contained in this file
@@ -739,42 +980,3 @@ def recreate_test_supplement(supplement_filename=TEST_DATA_DIR / 'agasc_suppleme
     update_supplement.add_bad_star(supplement_filename,
                                    status['bad'],
                                    dry_run=False)
-
-
-def test_save_version(monkeypatch):
-    # this test takes the following dictionary and passes it to save_version
-    # it then checks that a corresponding astropy table with the right structure is created and its
-    # write method is called
-    import agasc
-    versions = dict(obs=agasc.__version__, mags=agasc.__version__)
-
-    def mock_write(*args, **kwargs):
-        mock_write.calls.append((args, kwargs))
-        assert 'format' in kwargs and kwargs['format'] == 'hdf5'
-        assert 'path' in kwargs
-        assert kwargs['path'] in ['last_updated', 'agasc_versions']
-        assert len(args[0]) == 1
-        assert 'supplement' in args[0].colnames
-        if kwargs['path'] == 'agasc_versions':
-            for k, v in versions.items():
-                assert k in args[0].colnames
-                assert args[0][k][0] == versions[k]
-    mock_write.calls = []
-
-    monkeypatch.setattr(table.Table, 'write', mock_write)
-
-    from agasc.supplement.utils import save_version
-    save_version('test_save_version.h5', ['obs', 'mags'])
-    assert len(mock_write.calls) > 0, "Table.write was never called"
-
-
-def _remove_list_duplicates(a_list):
-    # removes duplicates while preserving order
-    a_list = a_list.copy()
-    remove = []
-    for i, item in enumerate(a_list):
-        if item in a_list[:i]:
-            remove.append(i)
-    for i in remove[::-1]:
-        del a_list[i]
-    return a_list

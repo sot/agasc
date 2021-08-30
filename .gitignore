@@ -4,7 +4,6 @@ ra_dec.npy
 agasc1p6.h5
 docs/_*
 build
-data/
 dist/
 MANIFEST
 parsetab.py
