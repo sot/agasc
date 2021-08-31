@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnitude Supplement API &#8212; Agasc 4.11.3 documentation</title>
+    <title>Magnitude Supplement API &#8212; Agasc 4.11.4 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -54,7 +54,7 @@
 	
       </li>
       <li>
-	<a href="index.html">Agasc 4.11.3 documentation</a>
+	<a href="index.html">Agasc 4.11.4 documentation</a>
 	 &#187;
       </li>
       
@@ -68,8 +68,146 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="magnitude-supplement-api">
-<h1>Magnitude Supplement API<a class="headerlink" href="#magnitude-supplement-api" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-agasc.supplement.magnitudes.update_mag_supplement">
+<span id="magnitude-supplement-api"></span><h1>Magnitude Supplement API<a class="headerlink" href="#module-agasc.supplement.magnitudes.update_mag_supplement" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.do">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">do</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">stop</span></em>, <em class="sig-param"><span class="n">output_dir</span></em>, <em class="sig-param"><span class="n">agasc_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">report</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reports_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">report_date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">multi_process</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">include_bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">dry_run</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">email</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#do"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.do" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – cxotime.CxoTime
+Start time. Only stars with at least one observation between start/stop are considered.</p></li>
+<li><p><strong>stop</strong> – cxotime.CxoTime
+Stop time. Only stars with at least one observation between start/stop are considered.</p></li>
+<li><p><strong>output_dir</strong> – pathlib.Path
+Directory where to place all output.</p></li>
+<li><p><strong>agasc_ids</strong> – list
+List of AGASC IDs. Otional. If not given, all observations within start/stop are used.</p></li>
+<li><p><strong>report</strong> – bool
+Generate an HTML report.</p></li>
+<li><p><strong>reports_dir</strong> – pathlib.Path
+Directory where to write reports.</p></li>
+<li><p><strong>report_date</strong> – cxotime.CxoTime
+The report date (report_date.date[:8] will be the report directory name)</p></li>
+<li><p><strong>multi_process</strong> – bool
+Run on mulyiple processes.</p></li>
+<li><p><strong>include_bad</strong> – bool
+Consider stars that are in the ‘bad’ supplement table.</p></li>
+<li><p><strong>dry_run</strong> – bool
+Only parse options and not actually run the magnitude estimates</p></li>
+<li><p><strong>no_progress</strong> – bool
+Hide progress bar</p></li>
+<li><p><strong>email</strong> – str</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">get_agasc_id_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_ids</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call mag_stats.get_agasc_id_stats for each AGASC ID</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_ids</strong> – list</p></li>
+<li><p><strong>obs_status_override</strong> – dict.
+Dictionary overriding the OK flag for specific observations.
+Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
+{‘obs_ok’: True, ‘comments’: ‘some comment’}</p></li>
+<li><p><strong>tstop</strong> – cxotime-compatible timestamp
+Only observations prior to this timestamp are considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>astropy.table.Table, astropy.table.Table, list
+obs_stats, agasc_stats, fails</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">get_agasc_id_stats_pool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_ids</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats_pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call update_mag_stats.get_agasc_id_stats multiple times using a multiprocessing.Pool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_ids</strong> – list</p></li>
+<li><p><strong>obs_status_override</strong> – dict.
+Dictionary overriding the OK flag for specific observations.
+Keys are (OBSID, AGASC ID) pairs, values are dictionaries like
+{‘obs_ok’: True, ‘comments’: ‘some comment’}</p></li>
+<li><p><strong>batch_size</strong> – int</p></li>
+<li><p><strong>tstop</strong> – cxotime-compatible timestamp
+Only observations prior to this timestamp are considered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>astropy.table.Table, astropy.table.Table, list
+obs_stats, agasc_stats, fails, failed_jobs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">level0_archive_time_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#level0_archive_time_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the time range covered by mica archive aca_l0 files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>tuple of CxoTime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">update_mag_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs_stats</span></em>, <em class="sig-param"><span class="n">agasc_stats</span></em>, <em class="sig-param"><span class="n">fails</span></em>, <em class="sig-param"><span class="n">outdir</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_mag_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the mag_stats catalog.</p>
+<p>I currently save three files:
+- mag_stats_agasc.fits with stats for each AGASC ID
+- mag_stats_obsid.fits with stats for each OBSID
+- mag_stats_fails.pkl with a list of failures</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obs_stats</strong> – </p></li>
+<li><p><strong>agasc_stats</strong> – </p></li>
+<li><p><strong>fails</strong> – </p></li>
+<li><p><strong>outdir</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="agasc.supplement.magnitudes.update_mag_supplement.update_supplement">
+<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">update_supplement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_stats</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">include_all</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_supplement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_supplement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the magnitude table of the AGASC supplement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>agasc_stats</strong> – </p></li>
+<li><p><strong>filename</strong> – </p></li>
+<li><p><strong>include_all</strong> – bool
+if True, all OK entries are included in supplement.
+if False, only OK entries marked ‘selected_*’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
