@@ -357,6 +357,8 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
 #
 # After reviewing and updating this file, run as `aca`:
 #   agasc-supplement-tasks disposition
+# Check the diffs at:
+#   https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement/agasc_supplement_diff.html
 # After reviewing the post-disposition email with diffs, run as `aca`:
 #   agasc-supplement-tasks schedule-promotion
 #
