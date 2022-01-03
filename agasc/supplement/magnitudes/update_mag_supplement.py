@@ -352,16 +352,44 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
 
     agasc_ids = dict(sorted(agasc_ids))
 
-    yaml_template = """bad:
+    yaml_template = """\
+# See https://sot.github.io/agasc/supplement.html for detailed guidance.
+#
+# After reviewing and updating this file, run as `aca`:
+#   agasc-supplement-tasks disposition
+# Check the diffs at:
+#   https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement/agasc_supplement_diff.html
+# After reviewing the post-disposition email with diffs, run as `aca`:
+#   agasc-supplement-tasks schedule-promotion
+#
+# Replace BAD_STAR_CODE with one of the following bad star codes:
+#  9: Bad star added based on automated magnitude processing. Magnitude is a lower bound, set to MAXMAG.
+# 10: Bad star added manually due to bad position (bad catalog position or high or missing proper motion)
+# 11: Bad star added based on automated magnitude processing. Magnitude is an upper bound.
+# 12: Bad star added based on automated magnitude processing. Magnitude set manually.
+# 13: Bad star added based on automated magnitude processing. Star shows variability not captured in VAR.
+# See also: https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually
+bad:
   {%- for agasc_id, maxmag in agasc_ids.items() %}
-  {{ agasc_id }}: 0
+  {{ agasc_id }}: BAD_STAR_CODE
   {%- endfor %}
+#
+# Mags below assume that the star is not detected and uses the star max mag.
+# Edit accordingly if this is not the case.
 mags:
   {%- for agasc_id, maxmag in agasc_ids.items() %}
   - agasc_id: {{ agasc_id }}
     mag_aca: {{ maxmag }}
     mag_aca_err: 0.1
   {%- endfor %}
+#
+# status: 0 = star-obs is OK and mag data should be used => REMOVE the mags entry
+#         1 = star-obs is bad/unreliable => use mags values above
+# comments: see the Rubric in https://sot.github.io/agasc/supplement.html
+#   Most commonly:
+#     "Never acquired" (status=1)
+#     "Almost never acquired" (status=0 or 1, depending on data quality)
+#     "Faint star" (status=0)
 obs:
   {%- for obs in observations %}
   - mp_starcat_time: {{ obs.mp_starcat_time }}
@@ -372,7 +400,7 @@ obs:
                {%- endfor -%}]
     comments: {{ obs.comments }}
   {%- endfor %}
-  """
+"""  # noqa
     tpl = jinja2.Template(yaml_template)
     result = tpl.render(observations=obs, agasc_ids=agasc_ids)
     if filename:
