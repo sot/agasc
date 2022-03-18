@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.11.4 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.11.5 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.11.4 documentation</a>
+	<a href="index.html">Agasc 4.11.5 documentation</a>
 	 &#187;
       </li>
       
@@ -74,13 +74,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="maintaining-the-agasc-supplement">
+  <section id="maintaining-the-agasc-supplement">
 <h1>Maintaining the AGASC Supplement<a class="headerlink" href="#maintaining-the-agasc-supplement" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="guidelines-and-procedure-to-update-the-supplement">
+<section id="guidelines-and-procedure-to-update-the-supplement">
 <h2>Guidelines and Procedure to Update the Supplement<a class="headerlink" href="#guidelines-and-procedure-to-update-the-supplement" title="Permalink to this headline">¶</a></h2>
 <p>The AGASC supplement is updated weekly as part of the Aspect group operations.
 The update and promotion process follows the steps described below.</p>
-<div class="section" id="candidate-supplement-update">
+<section id="candidate-supplement-update">
 <h3>Candidate supplement update<a class="headerlink" href="#candidate-supplement-update" title="Permalink to this headline">¶</a></h3>
 <p>The table of magnitudes in the supplement is updated by an automated cron task
 that normally runs on Sunday afternoon each week. This process updates
@@ -91,8 +91,8 @@ observations, which require inspection and do not impact the supplement until
 a disposition by the reviewer.</p>
 <p>Reports are placed in
 <a class="reference external" href="https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement_reports">https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement_reports</a>.</p>
-</div>
-<div class="section" id="report-review">
+</section>
+<section id="report-review">
 <h3>Report review<a class="headerlink" href="#report-review" title="Permalink to this headline">¶</a></h3>
 <p>The on-call ACA reviewer inspects the reports during the normal work week,
 checking that the processing and indicated magnitude updates appear reasonable.
@@ -114,8 +114,8 @@ catalog <code class="docutils literal notranslate"><span class="pre">MAXMAG</spa
 would normally be added to the bad stars table.</p></li>
 </ul>
 <p>Other team members may be consulted at the discretion of the ACA reviewer.</p>
-</div>
-<div class="section" id="applying-review">
+</section>
+<section id="applying-review">
 <h3>Applying review<a class="headerlink" href="#applying-review" title="Permalink to this headline">¶</a></h3>
 <p>If no star dispositions were required then this step does not apply.</p>
 <p>After deciding on the status of suspect star observations, the ACA reviewer
@@ -128,8 +128,8 @@ for confirmation. In order to apply the changes, the reviewer logs on HEAD as us
 <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc</span></code> as well as the weekly reports. The ACA reviewer then
 checks the updated reports to validate that any dispositions have been applied
 correctly.</p>
-</div>
-<div class="section" id="promotion">
+</section>
+<section id="promotion">
 <h3>Promotion<a class="headerlink" href="#promotion" title="Permalink to this headline">¶</a></h3>
 <p>Once satisfied, the ACA reviewer runs the following to <em>schedule</em> the update
 for promotion on the following Sunday:</p>
@@ -142,8 +142,8 @@ cancel the promotion, remove all files from <code class="docutils literal notran
 <p>The actual promotion consists of copying all files from
 <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc/rc/promote</span></code> into the flight directory. This is done prior
 to the weekly automated cron task to generate updated magnitude estimates.</p>
-</div>
-<div class="section" id="rubric-for-disposition-of-bad-observations">
+</section>
+<section id="rubric-for-disposition-of-bad-observations">
 <h3>Rubric for disposition of bad observations<a class="headerlink" href="#rubric-for-disposition-of-bad-observations" title="Permalink to this headline">¶</a></h3>
 <p>The following is a list of annotations we have used when dispositioning bad observations.
 When reviewing a suspect observation, the reviewer might look at telemetry to figure out whether
@@ -195,14 +195,14 @@ starcheck catalog.</p></li>
 It might or might not be added to the bad star list.</p></li>
 <li><p>tracking interval is spurious. (What does this mean?)</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="details">
+</section>
+</section>
+<section id="details">
 <h2>Details<a class="headerlink" href="#details" title="Permalink to this headline">¶</a></h2>
 <p>The following sections provide more detailed information on the underlying
 tools used to manage the AGASC supplement. In most cases these will not be
 run manually during production processing.</p>
-<div class="section" id="bad-star-and-star-observation-updates">
+<section id="bad-star-and-star-observation-updates">
 <h3>Bad Star and Star Observation Updates<a class="headerlink" href="#bad-star-and-star-observation-updates" title="Permalink to this headline">¶</a></h3>
 <p>The tables of bad stars and of star observation status in the AGASC supplement
 can be updated using the <a class="reference internal" href="#agasc-update-supplement">agasc-update-supplement</a> script.  This is normally
@@ -251,7 +251,7 @@ the current working directory, but this can be specified in the command-line.</p
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">supplement</span> <span class="o">--</span><span class="n">obs</span> <span class="mi">11849</span> <span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="mi">1019348536</span> <span class="o">--</span><span class="n">status</span> <span class="kc">False</span>
 </pre></div>
 </div>
-<div class="section" id="updating-via-mica-tools">
+<section id="updating-via-mica-tools">
 <h4>Updating via mica tools<a class="headerlink" href="#updating-via-mica-tools" title="Permalink to this headline">¶</a></h4>
 <p>Prior to version 4.11.0 of the <cite>agasc</cite> package (including functionality to
 generate, maintain, and use the AGASC supplement), the process for adding bad
@@ -259,9 +259,9 @@ stars to the supplement was spelled out in <a class="reference external" href="h
 Github repository</a>.
 The process in that page has been superceded and the page is now considered
 archived.</p>
-</div>
-</div>
-<div class="section" id="magnitude-updates">
+</section>
+</section>
+<section id="magnitude-updates">
 <h3>Magnitude Updates<a class="headerlink" href="#magnitude-updates" title="Permalink to this headline">¶</a></h3>
 <p>The AGASC magnitude supplement is automatically updated on a weekly basis using
 the <a class="reference internal" href="#agasc-update-magnitudes">agasc-update-magnitudes</a> script. A typical usage is as follows:</p>
@@ -302,8 +302,8 @@ agasc-update-magnitudes --start `date -v-2d &quot;+%Y-%m-%dT%H:%M:%S&quot;` --st
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">file</span> <span class="n">agasc_ids</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="magnitude-supplement-reports">
+</section>
+<section id="magnitude-supplement-reports">
 <h3>Magnitude Supplement Reports<a class="headerlink" href="#magnitude-supplement-reports" title="Permalink to this headline">¶</a></h3>
 <p>Weekly reports are produced as magnitudes are estimated. Additionally, a report of <cite>suspect</cite> observations
 (over the last 90 days) is created in the <cite>supplement_reports/suspect</cite> directory, relative to the working directory,
@@ -314,11 +314,11 @@ by running:</p>
 <p>For this to work, the script needs to use two files that contain observed magnitude data.
 These files are placed in the same directory as the supplement file whenever the supplement is updated.
 The location of these files can also be specified in the command line. More information below.</p>
-</div>
-</div>
-<div class="section" id="scripts">
+</section>
+</section>
+<section id="scripts">
 <h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="agasc-update-supplement">
+<section id="agasc-update-supplement">
 <span id="id1"></span><h3><a class="reference internal" href="#agasc-update-supplement"><span class="std std-ref">agasc-update-supplement</span></a><a class="headerlink" href="#agasc-update-supplement" title="Permalink to this headline">¶</a></h3>
 <p><p>Update the ‘bad’ and ‘obs’ tables in the agasc supplement (agasc_supplement.h5).</p>
 <p>This file is a supplement to the stable AGASC to inform star selection
@@ -337,7 +337,7 @@ information relevant for the magnitude estimation from acq data.</p>
                                <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="section" id="Named Arguments">
+<section id="Named Arguments">
 <h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--output-dir</kbd></dt>
@@ -353,8 +353,8 @@ information relevant for the magnitude estimation from acq data.</p>
 <p>Default: False</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="OBS/star status">
+</section>
+<section id="OBS/star status">
 <h4>OBS/star status<a class="headerlink" href="#OBS/star status" title="Permalink to this headline">¶</a></h4>
 <p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
 <dl class="option-list">
@@ -385,9 +385,9 @@ information relevant for the magnitude estimation from acq data.</p>
 <dd><p>Source identifier indicating provenance.</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="agasc-update-magnitudes">
+</section>
+</section>
+<section id="agasc-update-magnitudes">
 <span id="id2"></span><h3><a class="reference internal" href="#agasc-update-magnitudes"><span class="std std-ref">agasc-update-magnitudes</span></a><a class="headerlink" href="#agasc-update-magnitudes" title="Permalink to this headline">¶</a></h3>
 <p><p>Update Magnitude Statistics.</p>
 </p>
@@ -407,7 +407,7 @@ information relevant for the magnitude estimation from acq data.</p>
                                <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="section" id="Named Arguments">
+<section id="Named Arguments">
 <h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--start</kbd></dt>
@@ -432,8 +432,8 @@ information relevant for the magnitude estimation from acq data.</p>
 <p>Default: False</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="OBS/star status">
+</section>
+<section id="OBS/star status">
 <h4>OBS/star status<a class="headerlink" href="#OBS/star status" title="Permalink to this headline">¶</a></h4>
 <p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
 <dl class="option-list">
@@ -464,8 +464,8 @@ information relevant for the magnitude estimation from acq data.</p>
 <dd><p>Source identifier indicating provenance.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="Reporting">
+</section>
+<section id="Reporting">
 <h4>Reporting<a class="headerlink" href="#Reporting" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--report</kbd></dt>
@@ -476,8 +476,8 @@ information relevant for the magnitude estimation from acq data.</p>
 <dd><p>Directory where to place reports. Default: &lt;output_dir&gt;/supplement_reports/weekly.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="Other">
+</section>
+<section id="Other">
 <h4>Other<a class="headerlink" href="#Other" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--multi-process</kbd></dt>
@@ -500,9 +500,9 @@ information relevant for the magnitude estimation from acq data.</p>
 <p>Default: False</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="agasc-magnitudes-report">
+</section>
+</section>
+<section id="agasc-magnitudes-report">
 <span id="id3"></span><h3><a class="reference internal" href="#agasc-magnitudes-report"><span class="std std-ref">agasc-magnitudes-report</span></a><a class="headerlink" href="#agasc-magnitudes-report" title="Permalink to this headline">¶</a></h3>
 <p><p>Produce reports of the magnitude supplement.</p>
 </p>
@@ -513,7 +513,7 @@ information relevant for the magnitude estimation from acq data.</p>
                                <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="n">stats</span> <span class="n">AGASC_STATS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">weekly</span><span class="o">-</span><span class="n">report</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="section" id="Named Arguments">
+<section id="Named Arguments">
 <h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--start</kbd></dt>
@@ -543,9 +543,9 @@ information relevant for the magnitude estimation from acq data.</p>
 <p>Default: False</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="agasc-supplement-tasks">
+</section>
+</section>
+<section id="agasc-supplement-tasks">
 <span id="id4"></span><h3><a class="reference internal" href="#agasc-supplement-tasks"><span class="std std-ref">agasc-supplement-tasks</span></a><a class="headerlink" href="#agasc-supplement-tasks" title="Permalink to this headline">¶</a></h3>
 <p><p>Perform tasks to update and promote the AGASC supplement.</p>
 <p>The available tasks are:</p>
@@ -559,16 +559,16 @@ update the supplement in $SKA/data/agasc/rc</p></li>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">tasks</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">update</span><span class="o">-</span><span class="n">rc</span><span class="p">,</span><span class="n">disposition</span><span class="p">,</span><span class="n">schedule</span><span class="o">-</span><span class="n">promotion</span><span class="p">}</span>
 </pre></div>
 </div>
-<div class="section" id="Positional Arguments">
+<section id="Positional Arguments">
 <h4>Positional Arguments<a class="headerlink" href="#Positional Arguments" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>task</kbd></dt>
 <dd><p>Possible choices: update-rc, disposition, schedule-promotion</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="agasc-supplement-diff">
+</section>
+</section>
+<section id="agasc-supplement-diff">
 <span id="id5"></span><h3><a class="reference internal" href="#agasc-supplement-diff"><span class="std std-ref">agasc-supplement-diff</span></a><a class="headerlink" href="#agasc-supplement-diff" title="Permalink to this headline">¶</a></h3>
 <p><p>Generate diff between to supplement files and output in HTML format.</p>
 </p>
@@ -576,7 +576,7 @@ update the supplement in $SKA/data/agasc/rc</p></li>
                              <span class="p">[</span><span class="o">--</span><span class="n">exclude</span><span class="o">-</span><span class="n">mags</span><span class="p">]</span>
 </pre></div>
 </div>
-<div class="section" id="Named Arguments">
+<section id="Named Arguments">
 <h4>Named Arguments<a class="headerlink" href="#Named Arguments" title="Permalink to this headline">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--from</kbd></dt>
@@ -594,17 +594,17 @@ update the supplement in $SKA/data/agasc/rc</p></li>
 <p>Default: False</p>
 </dd>
 </dl>
-</div>
-</div>
-</div>
-<div class="section" id="data-products">
+</section>
+</section>
+</section>
+<section id="data-products">
 <h2>Data products<a class="headerlink" href="#data-products" title="Permalink to this headline">¶</a></h2>
 <p>There are a few data products resulting from the update of the supplement. The only essential one
 is the supplement itself. All the others are not required for regular operations.</p>
-<div class="section" id="agasc-supplement-h5">
+<section id="agasc-supplement-h5">
 <h3>agasc_supplement.h5<a class="headerlink" href="#agasc-supplement-h5" title="Permalink to this headline">¶</a></h3>
 <p>The supplement is an HDF5 which contains the following tables:</p>
-<div class="section" id="bad">
+<section id="bad">
 <h4>bad<a class="headerlink" href="#bad" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -629,8 +629,8 @@ is the supplement itself. All the others are not required for regular operations
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="mags">
+</section>
+<section id="mags">
 <h4>mags<a class="headerlink" href="#mags" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -663,8 +663,8 @@ is the supplement itself. All the others are not required for regular operations
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="obs">
+</section>
+<section id="obs">
 <h4>obs<a class="headerlink" href="#obs" title="Permalink to this headline">¶</a></h4>
 <table class="docutils align-default">
 <colgroup>
@@ -701,9 +701,9 @@ is the supplement itself. All the others are not required for regular operations
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="mag-stats-obsid-fits">
+</section>
+</section>
+<section id="mag-stats-obsid-fits">
 <h3>mag_stats_obsid.fits<a class="headerlink" href="#mag-stats-obsid-fits" title="Permalink to this headline">¶</a></h3>
 <p><cite>mag_stats_obsid.fits</cite> is an optional file that contains a single table. The table has one row for
 each star-observation. This file is updated in each update, thus providing a summary of all
@@ -955,8 +955,8 @@ star-observations to date, but if it is created if it does not exist already.</p
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="mag-stats-agasc-fits">
+</section>
+<section id="mag-stats-agasc-fits">
 <h3>mag_stats_agasc.fits<a class="headerlink" href="#mag-stats-agasc-fits" title="Permalink to this headline">¶</a></h3>
 <p><cite>mag_stats_agasc.fits</cite> is an optional file that contains a single table. The table has one row for
 each star. This file is updated in each update, thus providing a summary of all
@@ -1216,9 +1216,9 @@ star-observations to date, but if it is created if it does not exist already.</p
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1318,7 +1318,7 @@ star-observations to date, but if it is created if it does not exist already.</p
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

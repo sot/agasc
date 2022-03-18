@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE AXAF Guide and Acquisition Star Catalog V1.7 &#8212; Agasc 4.11.4 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>THE AXAF Guide and Acquisition Star Catalog V1.7 &#8212; Agasc 4.11.5 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -60,7 +60,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.11.4 documentation</a>
+	<a href="index.html">Agasc 4.11.5 documentation</a>
 	 &#187;
       </li>
       
@@ -74,12 +74,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="the-axaf-guide-and-acquisition-star-catalog-v1-7">
+  <section id="the-axaf-guide-and-acquisition-star-catalog-v1-7">
 <h1>THE AXAF Guide and Acquisition Star Catalog V1.7<a class="headerlink" href="#the-axaf-guide-and-acquisition-star-catalog-v1-7" title="Permalink to this headline">¶</a></h1>
 <p>An all-sky astrometric and photometric catalog
 prepared for the operation of Chandra
 (formerly AXAF). version 1.7 September 2018</p>
-<div class="section" id="introduction">
+<section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>The AXAF Guide and Acquisition Star Catalog (AGASC) is presented in
 this set of FITS (Flexible Image Transport System) files, and may
@@ -134,8 +134,8 @@ for red stars with a Tycho-2 color greater than 0.9.</p>
 and its error) for red stars by including the i magnitude information
 from the AAVSO (American Association of Variable Star Observers)
 Photometric All-Sky Survey (APASS) DR9.</p>
-</div>
-<div class="section" id="organization-of-the-fits-data-files">
+</section>
+<section id="organization-of-the-fits-data-files">
 <h2>Organization of the FITS Data Files<a class="headerlink" href="#organization-of-the-fits-data-files" title="Permalink to this headline">¶</a></h2>
 <p>The top directory includes the files:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">----------------------------------------------------------------</span>
@@ -184,8 +184,8 @@ are included within the appropriate regions table based on region
 boundaries in RA and DEC. Cross-references to the original star ID
 numbers XREF_IDx are included from the original x=1-6 catalogs we
 have matched.</p>
-</div>
-<div class="section" id="summary-of-the-agasc1-7-format">
+</section>
+<section id="summary-of-the-agasc1-7-format">
 <h2>Summary of the AGASC1.7 Format<a class="headerlink" href="#summary-of-the-agasc1-7-format" title="Permalink to this headline">¶</a></h2>
 <p>Each FITS regions table in the AGASC1.7 consists of 3 parts, the
 primary header, the table header, and the table data. The conventions
@@ -214,7 +214,7 @@ for each data item for each star are as follows:</p>
                      <span class="mi">122</span> <span class="nb">bytes</span> <span class="n">per</span> <span class="n">star</span>
 </pre></div>
 </div>
-<div class="section" id="summary-of-the-agasc-version-1-7-entries">
+<section id="summary-of-the-agasc-version-1-7-entries">
 <h3>Summary of the AGASC Version 1.7 Entries<a class="headerlink" href="#summary-of-the-agasc-version-1-7-entries" title="Permalink to this headline">¶</a></h3>
 <p>Each of the FITS regions files in the AGASC1.7 will contain the
 following fields for each entry:</p>
@@ -439,9 +439,9 @@ following fields for each entry:</p>
 2    RSV6 - short integer reserved for future use.  Default value of -9999.
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="history-of-the-agasc-version-1-7">
+</section>
+</section>
+<section id="history-of-the-agasc-version-1-7">
 <h2>History of the AGASC Version 1.7<a class="headerlink" href="#history-of-the-agasc-version-1-7" title="Permalink to this headline">¶</a></h2>
 <p>The primary objective of the Chandra Aspect Camera Assembly (ACA) is to
 measure the image positions of selected target stars and fiducial
@@ -567,7 +567,7 @@ The current Chandra guide star selection includes stars without TYC
 colors or PPM SpType information, which boosts the surface density,
 but at this limiting ACA magnitude, such colors are available for 98%
 of stars.</p>
-<div class="section" id="hst-guide-star-catalog">
+<section id="hst-guide-star-catalog">
 <h3>HST Guide Star Catalog<a class="headerlink" href="#hst-guide-star-catalog" title="Permalink to this headline">¶</a></h3>
 <p>The HST Guide Star Catalog (GSC), which has been constructed to support
 the operational need of the Hubble Space Telescope for off-axis guide
@@ -621,8 +621,8 @@ GSC  1.1  analysis and production were performed primarily by
 Jesse B.  Doggett, Daniel Egret, Brian J. McLean, and Conrad
 Sturch.</p></li>
 </ol>
-</div>
-<div class="section" id="positions-and-proper-motions-catalog-ppm">
+</section>
+<section id="positions-and-proper-motions-catalog-ppm">
 <h3>Positions and Proper Motions Catalog (PPM)<a class="headerlink" href="#positions-and-proper-motions-catalog-ppm" title="Permalink to this headline">¶</a></h3>
 <p>PPM North gives J2000 positions and proper motions of 181731 stars
 north of -2.5 degrees declination.  The mean epoch is near 1931. The
@@ -646,8 +646,8 @@ hemisphere; Bastian, U., Roeser, S.,  Nesterov, V. V.,
 Polozhentsev,        D. D., Potter, Kh. I., 1991, Astron.
 Astrophys. Suppl. 87, 159</p></li>
 </ol>
-</div>
-<div class="section" id="tycho-output-catalog-tyc">
+</section>
+<section id="tycho-output-catalog-tyc">
 <h3>TYCHO Output Catalog (TYC)<a class="headerlink" href="#tycho-output-catalog-tyc" title="Permalink to this headline">¶</a></h3>
 <p>Colors are still needed for the majority of stars in AGASC1.1,
 since merge with the PPM provided colors (from spectral types) for only
@@ -677,8 +677,8 @@ Astronomy and Astrophysics, 335, L65</p></li>
 <li><p>The Tycho Catalogue, Hog, E. et al. 1997,
 Astronomy and Astrophysics, 323, L57</p></li>
 </ol>
-</div>
-<div class="section" id="act-reference-catalog-act">
+</section>
+<section id="act-reference-catalog-act">
 <h3>ACT Reference Catalog (ACT)<a class="headerlink" href="#act-reference-catalog-act" title="Permalink to this headline">¶</a></h3>
 <p>The ACT Reference Catalog contains 988,758 star positions and proper
 motions covering the entire sky for the epoch and equinox J2000.0.
@@ -705,8 +705,8 @@ and Wycoff, G. L. 1998, AJ, 115, 2161</p></li>
 <li><p>The AC 2000: The Astrographic Catalogue on the System Defined by
 the Hipparcos Catalogue, Urban, S.E., et al. 1998, AJ, 115, 1212</p></li>
 </ol>
-</div>
-<div class="section" id="tycho-2-catalog">
+</section>
+<section id="tycho-2-catalog">
 <h3>TYCHO-2 Catalog<a class="headerlink" href="#tycho-2-catalog" title="Permalink to this headline">¶</a></h3>
 <p>The Tycho-2 Catalogue is an astrometric reference catalogue containing
 positions and proper motions as well as two-colour photometric data
@@ -731,8 +731,8 @@ epoch J2000 is given.  Supplement-1 contains stars missing in Tycho-2,
 but found in HIP or Tycho-1.  The supplement-1 only includes Tycho-1
 stars of good quality and therefore the quality 9 (very poor) stars
 and probable side-lobes were not included.</p>
-</div>
-<div class="section" id="gsc-act-catalog">
+</section>
+<section id="gsc-act-catalog">
 <h3>GSC-ACT Catalog<a class="headerlink" href="#gsc-act-catalog" title="Permalink to this headline">¶</a></h3>
 <p>The original GSC1.1 positions have random position errors of about
 0.4arcsec, but also systematic position errors of about 0.3arcsec,
@@ -755,8 +755,8 @@ the GSC-ACT showed mean 0.28arcsec, RMS 0.25.  The denser reference
 star network of the GSC-ACT results in a superior calibration,
 this is the catalog we’ve chosen to improve star positions in the
 AGASC that had only GSC1.1 (no Tycho or PPM) data.</p>
-</div>
-<div class="section" id="mass-galaxy-catalog">
+</section>
+<section id="mass-galaxy-catalog">
 <h3>2MASS Galaxy Catalog<a class="headerlink" href="#mass-galaxy-catalog" title="Permalink to this headline">¶</a></h3>
 <p>We use a pre-release catalog of extended objects from June 2001
 kindly provided by Tom Jarrett (IPAC) and John Huchra (CfA).
@@ -771,8 +771,8 @@ The 2MASS project is a collaboration between The University of
 Massachusetts and the Infrared Processing and Analysis Center (JPL/
 Caltech). Funding is provided primarily by NASA and the NSF.
 For information on 2MASS, see <a class="reference external" href="http://www.ipac.caltech.edu/2mass/">http://www.ipac.caltech.edu/2mass/</a></p>
-</div>
-<div class="section" id="aavso-photometric-all-sky-survey-apass">
+</section>
+<section id="aavso-photometric-all-sky-survey-apass">
 <h3>AAVSO Photometric All-Sky Survey (APASS)<a class="headerlink" href="#aavso-photometric-all-sky-survey-apass" title="Permalink to this headline">¶</a></h3>
 <p>We make use of data from the (American Association of Variable Star Observers (AAVSO)
 Photometric All Sky Survey, DR9,
@@ -782,9 +782,9 @@ with the APASS catalog (2 arcsec search radius) and included a new color
 information, V - i aka COLOR3 (APASS) in AGASC 1.7. COLOR2 (Tycho)
 combined with COLOR3 (APASS) resulted in improved calibration of the
 red spoiler stars.</p>
-</div>
-</div>
-<div class="section" id="acknowledgements">
+</section>
+</section>
+<section id="acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
 <p>The AXAF Guide and Acquisition Star Catalog version 1.7 was prepared
 from AGASC1.6 and AAVSO (American Association of Variable Star Observers)
@@ -798,8 +798,8 @@ Detailed information about the catalog and its construction can be
 obtained from the Chandra aspect web page at
 <a class="reference external" href="https://cxc.harvard.edu/mta/ASPECT/agasc1p7">https://cxc.harvard.edu/mta/ASPECT/agasc1p7</a> or by emailing:
 <a class="reference external" href="mailto:aspect_help&#37;&#52;&#48;cfa&#46;harvard&#46;edu">aspect_help<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a></p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -862,7 +862,7 @@ obtained from the Chandra aspect web page at
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>

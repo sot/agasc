@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnitude Supplement API &#8212; Agasc 4.11.4 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Magnitude Supplement API &#8212; Agasc 4.11.5 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -54,7 +54,7 @@
 	
       </li>
       <li>
-	<a href="index.html">Agasc 4.11.4 documentation</a>
+	<a href="index.html">Agasc 4.11.5 documentation</a>
 	 &#187;
       </li>
       
@@ -68,11 +68,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-agasc.supplement.magnitudes.update_mag_supplement">
+  <section id="module-agasc.supplement.magnitudes.update_mag_supplement">
 <span id="magnitude-supplement-api"></span><h1>Magnitude Supplement API<a class="headerlink" href="#module-agasc.supplement.magnitudes.update_mag_supplement" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="agasc.supplement.magnitudes.update_mag_supplement.do">
-<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">do</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">start</span></em>, <em class="sig-param"><span class="n">stop</span></em>, <em class="sig-param"><span class="n">output_dir</span></em>, <em class="sig-param"><span class="n">agasc_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">report</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">reports_dir</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">report_date</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">multi_process</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">include_bad</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">dry_run</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">no_progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">email</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#do"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.do" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.do">
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">do</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reports_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_process</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_bad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#do"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.do" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -108,8 +108,8 @@ Hide progress bar</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">
-<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">get_agasc_id_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_ids</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">{}</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">get_agasc_id_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_status_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call mag_stats.get_agasc_id_stats for each AGASC ID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -131,8 +131,8 @@ obs_stats, agasc_stats, fails</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool">
-<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">get_agasc_id_stats_pool</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_ids</span></em>, <em class="sig-param"><span class="n">obs_status_override</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">batch_size</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">tstop</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">no_progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats_pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool">
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">get_agasc_id_stats_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_status_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats_pool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call update_mag_stats.get_agasc_id_stats multiple times using a multiprocessing.Pool</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -155,8 +155,8 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range">
-<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">level0_archive_time_range</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#level0_archive_time_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range">
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">level0_archive_time_range</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#level0_archive_time_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the time range covered by mica archive aca_l0 files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -166,8 +166,8 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats">
-<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">update_mag_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obs_stats</span></em>, <em class="sig-param"><span class="n">agasc_stats</span></em>, <em class="sig-param"><span class="n">fails</span></em>, <em class="sig-param"><span class="n">outdir</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_mag_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats">
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">update_mag_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fails</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_mag_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the mag_stats catalog.</p>
 <p>I currently save three files:
 - mag_stats_agasc.fits with stats for each AGASC ID
@@ -189,8 +189,8 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="agasc.supplement.magnitudes.update_mag_supplement.update_supplement">
-<code class="sig-prename descclassname">agasc.supplement.magnitudes.update_mag_supplement.</code><code class="sig-name descname">update_supplement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">agasc_stats</span></em>, <em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">include_all</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_supplement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_supplement" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.update_supplement">
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">update_supplement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_supplement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_supplement" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the magnitude table of the AGASC supplement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -208,7 +208,7 @@ if False, only OK entries marked ‘selected_*’</p></li>
 </dl>
 </dd></dl>
 
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -248,7 +248,7 @@ if False, only OK entries marked ‘selected_*’</p></li>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>
