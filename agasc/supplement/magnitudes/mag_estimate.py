@@ -732,8 +732,9 @@ def calc_obs_stats(telem):
     f_3 = (np.sum(kalman & track & dr3) / n_track) if n_track else 0
     f_5 = (np.sum(kalman & track & dr5) / n_track) if n_track else 0
 
-    ok = kalman & track & dr5
-    f_ok = np.sum(ok) / len(ok)
+    ok = kalman & track & dr3
+    n_ok_3 = np.sum(ok)
+    n_ok_5 = np.sum(kalman & track & dr5)
 
     if np.any(ok):
         yang_mean = np.mean(telem['yang_img'][ok] - telem['yang_star'][ok])
@@ -747,9 +748,11 @@ def calc_obs_stats(telem):
         'f_track': f_track,
         'f_dr5': f_5,
         'f_dr3': f_3,
-        'f_ok': f_ok,
+        'f_ok': n_ok_3 / n_kalman,
+        'f_ok_3': n_ok_3 / n_kalman,
+        'f_ok_5': n_ok_5 / n_kalman,
         'n': len(telem['AOACMAG']),
-        'n_ok': np.sum(ok),
+        'n_ok': n_ok_3,
         'dr_star': dr_star,
     }
     if stats['n_ok'] < 10:
@@ -1106,6 +1109,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                 & ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
             )
     all_telem = vstack([Table(t) for i, t in enumerate(all_telem) if not excluded_obs[i]])
+    kalman = (all_telem['AOACASEQ'] == 'KALM') & (all_telem['AOPCADMD'] == 'NPNT')
+    all_telem = all_telem[kalman]  # non-npm/non-kalman are excluded
 
     mags = all_telem['mags']
     ok = all_telem['ok'] & all_telem['obs_ok']
@@ -1115,7 +1120,10 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     result.update({
         'mag_obs_err': min_mag_obs_err,
         'n_obsids_ok': np.sum(stats['obs_ok']),
-        'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
+        'n_no_track': (
+            np.sum((~stats['obs_ok']))
+            + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3)
+        ),
         'n': len(ok),
         'n_ok': np.sum(ok),
         'f_ok': f_ok,
@@ -1189,6 +1197,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             f'f_dr{dr}': np.sum(k) / np.sum(ok),
             f'n_dr{dr}': np.sum(k),
             f'n_dr{dr}_outliers': np.sum(k & outlier),
+            f'f_ok_{dr}': np.sum(k) / len(k),
             f'median_dr{dr}': median,
             f'sigma_minus_dr{dr}': sigma_minus,
             f'sigma_plus_dr{dr}': sigma_plus,
