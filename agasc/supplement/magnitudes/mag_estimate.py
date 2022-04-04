@@ -722,8 +722,8 @@ def calc_obs_stats(telem):
 
     kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
     track = (telem['AOACIIR'] == 'OK') & (telem['AOACFCT'] == 'TRAK')
-    dr3 = (telem['dr'] < 3)
-    dr5 = (telem['dr'] < 5)
+    dr3 = (telem['dy'] < 3) | (telem['dz'] < 3)
+    dr5 = (telem['dy'] < 5) | (telem['dz'] < 5)
 
     f_kalman = np.sum(kalman) / len(kalman)
     n_kalman = np.sum(kalman)
@@ -1170,8 +1170,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     })
 
     for dr in [3, 5]:
-        k = ok & (all_telem['dr'] < dr)
-        k2 = ok & (all_telem['dr'] >= dr)
+        k = ok & (all_telem['dy'] < dr & all_telem['dz'] < dr)
+        k2 = ok & (all_telem['dy'] >= dr | all_telem['dz'] >= dr)
         if not np.any(k):
             continue
         sigma_minus, q25, median, q75, sigma_plus = np.quantile(mags[k],
