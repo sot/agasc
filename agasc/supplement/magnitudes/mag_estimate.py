@@ -464,7 +464,7 @@ def add_obs_info(telem, obs_stats):
     for s in obs_stats:
         obsid = s['obsid']
         o = (telem['obsid'] == obsid)
-        telem['obs_ok'][o] = np.ones(np.sum(o), dtype=bool) * s['obs_ok']
+        telem['obs_ok'][o] = np.ones(np.count_nonzero(o), dtype=bool) * s['obs_ok']
         if (np.any(telem['ok'][o]) and s['f_track'] > 0
                 and np.isfinite(s['q75']) and np.isfinite(s['q25'])):
             iqr = s['q75'] - s['q25']
@@ -725,16 +725,16 @@ def calc_obs_stats(telem):
     dr3 = (telem['dy'] < 3) | (telem['dz'] < 3)
     dr5 = (telem['dy'] < 5) | (telem['dz'] < 5)
 
-    f_kalman = np.sum(kalman) / len(kalman)
-    n_kalman = np.sum(kalman)
-    f_track = np.sum(kalman & track) / n_kalman if n_kalman else 0
-    n_track = np.sum(kalman & track)
-    f_3 = (np.sum(kalman & track & dr3) / n_track) if n_track else 0
-    f_5 = (np.sum(kalman & track & dr5) / n_track) if n_track else 0
+    f_kalman = np.count_nonzero(kalman) / len(kalman)
+    n_kalman = np.count_nonzero(kalman)
+    f_track = np.count_nonzero(kalman & track) / n_kalman if n_kalman else 0
+    n_track = np.count_nonzero(kalman & track)
+    f_3 = (np.count_nonzero(kalman & track & dr3) / n_track) if n_track else 0
+    f_5 = (np.count_nonzero(kalman & track & dr5) / n_track) if n_track else 0
 
     ok = kalman & track & dr3
-    n_ok_3 = np.sum(ok)
-    n_ok_5 = np.sum(kalman & track & dr5)
+    n_ok_3 = np.count_nonzero(ok)
+    n_ok_5 = np.count_nonzero(kalman & track & dr5)
 
     if np.any(ok):
         yang_mean = np.mean(telem['yang_img'][ok] - telem['yang_star'][ok])
@@ -794,7 +794,7 @@ def calc_obs_stats(telem):
         't_std': np.std(mags[ok & (~outlier)]),
         't_skew': scipy.stats.skew(mags[ok & (~outlier)]),
         't_kurt': scipy.stats.kurtosis(mags[ok & (~outlier)]),
-        'outliers': np.sum(outlier),
+        'outliers': np.count_nonzero(outlier),
         'lf_variability_100s': np.max(s_100s) - np.min(s_100s),
         'lf_variability_500s': np.max(s_500s) - np.min(s_500s),
         'lf_variability_1000s': np.max(s_1000s) - np.min(s_1000s),
@@ -1075,7 +1075,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'color': star['COLOR1'],
         'n_obsids_fail': len(failures),
-        'n_obsids_suspect': np.sum(stats['obs_suspect']),
+        'n_obsids_suspect': np.count_nonzero(stats['obs_suspect']),
         'n_obsids': n_obsids,
     })
 
@@ -1115,17 +1115,17 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     mags = all_telem['mags']
     ok = all_telem['ok'] & all_telem['obs_ok']
 
-    f_ok = np.sum(ok) / len(ok)
+    f_ok = np.count_nonzero(ok) / len(ok)
 
     result.update({
         'mag_obs_err': min_mag_obs_err,
-        'n_obsids_ok': np.sum(stats['obs_ok']),
+        'n_obsids_ok': np.count_nonzero(stats['obs_ok']),
         'n_no_track': (
-            np.sum((~stats['obs_ok']))
-            + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3)
+            np.count_nonzero((~stats['obs_ok']))
+            + np.count_nonzero(stats['f_ok'][stats['obs_ok']] < 0.3)
         ),
         'n': len(ok),
-        'n_ok': np.sum(ok),
+        'n_ok': np.count_nonzero(ok),
         'f_ok': f_ok,
     })
 
@@ -1157,7 +1157,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     result.update({
         'agasc_id': agasc_id,
         'n': len(ok),
-        'n_ok': np.sum(ok),
+        'n_ok': np.count_nonzero(ok),
         'f_ok': f_ok,
         'median': median,
         'sigma_minus': sigma_minus,
@@ -1168,25 +1168,25 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'mag_weighted_std': mag_weighted_std,
         't_mean': np.mean(mags[ok & (~outlier)]),
         't_std': np.std(mags[ok & (~outlier)]),
-        'n_outlier': np.sum(ok & outlier),
+        'n_outlier': np.count_nonzero(ok & outlier),
         't_mean_1': np.mean(mags[ok & (~outlier_1)]),
         't_std_1': np.std(mags[ok & (~outlier_1)]),
-        'n_outlier_1': np.sum(ok & outlier_1),
+        'n_outlier_1': np.count_nonzero(ok & outlier_1),
         't_mean_2': np.mean(mags[ok & (~outlier_2)]),
         't_std_2': np.std(mags[ok & (~outlier_2)]),
-        'n_outlier_2': np.sum(ok & outlier_2),
+        'n_outlier_2': np.count_nonzero(ok & outlier_2),
     })
 
     for dr in [3, 5]:
-        k = ok & (all_telem['dy'] < dr & all_telem['dz'] < dr)
-        k2 = ok & (all_telem['dy'] >= dr | all_telem['dz'] >= dr)
+        k = ok & ((all_telem['dy'] < dr) & (all_telem['dz'] < dr))
+        k2 = ok & ((all_telem['dy'] >= dr) | (all_telem['dz'] >= dr))
         if not np.any(k):
             continue
         sigma_minus, q25, median, q75, sigma_plus = np.quantile(mags[k],
                                                                 [0.158, 0.25, 0.5, 0.75, 0.842])
         outlier = ok & all_telem['obs_outlier']
-        mag_not = np.nanmean(mags[k2 & (~outlier)]) if np.sum(k2 & (~outlier)) else np.nan
-        std_not = np.nanstd(mags[k2 & (~outlier)]) if np.sum(k2 & (~outlier)) else np.nan
+        mag_not = np.nanmean(mags[k2 & (~outlier)]) if np.count_nonzero(k2 & (~outlier)) else np.nan
+        std_not = np.nanstd(mags[k2 & (~outlier)]) if np.count_nonzero(k2 & (~outlier)) else np.nan
         result.update({
             f't_mean_dr{dr}': np.mean(mags[k & (~outlier)]),
             f't_std_dr{dr}': np.std(mags[k & (~outlier)]),
@@ -1194,10 +1194,10 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             f't_std_dr{dr}_not': std_not,
             f'mean_dr{dr}': np.mean(mags[k]),
             f'std_dr{dr}': np.std(mags[k]),
-            f'f_dr{dr}': np.sum(k) / np.sum(ok),
-            f'n_dr{dr}': np.sum(k),
-            f'n_dr{dr}_outliers': np.sum(k & outlier),
-            f'f_ok_{dr}': np.sum(k) / len(k),
+            f'f_dr{dr}': np.count_nonzero(k) / np.count_nonzero(ok),
+            f'n_dr{dr}': np.count_nonzero(k),
+            f'n_dr{dr}_outliers': np.count_nonzero(k & outlier),
+            f'f_ok_{dr}': np.count_nonzero(k) / len(k),
             f'median_dr{dr}': median,
             f'sigma_minus_dr{dr}': sigma_minus,
             f'sigma_plus_dr{dr}': sigma_plus,
