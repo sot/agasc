@@ -720,22 +720,47 @@ def calc_obs_stats(telem):
     """
     times = telem['times']
 
-    kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
-    track = (telem['AOACIIR'] == 'OK') & (telem['AOACFCT'] == 'TRAK')
-    dr3 = (telem['dy'] < 3) | (telem['dz'] < 3)
-    dr5 = (telem['dy'] < 5) | (telem['dz'] < 5)
+    # Total number of telemetry samples regardless of what PCAD is doing.
+    n_total = len(telem)
 
-    f_kalman = np.count_nonzero(kalman) / len(kalman)
-    n_kalman = np.count_nonzero(kalman)
-    f_track = np.count_nonzero(kalman & track) / n_kalman if n_kalman else 0
-    n_track = np.count_nonzero(kalman & track)
-    f_3 = (np.count_nonzero(kalman & track & dr3) / n_track) if n_track else 0
-    f_5 = (np.count_nonzero(kalman & track & dr5) / n_track) if n_track else 0
+    # Mask of samples when the ACA could actually be tracking stars in NPNT/Kalman
+    pcad_npnt_kalman = (telem['AOPCADMD'] == 'NPNT') & (telem['AOACASEQ'] == 'KALM')
 
-    ok = kalman & track & dr3
-    n_ok_3 = np.count_nonzero(ok)
-    n_ok_5 = np.count_nonzero(kalman & track & dr5)
+    ###########################################################################
+    # From here on, we only consider the telemetry in NPNT in Kalman mode. All
+    # subsequent counts and fractions are calculated from this subset.
+    ###########################################################################
+    telem = telem[pcad_npnt_kalman]
 
+    aca_ir_flag = telem['AOACIIR'] == 'OK'
+    aca_sp_flag = telem['AOACISP'] == 'OK'
+    aca_trak = telem['AOACFCT'] == 'TRAK'
+
+    dr3 = np.hypot(telem['dy'], telem['dz']) < 3
+    dbox5 = (np.abs(telem['dy']) < 5) & (np.abs(telem['dz']) < 5)
+
+    n_kalman = np.count_nonzero(pcad_npnt_kalman)  # available samples in NPNT/Kalman mode
+    f_kalman = n_kalman / n_total  # fraction of total samples in NPNT/Kalman mode
+
+    # Number and fraction of readouts (in NPNT/Kalman) where ACA is tracking
+    n_track = np.count_nonzero(aca_trak)
+    f_track = n_track / n_kalman if n_kalman > 0 else 0.0
+
+    # Fraction of tracked ACA readouts where dr < 3 arcsec or box offset < 5 arcsec,
+    # ignoring status flags.
+    f_3 = (np.count_nonzero(aca_trak & dr3) / n_track) if n_track else 0
+    f_5 = (np.count_nonzero(aca_trak & dbox5) / n_track) if n_track else 0
+
+    # Samples that the OBC identities as OK for the Kalman filter (without the box5 flag)
+    obc_ok = aca_trak & aca_ir_flag & aca_sp_flag
+
+    # Fraction of tracked ACA readouts where dr < 3 arcsec or box offset < 5 arcsec,
+    # and status flags are not set (readout OK for OBC).
+    n_ok_3 = np.count_nonzero(obc_ok & dr3)  # Good centroid for analysis
+    n_ok_5 = np.count_nonzero(obc_ok & dbox5)  # OK for OBC in Kalman filter
+
+    # Select readouts OK for OBC Kalman filter and compute star mean offset
+    ok = obc_ok & dbox5
     if np.any(ok):
         yang_mean = np.mean(telem['yang_img'][ok] - telem['yang_star'][ok])
         zang_mean = np.mean(telem['zang_img'][ok] - telem['zang_star'][ok])
@@ -751,7 +776,7 @@ def calc_obs_stats(telem):
         'f_ok': n_ok_3 / n_kalman,
         'f_ok_3': n_ok_3 / n_kalman,
         'f_ok_5': n_ok_5 / n_kalman,
-        'n': len(telem['AOACMAG']),
+        'n': n_total,
         'n_ok': n_ok_3,
         'dr_star': dr_star,
     }
