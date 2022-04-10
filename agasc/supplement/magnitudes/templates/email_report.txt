@@ -3,5 +3,5 @@ Warning in magnitude estimates at {{ date }}.
 There were {{ bad_obs | length }} suspicious observation{% if bad_obs |length != 1 %}s{% endif %}
 in magnitude estimates:
 {% for s in bad_obs %}
-- {{ "% 6d" | format(s.obsid) }}: time={{ s.mp_starcat_time }}, n={{ s.n }}, n_ok={{ s.n_ok }}, outliers={{ s.outliers }}, f_track={{ "%.1f" | format(100*s.f_track) }}%
+- {{ "% 6d" | format(s.obsid) }}: time={{ s.mp_starcat_time }}, n={{ s.n }}, n_ok={{ s.n_ok }}, outliers={{ s.outliers }}, f_mag_est_ok={{ "%.1f" | format(100*s.f_mag_est_ok) }}%
 {% endfor %}

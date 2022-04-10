@@ -64,8 +64,9 @@
         <th data-toggle="tooltip" data-placement="top" title="Number of times the star has been observed"> n<sub>obs</sub> </th>
         <th data-toggle="tooltip" data-html="true" data-placement="top" title="Observations not included in calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>bad</sub> </th>
         <th data-toggle="tooltip" data-html="true" data-placement="top" title="Suspect or failed observations (not included in calculation) <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>fail</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" data-html="true" title="tracking time as fraction of total time: <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>track</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" title="Fraction of the tracking time within 5 arcsec of target"> f<sub>5 arcsec</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of kalman time with OBC OK and centroid within a 5 arcsec square window around target: <br/> dbox5 <br/> AOACFCT == TRAK <br/> AOACISP == OK <br/> AOACIIR == OK"> f<sub>ok</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of total time when there is a magnitude estimate and centroid within 3 arcsec of target"> f<sub>mag est ok 3</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" title="Fraction of the magnitude estimates with centroid within a 5 arcsec square window around target"> f<sub>5 arcsec</sub> </th>
         <th data-toggle="tooltip" data-placement="top" title="Magnitude in AGASC"> mag<sub>catalog</sub> </th>
         <th data-toggle="tooltip" data-placement="top" title="Magnitude observed"> mag<sub>obs</sub> </th>
         <th data-toggle="tooltip" data-placement="top" title="Difference between observed and catalog magnitudes"> &delta;<sub>mag cat</sub> </th>
@@ -93,7 +94,8 @@
         <td> {%- if star.n_obs_bad > 0 %} {{ star.n_obs_bad }} {% endif %} </td>
         <td> {%- if star.n_obs_bad_fail > 0 %} {{ star.n_obs_bad_fail }} {% endif %} </td>
         <td> {{ "%.1f" | format(100*star.f_ok) }}%  </td>
-        <td> {{ "%.1f" | format(100*star.f_dr5) }}% </td>
+        <td> {{ "%.1f" | format(100*star.f_mag_est_ok_3) }}%  </td>
+        <td> {{ "%.1f" | format(100*star.f_dbox5) }}% </td>
         <td {% if star.selected_mag_aca_err -%}
               class="table-info"
               data-toggle="tooltip" data-placement="top"
