@@ -105,7 +105,8 @@ class MagEstimateReport:
         with open(directory / 'index.html', 'w') as out:
             out.write(star_template.render(agasc_stats=s,
                                            obs_stats=o.as_array(),
-                                           static_dir=static_dir))
+                                           static_dir=static_dir,
+                                           glossary=GLOSSARY))
         return directory / 'index.html'
 
     def multi_star_html(self, sections=None, updated_stars=None, fails=(),
@@ -229,7 +230,8 @@ class MagEstimateReport:
                                           star_reports=star_reports,
                                           nav_links=nav_links,
                                           tooltips=tooltips,
-                                          static_dir=static_dir))
+                                          static_dir=static_dir,
+                                          glossary=GLOSSARY))
 
     def plot_agasc_id_single(self, agasc_id, obsid=None,
                              telem=None,
@@ -672,3 +674,46 @@ def email_bad_obs_report(bad_obs, to,
         f" in magnitude estimates at {date}."
     p = Popen(["/usr/sbin/sendmail", "-t", "-oi"], stdin=PIPE)
     p.communicate(msg.as_string().encode())
+
+
+GLOSSARY = {
+    'sample': """
+        One sample of ACA image telemetry. This could be a real image readout or it
+        could be a null 4x4 image when the ACA is not tracking. Be aware that the
+        sample period is faster for null 4x4 images (1.025 sec) than for typical 6x6
+        or 8x8 tracked images (2.05 or 4.1 sec respectively).""",
+    'Kalman samples':
+        'Subset of samples when ACA could be tracking stars (AOPCADMD == NPNT & AOACASEQ == KALM)',
+    'dr3': """
+        Subset of tracked Kalman samples with radial centroid residual < 3 arcsec.
+        This corresponds to "high quality" readouts. This effectively includes the
+        track subset (AOACFCT == TRAK) because readouts with no TRAK are assigned an
+        infinite centroid residual.""",
+    'dbox5': """Subset of tracked Kalman samples with centroid residual within a 5 arcsec box.
+        This corresponds to spatial filter used by the OBC for inclusion in Kalman
+        filter. This effectively includes the track subset (AOACFCT == TRAK) because
+        readouts with no TRAK are assigned an infinite centroid residual.""",
+    'track': 'Subset of Kalman samples where the image is being tracked (AOACFCT == TRAK)',
+    'sat_pix': 'Subset of Kalman samples with saturated pixel flag OK (AOACISP == OK)',
+    'ion_rad': 'Subset of Kalman samples with ionizing radiation flag OK (AOACIIR == OK)',
+    'n_total': 'Total number of sample regardless of OBC PCAD status',
+    'n': 'Synonym for n_total',
+    'n_kalman': 'Number of Kalman samples',
+    'n_dr3': 'Number of dr3 samples.',
+    'n_dbox5': 'Number of dbox5 samples.',
+    'n_track': 'Number of track samples.',
+    'n_ok_3': 'Number of (track & sat_pix & ion_rad & dr3) samples',
+    'n_ok_5': 'Number of (track & sat_pix & ion_rad & dbox5) samples',
+    'f_dr3':
+        'n_dr3 / n_kalman',
+    'f_dbox5':
+        'n_dbox5 / n_kalman',
+    'f_ok_3': 'n_ok_3 / n_kalman. Same as f_ok.',
+    'f_ok': """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
+        observation that the Kalman filter is getting high-quality star centroids.""",
+    'f_ok_5': """
+        n_ok_5 / n_kalman. This is a measure of the fraction of time during an
+        observation that the Kalman filter is getting any star centroid at all. This
+        includes measurements out to 5 arcsec box halfwidth, so potentially 7 arcsec
+        radial offset.""",
+}
