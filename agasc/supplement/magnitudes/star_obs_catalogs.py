@@ -54,6 +54,7 @@ def _load_startcat_commands(tstop=None):
     global DWELLS_MAP
 
     STARCAT_CMDS = Table(get_cmds('2003:001', type='MP_STARCAT'))['date', 'timeline_id']
+    STARCAT_CMDS.convert_bytestring_to_unicode()
     STARCAT_CMDS.rename_column('date', 'mp_starcat_time')
     # print(len(starcat_cmds))
     STARCAT_CMDS = table.unique(STARCAT_CMDS, keys='mp_starcat_time')
