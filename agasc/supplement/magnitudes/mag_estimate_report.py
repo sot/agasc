@@ -10,6 +10,7 @@ from email.mime.text import MIMEText
 import jinja2
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FixedLocator
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from tqdm import tqdm
 from astropy import table
@@ -571,8 +572,8 @@ class MagEstimateReport:
         for i in range(len(ok)):
             ax.scatter(timeline['x'][ok[i]], ticks[i] * timeline['y'][ok[i]], s=4, marker='.',
                        color='k')
+        ax.yaxis.set_major_locator(FixedLocator(ticks))
         ax.set_yticklabels(labels)
-        ax.set_yticks(ticks)
         ax.set_ylim((-1, ticks[-1] + 1))
         ax.grid(True, axis='y', linestyle=':')
 

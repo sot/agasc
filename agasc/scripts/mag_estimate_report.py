@@ -36,6 +36,9 @@ def get_parser():
     parser.add_argument('--weekly-report',
                         help="Add links to navigate weekly reports.",
                         action='store_true', default=False)
+    parser.add_argument('--all-stars',
+                        help="Include all stars in the report, not just suspect.",
+                        action='store_true', default=False)
     return parser
 
 
@@ -59,7 +62,9 @@ def main():
         args.start = CxoTime(args.start)
 
     t = (obs_stats['mp_starcat_time'])
-    ok = (t < args.stop) & (t > args.start) & ~obs_stats['obs_ok']
+    ok = (t < args.stop) & (t > args.start)
+    if not args.all_stars:
+        ok &= ~obs_stats['obs_ok']
     stars = np.unique(obs_stats[ok]['agasc_id'])
     sections = [{
         'id': 'stars',
