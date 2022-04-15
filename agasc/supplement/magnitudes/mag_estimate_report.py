@@ -696,6 +696,8 @@ GLOSSARY = {
     'track': 'Subset of Kalman samples where the image is being tracked (AOACFCT == TRAK)',
     'sat_pix': 'Subset of Kalman samples with saturated pixel flag OK (AOACISP == OK)',
     'ion_rad': 'Subset of Kalman samples with ionizing radiation flag OK (AOACIIR == OK)',
+    'mag_est_ok':
+        "Subset of Kalman samples that have a magnitude estimate (track & ion_rad)",
     'n_total': 'Total number of sample regardless of OBC PCAD status',
     'n': 'Synonym for n_total',
     'n_kalman': 'Number of Kalman samples',
@@ -704,12 +706,21 @@ GLOSSARY = {
     'n_track': 'Number of track samples.',
     'n_ok_3': 'Number of (track & sat_pix & ion_rad & dr3) samples',
     'n_ok_5': 'Number of (track & sat_pix & ion_rad & dbox5) samples',
+    'n_mag_est_ok': 'Number of (track & ion_rad) samples',
+    'n_mag_est_ok_3': 'Number of (track & ion_rad & dr3) samples',
+    'n_mag_est_ok_5': 'Number of (track & ion_rad & dbox5) samples',
     'f_dr3':
-        'n_dr3 / n_kalman',
+        'Fraction of mag-est-ok samples with centroid residual < 3 arcsec'
+        '((mag_est_ok & n_dr3)/n_mag_est_ok)',
     'f_dbox5':
-        'n_dbox5 / n_kalman',
-    'f_ok_3': 'n_ok_3 / n_kalman. Same as f_ok.',
-    'f_ok': """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
+        'Fraction of mag-est-ok samples with centroid within 5 arcsec box'
+        '((mag_est_ok & n_dbox5)/n_mag_est_ok)',
+    'f_mag_est_ok': """n_mag_est_ok_3/n_kalman. This is a measure of the fraction of time during
+        an observation that a magnitude estimate is available.""",
+    'f_mag_est_ok_3': "n_mag_est_ok_3/n_kalman.",
+    'f_mag_est_ok_5': "n_mag_est_ok_5/n_kalman.",
+    'f_ok': 'n_ok_5 / n_kalman. Same as f_ok_5',
+    'f_ok_3': """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
         observation that the Kalman filter is getting high-quality star centroids.""",
     'f_ok_5': """
         n_ok_5 / n_kalman. This is a measure of the fraction of time during an
