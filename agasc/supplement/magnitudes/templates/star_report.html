@@ -2,11 +2,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-          crossorigin="anonymous">
-  </head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous"
+    >
+    </head>
   <body>
 
     <div class="container">
@@ -34,7 +35,7 @@
             <tr>
               <td> mag<sub>5 arcsec </sub> </td>
               <td>
-                {{ "%.2f" | format(agasc_stats.t_mean_dr5) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dr5) }}
+                {{ "%.2f" | format(agasc_stats.t_mean_dbox5) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dbox5) }}
               </td>
             </tr>
           </table>
@@ -57,13 +58,12 @@
             </tr>
             <tr>
               <td> f<sub>5 arcsec</sub> </td>
-              <td> {{ "%.1f" | format(100*agasc_stats.f_dr5) }}% </td>
+              <td> {{ "%.1f" | format(100*agasc_stats.f_dbox5) }}% </td>
             </tr>
           </table>
         </div>
       </div>
-  
-  
+
       <h3> Timeline </h3>
       <img src="mag_stats.png" width="100%"/>
   
@@ -77,12 +77,12 @@
           <th data-toggle="tooltip" data-placement="top" title="Pixel column"> Col </th>
           <!-- th data-toggle="tooltip" data-placement="top" data-html="true" title="Observation is considered in the calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> OK </th -->
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples"> N </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples considered as 'tracking' <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> N<sub>ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples with a magnitude estimate <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> N<sub>mag est ok</sub> </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of outlying samples"> N<sub>out</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Tracking time as a fraction of the total time <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOACISP == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>track</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of tracking time within 3 arcsec of target"> f<sub>dr3</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of tracking time within 5 arcsec of target"> f<sub>dr5</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Time where slot is tracking and target within 3 arcsec <br/> as fraction of total time"> f<sub>ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of the total time when there is a magnitude estimate <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>mag est ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of magnitude estimates with centroid within 3 arcsec of target"> f<sub>dr3</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of magnitude estimates with centroid within a 5 arcsec square window of target"> f<sub>dbox5</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of time where there is a magnitude estimate and target within 3 arcsec <br/> as fraction of total time"> f<sub>mag est ok 3</sub> </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="100-second Rolling mean of mag - &langle; mag &rangle;"> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Mean magnitude"> &langle; mag &rangle; </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Magnitude uncertainty"> &sigma;<sub>mag</sub> </th>
@@ -97,12 +97,12 @@
           <td> {{ "%.1f" | format(s.col) }} </td>
           <!-- td> {{ s.obs_ok }} </td -->
           <td> {{ s.n }} </td>
-          <td> {{ s.n_ok }} </td>
+          <td> {{ s.n_mag_est_ok }} </td>
           <td> {{ s.outliers }} </td>
-          <td> {{ "%.1f" | format(100*s.f_track) }}% </td>
+          <td> {{ "%.1f" | format(100*s.f_mag_est_ok) }}% </td>
           <td> {{ "%.1f" | format(100*s.f_dr3) }}% </td>
-          <td> {{ "%.1f" | format(100*s.f_dr5) }}% </td>
-          <td> {{ "%.1f" | format(100*s.f_ok) }}% </td>
+          <td> {{ "%.1f" | format(100*s.f_dbox5) }}% </td>
+          <td> {{ "%.1f" | format(100*s.f_mag_est_ok_3) }}% </td>
           <td> {{ "%.2f" | format(s.lf_variability_100s) }} </td>
           <td> {{ "%.2f" | format(s.t_mean) }} </td>
           <td> {{ "%.2f" | format(s.t_mean_err) }} </td>
@@ -110,7 +110,14 @@
         </tr>
         {%- endfor %}
       </table>
-  
+
+      {% include 'glossary.html' %}
+
     </div>
   </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous">
+  </script>
 </html>

@@ -356,12 +356,13 @@ def get_telemetry(obs):
         del telem[f'{name}{slot}']
     for name in ['AOACIIR', 'AOACISP']:
         telem[name] = np.char.rstrip(telem[name])
-    ok = (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
-         (telem['AOPCADMD'] == 'NPNT') & (telem['AOACFCT'] == 'TRAK')
+    mag_est_ok = \
+        (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
+        (telem['AOPCADMD'] == 'NPNT') & (telem['AOACFCT'] == 'TRAK')
 
     # etc...
     logger.debug('    Adding magnitude estimates')
-    telem.update(get_mag_from_img(slot_data, start, ok))
+    telem.update(get_mag_from_img(slot_data, start, mag_est_ok))
     logger.debug('    Adding star position')
     telem.update(get_star_position(star=star, telem=telem))
 
@@ -371,25 +372,25 @@ def get_telemetry(obs):
     logger.debug('    Correcting for responsivity')
     responsivity = get_responsivity(start)
     telem['mags'] = telem['mags_img'] - responsivity - droop_shift
-    telem['mags'][~ok] = 0.
-    telem['ok'] = ok
+    telem['mags'][~mag_est_ok] = 0.
+    telem['mag_est_ok'] = mag_est_ok
 
-    telem['dy'] = np.ones(len(ok)) * np.inf
-    telem['dz'] = np.ones(len(ok)) * np.inf
-    telem['dr'] = np.ones(len(ok)) * np.inf
+    telem['dy'] = np.ones(len(mag_est_ok)) * np.inf
+    telem['dz'] = np.ones(len(mag_est_ok)) * np.inf
+    telem['dr'] = np.ones(len(mag_est_ok)) * np.inf
     yang = telem['yang_img'] - telem['yang_star']
     zang = telem['zang_img'] - telem['zang_star']
     rang = np.sqrt(yang**2 + zang**2)
-    if np.any(ok & (rang < 10)):
-        y25, y50, y75 = np.quantile(yang[ok & (rang < 10)], [0.25, 0.5, 0.75])
-        z25, z50, z75 = np.quantile(zang[ok & (rang < 10)], [0.25, 0.5, 0.75])
+    if np.any(mag_est_ok & (rang < 10)):
+        y25, y50, y75 = np.quantile(yang[mag_est_ok & (rang < 10)], [0.25, 0.5, 0.75])
+        z25, z50, z75 = np.quantile(zang[mag_est_ok & (rang < 10)], [0.25, 0.5, 0.75])
         centroid_outlier = ((yang > y75 + 3 * (y75 - y25))
                             | (yang < y25 - 3 * (y75 - y25))
                             | (zang > z75 + 3 * (z75 - z25))
                             | (zang < z25 - 3 * (z75 - z25)))
 
-        telem['dy'] = yang - np.mean(yang[ok & ~centroid_outlier])
-        telem['dz'] = zang - np.mean(zang[ok & ~centroid_outlier])
+        telem['dy'] = yang - np.mean(yang[mag_est_ok & ~centroid_outlier])
+        telem['dz'] = zang - np.mean(zang[mag_est_ok & ~centroid_outlier])
         telem['dr'] = (telem['dy'] ** 2 + telem['dz'] ** 2) ** .5
 
     return telem
@@ -452,7 +453,7 @@ def add_obs_info(telem, obs_stats):
     logger.debug('  Adding observation info to telemetry...')
     obs_stats['obs_ok'] = (
         (obs_stats['n'] > 10)
-        & (obs_stats['f_track'] > 0.3)
+        & (obs_stats['f_mag_est_ok'] > 0.3)
         & (obs_stats['lf_variability_100s'] < 1)
     )
     obs_stats['comments'] = np.zeros(len(obs_stats), dtype='<U80')
@@ -464,12 +465,12 @@ def add_obs_info(telem, obs_stats):
     for s in obs_stats:
         obsid = s['obsid']
         o = (telem['obsid'] == obsid)
-        telem['obs_ok'][o] = np.ones(np.sum(o), dtype=bool) * s['obs_ok']
-        if (np.any(telem['ok'][o]) and s['f_track'] > 0
+        telem['obs_ok'][o] = np.ones(np.count_nonzero(o), dtype=bool) * s['obs_ok']
+        if (np.any(telem['mag_est_ok'][o]) and s['f_mag_est_ok'] > 0
                 and np.isfinite(s['q75']) and np.isfinite(s['q25'])):
             iqr = s['q75'] - s['q25']
             telem['obs_outlier'][o] = (
-                telem[o]['ok'] & (iqr > 0)
+                telem[o]['mag_est_ok'] & (iqr > 0)
                 & ((telem[o]['mags'] < s['q25'] - 1.5 * iqr)
                    | (telem[o]['mags'] > s['q75'] + 1.5 * iqr))
             )
@@ -584,16 +585,32 @@ OBS_STATS_INFO = {
     'counts_dark': 'Expected counts from background, summed over the mouse-bit window',
     'f_kalman':
         'Fraction of all samples where AOACASEQ == "KALM" and AOPCADMD == "NPNT" (n_kalman/n)',
-    'f_track':
-        'Fraction of kalman samples with AOACIIR == "OK" and AOACFCT == "TRAK" (n_track/n_kalman)',
-    'f_dr5': 'Fraction of "track" samples with angle residual less than 5 arcsec (n_dr5/n_track)',
-    'f_dr3': 'Fraction of "track" samples with angle residual less than 3 arcsec (n_dr3/n_track)',
-    'f_ok': 'Fraction of all samples with (kalman & track & dr5) == True (n_ok/n)',
+    'f_track': 'Fraction of kalman samples with AOACFCT == "TRAK" (n_track/n_kalman)',
+    'f_mag_est_ok': (
+        'Fraction of all samples included in magnitude estimate regardless of centroid residual'
+        ' (n_mag_est_ok/n_kalman)'
+    ),
+    'f_mag_est_ok_3':
+        'Fraction of kalman samples with (mag_est_ok & dr3) == True (n_ok_3/n_kalman)',
+    'f_mag_est_ok_5':
+        'Fraction of kalman samples with (mag_est_ok & dbox5) == True (n_ok_5/n_kalman)',
+    'f_ok': 'n_ok_5 / n_kalman. Same as f_ok_5.',  # fix this
+    'f_ok_3': """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
+        observation that the Kalman filter is getting high-quality star centroids.""",
+    'f_ok_5': """
+        n_ok_5 / n_kalman. This is a measure of the fraction of time during an
+        observation that the Kalman filter is getting any star centroid at all.""",
+    'f_dr3':
+        'Fraction of mag-est-ok samples with centroid residual < 3 arcsec (n_dr3/n_mag_est_ok)',
+    'f_dbox5': (
+        'Fraction of mag-est-ok samples with centroid residual within a 5 arcsec box '
+        '(n_dbox5/n_mag_est_ok)'
+    ),
     'q25': '1st quartile of estimated magnitude',
     'median': 'Median of estimated magnitude',
     'q75': '1st quartile of estimated magnitude',
     'mean': 'Mean of estimated magnitude',
-    'mean_err': 'Uncrtainty in the mean of estimated magnitude',
+    'mean_err': 'Uncertainty in the mean of estimated magnitude',
     'std': 'Standard deviation of estimated magnitude',
     'skew': 'Skewness of estimated magnitude',
     'kurt': 'Kurtosis of estimated magnitude',
@@ -603,7 +620,7 @@ OBS_STATS_INFO = {
     't_skew': 'Skewness of estimated magnitude after removing outliers',
     't_kurt': 'Kurtosis of estimated magnitude after removing outliers',
     'n': 'Number of samples',
-    'n_ok': 'Number of samples with (kalman & track & dr5) == True',
+    'n_ok': 'Number of samples with (kalman & mag_est_ok & dbox5) == True',
     'outliers': 'Number of outliers (+- 3 IQR)',
     'lf_variability_100s': 'Rolling mean of OK magnitudes with a 100 second window',
     'lf_variability_500s': 'Rolling mean of OK magnitudes with a 500 second window',
@@ -672,9 +689,14 @@ def get_obs_stats(obs, telem=None):
         'counts_dark': np.inf,
         'f_kalman': 0.,
         'f_track': 0.,
-        'f_dr5': 0.,
+        'f_dbox5': 0.,
         'f_dr3': 0.,
+        'f_mag_est_ok': 0.,
+        'f_mag_est_ok_3': 0.,
+        'f_mag_est_ok_5': 0.,
         'f_ok': 0.,
+        'f_ok_3': 0.,
+        'f_ok_5': 0.,
         'q25': np.inf,
         'median': np.inf,
         'q75': np.inf,
@@ -690,6 +712,11 @@ def get_obs_stats(obs, telem=None):
         't_kurt': np.inf,
         'n': 0,
         'n_ok': 0,
+        'n_ok_3': 0,
+        'n_ok_5': 0,
+        'n_mag_est_ok': 0,
+        'n_mag_est_ok_3': 0,
+        'n_mag_est_ok_5': 0,
         'outliers': -1,
         'lf_variability_100s': np.inf,
         'lf_variability_500s': np.inf,
@@ -704,8 +731,8 @@ def get_obs_stats(obs, telem=None):
     if len(telem) > 0:
         stats.update(calc_obs_stats(telem))
         logger.debug(f'    slot={stats["slot"]}, f_ok={stats["f_ok"]:.3f}, '
-                     f'f_track={stats["f_track"]:.3f}, f_dr3={stats["f_dr3"]:.3f},'
-                     f' mag={stats["mag_obs"]:.2f}')
+                     f'f_mag_est_ok={stats["f_mag_est_ok"]:.3f}, f_dr3={stats["f_dr3"]:.3f}, '
+                     f'mag={stats["mag_obs"]:.2f}')
     return stats
 
 
@@ -718,23 +745,42 @@ def calc_obs_stats(telem):
     :return: dict
         dictionary with stats
     """
+    telem = Table(telem)
+
+    # Total number of telemetry samples regardless of what PCAD is doing.
+    n_total = len(telem)
+
+    ###########################################################################
+    # From here on, we only consider the telemetry in NPNT in Kalman mode. All
+    # subsequent counts and fractions are calculated from this subset.
+    ###########################################################################
+    telem = telem[(telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')]
     times = telem['times']
 
-    kalman = (telem['AOACASEQ'] == 'KALM') & (telem['AOPCADMD'] == 'NPNT')
-    track = (telem['AOACIIR'] == 'OK') & (telem['AOACFCT'] == 'TRAK')
     dr3 = (telem['dr'] < 3)
-    dr5 = (telem['dr'] < 5)
+    dbox5 = (np.abs(telem['dy']) < 5) & (np.abs(telem['dz']) < 5)
 
-    f_kalman = np.sum(kalman) / len(kalman)
-    n_kalman = np.sum(kalman)
-    f_track = np.sum(kalman & track) / n_kalman if n_kalman else 0
-    n_track = np.sum(kalman & track)
-    f_3 = (np.sum(kalman & track & dr3) / n_track) if n_track else 0
-    f_5 = (np.sum(kalman & track & dr5) / n_track) if n_track else 0
+    # Samples used in the magnitude estimation processing
+    # note that SP flag is not included
+    mag_est_ok = (telem['AOACIIR'] == 'OK') & (telem['AOACFCT'] == 'TRAK')
+    aca_trak = (telem['AOACFCT'] == 'TRAK')
+    sat_pix = (telem['AOACISP'] == 'OK')
+    ion_rad = (telem['AOACIIR'] == 'OK')
 
-    ok = kalman & track & dr5
-    f_ok = np.sum(ok) / len(ok)
+    n_kalman = len(telem)
+    f_kalman = n_kalman / n_total
+    n_mag_est_ok = np.count_nonzero(mag_est_ok)
+    f_3 = (np.count_nonzero(mag_est_ok & dr3) / n_mag_est_ok) if n_mag_est_ok else 0
+    f_5 = (np.count_nonzero(mag_est_ok & dbox5) / n_mag_est_ok) if n_mag_est_ok else 0
 
+    n_ok_3 = np.count_nonzero(aca_trak & sat_pix & ion_rad & dr3)
+    n_ok_5 = np.count_nonzero(aca_trak & sat_pix & ion_rad & dbox5)
+
+    n_mag_est_ok_3 = np.count_nonzero(mag_est_ok & dr3)
+    n_mag_est_ok_5 = np.count_nonzero(mag_est_ok & dbox5)
+
+    # Select readouts OK for OBC Kalman filter and compute star mean offset
+    ok = mag_est_ok & dbox5
     if np.any(ok):
         yang_mean = np.mean(telem['yang_img'][ok] - telem['yang_star'][ok])
         zang_mean = np.mean(telem['zang_img'][ok] - telem['zang_star'][ok])
@@ -744,15 +790,25 @@ def calc_obs_stats(telem):
 
     stats = {
         'f_kalman': f_kalman,
-        'f_track': f_track,
-        'f_dr5': f_5,
+        'f_track': np.count_nonzero(aca_trak) / n_kalman,
+        'f_dbox5': f_5,
         'f_dr3': f_3,
-        'f_ok': f_ok,
-        'n': len(telem['AOACMAG']),
-        'n_ok': np.sum(ok),
+        'f_mag_est_ok': (n_mag_est_ok / n_kalman) if n_kalman else 0,
+        'f_mag_est_ok_3': (n_mag_est_ok_3 / n_kalman) if n_kalman else 0,
+        'f_mag_est_ok_5': (n_mag_est_ok_5 / n_kalman) if n_kalman else 0,
+        'f_ok': (n_ok_5 / n_kalman) if n_kalman else 0,
+        'f_ok_3': (n_ok_3 / n_kalman) if n_kalman else 0,
+        'f_ok_5': (n_ok_5 / n_kalman) if n_kalman else 0,
+        'n': n_total,
+        'n_ok': n_ok_5,
+        'n_ok_5': n_ok_5,
+        'n_ok_3': n_ok_3,
+        'n_mag_est_ok': n_mag_est_ok,
+        'n_mag_est_ok_3': n_mag_est_ok_3,
+        'n_mag_est_ok_5': n_mag_est_ok_5,
         'dr_star': dr_star,
     }
-    if stats['n_ok'] < 10:
+    if stats['n_mag_est_ok_3'] < 10:
         return stats
 
     aoacmag_q25, aoacmag_q50, aoacmag_q75 = np.quantile(telem['AOACMAG'][ok], [0.25, 0.5, 0.75])
@@ -791,7 +847,7 @@ def calc_obs_stats(telem):
         't_std': np.std(mags[ok & (~outlier)]),
         't_skew': scipy.stats.skew(mags[ok & (~outlier)]),
         't_kurt': scipy.stats.kurtosis(mags[ok & (~outlier)]),
-        'outliers': np.sum(outlier),
+        'outliers': np.count_nonzero(outlier),
         'lf_variability_100s': np.max(s_100s) - np.min(s_100s),
         'lf_variability_500s': np.max(s_500s) - np.min(s_500s),
         'lf_variability_1000s': np.max(s_1000s) - np.min(s_1000s),
@@ -821,15 +877,30 @@ AGASC_ID_STATS_INFO = {
     'n_obsids_suspect':
         'Number of observations deemed "suspect" and ignored in the magnitude estimate',
     'n_obsids_ok': 'Number of observations considered in the magnitude estimate',
-    'n_no_track': 'Number of observations where the star was never tracked',
+    'n_no_mag': 'Number of observations where the star magnitude was not estimated',
     'n': 'Total number of image samples for the star',
-    'n_ok': 'Total number of image samples included in magnitude estimate for the star',
-    'f_ok': 'Fraction of the total samples included in magnitude estimate',
-    'median': 'Median magnitude over OK image samples',
-    'sigma_minus': '15.8% quantile of magnitude over OK image samples',
-    'sigma_plus': '84.2% quantile of magnitude over OK image samples',
-    'mean': 'Mean of magnitude over OK image samples',
-    'std': 'Standard deviation of magnitude over OK image samples',
+    'n_mag_est_ok': 'Total number of image samples included in magnitude estimate for the star',
+    'f_mag_est_ok': (
+        'Fraction of all samples included in magnitude estimate regardless of centroid residual'
+        ' (n_mag_est_ok / n_kalman)'
+    ),
+    'f_mag_est_ok_3': (
+        'Fraction of kalman samples that are included in magnitude estimate and within 3 arcsec'
+        ' (n_mag_est_ok_3 / n_kalman)'),
+    'f_mag_est_ok_5': (
+        'Fraction of kalman samples that are included in magnitude estimate and within a 5 arcsec'
+        ' box (n_mag_est_ok_5 / n_kalman)'),
+    'f_ok': 'n_ok_5 / n_kalman. Same as f_ok_5.',
+    'f_ok_3': """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
+        observation that the Kalman filter is getting high-quality star centroids.""",
+    'f_ok_5': """
+        n_ok_5 / n_kalman. This is a measure of the fraction of time during an
+        observation that the Kalman filter is getting any star centroid at all.""",
+    'median': 'Median magnitude over mag-est-ok samples',
+    'sigma_minus': '15.8% quantile of magnitude over mag-est-ok samples',
+    'sigma_plus': '84.2% quantile of magnitude over mag-est-ok samples',
+    'mean': 'Mean of magnitude over mag-est-ok samples',
+    'std': 'Standard deviation of magnitude over mag-est-ok samples',
     'mag_weighted_mean':
         'Average of magnitudes over observations, weighed by the inverse of its standard deviation',
     'mag_weighted_std':
@@ -849,57 +920,58 @@ AGASC_ID_STATS_INFO = {
     'selected_color': '(color == 1.5) | (color == 0.7)',
     't_mean_dr3':
         'Truncated mean magnitude after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
     't_std_dr3':
         'Truncated magnitude standard deviation after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
     'mean_dr3':
         'Mean magnitude after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
     'std_dr3':
         'Magnitude standard deviation after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
-    'f_dr3': 'Fraction of OK image samples with angular residual less than 3 arcsec',
-    'n_dr3': 'Number of OK image samples with angular residual less than 3 arcsec',
+        'centroid residual > 3 arcsec on a per-observation basis',
+    'f_dr3':
+        'Fraction of mag-est-ok samples with centroid residual < 3 arcsec (n_dr3/n_mag_est_ok)',
+    'n_dr3': 'Number of mag-est-ok samples with centroid residual < 3 arcsec',
     'n_dr3_outliers':
         'Number of magnitude outliers after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
     'median_dr3':
         'Median magnitude after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
     'sigma_minus_dr3':
         '15.8% quantile of magnitude after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
     'sigma_plus_dr3':
         '84.2% quantile of magnitude after removing outliers and samples with '
-        'angular residual > 3 arcsec on a per-observation basis',
+        'centroid residual > 3 arcsec on a per-observation basis',
 
-    't_mean_dr5':
+    't_mean_dbox5':
         'Truncated mean magnitude after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    't_std_dr5':
+        'centroid residual out of a 5 arcsec box, on a per-observation basis',
+    't_std_dbox5':
         'Truncated magnitude standard deviation after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    'mean_dr5':
+        'centroid residual out of a 5 arcsec box, on a per-observation basis',
+    'mean_dbox5':
         'Mean magnitude after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    'std_dr5':
+        'centroid residual out of a 5 arcsec box, on a per-observation basis',
+    'std_dbox5':
         'Magnitude standard deviation after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    'f_dr5': 'Fraction of OK image samples with angular residual less than 5 arcsec',
-    'n_dr5': 'Number of OK image samples with angular residual less than 5 arcsec',
-    'n_dr5_outliers':
+        'centroid residual out of a 5 arcsec box, on a per-observation basis',
+    'f_dbox5': 'Fraction of mag-est-ok samples with centroid residual within a 5 arcsec box',
+    'n_dbox5': 'Number of mag-est-ok samples with centroid residual within a 5 arcsec box',
+    'n_dbox5_outliers':
         'Number of magnitude outliers after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    'median_dr5':
+        'centroid residual out of a 5 arcsec box, on a per-observation basis',
+    'median_dbox5':
         'Median magnitude after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    'sigma_minus_dr5':
+        'angular residual out of a 5 arcsec box, on a per-observation basis',
+    'sigma_minus_dbox5':
         '15.8% quantile of magnitude after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
-    'sigma_plus_dr5':
+        'angular residual out of a 5 arcsec box, on a per-observation basis',
+    'sigma_plus_dbox5':
         '84.2% quantile of magnitude after removing outliers and samples with '
-        'angular residual > 5 arcsec on a per-observation basis',
+        'angular residual out of a 5 arcsec box, on a per-observation basis',
 }
 
 
@@ -943,9 +1015,14 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'n_obsids_fail': 0,
         'n_obsids_suspect': 0,
         'n_obsids_ok': 0,
-        'n_no_track': 0,
+        'n_no_mag': 0,
         'n': 0,
         'n_ok': 0,
+        'n_ok_3': 0,
+        'n_ok_5': 0,
+        'n_mag_est_ok': 0,
+        'n_mag_est_ok_3': 0,
+        'n_mag_est_ok_5': 0,
         'f_ok': 0.,
         'median': 0,
         'sigma_minus': 0,
@@ -970,20 +1047,20 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'selected_color': False
     }
 
-    for dr in [3, 5]:
+    for tag in ['dr3', 'dbox5']:
         result.update({
-            f't_mean_dr{dr}': 0,
-            f't_std_dr{dr}': 0,
-            f't_mean_dr{dr}_not': 0,
-            f't_std_dr{dr}_not': 0,
-            f'mean_dr{dr}': 0,
-            f'std_dr{dr}': 0,
-            f'f_dr{dr}': 0,
-            f'n_dr{dr}': 0,
-            f'n_dr{dr}_outliers': 0,
-            f'median_dr{dr}': 0,
-            f'sigma_minus_dr{dr}': 0,
-            f'sigma_plus_dr{dr}': 0,
+            f't_mean_{tag}': 0,
+            f't_std_{tag}': 0,
+            f't_mean_{tag}_not': 0,
+            f't_std_{tag}_not': 0,
+            f'mean_{tag}': 0,
+            f'std_{tag}': 0,
+            f'f_{tag}': 0,
+            f'n_{tag}': 0,
+            f'n_{tag}_outliers': 0,
+            f'median_{tag}': 0,
+            f'sigma_minus_{tag}': 0,
+            f'sigma_plus_{tag}': 0,
         })
 
     n_obsids = len(star_obs)
@@ -1024,7 +1101,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                     included_obs[i] | (
                         ~excluded_obs[i]
                         & (obs_stat['n'] > 10)
-                        & (obs_stat['f_track'] > 0.3)
+                        & (obs_stat['f_mag_est_ok'] > 0.3)
                         & (obs_stat['lf_variability_100s'] < 1)
                     )
                 ),
@@ -1072,7 +1149,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'mag_aca_err': star['MAG_ACA_ERR'] / 100,
         'color': star['COLOR1'],
         'n_obsids_fail': len(failures),
-        'n_obsids_suspect': np.sum(stats['obs_suspect']),
+        'n_obsids_suspect': np.count_nonzero(stats['obs_suspect']),
         'n_obsids': n_obsids,
     })
 
@@ -1094,41 +1171,52 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     for i, (s, t) in enumerate(zip(stats, all_telem)):
         if excluded_obs[i]:
             continue
-        t['obs_ok'] = np.ones_like(t['ok'], dtype=bool) * s['obs_ok']
+        t['obs_ok'] = np.ones_like(t['mag_est_ok'], dtype=bool) * s['obs_ok']
         logger.debug('  identifying outlying observations '
                      f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})')
-        t['obs_outlier'] = np.zeros_like(t['ok'])
-        if np.any(t['ok']) and s['f_track'] > 0 and s['obs_ok']:
+        t['obs_outlier'] = np.zeros_like(t['mag_est_ok'])
+        if np.any(t['mag_est_ok']) and s['f_mag_est_ok'] > 0 and s['obs_ok']:
             iqr = s['q75'] - s['q25']
             t['obs_outlier'] = (
-                t['ok']
+                t['mag_est_ok']
                 & (iqr > 0)
                 & ((t['mags'] < s['q25'] - 1.5 * iqr) | (t['mags'] > s['q75'] + 1.5 * iqr))
             )
     all_telem = vstack([Table(t) for i, t in enumerate(all_telem) if not excluded_obs[i]])
+    n_total = len(all_telem)
+
+    kalman = (all_telem['AOACASEQ'] == 'KALM') & (all_telem['AOPCADMD'] == 'NPNT')
+    all_telem = all_telem[kalman]  # non-npm/non-kalman are excluded
+    n_kalman = len(all_telem)
 
     mags = all_telem['mags']
-    ok = all_telem['ok'] & all_telem['obs_ok']
+    mag_est_ok = all_telem['mag_est_ok'] & all_telem['obs_ok']
+    aca_trak = (all_telem['AOACFCT'] == 'TRAK') & all_telem['obs_ok']
+    sat_pix = (all_telem['AOACISP'] == 'OK') & all_telem['obs_ok']
+    ion_rad = (all_telem['AOACIIR'] == 'OK') & all_telem['obs_ok']
 
-    f_ok = np.sum(ok) / len(ok)
+    f_mag_est_ok = np.count_nonzero(mag_est_ok) / len(mag_est_ok)
 
     result.update({
         'mag_obs_err': min_mag_obs_err,
-        'n_obsids_ok': np.sum(stats['obs_ok']),
-        'n_no_track': np.sum((~stats['obs_ok'])) + np.sum(stats['f_ok'][stats['obs_ok']] < 0.3),
-        'n': len(ok),
-        'n_ok': np.sum(ok),
-        'f_ok': f_ok,
+        'n_obsids_ok': np.count_nonzero(stats['obs_ok']),
+        'n_no_mag': (
+            np.count_nonzero((~stats['obs_ok']))
+            + np.count_nonzero(stats['f_mag_est_ok'][stats['obs_ok']] < 0.3)
+        ),
+        'n': n_total,
+        'n_mag_est_ok': np.count_nonzero(mag_est_ok),
+        'f_mag_est_ok': f_mag_est_ok,
     })
 
-    if result['n_ok'] < 10:
+    if result['n_mag_est_ok'] < 10:
         return result, stats, failures
 
-    sigma_minus, q25, median, q75, sigma_plus = np.quantile(mags[ok],
+    sigma_minus, q25, median, q75, sigma_plus = np.quantile(mags[mag_est_ok],
                                                             [0.158, 0.25, 0.5, 0.75, 0.842])
     iqr = q75 - q25
-    outlier_1 = ok & ((mags > q75 + 1.5 * iqr) | (mags < q25 - 1.5 * iqr))
-    outlier_2 = ok & ((mags > q75 + 3 * iqr) | (mags < q25 - 3 * iqr))
+    outlier_1 = mag_est_ok & ((mags > q75 + 1.5 * iqr) | (mags < q25 - 1.5 * iqr))
+    outlier_2 = mag_est_ok & ((mags > q75 + 3 * iqr) | (mags < q25 - 3 * iqr))
     outlier = all_telem['obs_outlier']
 
     # combine measurements using a weighted mean
@@ -1148,56 +1236,68 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     result.update({
         'agasc_id': agasc_id,
-        'n': len(ok),
-        'n_ok': np.sum(ok),
-        'f_ok': f_ok,
+        'n_mag_est_ok': np.count_nonzero(mag_est_ok),
+        'f_mag_est_ok': f_mag_est_ok,
         'median': median,
         'sigma_minus': sigma_minus,
         'sigma_plus': sigma_plus,
-        'mean': np.mean(mags[ok]),
-        'std': np.std(mags[ok]),
+        'mean': np.mean(mags[mag_est_ok]),
+        'std': np.std(mags[mag_est_ok]),
         'mag_weighted_mean': mag_weighted_mean,
         'mag_weighted_std': mag_weighted_std,
-        't_mean': np.mean(mags[ok & (~outlier)]),
-        't_std': np.std(mags[ok & (~outlier)]),
-        'n_outlier': np.sum(ok & outlier),
-        't_mean_1': np.mean(mags[ok & (~outlier_1)]),
-        't_std_1': np.std(mags[ok & (~outlier_1)]),
-        'n_outlier_1': np.sum(ok & outlier_1),
-        't_mean_2': np.mean(mags[ok & (~outlier_2)]),
-        't_std_2': np.std(mags[ok & (~outlier_2)]),
-        'n_outlier_2': np.sum(ok & outlier_2),
+        't_mean': np.mean(mags[mag_est_ok & (~outlier)]),
+        't_std': np.std(mags[mag_est_ok & (~outlier)]),
+        'n_outlier': np.count_nonzero(mag_est_ok & outlier),
+        't_mean_1': np.mean(mags[mag_est_ok & (~outlier_1)]),
+        't_std_1': np.std(mags[mag_est_ok & (~outlier_1)]),
+        'n_outlier_1': np.count_nonzero(mag_est_ok & outlier_1),
+        't_mean_2': np.mean(mags[mag_est_ok & (~outlier_2)]),
+        't_std_2': np.std(mags[mag_est_ok & (~outlier_2)]),
+        'n_outlier_2': np.count_nonzero(mag_est_ok & outlier_2),
     })
 
+    residual_ok = {
+        3: all_telem['dr'] < 3,
+        5: (np.abs(all_telem['dy']) < 5) & (np.abs(all_telem['dz']) < 5)
+    }
+    dr_tag = {3: 'dr3', 5: 'dbox5'}
     for dr in [3, 5]:
-        k = ok & (all_telem['dr'] < dr)
-        k2 = ok & (all_telem['dr'] >= dr)
+        tag = dr_tag[dr]
+        k = mag_est_ok & residual_ok[dr]
+        k2 = mag_est_ok & (~residual_ok[dr])
+        n_ok = np.count_nonzero(aca_trak & sat_pix & ion_rad & residual_ok[dr])
         if not np.any(k):
             continue
         sigma_minus, q25, median, q75, sigma_plus = np.quantile(mags[k],
                                                                 [0.158, 0.25, 0.5, 0.75, 0.842])
-        outlier = ok & all_telem['obs_outlier']
-        mag_not = np.nanmean(mags[k2 & (~outlier)]) if np.sum(k2 & (~outlier)) else np.nan
-        std_not = np.nanstd(mags[k2 & (~outlier)]) if np.sum(k2 & (~outlier)) else np.nan
+        outlier = mag_est_ok & all_telem['obs_outlier']
+        mag_not = np.nanmean(mags[k2 & (~outlier)]) if np.count_nonzero(k2 & (~outlier)) else np.nan
+        std_not = np.nanstd(mags[k2 & (~outlier)]) if np.count_nonzero(k2 & (~outlier)) else np.nan
         result.update({
-            f't_mean_dr{dr}': np.mean(mags[k & (~outlier)]),
-            f't_std_dr{dr}': np.std(mags[k & (~outlier)]),
-            f't_mean_dr{dr}_not': mag_not,
-            f't_std_dr{dr}_not': std_not,
-            f'mean_dr{dr}': np.mean(mags[k]),
-            f'std_dr{dr}': np.std(mags[k]),
-            f'f_dr{dr}': np.sum(k) / np.sum(ok),
-            f'n_dr{dr}': np.sum(k),
-            f'n_dr{dr}_outliers': np.sum(k & outlier),
-            f'median_dr{dr}': median,
-            f'sigma_minus_dr{dr}': sigma_minus,
-            f'sigma_plus_dr{dr}': sigma_plus,
+            f't_mean_{tag}': np.mean(mags[k & (~outlier)]),
+            f't_std_{tag}': np.std(mags[k & (~outlier)]),
+            f't_mean_{tag}_not': mag_not,
+            f't_std_{tag}_not': std_not,
+            f'mean_{tag}': np.mean(mags[k]),
+            f'std_{tag}': np.std(mags[k]),
+            f'f_{tag}': np.count_nonzero(k) / np.count_nonzero(mag_est_ok),
+            f'n_{tag}': np.count_nonzero(k),
+            f'n_{tag}_outliers': np.count_nonzero(k & outlier),
+            f'f_mag_est_ok_{dr}': np.count_nonzero(k) / len(k),
+            f'n_mag_est_ok_{dr}': np.count_nonzero(k),
+            f'median_{tag}': median,
+            f'sigma_minus_{tag}': sigma_minus,
+            f'sigma_plus_{tag}': sigma_plus,
+            f'f_ok_{dr}': (n_ok / n_kalman) if n_kalman else 0,
+            f'n_ok_{dr}': n_ok,
         })
 
     result.update({
-        'mag_obs': result['t_mean_dr5'],
-        'mag_obs_err': np.sqrt(result['t_std_dr5']**2 + min_mag_obs_err**2),
-        'mag_obs_std': result['t_std_dr5'],
+        'mag_obs': result['t_mean_dbox5'],
+        'mag_obs_err': np.sqrt(result['t_std_dbox5']**2 + min_mag_obs_err**2),
+        'mag_obs_std': result['t_std_dbox5'],
+        'n_ok': result['n_ok_5'],
+        'f_ok': result['f_ok_5'],
     })
 
     # these are the criteria for including in supplement
