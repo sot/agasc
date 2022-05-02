@@ -536,3 +536,20 @@ def test_get_supplement_table_obs():
 def test_get_supplement_table_obs_dict():
     obs = agasc.get_supplement_table('obs', as_dict=True)
     assert isinstance(obs, dict)
+
+
+def test_utils_json():
+    import json
+    from agasc.supplement import utils
+    from astropy.table import Table, Column, MaskedColumn
+    a = MaskedColumn([1, 2], name='a', mask=[False, True], dtype='i4')
+    b = Column([3, 4], name='b', dtype='i8')
+    t = Table([a, b])
+    s = json.dumps(t, cls=utils.TableEncoder, indent=2)
+    t_2 = json.loads(s, object_hook=utils.decode_table)
+
+    assert t.colnames == t_2.colnames, 'Column names differ'
+    for k in t.colnames:
+        assert np.all(t[k] == t_2[k]), f'{k} column differs'
+        if hasattr(t[k], 'mask'):
+            assert np.all(t[k].mask == t_2[k].mask), f'{k} column mask differs'

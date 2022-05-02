@@ -4,6 +4,7 @@ import logging
 import errno
 import os
 import copy
+import json
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
@@ -16,6 +17,7 @@ from tqdm import tqdm
 from astropy import table
 from cxotime import CxoTime
 
+from agasc.supplement import utils
 from agasc.supplement.magnitudes import mag_estimate
 
 
@@ -107,6 +109,16 @@ class MagEstimateReport:
                                            obs_stats=o.as_array(),
                                            static_dir=static_dir,
                                            glossary=GLOSSARY))
+        with open(directory / 'data.json', 'w') as json_out:
+            json.dump(
+                {
+                    'agasc_stats': self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id],
+                    'obs_stats': o,
+                    'static_dir': static_dir
+                },
+                json_out,
+                cls=utils.TableEncoder
+            )
         return directory / 'index.html'
 
     def multi_star_html(self, sections=None, updated_stars=None, fails=(),
