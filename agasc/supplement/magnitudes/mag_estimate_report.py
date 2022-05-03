@@ -17,7 +17,6 @@ from tqdm import tqdm
 from astropy import table
 from cxotime import CxoTime
 
-from agasc.supplement import utils
 from agasc.supplement.magnitudes import mag_estimate
 
 
@@ -27,6 +26,48 @@ JINJA2 = jinja2.Environment(
 )
 
 logger = logging.getLogger('agasc.supplement')
+
+
+class TableEncoder(json.JSONEncoder):
+    """
+    Utility class to encode tables as json.
+
+    Example::
+
+        >>> import json
+        >>> from astropy.table import Table, Column, MaskedColumn
+        >>> a = MaskedColumn([1, 2], name='a', mask=[False, True], dtype='i4')
+        >>> b = Column([3, 4], name='b', dtype='i8')
+        >>> t = Table([a, b])
+        >>> print(json.dumps(t, cls=TableEncoder, indent=2))
+        {
+          "a": [
+            1,
+            999999
+          ],
+          "b": [
+            3,
+            4
+          ]
+        }
+    """
+    def default(self, obj):
+        if isinstance(obj, table.Table):
+            return {k: obj[k] for k in obj.colnames}
+        if isinstance(obj, table.MaskedColumn):
+            fv = obj.get_fill_value()
+            return [(fv if mask else val) for mask, val in zip(obj.mask, obj)]
+        if isinstance(obj, table.Column):
+            return [val for val in obj]
+        if isinstance(obj, table.Row):
+            return obj.values()
+        if isinstance(obj, np.ma.core.MaskedConstant):
+            return obj.view().fill_value
+        if np.isscalar(obj):
+            return int(obj)
+        if np.isreal(obj):
+            return float(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 class MagEstimateReport:
@@ -112,12 +153,12 @@ class MagEstimateReport:
         with open(directory / 'data.json', 'w') as json_out:
             json.dump(
                 {
-                    'agasc_stats': self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id],
+                    'agasc_stats': s,
                     'obs_stats': o,
                     'static_dir': static_dir
                 },
                 json_out,
-                cls=utils.TableEncoder
+                cls=TableEncoder
             )
         return directory / 'index.html'
 
