@@ -26,7 +26,7 @@ def get_parser():
     parser.add_argument('--start',
                         help='Include only stars observed after this time.'
                              ' CxoTime-compatible time stamp.'
-                             ' Default: now - 14 days.')
+                             ' Default: now - 30 days.')
     parser.add_argument('--stop',
                         help='Include only stars observed before this time.'
                              ' CxoTime-compatible time stamp.'
