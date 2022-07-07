@@ -3,19 +3,17 @@ from pathlib import Path
 import logging
 import warnings
 import numpy as np
-import json
 
 from ska_helpers.utils import lru_cache_timed
 import tables
 from cxotime import CxoTime
-from astropy.table import Table, vstack, unique, Column, MaskedColumn
+from astropy.table import Table, vstack, unique
 
 from ..paths import SUPPLEMENT_FILENAME, default_agasc_dir
 
 
 __all__ = ['get_supplement_table', 'save_version',
-           'update_mags_table', 'update_obs_table', 'add_bad_star',
-           'TableEncoder', 'decode_table']
+           'update_mags_table', 'update_obs_table', 'add_bad_star']
 
 
 logger = logging.getLogger('agasc.supplement')
@@ -374,129 +372,3 @@ def update_mags_table(filename, mags, dry_run=False, create=False):
                  keys=['agasc_id'],
                  dry_run=dry_run,
                  create=create)
-
-
-class TableEncoder(json.JSONEncoder):
-    """
-    Utility class to encode tables as json.
-
-    Example::
-
-        >>> import json
-        >>> from agasc.supplement import utils
-        >>> from astropy.table import Table, Column, MaskedColumn
-        >>> a = MaskedColumn([1, 2], name='a', mask=[False, True], dtype='i4')
-        >>> b = Column([3, 4], name='b', dtype='i8')
-        >>> t = Table([a, b])
-        >>> print(json.dumps(t, cls=utils.TableEncoder, indent=2))
-        {
-          "__table__": {
-            "columns": {
-              "a": {
-                "__masked_column__": {
-                  "data": [
-                    1,
-                    999999
-                  ],
-                  "mask": [
-                    0,
-                    1
-                  ]
-                }
-              },
-              "b": {
-                "__column__": {
-                  "data": [
-                    3,
-                    4
-                  ]
-                }
-              }
-            }
-          }
-        }
-    """
-    def default(self, obj):
-        if isinstance(obj, Table):
-            return {
-                '__table__': {
-                    'columns': {
-                        k: obj[k] for k in obj.colnames
-                    }
-                }
-            }
-        if isinstance(obj, MaskedColumn):
-            fv = obj.get_fill_value()
-            return {
-                '__masked_column__': {
-                    'data': [(fv if mask else val) for mask, val in zip(obj.mask, obj)],
-                    'mask': list(obj.mask)
-                }
-            }
-        if isinstance(obj, Column):
-            return {
-                '__column__': {'data': list(obj)}
-            }
-        if np.isscalar(obj):
-            return int(obj)
-        if np.isreal(obj):
-            return float(obj)
-        return json.JSONEncoder.default(self, obj)
-
-
-def decode_table(dct):
-    """
-    Utility function to decode json as tables.
-
-    Example::
-
-        >>> import json
-        >>> from agasc.supplement import utils
-        >>> from astropy.table import Table, Column, MaskedColumn
-        >>> json_str = '''
-        ... {
-        ...     "__table__": {
-        ...     "columns": {
-        ...         "a": {
-        ...         "__masked_column__": {
-        ...             "data": [
-        ...             1,
-        ...             999999
-        ...             ],
-        ...             "mask": [
-        ...             0,
-        ...             1
-        ...             ]
-        ...         }
-        ...         },
-        ...         "b": {
-        ...         "__column__": {
-        ...             "data": [
-        ...             3,
-        ...             4
-        ...             ]
-        ...         }
-        ...         }
-        ...     }
-        ...     }
-        ... }
-        ... '''
-        >>> t = json.loads(json_str, object_hook=utils.decode_table)
-        >>> t
-        <Table length=2>
-        a     b
-        int64 int64
-        ----- -----
-            1     3
-        --     4
-    """
-    if '__table__' in dct:
-        return Table(dct['__table__']['columns'])
-    if '__column__' in dct:
-        return Column(dct['__column__']['data'])
-    if '__masked_column__' in dct:
-        return MaskedColumn(
-            data=dct['__masked_column__']['data'],
-            mask=dct['__masked_column__']['mask']
-        )
-    return dct
