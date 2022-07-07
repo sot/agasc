@@ -107,18 +107,18 @@ class MagEstimateReport:
             logger.debug(f'making report directory {directory}')
             directory.mkdir(parents=True)
 
-        o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
-        if len(o) == 0:
+        obs_stat = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
+        if len(obs_stat) == 0:
             raise Exception(f'agasc_id {agasc_id} has not observations')
-        o.sort(keys=['mp_starcat_time'])
-        s = self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0]
-        s = {k: s[k] for k in s.colnames}
-        s['n_obs_bad'] = \
-            s['n_obsids'] - s['n_obsids_ok']
-        s['last_obs'] = ':'.join(o[-1]['mp_starcat_time'].split(':')[:4])
+        obs_stat.sort(keys=['mp_starcat_time'])
+        agasc_stat = self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0]
+        agasc_stat = {k: agasc_stat[k] for k in agasc_stat.colnames}
+        agasc_stat['n_obs_bad'] = \
+            agasc_stat['n_obsids'] - agasc_stat['n_obsids_ok']
+        agasc_stat['last_obs'] = ':'.join(obs_stat[-1]['mp_starcat_time'].split(':')[:4])
 
         # OBSIDs can be repeated
-        obsids = list(np.unique(o[highlight_obs(o)]['obsid']))
+        obsids = list(np.unique(obs_stat[highlight_obs(obs_stat)]['obsid']))
 
         args = [{'only_ok': False, 'draw_agasc_mag': True, 'draw_legend': True, 'ylim': 'max'},
                 {'title': 'Magnitude Estimates',
@@ -146,15 +146,15 @@ class MagEstimateReport:
         plt.close(fig)
 
         with open(directory / 'index.html', 'w') as out:
-            out.write(star_template.render(agasc_stats=s,
-                                           obs_stats=o.as_array(),
+            out.write(star_template.render(agasc_stats=agasc_stat,
+                                           obs_stats=obs_stat.as_array(),
                                            static_dir=static_dir,
                                            glossary=GLOSSARY))
         with open(directory / 'data.json', 'w') as json_out:
             json.dump(
                 {
-                    'agasc_stats': s,
-                    'obs_stats': o,
+                    'agasc_stats': agasc_stat,
+                    'obs_stats': obs_stat,
                     'static_dir': static_dir
                 },
                 json_out,
