@@ -111,8 +111,7 @@ class MagEstimateReport:
         if len(obs_stat) == 0:
             raise Exception(f'agasc_id {agasc_id} has not observations')
         obs_stat.sort(keys=['mp_starcat_time'])
-        agasc_stat = self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0]
-        agasc_stat = {k: agasc_stat[k] for k in agasc_stat.colnames}
+        agasc_stat = dict(self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0])
         agasc_stat['n_obs_bad'] = \
             agasc_stat['n_obsids'] - agasc_stat['n_obsids_ok']
         agasc_stat['last_obs'] = ':'.join(obs_stat[-1]['mp_starcat_time'].split(':')[:4])
