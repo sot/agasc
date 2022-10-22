@@ -43,6 +43,9 @@ def get_parser():
 
 
 def main():
+    import kadi.commands
+    kadi.commands.conf.commands_version = '1'
+
     args = get_parser().parse_args()
 
     args.output_dir = Path(os.path.expandvars(args.output_dir))
