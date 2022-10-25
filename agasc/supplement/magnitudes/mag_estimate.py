@@ -360,6 +360,9 @@ def get_telemetry(obs):
         (telem['AOACASEQ'] == 'KALM') & (telem['AOACIIR'] == 'OK') & \
         (telem['AOPCADMD'] == 'NPNT') & (telem['AOACFCT'] == 'TRAK')
 
+    assert len(slot_data) == len(mag_est_ok), \
+        f'len(slot_data) != len(ok) ({len(slot_data)} != {len(mag_est_ok)})'
+
     # etc...
     logger.debug('    Adding magnitude estimates')
     telem.update(get_mag_from_img(slot_data, start, mag_est_ok))
