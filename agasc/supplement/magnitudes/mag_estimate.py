@@ -297,7 +297,9 @@ def get_telemetry(obs):
     names = ['AOACASEQ', 'AOPCADMD', 'CVCMJCTR', 'CVCMNCTR',
              f'AOACIIR{slot}', f'AOACISP{slot}', f'AOACMAG{slot}', f'AOACFCT{slot}',
              f'AOACZAN{slot}', f'AOACYAN{slot}'] + [f'AOATTQT{i}' for i in range(1, 5)]
-    msids = fetch.Msidset(names, start, stop)
+    # not using Msidset because that calls filter_bad with union=False
+    msids = fetch.MSIDset(names, start, stop)
+    msids.filter_bad(union=True)
     if len(slot_data) == 0:
         raise MagStatsException('No level 0 data',
                                 agasc_id=obs["agasc_id"],
