@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import traceback
+import sys
 import warnings
 import os
 import pickle
@@ -83,6 +85,13 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
             msg = f'Unexpected Error: {e}'
             logger.debug(msg)
             fails.append(dict(mag_estimate.MagStatsException(agasc_id=agasc_id, msg=msg)))
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            if exc_type is not None:
+                trace = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                for level in trace:
+                    for line in level.splitlines():
+                        logger.debug(line)
+                    logger.debug('')
 
     bar.close()
     logger.debug('-' * 80)
@@ -96,7 +105,6 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
         # transform Exception to MagStatsException for standard book keeping
         fails.append(dict(mag_estimate.MagStatsException(
             msg=f'Exception at end of get_agasc_id_stats: {str(e)}')))
-
     return obs_stats, agasc_stats, fails
 
 
@@ -232,7 +240,7 @@ def update_supplement(agasc_stats, filename, include_all=True):
         if False, only OK entries marked 'selected_*'
     :return:
     """
-    if len(agasc_stats) == 0:
+    if agasc_stats is None or len(agasc_stats) == 0:
         return [], []
 
     if include_all:
