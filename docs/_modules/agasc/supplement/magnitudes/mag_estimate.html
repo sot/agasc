@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.supplement.magnitudes.mag_estimate &#8212; Agasc 4.12.1 documentation</title>
+    <title>agasc.supplement.magnitudes.mag_estimate &#8212; Agasc 4.13.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css" />
     
@@ -46,7 +46,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../../index.html">Agasc 4.12.1 documentation</a>
+	<a href="../../../../index.html">Agasc 4.13.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -361,7 +361,9 @@
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AOACASEQ&#39;</span><span class="p">,</span> <span class="s1">&#39;AOPCADMD&#39;</span><span class="p">,</span> <span class="s1">&#39;CVCMJCTR&#39;</span><span class="p">,</span> <span class="s1">&#39;CVCMNCTR&#39;</span><span class="p">,</span>
              <span class="sa">f</span><span class="s1">&#39;AOACIIR</span><span class="si">{</span><span class="n">slot</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;AOACISP</span><span class="si">{</span><span class="n">slot</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;AOACMAG</span><span class="si">{</span><span class="n">slot</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;AOACFCT</span><span class="si">{</span><span class="n">slot</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
              <span class="sa">f</span><span class="s1">&#39;AOACZAN</span><span class="si">{</span><span class="n">slot</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;AOACYAN</span><span class="si">{</span><span class="n">slot</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;AOATTQT</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
-    <span class="n">msids</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">Msidset</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+    <span class="c1"># not using Msidset because that calls filter_bad with union=False</span>
+    <span class="n">msids</span> <span class="o">=</span> <span class="n">fetch</span><span class="o">.</span><span class="n">MSIDset</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+    <span class="n">msids</span><span class="o">.</span><span class="n">filter_bad</span><span class="p">(</span><span class="n">union</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slot_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">MagStatsException</span><span class="p">(</span><span class="s1">&#39;No level 0 data&#39;</span><span class="p">,</span>
                                 <span class="n">agasc_id</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
@@ -423,6 +425,9 @@
     <span class="n">mag_est_ok</span> <span class="o">=</span> \
         <span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="s1">&#39;AOACASEQ&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;KALM&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="s1">&#39;AOACIIR&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;OK&#39;</span><span class="p">)</span> <span class="o">&amp;</span> \
         <span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="s1">&#39;AOPCADMD&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;NPNT&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="s1">&#39;AOACFCT&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;TRAK&#39;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">slot_data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">),</span> \
+        <span class="sa">f</span><span class="s1">&#39;len(slot_data) != len(ok) (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">slot_data</span><span class="p">)</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
 
     <span class="c1"># etc...</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    Adding magnitude estimates&#39;</span><span class="p">)</span>
