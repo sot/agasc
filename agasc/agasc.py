@@ -7,6 +7,7 @@ from packaging.version import Version
 from pathlib import Path
 from typing import Optional
 
+import numba
 import numexpr
 import numpy as np
 import tables
@@ -337,6 +338,21 @@ def get_agasc_filename(
     out = sorted(matches)[-1][1]
 
     return str(out)
+
+
+@numba.njit
+def sphere_dist_fast(ra1, dec1, ra2, dec2):
+    # Spherical distance between two points on a unit sphere.
+    ra1 = np.radians(ra1)
+    ra2 = np.radians(ra2)
+    dec1 = np.radians(dec1)
+    dec2 = np.radians(dec2)
+
+    dists = np.arccos(
+        np.sin(dec1) * np.sin(dec2)
+        + np.cos(dec1) * np.cos(dec2) * np.cos(ra1 - ra2)
+    )
+    return np.degrees(dists)
 
 
 def sphere_dist(ra1, dec1, ra2, dec2):
