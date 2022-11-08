@@ -119,14 +119,11 @@ class RaDec(object):
         return self._dec
 
     def read_ra_dec(self):
-        # Read the file of RA and DEC values (sorted on DEC):
-        #  dec: DEC values
-        #  ra: RA values
+        # Read the RA and DEC values from the agasc
         with tables.open_file(self.agasc_file) as h5:
-            radecs = h5.root.data[:][['RA', 'DEC']]
-
-            # Now copy to separate ndarrays for memory efficiency
-            return radecs['RA'].copy(), radecs['DEC'].copy()
+            ras = h5.root.data.read(field='RA')
+            decs = h5.root.data.read(field='DEC')
+        return ras, decs
 
 
 def get_ra_decs(agasc_file):
