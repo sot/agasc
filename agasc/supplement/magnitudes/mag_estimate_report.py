@@ -524,7 +524,7 @@ class MagEstimateReport:
                 if i == 0:
                     line_handles += lh
 
-        sorted_obsids = sorted(limits.keys(), key=lambda l: limits[l][1])
+        sorted_obsids = sorted(limits.keys(), key=lambda lim: limits[lim][1])
         for i, obsid in enumerate(sorted_obsids):
             (tmin, tmax) = limits[obsid]
             ax.plot([tmin, tmin], ax.get_ylim(), ':', color='purple', scaley=False)
@@ -645,7 +645,7 @@ class MagEstimateReport:
         ax.set_ylim((-1, ticks[-1] + 1))
         ax.grid(True, axis='y', linestyle=':')
 
-        sorted_obsids = sorted(limits.keys(), key=lambda l: limits[l][1])
+        sorted_obsids = sorted(limits.keys(), key=lambda lim: limits[lim][1])
         for i, obsid in enumerate(sorted_obsids):
             (tmin, tmax) = limits[obsid]
             ax.axvline(tmin, linestyle=':', color='purple')
