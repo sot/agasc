@@ -53,16 +53,11 @@ class TableEncoder(json.JSONEncoder):
     """
     def default(self, obj):
         if isinstance(obj, table.Table):
-            return {k: obj[k] for k in obj.colnames}
-        if isinstance(obj, table.MaskedColumn):
-            fv = obj.get_fill_value()
-            return [(fv if mask else val) for mask, val in zip(obj.mask, obj)]
-        if isinstance(obj, table.Column):
-            return [val for val in obj]
-        if isinstance(obj, table.Row):
-            return obj.values()
-        if isinstance(obj, np.ma.core.MaskedConstant):
-            return obj.view().fill_value
+            return {name: val.tolist() for name, val in obj.columns.items()}
+        if isinstance(obj, CxoTime):
+            return obj.isot
+        if isinstance(obj, np.ma.core.MaskedArray):
+            return {'columns': obj.dtype.names, 'data': obj.tolist()}
         if np.isscalar(obj):
             return int(obj)
         if np.isreal(obj):
@@ -154,10 +149,11 @@ class MagEstimateReport:
                 {
                     'agasc_stats': agasc_stat,
                     'obs_stats': obs_stat,
-                    'static_dir': static_dir
+                    'static_dir': static_dir,
+                    'glossary': GLOSSARY,
                 },
                 json_out,
-                cls=TableEncoder
+                cls=TableEncoder,
             )
         return directory / 'index.html'
 
@@ -284,6 +280,24 @@ class MagEstimateReport:
                                           tooltips=tooltips,
                                           static_dir=static_dir,
                                           glossary=GLOSSARY))
+
+        json_filename = filename.replace('.html', '.json')
+        if json_filename == filename:
+            json_filename = filename + '.json'
+        with open(self.directory / json_filename, 'w') as json_out:
+            json.dump(
+                {
+                    'info': info,
+                    'sections': sections,
+                    'failures': fails,
+                    'star_reports': star_reports,
+                    'tooltips': tooltips,
+                    'static_dir': static_dir,
+                    'glossary': GLOSSARY,
+                },
+                json_out,
+                cls=TableEncoder,
+            )
 
     def plot_agasc_id_single(self, agasc_id, obsid=None,
                              telem=None,
