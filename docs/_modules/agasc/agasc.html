@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.13.1 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.14.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -46,7 +46,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.13.1 documentation</a>
+	<a href="../../index.html">Agasc 4.14.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -183,14 +183,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span>
 
     <span class="k">def</span> <span class="nf">read_ra_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Read the file of RA and DEC values (sorted on DEC):</span>
-        <span class="c1">#  dec: DEC values</span>
-        <span class="c1">#  ra: RA values</span>
+        <span class="c1"># Read the RA and DEC values from the agasc</span>
         <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
-            <span class="n">radecs</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[:][[</span><span class="s1">&#39;RA&#39;</span><span class="p">,</span> <span class="s1">&#39;DEC&#39;</span><span class="p">]]</span>
-
-            <span class="c1"># Now copy to separate ndarrays for memory efficiency</span>
-            <span class="k">return</span> <span class="n">radecs</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">radecs</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">ras</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;RA&#39;</span><span class="p">)</span>
+            <span class="n">decs</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;DEC&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ras</span><span class="p">,</span> <span class="n">decs</span>
 
 
 <span class="k">def</span> <span class="nf">get_ra_decs</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">):</span>
