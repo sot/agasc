@@ -4,6 +4,7 @@ import logging
 import errno
 import os
 import copy
+import json
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
@@ -25,6 +26,43 @@ JINJA2 = jinja2.Environment(
 )
 
 logger = logging.getLogger('agasc.supplement')
+
+
+class TableEncoder(json.JSONEncoder):
+    """
+    Utility class to encode tables as json.
+
+    Example::
+
+        >>> import json
+        >>> from astropy.table import Table, Column, MaskedColumn
+        >>> a = MaskedColumn([1, 2], name='a', mask=[False, True], dtype='i4')
+        >>> b = Column([3, 4], name='b', dtype='i8')
+        >>> t = Table([a, b])
+        >>> print(json.dumps(t, cls=TableEncoder, indent=2))
+        {
+          "a": [
+            1,
+            999999
+          ],
+          "b": [
+            3,
+            4
+          ]
+        }
+    """
+    def default(self, obj):
+        if isinstance(obj, table.Table):
+            return {name: val.tolist() for name, val in obj.columns.items()}
+        if isinstance(obj, CxoTime):
+            return obj.isot
+        if isinstance(obj, np.ma.core.MaskedArray):
+            return {'columns': obj.dtype.names, 'data': obj.tolist()}
+        if np.isscalar(obj):
+            return int(obj)
+        if np.isreal(obj):
+            return float(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 class MagEstimateReport:
@@ -64,18 +102,17 @@ class MagEstimateReport:
             logger.debug(f'making report directory {directory}')
             directory.mkdir(parents=True)
 
-        o = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
-        if len(o) == 0:
+        obs_stat = self.obs_stats[self.obs_stats['agasc_id'] == agasc_id]
+        if len(obs_stat) == 0:
             raise Exception(f'agasc_id {agasc_id} has not observations')
-        o.sort(keys=['mp_starcat_time'])
-        s = self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0]
-        s = {k: s[k] for k in s.colnames}
-        s['n_obs_bad'] = \
-            s['n_obsids'] - s['n_obsids_ok']
-        s['last_obs'] = ':'.join(o[-1]['mp_starcat_time'].split(':')[:4])
+        obs_stat.sort(keys=['mp_starcat_time'])
+        agasc_stat = dict(self.agasc_stats[self.agasc_stats['agasc_id'] == agasc_id][0])
+        agasc_stat['n_obs_bad'] = \
+            agasc_stat['n_obsids'] - agasc_stat['n_obsids_ok']
+        agasc_stat['last_obs'] = ':'.join(obs_stat[-1]['mp_starcat_time'].split(':')[:4])
 
         # OBSIDs can be repeated
-        obsids = list(np.unique(o[highlight_obs(o)]['obsid']))
+        obsids = list(np.unique(obs_stat[highlight_obs(obs_stat)]['obsid']))
 
         args = [{'only_ok': False, 'draw_agasc_mag': True, 'draw_legend': True, 'ylim': 'max'},
                 {'title': 'Magnitude Estimates',
@@ -103,10 +140,21 @@ class MagEstimateReport:
         plt.close(fig)
 
         with open(directory / 'index.html', 'w') as out:
-            out.write(star_template.render(agasc_stats=s,
-                                           obs_stats=o.as_array(),
+            out.write(star_template.render(agasc_stats=agasc_stat,
+                                           obs_stats=obs_stat.as_array(),
                                            static_dir=static_dir,
                                            glossary=GLOSSARY))
+        with open(directory / 'data.json', 'w') as json_out:
+            json.dump(
+                {
+                    'agasc_stats': agasc_stat,
+                    'obs_stats': obs_stat,
+                    'static_dir': static_dir,
+                    'glossary': GLOSSARY,
+                },
+                json_out,
+                cls=TableEncoder,
+            )
         return directory / 'index.html'
 
     def multi_star_html(self, sections=None, updated_stars=None, fails=(),
@@ -232,6 +280,24 @@ class MagEstimateReport:
                                           tooltips=tooltips,
                                           static_dir=static_dir,
                                           glossary=GLOSSARY))
+
+        json_filename = filename.replace('.html', '.json')
+        if json_filename == filename:
+            json_filename = filename + '.json'
+        with open(self.directory / json_filename, 'w') as json_out:
+            json.dump(
+                {
+                    'info': info,
+                    'sections': sections,
+                    'failures': fails,
+                    'star_reports': star_reports,
+                    'tooltips': tooltips,
+                    'static_dir': static_dir,
+                    'glossary': GLOSSARY,
+                },
+                json_out,
+                cls=TableEncoder,
+            )
 
     def plot_agasc_id_single(self, agasc_id, obsid=None,
                              telem=None,
@@ -458,7 +524,7 @@ class MagEstimateReport:
                 if i == 0:
                     line_handles += lh
 
-        sorted_obsids = sorted(limits.keys(), key=lambda l: limits[l][1])
+        sorted_obsids = sorted(limits.keys(), key=lambda lim: limits[lim][1])
         for i, obsid in enumerate(sorted_obsids):
             (tmin, tmax) = limits[obsid]
             ax.plot([tmin, tmin], ax.get_ylim(), ':', color='purple', scaley=False)
@@ -579,7 +645,7 @@ class MagEstimateReport:
         ax.set_ylim((-1, ticks[-1] + 1))
         ax.grid(True, axis='y', linestyle=':')
 
-        sorted_obsids = sorted(limits.keys(), key=lambda l: limits[l][1])
+        sorted_obsids = sorted(limits.keys(), key=lambda lim: limits[lim][1])
         for i, obsid in enumerate(sorted_obsids):
             (tmin, tmax) = limits[obsid]
             ax.axvline(tmin, linestyle=':', color='purple')
