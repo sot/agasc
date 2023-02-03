@@ -599,9 +599,9 @@ def test_update_obs(monkeypatch, mock_open):
                 (56314, 115347520, 1, 'removed because I felt like it', '2010:110:14:57:43.442')],
                 dtype=[('obsid', '<i4'), ('agasc_id', '<i4'), ('status', '<i4'),
                        ('comments', '<U80'), ('mp_starcat_time', '<U21')]))
-            print(ref)
-            print(args[0])
-            assert np.all(args[0] == ref)
+            ref.pprint(max_lines=30)
+            args[0][ref.dtype.names].pprint(max_lines=30)
+            assert np.all(args[0][ref.dtype.names] == ref)
     mock_write.n_calls = 0
     mock_write.calls = []
 
