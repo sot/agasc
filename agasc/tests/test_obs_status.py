@@ -826,27 +826,14 @@ def _remove_list_duplicates(a_list):
 
 def _monkeypatch_star_obs_catalogs_(monkeypatch, test_file, path):
     tables = [
-        'STARCAT_CMDS',
-        'DWELLS_NP',
-        'STARS_OBS_INDICES',
-        'STARS_OBS_MAP',
         'STARS_OBS',
-        'TIMELINES'
     ]
 
     res = {t: table.Table.read(test_file, path=f'{path}/cat/{t}') for t in tables}
     for k in res:
         res[k].convert_bytestring_to_unicode()
-    res['DWELLS_NP'] = res['DWELLS_NP'].as_array()
-    res['STARS_OBS_NP'] = res['STARS_OBS'].as_array()
-    res['DWELLS_MAP'] = {
-        res['DWELLS_NP']['mp_starcat_time'][idx]: idx for idx in range(len(res['DWELLS_NP']))
-    }
     res['STARS_OBS'].add_index('agasc_id')
     res['STARS_OBS'].add_index('mp_starcat_time')
-    res['STARS_OBS_MAP'] = {
-        row['agasc_id']: (row['idx0'], row['idx1']) for row in res['STARS_OBS_MAP']
-    }
 
     for k in res:
         monkeypatch.setattr(star_obs_catalogs, k, res[k])
@@ -866,7 +853,7 @@ def _monkeypatch_get_telemetry_(monkeypatch, test_file, path):
 
 
 def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / 'mag-stats.h5'):
-    from astropy.table import vstack, Table
+    from astropy.table import vstack
 
     star_obs_catalogs.load()
     mp_starcat_time = [
@@ -878,12 +865,6 @@ def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / 'mag-stats.h5'):
     ]
     agasc_id = 10492752
 
-    STARCAT_CMDS = star_obs_catalogs.STARCAT_CMDS[
-        np.in1d(star_obs_catalogs.STARCAT_CMDS['mp_starcat_time'], mp_starcat_time)
-    ]
-    DWELLS_NP = Table(star_obs_catalogs.DWELLS_NP[
-        np.in1d(star_obs_catalogs.DWELLS_NP['mp_starcat_time'], mp_starcat_time)
-    ])
     STARS_OBS = star_obs_catalogs.STARS_OBS[
         np.in1d(star_obs_catalogs.STARS_OBS['mp_starcat_time'], mp_starcat_time)
     ]
@@ -903,31 +884,12 @@ def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / 'mag-stats.h5'):
     for idx0, idx1 in zip(indices[:-1], indices[1:]):
         agasc_id = STARS_OBS['agasc_id'][idx0]
         rows.append((agasc_id, idx1 - idx0, idx0, idx1))
-    STARS_OBS_INDICES = Table(rows=rows, names=['agasc_id', 'n_obs', 'idx0', 'idx1'])
-    STARS_OBS_INDICES.sort('n_obs')
-    STARS_OBS_INDICES.add_index('agasc_id')
-    STARS_OBS_MAP = Table(
-        [
-            {'agasc_id': row['agasc_id'], 'idx0': row['idx0'], 'idx1': row['idx1']}
-            for row in STARS_OBS_INDICES
-        ])
-
-    TIMELINES = star_obs_catalogs.TIMELINES[
-        np.in1d(star_obs_catalogs.TIMELINES['dir'], STARS_OBS['dir'])
-    ]
 
     cat_tables = {
-        'STARCAT_CMDS': STARCAT_CMDS,
-        'DWELLS_NP': DWELLS_NP,
-        'STARS_OBS_INDICES': STARS_OBS_INDICES,
-        'STARS_OBS_MAP': STARS_OBS_MAP,
         'STARS_OBS': STARS_OBS,
-        'TIMELINES': TIMELINES
     }
 
     STARS_OBS.remove_indices('mp_starcat_time')
-    TIMELINES.remove_indices('timeline_id')
-    TIMELINES.remove_indices('dir')
 
     if os.path.exists(filename):
         os.unlink(filename)
