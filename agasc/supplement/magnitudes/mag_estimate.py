@@ -811,7 +811,7 @@ def calc_obs_stats(telem):
 
     stats = {
         'f_kalman': f_kalman,
-        'f_track': np.count_nonzero(aca_trak) / n_kalman,
+        'f_track': (np.count_nonzero(aca_trak) / n_kalman) if n_kalman else 0,
         'f_dbox5': f_5,
         'f_dr3': f_3,
         'f_mag_est_ok': (n_mag_est_ok / n_kalman) if n_kalman else 0,
