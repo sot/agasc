@@ -752,6 +752,10 @@ def test_override(monkeypatch):
     )
 
     # Case 1. There are two previously unknown suspect observations out of 5.
+    # - 23682 has only 10 points
+    # - 48900 magnitude changes significantly during the observation
+    # in the following test cases, they will be marked as suspect to check that the algorithm
+    # excludes them.
     agasc_stats, obs_stats, fails = mag_estimate.get_agasc_id_stats(10492752)
 
     assert len(fails) == 2
@@ -853,64 +857,59 @@ def _monkeypatch_get_telemetry_(monkeypatch, test_file, path):
 
 
 def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / 'mag-stats.h5'):
+    """
+    Create data to test mag-stats.
+
+    The produced data includes five observations (all stars for each observation), and a fraction of
+    the telemetry for one single star during each of those observations.
+
+    The telemetry is slightly modified so two of those observations are marked as suspect:
+        - 23681 has only ten points
+        - 48900 magnitude changes significantly during the observation
+    """
     from astropy.table import vstack
-
-    star_obs_catalogs.load()
-    mp_starcat_time = [
-        '2018:296:15:53:14.596',
-        '2021:201:02:58:03.250',
-        '2021:015:00:01:45.585',
-        '2011:288:06:14:49.501',
-        '2021:089:02:48:00.575'
-    ]
-    agasc_id = 10492752
-
-    STARS_OBS = star_obs_catalogs.STARS_OBS[
-        np.in1d(star_obs_catalogs.STARS_OBS['mp_starcat_time'], mp_starcat_time)
-    ]
-
-    STARS_OBS = STARS_OBS.group_by('agasc_id')
-    STARS_OBS.add_index('agasc_id')
-    STARS_OBS.add_index('mp_starcat_time')
-    STARS_OBS.groups
-    indices = STARS_OBS.groups.indices
-    rows = []
-    for idx0, idx1 in zip(indices[:-1], indices[1:]):
-        agasc_id = STARS_OBS['agasc_id'][idx0]
-        rows.append((agasc_id, idx1 - idx0, idx0, idx1))
-
-    indices = STARS_OBS.groups.indices
-    rows = []
-    for idx0, idx1 in zip(indices[:-1], indices[1:]):
-        agasc_id = STARS_OBS['agasc_id'][idx0]
-        rows.append((agasc_id, idx1 - idx0, idx0, idx1))
-
-    cat_tables = {
-        'STARS_OBS': STARS_OBS,
-    }
-
-    STARS_OBS.remove_indices('mp_starcat_time')
 
     if os.path.exists(filename):
         os.unlink(filename)
 
-    for t in cat_tables:
-        cat_tables[t].write(
-            filename,
-            path=f'/obs_status/cat/{t}',
-            serialize_meta=True,
-            append=True
-        )
+    star_obs_catalogs.load()
+    mp_starcat_time = [
+        '2011:288:06:14:49.501',
+        '2021:015:00:01:45.585',
+        '2021:089:02:48:00.575',
+        '2021:201:02:58:03.250',
+        '2018:296:15:53:14.596',
+    ]
+    STARS_OBS = star_obs_catalogs.STARS_OBS[
+        np.in1d(star_obs_catalogs.STARS_OBS['mp_starcat_time'], mp_starcat_time)
+    ]
+    STARS_OBS = STARS_OBS.group_by('agasc_id')
+    STARS_OBS.add_index('agasc_id')
+    STARS_OBS.write(
+        filename,
+        path='/obs_status/cat/STARS_OBS',
+        serialize_meta=True,
+        append=True,
+        overwrite=True
+    )
 
     telem = mag_estimate.get_telemetry_by_agasc_id(10492752)
-    t = vstack([g[:100].copy() for g in telem.group_by('obsid').groups])
-    ok = np.ones(len(t), dtype=bool)
-    ok[110:200] = False
-    delta = np.zeros_like(t['mags'])
-    delta[-100:] = 0.01 * np.exp(np.arange(100) / 20)
-    t['mags_img'] += delta
-    t['mags'] += delta
-    t = t[ok]
+
+    # the starting times might be a bit arbitrary. They are chose to remove the first points, which
+    # might be in maneuver mode or in acquisition. These times come from the kadi events v1 version,
+    # but they do not matter much.
+    telem_by_obsid = [
+        telem[(telem['obsid'] == 12800) & (telem['times'] > 435047672.)][:100],
+        # only 10 points, excluding the beginning
+        telem[(telem['obsid'] == 23681) & (telem['times'] > 727057549.)][:10],
+        telem[(telem['obsid'] == 23682) & (telem['times'] > 733462165.)][:100],
+        telem[(telem['obsid'] == 23683) & (telem['times'] > 743139160.)][:100],
+        telem[(telem['obsid'] == 48900) & (telem['times'] > 656698074.)][:100],
+    ]
+    telem_by_obsid[-1]['mags_img'] += 0.01 * np.exp(np.arange(100) / 20)
+    telem_by_obsid[-1]['mags'] += 0.01 * np.exp(np.arange(100) / 20)
+    t = vstack(telem_by_obsid)
+
     t.write(filename, path='/obs_status/telem', serialize_meta=True, append=True)
 
 
