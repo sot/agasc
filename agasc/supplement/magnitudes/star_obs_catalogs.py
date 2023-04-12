@@ -22,29 +22,28 @@ def get_star_observations(start=None, stop=None, obsid=None):
     """
     join_keys = ['starcat_date', 'obsid']
 
-    with commands.conf.set_temp('commands_version', '2'):
-        observations = Table(commands.get_observations(start=start, stop=stop, obsid=obsid))
-        observations = observations[~observations['starcat_date'].mask]
-        # the following line removes manual commands
-        observations = observations[observations['source'] != 'CMD_EVT']
-        catalogs = commands.get_starcats_as_table(start=start, stop=stop, obsid=obsid, unique=True)
-        catalogs = catalogs[np.in1d(catalogs['type'], ['BOT', 'GUI'])]
-        star_obs = join(observations, catalogs, keys=join_keys)
-        star_obs.rename_columns(['id', 'starcat_date'], ['agasc_id', 'mp_starcat_time'])
-        star_obs['row'], star_obs['col'] = yagzag_to_pixels(star_obs['yang'], star_obs['zang'])
+    observations = Table(commands.get_observations(start=start, stop=stop, obsid=obsid))
+    observations = observations[~observations['starcat_date'].mask]
+    # the following line removes manual commands
+    observations = observations[observations['source'] != 'CMD_EVT']
+    catalogs = commands.get_starcats_as_table(start=start, stop=stop, obsid=obsid, unique=True)
+    catalogs = catalogs[np.in1d(catalogs['type'], ['BOT', 'GUI'])]
+    star_obs = join(observations, catalogs, keys=join_keys)
+    star_obs.rename_columns(['id', 'starcat_date'], ['agasc_id', 'mp_starcat_time'])
+    star_obs['row'], star_obs['col'] = yagzag_to_pixels(star_obs['yang'], star_obs['zang'])
 
-        # Add mag_aca_err column
-        filename = os.path.join(os.environ['SKA'], 'data', 'agasc', 'proseco_agasc_1p7.h5')
-        with tables.open_file(filename) as h5:
-            agasc_ids = h5.root.data.col('AGASC_ID')
-            mag_errs = h5.root.data.col('MAG_ACA_ERR') * 0.01
+    # Add mag_aca_err column
+    filename = os.path.join(os.environ['SKA'], 'data', 'agasc', 'proseco_agasc_1p7.h5')
+    with tables.open_file(filename) as h5:
+        agasc_ids = h5.root.data.col('AGASC_ID')
+        mag_errs = h5.root.data.col('MAG_ACA_ERR') * 0.01
 
-        tt = Table([agasc_ids, mag_errs], names=['agasc_id', 'mag_aca_err'])
-        star_obs = table.join(star_obs, tt, keys='agasc_id')
+    tt = Table([agasc_ids, mag_errs], names=['agasc_id', 'mag_aca_err'])
+    star_obs = table.join(star_obs, tt, keys='agasc_id')
 
-        star_obs.add_index(['mp_starcat_time'])
+    star_obs.add_index(['mp_starcat_time'])
 
-        return star_obs
+    return star_obs
 
 
 def load(tstop=None):
