@@ -674,6 +674,13 @@ def do(start,
         except Exception as e:
             report_dir = output_dir
             logger.error(f'Error when creating report: {e}')
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            if exc_type is not None:
+                trace = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                for level in trace:
+                    for line in level.splitlines():
+                        logger.debug(line)
+                    logger.debug('')
         finally:
             report_data_file = report_dir / report_data_file.name
             if not report_dir.exists():
