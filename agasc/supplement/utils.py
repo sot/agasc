@@ -50,9 +50,9 @@ COLUMN_DESCRIPTION = {
     'mag_aca_err': 'Star magnitude uncertainty determined with ACA.',
     'last_obs_time': 'mp_starcat_time of the last observation of a star',
     'mp_starcat_time':
-        'timestamp from kadi.commands for starcat command preceding the dwell of an observation',
+        'The time at which the star catalog is commanded (from kadi.commands)',
     'obsid':
-        'The OBSID corresponding to the dwell when an observation is made. Might not be unique.',
+        'The OBSID at the time the star catalog is commanded (from kadi.commands).',
     'status':
         'Flag to tell include/excude the observation when estimating magnitude (0 means "include")',
     'comments': '',

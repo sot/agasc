@@ -58,18 +58,38 @@ EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code
 
 
 class MagStatsException(Exception):
-    def __init__(self, msg='', agasc_id=None, obsid=None, timeline_id=None, mp_starcat_time=None,
+    def __init__(self, msg='', agasc_id=None, obsid=None, mp_starcat_time=None,
                  **kwargs):
         super().__init__(msg)
         self.error_code = EXCEPTION_CODES[msg]
         self.msg = msg
         self.agasc_id = agasc_id
         self.obsid = obsid[0] if type(obsid) is list and len(obsid) == 1 else obsid
-        self.timeline_id = timeline_id
         self.mp_starcat_time = (mp_starcat_time[0] if type(mp_starcat_time) is list
                                 and len(mp_starcat_time) == 1 else mp_starcat_time)
         for k in kwargs:
             setattr(self, k, kwargs[k])
+
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        if exc_type is None:
+            self.exception = {
+                'type': '',
+                'value': '',
+                'traceback': ''
+            }
+        else:
+            stack_trace = []
+            for step in traceback.extract_tb(exc_traceback):
+                stack_trace.append(
+                    f"  in {step.filename}:{step.lineno}/{step.name}:"
+                )
+                stack_trace.append(f"    {step.line}")
+
+            self.exception = {
+                'type': exc_type.__name__,
+                'value': str(exc_value),
+                'traceback': '\n'.join(stack_trace)
+            }
 
     def __str__(self):
         return f'MagStatsException: {self.msg} (agasc_id: {self.agasc_id}, ' \
@@ -80,8 +100,9 @@ class MagStatsException(Exception):
         yield 'msg', self.msg
         yield 'agasc_id', self.agasc_id
         yield 'obsid', self.obsid
-        yield 'timeline_id', self.timeline_id
         yield 'mp_starcat_time', self.mp_starcat_time
+        yield 'exception_type', self.exception['type']
+        yield 'traceback', self.exception['traceback']
 
 
 def _magnitude_correction(time, mag_aca):
@@ -278,10 +299,9 @@ def get_telemetry(obs):
     :return: dict
     """
     star_obs_catalogs.load()
-    dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
-    star = get_star(obs['agasc_id'], date=dwell['tstart'], use_supplement=False)
-    start = dwell['tstart']
-    stop = dwell['tstop']
+    star = get_star(obs['agasc_id'], date=obs['obs_start'], use_supplement=False)
+    start = CxoTime(obs['obs_start']).cxcsec
+    stop = CxoTime(obs['obs_stop']).cxcsec
     slot = obs['slot']
     logger.debug(f'  Getting telemetry for AGASC ID={obs["agasc_id"]}, OBSID={obs["obsid"]}, '
                  f'mp_starcat_time={obs["mp_starcat_time"]}')
@@ -560,15 +580,12 @@ def get_mag_from_img(slot_data, t_start, ok=True):
 
 OBS_STATS_INFO = {
     'agasc_id': 'AGASC ID of the star',
-    'obsid': 'OBSID corresponding to the dwell when the observation is made',
+    'obsid': 'OBSID at the time the star catalog is commanded (from kadi.commands)',
     'slot': 'Slot number',
     'type': 'GUI/ACQ/BOT',
-    'mp_starcat_time':
-        'Timestamp (from kadi.commands) for starcat command '
-        'preceding the dwell of an observation.',
-    'timeline_id': 'starcat command timeline_id from kadi.commands.get_cmds',
-    'tstart': 'Dwell start time from kadi.events.manvrs',
-    'tstop': 'Dwell end time from kadi.events.manvrs',
+    'mp_starcat_time': 'The time at which the star catalog is commanded (from kadi.commands)',
+    'tstart': 'Start time of the observation according to kadi.commands (in cxc seconds)',
+    'tstop': 'Start time of the observation according to kadi.commands (in cxc seconds)',
     'mag_correction': 'Overall correction applied to the magnitude estimate',
     'responsivity': 'Responsivity correction applied to the magnitude estimate',
     'droop_shift': 'Droop shift correction applied to the magnitude estimate',
@@ -660,12 +677,11 @@ def get_obs_stats(obs, telem=None):
     star_obs_catalogs.load()
 
     star = get_star(obs['agasc_id'], use_supplement=False)
-    dwell = star_obs_catalogs.DWELLS_NP[star_obs_catalogs.DWELLS_MAP[obs['mp_starcat_time']]]
-    start = dwell['tstart']
-    stop = dwell['tstop']
+    start = CxoTime(obs['obs_start']).cxcsec
+    stop = CxoTime(obs['obs_stop']).cxcsec
 
     stats = {k: obs[k] for k in
-             ['agasc_id', 'obsid', 'slot', 'type', 'mp_starcat_time', 'timeline_id']}
+             ['agasc_id', 'obsid', 'slot', 'type', 'mp_starcat_time']}
     stats['mp_starcat_time'] = stats['mp_starcat_time']
     droop_shift = get_droop_systematic_shift(star['MAG_ACA'])
     responsivity = get_responsivity(start)
@@ -795,7 +811,7 @@ def calc_obs_stats(telem):
 
     stats = {
         'f_kalman': f_kalman,
-        'f_track': np.count_nonzero(aca_trak) / n_kalman,
+        'f_track': (np.count_nonzero(aca_trak) / n_kalman) if n_kalman else 0,
         'f_dbox5': f_5,
         'f_dr3': f_3,
         'f_mag_est_ok': (n_mag_est_ok / n_kalman) if n_kalman else 0,
@@ -1001,8 +1017,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
 
     star_obs_catalogs.load(tstop=tstop)
     # Get a table of every time the star has been observed
-    idx0, idx1 = star_obs_catalogs.STARS_OBS_MAP[agasc_id]
-    star_obs = star_obs_catalogs.STARS_OBS[idx0:idx1]
+    star_obs = star_obs_catalogs.STARS_OBS[star_obs_catalogs.STARS_OBS['agasc_id'] == agasc_id]
     if len(star_obs) > 1:
         star_obs = star_obs.loc['mp_starcat_time', sorted(star_obs['mp_starcat_time'])]
 

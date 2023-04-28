@@ -168,7 +168,7 @@ def main():
         dry_run=args.dry_run,
         no_progress=args.no_progress,
     )
-    if args.report:
+    if args.report and (args.reports_dir / f'{report_date.date[:8]}').exists():
         args_log_file.replace(args.reports_dir / f'{report_date.date[:8]}' / args_log_file.name)
 
 

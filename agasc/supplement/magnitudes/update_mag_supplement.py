@@ -216,7 +216,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
         logger.debug(f'Updating {filename}')
         if filename.exists():
             obs_stats = _update_table(table.Table.read(filename), obs_stats,
-                                      keys=['agasc_id', 'obsid', 'timeline_id'])
+                                      keys=['agasc_id', 'obsid'])
             os.remove(filename)
         for column in obs_stats.colnames:
             if column in mag_estimate.OBS_STATS_INFO:
@@ -224,7 +224,8 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
         obs_stats.write(filename)
     if len(fails):
         filename = outdir / 'mag_stats_fails.pkl'
-        logger.debug(f'Updating {filename}')
+        logger.info(f'A summary of all failures is saved in {filename}')
+        # logger.debug(f'Updating {filename}')
         with open(filename, 'wb') as out:
             pickle.dump(fails, out)
 
@@ -593,7 +594,7 @@ def do(start,
             except Exception as e:
                 logger.error(f'Error sending email to {email}: {e}')
 
-    if report:
+    if report and len(agasc_stats):
         if report_date is None:
             report_dir = reports_dir
             report_data_file = report_dir / f'report_data.pkl'
@@ -684,6 +685,8 @@ def do(start,
             with open(report_data_file, 'wb') as fh:
                 pickle.dump(report_data, fh)
             logger.info(f'Report data saved in {report_data_file}')
+    elif len(agasc_stats) == 0:
+        logger.info('Nothing to report (no stars)')
 
     now = datetime.datetime.now()
     logger.info(f"done at {now}")
