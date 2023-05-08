@@ -5,6 +5,7 @@ import errno
 import os
 import copy
 import json
+import warnings
 from subprocess import Popen, PIPE
 from pathlib import Path
 from email.mime.text import MIMEText
@@ -140,10 +141,17 @@ class MagEstimateReport:
         plt.close(fig)
 
         with open(directory / 'index.html', 'w') as out:
-            out.write(star_template.render(agasc_stats=agasc_stat,
-                                           obs_stats=obs_stat.as_array(),
-                                           static_dir=static_dir,
-                                           glossary=GLOSSARY))
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="Warning: converting a masked element to nan.",
+                )
+                out.write(star_template.render(
+                    agasc_stats=agasc_stat,
+                    obs_stats=obs_stat.as_array(),
+                    static_dir=static_dir,
+                    glossary=GLOSSARY)
+                )
         with open(directory / 'data.json', 'w') as json_out:
             json.dump(
                 {
@@ -272,14 +280,19 @@ class MagEstimateReport:
         if not self.directory.exists():
             self.directory.mkdir(parents=True)
         with open(self.directory / filename, 'w') as out:
-            out.write(run_template.render(info=info,
-                                          sections=sections,
-                                          failures=fails,
-                                          star_reports=star_reports,
-                                          nav_links=nav_links,
-                                          tooltips=tooltips,
-                                          static_dir=static_dir,
-                                          glossary=GLOSSARY))
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="Warning: converting a masked element to nan.",
+                )
+                out.write(run_template.render(info=info,
+                                            sections=sections,
+                                            failures=fails,
+                                            star_reports=star_reports,
+                                            nav_links=nav_links,
+                                            tooltips=tooltips,
+                                            static_dir=static_dir,
+                                            glossary=GLOSSARY))
 
         json_filename = filename.replace('.html', '.json')
         if json_filename == filename:
