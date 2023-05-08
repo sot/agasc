@@ -285,14 +285,16 @@ class MagEstimateReport:
                     "ignore",
                     message="Warning: converting a masked element to nan.",
                 )
-                out.write(run_template.render(info=info,
-                                            sections=sections,
-                                            failures=fails,
-                                            star_reports=star_reports,
-                                            nav_links=nav_links,
-                                            tooltips=tooltips,
-                                            static_dir=static_dir,
-                                            glossary=GLOSSARY))
+                out.write(run_template.render(
+                    info=info,
+                    sections=sections,
+                    failures=fails,
+                    star_reports=star_reports,
+                    nav_links=nav_links,
+                    tooltips=tooltips,
+                    static_dir=static_dir,
+                    glossary=GLOSSARY
+                ))
 
         json_filename = filename.replace('.html', '.json')
         if json_filename == filename:
