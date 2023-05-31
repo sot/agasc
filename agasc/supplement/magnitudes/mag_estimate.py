@@ -1064,7 +1064,12 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         'selected_atol': False,
         'selected_rtol': False,
         'selected_mag_aca_err': False,
-        'selected_color': False
+        'selected_color': False,
+        'f_mag_est_ok': 0,
+        'f_mag_est_ok_3': 0,
+        'f_mag_est_ok_5': 0,
+        'f_ok_3': 0,
+        'f_ok_5': 0,
     }
 
     for tag in ['dr3', 'dbox5']:

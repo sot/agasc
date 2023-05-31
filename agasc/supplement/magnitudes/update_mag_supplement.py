@@ -173,16 +173,21 @@ def get_agasc_id_stats_pool(agasc_ids, obs_status_override=None, batch_size=100,
 
 def _update_table(table_old, table_new, keys):
     # checking names, because actual types change upon saving in fits format
-    assert table_old.as_array().dtype.names == table_new.as_array().dtype.names, \
-        'Tables have different dtype'
+    if set(table_old.colnames) != set(table_new.colnames):
+        raise Exception(
+            'Tables have different columns:'
+            f'\n  {table_old.colnames}'
+            f'\n  {table_new.colnames}'
+        )
     table_old = table_old.copy()
     new_row = np.ones(len(table_new), dtype=bool)
     _, i_new, i_old = np.intersect1d(table_new[keys].as_array(),
                                      table_old[keys].as_array(),
                                      return_indices=True)
     new_row[i_new] = False
-    table_old[i_old] = table_new[i_new]
-    return table.vstack([table_old, table_new[new_row]])
+    columns = table_old.as_array().dtype.names
+    table_old[i_old] = table_new[i_new][columns]
+    return table.vstack([table_old, table_new[new_row][columns]])
 
 
 def update_mag_stats(obs_stats, agasc_stats, fails, outdir='.'):
@@ -674,6 +679,13 @@ def do(start,
         except Exception as e:
             report_dir = output_dir
             logger.error(f'Error when creating report: {e}')
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            if exc_type is not None:
+                trace = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                for level in trace:
+                    for line in level.splitlines():
+                        logger.debug(line)
+                    logger.debug('')
         finally:
             report_data_file = report_dir / report_data_file.name
             if not report_dir.exists():
