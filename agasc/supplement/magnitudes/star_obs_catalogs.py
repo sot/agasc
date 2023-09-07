@@ -7,7 +7,6 @@ from astropy import table
 
 from chandra_aca.transform import yagzag_to_pixels
 from kadi import commands, events
-from cxotime import CxoTime
 
 
 STARS_OBS = None
@@ -44,7 +43,7 @@ def get_star_observations(start=None, stop=None, obsid=None):
 
     star_obs.add_index(['mp_starcat_time'])
 
-    max_time = CxoTime(events.dwells.all().table[-1]['stop'])
+    max_time = events.dwells.all().latest('tstart').stop
     star_obs = star_obs[star_obs['obs_start'] <= max_time]
 
     return star_obs
