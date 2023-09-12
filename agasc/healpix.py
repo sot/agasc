@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Provide functions for working with HEALPix-index AGASC HDF5 files.
+Provide functions for working with HEALPix-indexed AGASC HDF5 files.
 
 Functions
 ---------
