@@ -1,14 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
 import contextlib
+import os
+from pathlib import Path
 
-import numpy as np
 import numexpr
+import numpy as np
 import tables
-
+from astropy.table import Column, Table
 from Chandra.Time import DateTime
-from astropy.table import Table, Column
 
+from .healpix import get_stars_from_healpix_h5, is_healpix
 from .paths import default_agasc_dir, default_agasc_file
 from .supplement.utils import get_supplement_table
 
@@ -259,18 +260,14 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     if agasc_file is None:
         agasc_file = default_agasc_file()
 
+    get_stars_func = (
+        get_stars_from_healpix_h5
+        if is_healpix(agasc_file)
+        else get_stars_from_dec_sorted_h5
+    )
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
-
-    ra_decs = get_ra_decs(agasc_file)
-
-    idx0, idx1 = np.searchsorted(ra_decs.dec, [dec - rad_pm, dec + rad_pm])
-
-    dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
-    ok = dists <= rad_pm
-
-    with tables.open_file(agasc_file) as h5:
-        stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
+    stars = get_stars_func(ra, dec, rad_pm, agasc_file)
 
     add_pmcorr_columns(stars, date)
     if fix_color1:
@@ -283,6 +280,40 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         stars = stars[ok]
 
     update_from_supplement(stars, use_supplement)
+
+    return stars
+
+
+def get_stars_from_dec_sorted_h5(
+        ra: float, dec: float, radius: float, agasc_file: str | Path
+    ) -> Table:
+    """
+    Returns a table of stars within a given radius of a given RA and Dec.
+
+    Parameters
+    ----------
+    ra : float
+        The right ascension of the center of the search radius, in degrees.
+    dec : float
+        The declination of the center of the search radius, in degrees.
+    radius : float
+        The radius of the search circle, in degrees.
+    agasc_file : str or Path
+        The path to the AGASC HDF5 file.
+
+    Returns
+    -------
+    stars : astropy.table.Table
+        A table of stars within the search radius, sorted by declination.
+    """
+    ra_decs = get_ra_decs(agasc_file)
+    idx0, idx1 = np.searchsorted(ra_decs.dec, [dec - radius, dec + radius])
+
+    dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
+    ok = dists <= radius
+
+    with tables.open_file(agasc_file) as h5:
+        stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
 
     return stars
 
