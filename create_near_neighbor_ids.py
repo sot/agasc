@@ -19,18 +19,19 @@ from pathlib import Path
 import agasc
 from astropy.table import Table
 
-agasc1p7 = str(Path(os.environ['SKA'], 'data', 'agasc', 'agasc1p7.h5'))
+agasc1p7 = str(Path(os.environ["SKA"], "data", "agasc", "agasc1p7.h5"))
 
 h5 = tables.open_file(agasc1p7)
 stars = h5.root.data[:]
 h5.close()
 
-ok = ((stars['CLASS'] == 0) &
-      (stars['MAG_ACA'] < 11.0) &
-      (stars['ASPQ1'] < 50) &  # Less than 2.5 arcsec from nearby star
-      (stars['ASPQ1'] > 0) &
-      (stars['ASPQ2'] == 0)  # Proper motion less than 0.5 arcsec/yr
-      )
+ok = (
+    (stars["CLASS"] == 0)
+    & (stars["MAG_ACA"] < 11.0)
+    & (stars["ASPQ1"] < 50)
+    & (stars["ASPQ1"] > 0)  # Less than 2.5 arcsec from nearby star
+    & (stars["ASPQ2"] == 0)  # Proper motion less than 0.5 arcsec/yr
+)
 
 # Candidate acq/guide stars with a near neighbor that made ASPQ1 > 0
 nears = stars[ok]
@@ -38,14 +39,15 @@ nears = stars[ok]
 radius = 60 / 3600
 near_ids = set()
 for ii, sp in enumerate(nears):
-    near = agasc.get_agasc_cone(sp['RA'], sp['DEC'], radius=radius, date='2000:001',
-                                agasc_file=agasc1p7)
-    for id in near['AGASC_ID']:
-        if id != sp['AGASC_ID']:
+    near = agasc.get_agasc_cone(
+        sp["RA"], sp["DEC"], radius=radius, date="2000:001", agasc_file=agasc1p7
+    )
+    for id in near["AGASC_ID"]:
+        if id != sp["AGASC_ID"]:
             near_ids.add(id)
 
     if ii % 100 == 0:
         print(ii)
 
-t = Table([list(near_ids)], names=['near_id'])
-t.write('near_neighbor_ids_1p7.fits.gz', format='fits')
+t = Table([list(near_ids)], names=["near_id"])
+t.write("near_neighbor_ids_1p7.fits.gz", format="fits")
