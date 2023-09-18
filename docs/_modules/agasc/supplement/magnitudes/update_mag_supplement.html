@@ -1,0 +1,796 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>agasc.supplement.magnitudes.update_mag_supplement &#8212; Agasc 4.16.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css" />
+    
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../../index.html"><span id="logotext1">Ska!</span><span id="logotext2">agasc</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="../../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../../index.html">Agasc 4.16.0 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for agasc.supplement.magnitudes.update_mag_supplement</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">import</span> <span class="nn">jinja2</span>
+
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">table</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">time</span><span class="p">,</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+
+<span class="kn">from</span> <span class="nn">mica.starcheck</span> <span class="kn">import</span> <span class="n">get_starcheck_catalog</span>
+<span class="kn">from</span> <span class="nn">agasc.supplement.magnitudes</span> <span class="kn">import</span> <span class="n">star_obs_catalogs</span><span class="p">,</span> <span class="n">mag_estimate</span><span class="p">,</span> <span class="n">mag_estimate_report</span> <span class="k">as</span> <span class="n">msr</span>
+<span class="kn">from</span> <span class="nn">agasc.supplement.utils</span> <span class="kn">import</span> <span class="n">save_version</span><span class="p">,</span> <span class="n">MAGS_DTYPE</span>
+<span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;agasc.supplement&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="level0_archive_time_range"><a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range">[docs]</a><span class="k">def</span> <span class="nf">level0_archive_time_range</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return the time range covered by mica archive aca_l0 files.</span>
+
+<span class="sd">    :return: tuple of CxoTime</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">sqlite3</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="n">db_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="s1">&#39;$SKA/data/mica/archive/aca0/archfiles.db3&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;select tstop from archfiles order by tstop desc limit 1&quot;</span><span class="p">)</span>
+        <span class="n">t_stop</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;select tstop from archfiles order by tstart asc limit 1&quot;</span><span class="p">)</span>
+        <span class="n">t_start</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">t_stop</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">t_start</span><span class="p">)</span><span class="o">.</span><span class="n">date</span></div>
+
+
+<div class="viewcode-block" id="get_agasc_id_stats"><a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_id_stats</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="p">{},</span> <span class="n">tstop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call mag_stats.get_agasc_id_stats for each AGASC ID</span>
+
+<span class="sd">    :param agasc_ids: list</span>
+<span class="sd">    :param obs_status_override: dict.</span>
+<span class="sd">        Dictionary overriding the OK flag for specific observations.</span>
+<span class="sd">        Keys are (OBSID, AGASC ID) pairs, values are dictionaries like</span>
+<span class="sd">        {&#39;obs_ok&#39;: True, &#39;comments&#39;: &#39;some comment&#39;}</span>
+<span class="sd">    :param tstop: cxotime-compatible timestamp</span>
+<span class="sd">        Only observations prior to this timestamp are considered.</span>
+<span class="sd">    :return: astropy.table.Table, astropy.table.Table, list</span>
+<span class="sd">        obs_stats, agasc_stats, fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">agasc.supplement.magnitudes</span> <span class="kn">import</span> <span class="n">mag_estimate</span>
+    <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">vstack</span>
+
+    <span class="n">fails</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">obs_stats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">agasc_stats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;progress&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">no_progress</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;star&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">agasc_ids</span><span class="p">:</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">agasc_stat</span><span class="p">,</span> <span class="n">obs_stat</span><span class="p">,</span> <span class="n">obs_fail</span> <span class="o">=</span> \
+                <span class="n">mag_estimate</span><span class="o">.</span><span class="n">get_agasc_id_stats</span><span class="p">(</span><span class="n">agasc_id</span><span class="o">=</span><span class="n">agasc_id</span><span class="p">,</span>
+                                                <span class="n">obs_status_override</span><span class="o">=</span><span class="n">obs_status_override</span><span class="p">,</span>
+                                                <span class="n">tstop</span><span class="o">=</span><span class="n">tstop</span><span class="p">)</span>
+            <span class="n">agasc_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agasc_stat</span><span class="p">)</span>
+            <span class="n">obs_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_stat</span><span class="p">)</span>
+            <span class="n">fails</span> <span class="o">+=</span> <span class="n">obs_fail</span>
+        <span class="k">except</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">MagStatsException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">fails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># transform Exception to MagStatsException for standard book keeping</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Unexpected Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">fails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">mag_estimate</span><span class="o">.</span><span class="n">MagStatsException</span><span class="p">(</span><span class="n">agasc_id</span><span class="o">=</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">)))</span>
+            <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">trace</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">level</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">agasc_stats</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span> <span class="k">if</span> <span class="n">agasc_stats</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">)</span> <span class="k">if</span> <span class="n">obs_stats</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">agasc_stats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">obs_stats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># transform Exception to MagStatsException for standard book keeping</span>
+        <span class="n">fails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">mag_estimate</span><span class="o">.</span><span class="n">MagStatsException</span><span class="p">(</span>
+            <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Exception at end of get_agasc_id_stats: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span></div>
+
+
+<div class="viewcode-block" id="get_agasc_id_stats_pool"><a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_id_stats_pool</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                            <span class="n">no_progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call update_mag_stats.get_agasc_id_stats multiple times using a multiprocessing.Pool</span>
+
+<span class="sd">    :param agasc_ids: list</span>
+<span class="sd">    :param obs_status_override: dict.</span>
+<span class="sd">        Dictionary overriding the OK flag for specific observations.</span>
+<span class="sd">        Keys are (OBSID, AGASC ID) pairs, values are dictionaries like</span>
+<span class="sd">        {&#39;obs_ok&#39;: True, &#39;comments&#39;: &#39;some comment&#39;}</span>
+<span class="sd">    :param batch_size: int</span>
+<span class="sd">    :param tstop: cxotime-compatible timestamp</span>
+<span class="sd">        Only observations prior to this timestamp are considered.</span>
+<span class="sd">    :return: astropy.table.Table, astropy.table.Table, list</span>
+<span class="sd">        obs_stats, agasc_stats, fails, failed_jobs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">vstack</span><span class="p">,</span> <span class="n">Table</span>
+
+    <span class="k">if</span> <span class="n">obs_status_override</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">obs_status_override</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">finished</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Processing </span><span class="si">{</span><span class="n">batch_size</span><span class="si">}</span><span class="s1"> stars per job&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">])</span>
+    <span class="k">with</span> <span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">get_agasc_id_stats</span><span class="p">,</span>
+                                         <span class="p">[</span><span class="n">arg</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="p">,</span> <span class="n">tstop</span><span class="p">,</span> <span class="kc">True</span><span class="p">]))</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;progress&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">no_progress</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;job&#39;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">finished</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">jobs</span><span class="p">):</span>
+            <span class="n">finished</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">ready</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">finished</span> <span class="o">-</span> <span class="n">bar</span><span class="o">.</span><span class="n">n</span><span class="p">:</span>
+                <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">finished</span> <span class="o">-</span> <span class="n">bar</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">fails</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">job</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">jobs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">successful</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">job</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
+                <span class="n">fails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">mag_estimate</span><span class="o">.</span><span class="n">MagStatsException</span><span class="p">(</span><span class="n">agasc_id</span><span class="o">=</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Failed job: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="p">))</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">job</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">jobs</span> <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">successful</span><span class="p">()]</span>
+
+    <span class="n">obs_stats</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">agasc_stats</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">)</span> <span class="k">if</span> <span class="n">obs_stats</span> <span class="k">else</span> <span class="n">Table</span><span class="p">()</span>
+    <span class="n">agasc_stats</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span> <span class="k">if</span> <span class="n">agasc_stats</span> <span class="k">else</span> <span class="n">Table</span><span class="p">()</span>
+    <span class="n">fails</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="p">[])</span>
+
+    <span class="k">return</span> <span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span></div>
+
+
+<span class="k">def</span> <span class="nf">_update_table</span><span class="p">(</span><span class="n">table_old</span><span class="p">,</span> <span class="n">table_new</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+    <span class="c1"># checking names, because actual types change upon saving in fits format</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">table_old</span><span class="o">.</span><span class="n">colnames</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">table_new</span><span class="o">.</span><span class="n">colnames</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s1">&#39;Tables have different columns:&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">table_old</span><span class="o">.</span><span class="n">colnames</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  </span><span class="si">{</span><span class="n">table_new</span><span class="o">.</span><span class="n">colnames</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+    <span class="n">table_old</span> <span class="o">=</span> <span class="n">table_old</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">new_row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table_new</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">i_new</span><span class="p">,</span> <span class="n">i_old</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">table_new</span><span class="p">[</span><span class="n">keys</span><span class="p">]</span><span class="o">.</span><span class="n">as_array</span><span class="p">(),</span>
+                                     <span class="n">table_old</span><span class="p">[</span><span class="n">keys</span><span class="p">]</span><span class="o">.</span><span class="n">as_array</span><span class="p">(),</span>
+                                     <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">new_row</span><span class="p">[</span><span class="n">i_new</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">table_old</span><span class="o">.</span><span class="n">as_array</span><span class="p">()</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
+    <span class="n">table_old</span><span class="p">[</span><span class="n">i_old</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="n">columns</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">table_old</span><span class="p">,</span> <span class="n">table_new</span><span class="p">[</span><span class="n">new_row</span><span class="p">][</span><span class="n">columns</span><span class="p">]])</span>
+
+
+<div class="viewcode-block" id="update_mag_stats"><a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats">[docs]</a><span class="k">def</span> <span class="nf">update_mag_stats</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the mag_stats catalog.</span>
+
+<span class="sd">    I currently save three files:</span>
+<span class="sd">    - mag_stats_agasc.fits with stats for each AGASC ID</span>
+<span class="sd">    - mag_stats_obsid.fits with stats for each OBSID</span>
+<span class="sd">    - mag_stats_fails.pkl with a list of failures</span>
+
+<span class="sd">    :param obs_stats:</span>
+<span class="sd">    :param agasc_stats:</span>
+<span class="sd">    :param fails:</span>
+<span class="sd">    :param outdir:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">agasc_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">outdir</span> <span class="o">/</span> <span class="s1">&#39;mag_stats_agasc.fits&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Updating </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">agasc_stats</span> <span class="o">=</span> <span class="n">_update_table</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">agasc_stats</span><span class="p">,</span>
+                                        <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">agasc_stats</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">AGASC_ID_STATS_INFO</span><span class="p">:</span>
+                <span class="n">agasc_stats</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">AGASC_ID_STATS_INFO</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+        <span class="n">agasc_stats</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">obs_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">outdir</span> <span class="o">/</span> <span class="s1">&#39;mag_stats_obsid.fits&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Updating </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">_update_table</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">obs_stats</span><span class="p">,</span>
+                                      <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="s1">&#39;obsid&#39;</span><span class="p">])</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">obs_stats</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">OBS_STATS_INFO</span><span class="p">:</span>
+                <span class="n">obs_stats</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">OBS_STATS_INFO</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+        <span class="n">obs_stats</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fails</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">outdir</span> <span class="o">/</span> <span class="s1">&#39;mag_stats_fails.pkl&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;A summary of all failures is saved in </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># logger.debug(f&#39;Updating {filename}&#39;)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">fails</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_supplement"><a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.update_supplement">[docs]</a><span class="k">def</span> <span class="nf">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the magnitude table of the AGASC supplement.</span>
+
+<span class="sd">    :param agasc_stats:</span>
+<span class="sd">    :param filename:</span>
+<span class="sd">    :param include_all: bool</span>
+<span class="sd">        if True, all OK entries are included in supplement.</span>
+<span class="sd">        if False, only OK entries marked &#39;selected_*&#39;</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">agasc_stats</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">include_all</span><span class="p">:</span>
+        <span class="n">outliers_new</span> <span class="o">=</span> <span class="n">agasc_stats</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;n_obsids_ok&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outliers_new</span> <span class="o">=</span> <span class="n">agasc_stats</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;n_obsids_ok&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;selected_atol&#39;</span><span class="p">]</span>
+               <span class="o">|</span> <span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;selected_rtol&#39;</span><span class="p">]</span>
+               <span class="o">|</span> <span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;selected_color&#39;</span><span class="p">]</span>
+               <span class="o">|</span> <span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;selected_mag_aca_err&#39;</span><span class="p">])</span>
+        <span class="p">]</span>
+    <span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;mag_obs&#39;</span><span class="p">]</span>
+    <span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;mag_obs_err&#39;</span><span class="p">]</span>
+
+    <span class="n">outliers_new</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">MAGS_DTYPE</span><span class="o">.</span><span class="n">names</span><span class="p">]</span><span class="o">.</span><span class="n">as_array</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">outliers_new</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">MAGS_DTYPE</span><span class="p">:</span>
+        <span class="n">outliers_new</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">MAGS_DTYPE</span><span class="p">)</span>
+
+    <span class="n">outliers</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">new_stars</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updated_stars</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="c1"># I could do what follows directly in place, but the table is not that large.</span>
+        <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;mags&#39;</span> <span class="ow">in</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+                <span class="n">outliers_current</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mags</span><span class="p">[:]</span>
+                <span class="c1"># find the indices of agasc_ids in both current and new lists</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">i_new</span><span class="p">,</span> <span class="n">i_cur</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span>
+                                                 <span class="n">outliers_current</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span>
+                                                 <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">]</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">]</span>
+
+                <span class="c1"># from those, find the ones which differ in last observation time</span>
+                <span class="n">i_cur</span> <span class="o">=</span> <span class="n">i_cur</span><span class="p">[</span><span class="n">current</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">new</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]]</span>
+                <span class="n">i_new</span> <span class="o">=</span> <span class="n">i_new</span><span class="p">[</span><span class="n">current</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">new</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]]</span>
+                <span class="c1"># overwrite current values with new values (and calculate diff to return)</span>
+                <span class="n">updated_stars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">]),</span>
+                                         <span class="n">dtype</span><span class="o">=</span><span class="n">MAGS_DTYPE</span><span class="p">)</span>
+                <span class="n">updated_stars</span><span class="p">[</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">]</span>
+                                            <span class="o">-</span> <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">][</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">])</span>
+                <span class="n">updated_stars</span><span class="p">[</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">]</span>
+                                                <span class="o">-</span> <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">][</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">])</span>
+                <span class="n">updated_stars</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span>
+                <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">]</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">]</span>
+
+                <span class="c1"># find agasc_ids in new list but not in current list</span>
+                <span class="n">new_stars</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span> <span class="n">outliers_current</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])</span>
+                <span class="c1"># and add them to the current list</span>
+                <span class="n">outliers_current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">outliers_current</span><span class="p">,</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">new_stars</span><span class="p">]])</span>
+                <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">outliers_current</span><span class="p">)</span>
+
+                <span class="n">new_stars</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">new_stars</span><span class="p">][</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">outliers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Creating new &quot;mags&quot; table&#39;</span><span class="p">)</span>
+        <span class="n">outliers</span> <span class="o">=</span> <span class="n">outliers_new</span>
+        <span class="n">new_stars</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span>
+        <span class="n">updated_stars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MAGS_DTYPE</span><span class="p">)</span>
+
+    <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;r+&#39;</span> <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;w&#39;</span>
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;mags&#39;</span> <span class="ow">in</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+            <span class="n">h5</span><span class="o">.</span><span class="n">remove_node</span><span class="p">(</span><span class="s1">&#39;/mags&#39;</span><span class="p">)</span>
+        <span class="n">h5</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;mags&#39;</span><span class="p">,</span> <span class="n">outliers</span><span class="p">)</span>
+    <span class="n">save_version</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;mags&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_stars</span><span class="p">,</span> <span class="n">updated_stars</span></div>
+
+
+<span class="k">def</span> <span class="nf">write_obs_status_yaml</span><span class="p">(</span><span class="n">obs_stats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fails</span><span class="o">=</span><span class="p">(),</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">obs_stats</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">):</span>
+        <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">obs_stats</span><span class="p">[</span><span class="o">~</span><span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;obs_ok&#39;</span><span class="p">]]</span>
+        <span class="n">mp_starcat_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">mp_starcat_time</span> <span class="ow">in</span> <span class="n">mp_starcat_times</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">obs_stats</span><span class="p">[</span><span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">mp_starcat_time</span><span class="p">]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">)</span>
+            <span class="n">obs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">:</span> <span class="n">mp_starcat_time</span><span class="p">,</span>
+                <span class="s1">&#39;obsid&#39;</span><span class="p">:</span> <span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;agasc_id&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]),</span>
+                <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span>
+            <span class="p">})</span>
+    <span class="k">for</span> <span class="n">fail</span> <span class="ow">in</span> <span class="n">fails</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fail</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">fail</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">mp_starcat_times</span> <span class="o">=</span> <span class="n">fail</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fail</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">list</span> \
+            <span class="k">else</span> <span class="p">[</span><span class="n">fail</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]]</span>
+        <span class="n">agasc_id</span> <span class="o">=</span> <span class="n">fail</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">mp_starcat_time</span> <span class="ow">in</span> <span class="n">mp_starcat_times</span><span class="p">:</span>
+            <span class="n">obs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">:</span> <span class="n">mp_starcat_time</span><span class="p">,</span>
+                <span class="s1">&#39;obsid&#39;</span><span class="p">:</span> <span class="n">fail</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;agasc_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">agasc_id</span><span class="p">],</span>
+                <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="n">fail</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">]</span>
+            <span class="p">})</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">filename</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="n">agasc_ids</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">:</span>
+        <span class="n">cat</span> <span class="o">=</span> <span class="n">get_starcheck_catalog</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">cat</span><span class="p">:</span>
+            <span class="n">cat</span> <span class="o">=</span> <span class="n">cat</span><span class="p">[</span><span class="s1">&#39;cat&#39;</span><span class="p">]</span>
+            <span class="n">maxmags</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cat</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">cat</span><span class="p">[</span><span class="s1">&#39;maxmag&#39;</span><span class="p">]))</span>
+            <span class="n">agasc_ids</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">maxmags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">agasc_ids</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">obs</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]]</span>
+
+    <span class="n">agasc_ids</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">))</span>
+
+    <span class="n">yaml_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2"># See https://sot.github.io/agasc/supplement.html for detailed guidance.</span>
+<span class="s2">#</span>
+<span class="s2"># After reviewing and updating this file, run as `aca`:</span>
+<span class="s2">#   agasc-supplement-tasks disposition</span>
+<span class="s2"># Check the diffs at:</span>
+<span class="s2">#   https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement/agasc_supplement_diff.html</span>
+<span class="s2"># After reviewing the post-disposition email with diffs, run as `aca`:</span>
+<span class="s2">#   agasc-supplement-tasks schedule-promotion</span>
+<span class="s2">#</span>
+<span class="s2"># Replace BAD_STAR_CODE with one of the following bad star codes:</span>
+<span class="s2">#  9: Bad star added based on automated magnitude processing. Magnitude is a lower bound, set to MAXMAG.</span>
+<span class="s2"># 10: Bad star added manually due to bad position (bad catalog position or high or missing proper motion)</span>
+<span class="s2"># 11: Bad star added based on automated magnitude processing. Magnitude is an upper bound.</span>
+<span class="s2"># 12: Bad star added based on automated magnitude processing. Magnitude set manually.</span>
+<span class="s2"># 13: Bad star added based on automated magnitude processing. Star shows variability not captured in VAR.</span>
+<span class="s2"># See also: https://github.com/sot/agasc/wiki/Add-bad-star-to-AGASC-supplement-manually</span>
+<span class="s2">bad:</span>
+<span class="s2">  {</span><span class="si">%- f</span><span class="s2">or agasc_id, maxmag in agasc_ids.items() %}</span>
+<span class="s2">  {{ agasc_id }}: BAD_STAR_CODE</span>
+<span class="s2">  {</span><span class="si">%- e</span><span class="s2">ndfor %}</span>
+<span class="s2">#</span>
+<span class="s2"># Mags below assume that the star is not detected and uses the star max mag.</span>
+<span class="s2"># Edit accordingly if this is not the case.</span>
+<span class="s2">mags:</span>
+<span class="s2">  {</span><span class="si">%- f</span><span class="s2">or agasc_id, maxmag in agasc_ids.items() %}</span>
+<span class="s2">  - agasc_id: {{ agasc_id }}</span>
+<span class="s2">    mag_aca: {{ maxmag }}</span>
+<span class="s2">    mag_aca_err: 0.1</span>
+<span class="s2">  {</span><span class="si">%- e</span><span class="s2">ndfor %}</span>
+<span class="s2">#</span>
+<span class="s2"># status: 0 = star-obs is OK and mag data should be used =&gt; REMOVE the mags entry</span>
+<span class="s2">#         1 = star-obs is bad/unreliable =&gt; use mags values above</span>
+<span class="s2"># comments: see the Rubric in https://sot.github.io/agasc/supplement.html</span>
+<span class="s2">#   Most commonly:</span>
+<span class="s2">#     &quot;Never acquired&quot; (status=1)</span>
+<span class="s2">#     &quot;Almost never acquired&quot; (status=0 or 1, depending on data quality)</span>
+<span class="s2">#     &quot;Faint star&quot; (status=0)</span>
+<span class="s2">obs:</span>
+<span class="s2">  {</span><span class="si">%- f</span><span class="s2">or obs in observations %}</span>
+<span class="s2">  - mp_starcat_time: {{ obs.mp_starcat_time }}</span>
+<span class="s2">    obsid: {{ obs.obsid }}</span>
+<span class="s2">    status: {{ obs.status }}</span>
+<span class="s2">    agasc_id: [{</span><span class="si">% f</span><span class="s2">or agasc_id in obs.agasc_id -%}</span>
+<span class="s2">                  {{ agasc_id }}{</span><span class="si">%- i</span><span class="s2">f not loop.last %}, {</span><span class="si">% e</span><span class="s2">ndif -%}</span>
+<span class="s2">               {</span><span class="si">%- e</span><span class="s2">ndfor -%}]</span>
+<span class="s2">    comments: {{ obs.comments }}</span>
+<span class="s2">  {</span><span class="si">%- e</span><span class="s2">ndfor %}</span>
+<span class="s2">&quot;&quot;&quot;</span>  <span class="c1"># noqa</span>
+    <span class="n">tpl</span> <span class="o">=</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">Template</span><span class="p">(</span><span class="n">yaml_template</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tpl</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">observations</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">agasc_ids</span><span class="o">=</span><span class="n">agasc_ids</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="do"><a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.do">[docs]</a><span class="k">def</span> <span class="nf">do</span><span class="p">(</span><span class="n">start</span><span class="p">,</span>
+       <span class="n">stop</span><span class="p">,</span>
+       <span class="n">output_dir</span><span class="p">,</span>
+       <span class="n">agasc_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+       <span class="n">report</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+       <span class="n">reports_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+       <span class="n">report_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+       <span class="n">multi_process</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+       <span class="n">include_bad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+       <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+       <span class="n">no_progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+       <span class="n">email</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+       <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    :param start: cxotime.CxoTime</span>
+<span class="sd">        Start time. Only stars with at least one observation between start/stop are considered.</span>
+<span class="sd">    :param stop: cxotime.CxoTime</span>
+<span class="sd">        Stop time. Only stars with at least one observation between start/stop are considered.</span>
+<span class="sd">    :param output_dir: pathlib.Path</span>
+<span class="sd">        Directory where to place all output.</span>
+<span class="sd">    :param agasc_ids: list</span>
+<span class="sd">        List of AGASC IDs. Otional. If not given, all observations within start/stop are used.</span>
+<span class="sd">    :param report: bool</span>
+<span class="sd">        Generate an HTML report.</span>
+<span class="sd">    :param reports_dir: pathlib.Path</span>
+<span class="sd">        Directory where to write reports.</span>
+<span class="sd">    :param report_date: cxotime.CxoTime</span>
+<span class="sd">        The report date (report_date.date[:8] will be the report directory name)</span>
+<span class="sd">    :param multi_process: bool</span>
+<span class="sd">        Run on mulyiple processes.</span>
+<span class="sd">    :param include_bad: bool</span>
+<span class="sd">        Consider stars that are in the &#39;bad&#39; supplement table.</span>
+<span class="sd">    :param dry_run: bool</span>
+<span class="sd">        Only parse options and not actually run the magnitude estimates</span>
+<span class="sd">    :param no_progress: bool</span>
+<span class="sd">        Hide progress bar</span>
+<span class="sd">    :param email: str</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># PyTables is not really unicode-compatible, but python 3 is basically unicode.</span>
+    <span class="c1"># For our purposes, PyTables works. It would fail with characters that can not be written</span>
+    <span class="c1"># as ascii. It displays a warning which I want to avoid:</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">tables</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">FlavorWarning</span><span class="p">)</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;agasc_supplement.h5&#39;</span>
+
+    <span class="k">if</span> <span class="n">multi_process</span><span class="p">:</span>
+        <span class="n">get_stats</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">get_agasc_id_stats_pool</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">get_stats</span> <span class="o">=</span> <span class="n">get_agasc_id_stats</span>
+
+    <span class="n">skip</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">agasc_ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">obs_in_time</span> <span class="o">=</span> <span class="p">((</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span>
+                       <span class="o">&amp;</span> <span class="p">(</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">stop</span><span class="p">))</span>
+        <span class="n">agasc_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="n">obs_in_time</span><span class="p">][</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">agasc_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">,</span> <span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])</span>
+        <span class="n">skip</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">agasc_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">)</span>
+    <span class="n">stars_obs</span> <span class="o">=</span> <span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span> <span class="n">agasc_ids</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># if supplement exists:</span>
+    <span class="c1"># - drop bad stars</span>
+    <span class="c1"># - get OBS status override</span>
+    <span class="c1"># - get the latest observation for each agasc_id,</span>
+    <span class="c1"># - find the ones already in the supplement</span>
+    <span class="c1"># - include only the ones with supplement.last_obs_time &lt; than stars_obs.mp_starcat_time</span>
+    <span class="n">obs_status_override</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">include_bad</span> <span class="ow">and</span> <span class="s1">&#39;bad&#39;</span> <span class="ow">in</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Excluding bad stars&#39;</span><span class="p">)</span>
+                <span class="n">stars_obs</span> <span class="o">=</span> <span class="n">stars_obs</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">stars_obs</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">bad</span><span class="p">[:][</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])]</span>
+
+            <span class="k">if</span> <span class="s1">&#39;obs&#39;</span> <span class="ow">in</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="p">:</span>
+                <span class="n">obs_status_override</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">obs</span><span class="p">[:])</span>
+                <span class="n">obs_status_override</span><span class="o">.</span><span class="n">convert_bytestring_to_unicode</span><span class="p">()</span>
+                <span class="n">obs_status_override</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]):</span>
+                        <span class="p">{</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">],</span> <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;comments&#39;</span><span class="p">]}</span>
+                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">obs_status_override</span>
+                <span class="p">}</span>
+            <span class="k">if</span> <span class="s1">&#39;mags&#39;</span> <span class="ow">in</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stars_obs</span><span class="p">):</span>
+                <span class="n">outliers_current</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mags</span><span class="p">[:]</span>
+                <span class="n">times</span> <span class="o">=</span> <span class="n">stars_obs</span><span class="p">[[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span>
+                    <span class="s1">&#39;agasc_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">CxoTime</span><span class="p">(</span><span class="n">d</span><span class="p">))</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">outliers_current</span><span class="p">):</span>
+                    <span class="n">times</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">times</span><span class="p">,</span>
+                                       <span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">outliers_current</span><span class="p">[[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">,</span> <span class="s1">&#39;last_obs_time&#39;</span><span class="p">]]),</span>
+                                       <span class="n">join_type</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">times</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">MaskedColumn</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">mags</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]),</span>
+                        <span class="n">mask</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">],</span> <span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+                        <span class="c1"># the mask exists if there are stars in stars_obs</span>
+                        <span class="c1"># that are not in outliers_current</span>
+                        <span class="n">update</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span>
+                                  <span class="o">|</span> <span class="p">((</span><span class="o">~</span><span class="n">times</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+                                     <span class="o">&amp;</span> <span class="p">(</span><span class="n">CxoTime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">cxcsec</span>
+                                        <span class="o">&gt;</span> <span class="n">times</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                                  <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">update</span> <span class="o">=</span> <span class="p">(</span><span class="n">CxoTime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">cxcsec</span> <span class="o">&gt;</span> <span class="n">times</span><span class="p">[</span><span class="s1">&#39;last_obs_time&#39;</span><span class="p">])</span>
+
+                    <span class="n">stars_obs</span> <span class="o">=</span> <span class="n">stars_obs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">stars_obs</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span> <span class="n">times</span><span class="p">[</span><span class="n">update</span><span class="p">][</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])]</span>
+                    <span class="n">agasc_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">stars_obs</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">update</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">update</span><span class="p">):</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">update</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">update</span><span class="p">)</span><span class="si">}</span><span class="s1"> &#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;stars already in the supplement&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stars_obs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are no new observations to process&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># do the processing</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Will process </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">)</span><span class="si">}</span><span class="s1"> stars on </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stars_obs</span><span class="p">)</span><span class="si">}</span><span class="s1"> observations&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;from </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">stop</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span> <span class="o">=</span> \
+        <span class="n">get_stats</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+                  <span class="n">obs_status_override</span><span class="o">=</span><span class="n">obs_status_override</span><span class="p">,</span>
+                  <span class="n">no_progress</span><span class="o">=</span><span class="n">no_progress</span><span class="p">)</span>
+
+    <span class="n">failed_global</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fails</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]]</span>
+    <span class="n">failed_stars</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fails</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]]</span>
+    <span class="n">failed_obs</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fails</span> <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]]</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Got:</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="mi">0</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">obs_stats</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">)</span><span class="si">}</span><span class="s1"> OBSIDs,&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="mi">0</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">agasc_stats</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span><span class="si">}</span><span class="s1"> stars,&#39;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">failed_obs</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed_obs</span><span class="p">)</span><span class="si">}</span><span class="s1"> failed observations,&#39;</span>
+    <span class="k">if</span> <span class="n">failed_stars</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed_stars</span><span class="p">)</span><span class="si">}</span><span class="s1"> failed stars,&#39;</span>
+    <span class="k">if</span> <span class="n">failed_global</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed_global</span><span class="p">)</span><span class="si">}</span><span class="s1"> global errors&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">output_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">update_mag_stats</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+
+    <span class="n">obs_status_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;obs_status.yml&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">write_obs_status_yaml</span><span class="p">([],</span> <span class="n">fails</span><span class="o">=</span><span class="n">failed_obs</span> <span class="o">+</span> <span class="n">failed_stars</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">obs_status_file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to write </span><span class="si">{</span><span class="n">obs_status_file</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">new_stars</span><span class="p">,</span> <span class="n">updated_stars</span> <span class="o">=</span> <span class="n">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_stars</span><span class="p">)</span><span class="si">}</span><span class="s1"> new stars, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">)</span><span class="si">}</span><span class="s1"> updated stars&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">agasc_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">email</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">bad_obs</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">stop</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="o">~</span><span class="n">obs_stats</span><span class="p">[</span><span class="s1">&#39;obs_ok&#39;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">bad_obs</span><span class="p">):</span>
+                    <span class="n">msr</span><span class="o">.</span><span class="n">email_bad_obs_report</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">[</span><span class="n">bad_obs</span><span class="p">],</span> <span class="n">to</span><span class="o">=</span><span class="n">email</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error sending email to </span><span class="si">{</span><span class="n">email</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">report</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">report_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">report_dir</span> <span class="o">=</span> <span class="n">reports_dir</span>
+            <span class="n">report_data_file</span> <span class="o">=</span> <span class="n">report_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;report_data.pkl&#39;</span>
+            <span class="n">nav_links</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">report_date</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">report_dir</span> <span class="o">=</span> <span class="n">reports_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">report_date</span><span class="o">.</span><span class="n">date</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">report_data_file</span> <span class="o">=</span> <span class="n">report_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;report_data_</span><span class="si">{</span><span class="n">report_date</span><span class="o">.</span><span class="n">date</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s1">.pkl&#39;</span>
+
+            <span class="n">week</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">TimeDelta</span><span class="p">(</span><span class="mi">7</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+            <span class="n">nav_links</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;previous&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;../</span><span class="si">{</span><span class="p">(</span><span class="n">report_date</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">week</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s1">/index.html&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;up&#39;</span><span class="p">:</span> <span class="s1">&#39;..&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;next&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;../</span><span class="si">{</span><span class="p">(</span><span class="n">report_date</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">week</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s1">/index.html&#39;</span>
+            <span class="p">}</span>
+
+        <span class="c1"># If the report data file exists, the arguments for the report from the file are</span>
+        <span class="c1"># modified according to the current run. Otherwise, they are created from scratch.</span>
+        <span class="k">if</span> <span class="n">report_data_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">report_data_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">report_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading existing report data from </span><span class="si">{</span><span class="n">report_data_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">multi_star_html_args</span> <span class="o">=</span> <span class="n">report_data</span><span class="p">[</span><span class="s1">&#39;args&#39;</span><span class="p">]</span>
+
+            <span class="c1"># arguments for the report are modified here</span>
+            <span class="c1"># merge fails:</span>
+            <span class="c1"># - from previous run, take fails that were not run just now</span>
+            <span class="c1"># - add current fails</span>
+            <span class="n">multi_star_html_args</span><span class="p">[</span><span class="s1">&#39;fails&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fails</span>
+            <span class="n">multi_star_html_args</span><span class="p">[</span><span class="s1">&#39;no_progress&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_progress</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sections</span> <span class="o">=</span> <span class="p">[{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;new_stars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;New Stars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;stars&#39;</span><span class="p">:</span> <span class="n">new_stars</span>
+            <span class="p">},</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;updated_stars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Updated Stars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;stars&#39;</span><span class="p">:</span> <span class="n">updated_stars</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">},</span> <span class="p">{</span>
+                <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;other_stars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Other Stars&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;stars&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">][</span>
+                    <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span> <span class="n">new_stars</span><span class="p">)</span>
+                    <span class="o">&amp;</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">],</span> <span class="n">updated_stars</span><span class="p">[</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">])</span>
+                <span class="p">])</span>
+            <span class="p">}</span>
+            <span class="p">]</span>
+
+            <span class="n">multi_star_html_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;index.html&#39;</span><span class="p">,</span>
+                <span class="n">sections</span><span class="o">=</span><span class="n">sections</span><span class="p">,</span>
+                <span class="n">updated_stars</span><span class="o">=</span><span class="n">updated_stars</span><span class="p">,</span>
+                <span class="n">fails</span><span class="o">=</span><span class="n">fails</span><span class="p">,</span>
+                <span class="n">report_date</span><span class="o">=</span><span class="n">report_date</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+                <span class="n">tstart</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+                <span class="n">tstop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+                <span class="n">nav_links</span><span class="o">=</span><span class="n">nav_links</span><span class="p">,</span>
+                <span class="n">include_all_stars</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">no_progress</span><span class="o">=</span><span class="n">no_progress</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">report</span> <span class="o">=</span> <span class="n">msr</span><span class="o">.</span><span class="n">MagEstimateReport</span><span class="p">(</span>
+                <span class="n">agasc_stats</span><span class="o">=</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;mag_stats_agasc.fits&#39;</span><span class="p">,</span>
+                <span class="n">obs_stats</span><span class="o">=</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;mag_stats_obsid.fits&#39;</span><span class="p">,</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">report_dir</span>
+            <span class="p">)</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">multi_star_html</span><span class="p">(</span><span class="o">**</span><span class="n">multi_star_html_args</span><span class="p">)</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="n">reports_dir</span> <span class="o">/</span> <span class="s1">&#39;latest&#39;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">lexists</span><span class="p">(</span><span class="n">latest</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Removing existing &quot;latest&quot; symlink&#39;</span><span class="p">)</span>
+                <span class="n">latest</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Creating &quot;latest&quot; symlink&#39;</span><span class="p">)</span>
+            <span class="n">latest</span><span class="o">.</span><span class="n">symlink_to</span><span class="p">(</span><span class="n">report_dir</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">report_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Error when creating report: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">trace</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">level</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">report_data_file</span> <span class="o">=</span> <span class="n">report_dir</span> <span class="o">/</span> <span class="n">report_data_file</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">report_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">report_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">report_data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;args&#39;</span><span class="p">:</span> <span class="n">multi_star_html_args</span><span class="p">,</span>
+                <span class="s1">&#39;directory&#39;</span><span class="p">:</span> <span class="n">report_dir</span>
+            <span class="p">}</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">report_data_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">report_data</span><span class="p">,</span> <span class="n">fh</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Report data saved in </span><span class="si">{</span><span class="n">report_data_file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Nothing to report (no stars)&#39;</span><span class="p">)</span>
+
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;done at </span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

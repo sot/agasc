@@ -1,18 +1,17 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.15.0 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.16.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -46,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.15.0 documentation</a>
+	<a href="../../index.html">Agasc 4.16.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -112,7 +111,7 @@
 
 <div class="viewcode-block" id="set_supplement_enabled"><a class="viewcode-back" href="../../api.html#agasc.agasc.set_supplement_enabled">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">set_supplement_enabled</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Decorator / context manager to temporarily set the default for use of</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator / context manager to temporarily set the default for use of</span>
 <span class="sd">    AGASC supplement in query functions.</span>
 
 <span class="sd">    This sets the default for the ``use_supplement`` argument in AGASC function</span>
@@ -198,7 +197,7 @@
 
 
 <div class="viewcode-block" id="sphere_dist"><a class="viewcode-back" href="../../api.html#agasc.agasc.sphere_dist">[docs]</a><span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Haversine formula for angular distance on a sphere: more stable at poles.</span>
 <span class="sd">    This version uses arctan instead of arcsin and thus does better with sign</span>
 <span class="sd">    conventions.  This uses numexpr to speed expression evaluation by a factor</span>
@@ -225,7 +224,7 @@
 
 
 <span class="k">def</span> <span class="nf">update_color1_column</span><span class="p">(</span><span class="n">stars</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For any stars which have a V-I color (RSV3 &gt; 0) and COLOR1 == 1.5</span>
 <span class="sd">    then set COLOR1 = COLOR2 * 0.850.  For such stars the MAG_ACA / MAG_ACA_ERR</span>
 <span class="sd">    values are reliable and they should not be flagged with a COLOR1 = 1.5,</span>
@@ -254,7 +253,7 @@
 
 
 <span class="k">def</span> <span class="nf">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table ``stars``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table ``stars``.</span>
 
 <span class="sd">    This computes the PM-corrected RA and Dec of all ``stars`` using the supplied</span>
 <span class="sd">    ``date``, which may be a scalar or an array-valued object (np.array or list).</span>
@@ -292,7 +291,7 @@
 
 <div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.</span>
 
 <span class="sd">    The star positions are corrected for proper motion using the ``date``</span>
@@ -352,7 +351,7 @@
 
 
 <div class="viewcode-block" id="get_star"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_star">[docs]</a><span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entry for star with requested id.</span>
 
 <span class="sd">    {common_doc}</span>
@@ -448,7 +447,7 @@
 
 <div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method_threshold</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
               <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries for star ``ids`` at ``dates``.</span>
 
 <span class="sd">    The input ``ids`` and ``dates`` are broadcast together for the output shape</span>
@@ -536,7 +535,7 @@
 
 
 <span class="k">def</span> <span class="nf">update_from_supplement</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Update mag, color1 and class information from AGASC supplement in ``stars``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update mag, color1 and class information from AGASC supplement in ``stars``.</span>
 
 <span class="sd">    Stars with available mag estimates in the AGASC supplement are updated</span>
 <span class="sd">    in-place in the input ``stars`` Table:</span>
@@ -574,7 +573,7 @@
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set star[name] = value if ``name`` is a column in the table&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set star[name] = value if ``name`` is a column in the table&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -629,7 +628,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>
