@@ -83,7 +83,6 @@ def get_stars_from_healpix_h5(
     dec: float,
     radius: float,
     agasc_file: str | Path,
-    columns: Optional[list[str] | tuple[str]] = None,
     cache: bool = False,
 ) -> Table:
     """
@@ -100,8 +99,6 @@ def get_stars_from_healpix_h5(
         Radius of the search cone, in degrees.
     agasc_file : str or Path
         Path to the HDF5 file containing the AGASC data with a HEALPix index.
-    columns : list or tuple, optional
-        The columns to read from the AGASC file. If not specified, all columns are read.
     cache : bool, optional
         Whether to cache the AGASC data in memory. Default is False.
 
@@ -126,7 +123,7 @@ def get_stars_from_healpix_h5(
     def make_stars_list(h5_file):
         for healpix_index in healpix_indices:
             idx0, idx1 = healpix_index_map[healpix_index]
-            stars = read_h5_table(h5_file, columns, row0=idx0, row1=idx1, cache=cache)
+            stars = read_h5_table(h5_file, row0=idx0, row1=idx1, cache=cache)
             stars_list.append(stars)
 
     if cache:

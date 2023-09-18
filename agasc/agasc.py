@@ -24,19 +24,6 @@ SUPPLEMENT_ENABLED_DEFAULT = 'True'
 MAG_CATID_SUPPLEMENT = 100
 BAD_CLASS_SUPPLEMENT = 100
 
-# Columns that are required for calls to get_agasc_cone and get_star(s)
-COLUMNS_REQUIRED = [
-    "AGASC_ID",
-    "RA",
-    "DEC",
-    "EPOCH",
-    "PM_DEC",
-    "PM_RA",
-    "COLOR1",
-    "RSV3",
-    "COLOR2",
-]
-
 RA_DECS_CACHE = {}
 
 COMMON_DOC = """By default, stars with available mag estimates or bad star entries
@@ -151,29 +138,25 @@ def get_ra_decs(agasc_file):
 
 def read_h5_table(
         h5_file: str | Path | tables.file.File,
-        columns: Optional[list | tuple] = None,
         row0: Optional[int] = None,
         row1: Optional[int] = None,
         path="data",
         cache=False,
     ) -> np.ndarray:
     """
-    Read HDF5 table ``columns`` from group ``path`` in ``h5_file``.
+    Read HDF5 table from group ``path`` in ``h5_file``.
 
     If ``row0`` and ``row1`` are specified then only the rows in that range are read,
     e.g. ``data[row0:row1]``.
 
     If ``cache`` is ``True`` then the data for the last read is cached in memory. The
-    cache key is ``(h5_file, columns, row0, row1, path)`` and only one cache entry is
-    kept. It is typically not useful to cache the read if ``row0`` or ``row1`` are
-    specified.
+    cache key is ``(h5_file, path)`` and only one cache entry is kept. If ``h5_file``
+    is an HDF5 file object then the filename is used as the cache key.
 
     Parameters
     ----------
     h5_file : str, Path, tables.file.File
-        Path to the HDF5 file to read.
-    columns : list or tuple, optional
-        Column names to read from the file. If not specified, all columns are read.
+        Path to the HDF5 file to read or an open HDF5 file from ``tables.open_file``.
     row0 : int, optional
         First row to read. Default is None (read from first row).
     row1 : int, optional
@@ -188,16 +171,13 @@ def read_h5_table(
     out : np.ndarray
         The HDF5 data as a numpy structured array
     """
-    if columns is not None:
-        columns = tuple(columns)
-
     if cache:
         if isinstance(h5_file, tables.file.File):
             h5_file = h5_file.filename
-        data = _read_h5_table_cached(h5_file, columns, path)
+        data = _read_h5_table_cached(h5_file, path)
         out = data[row0:row1]
     else:
-        out = _read_h5_table(h5_file, columns, path, row0, row1)
+        out = _read_h5_table(h5_file, path, row0, row1)
 
     return out
 
@@ -205,35 +185,29 @@ def read_h5_table(
 @functools.lru_cache(maxsize=1)
 def _read_h5_table_cached(
     h5_file: str | Path,
-    columns: tuple,
     path: str,
 ) -> np.ndarray:
-    return _read_h5_table(h5_file, columns, path, row0=None, row1=None)
+    return _read_h5_table(h5_file, path, row0=None, row1=None)
 
 
 def _read_h5_table(
         h5_file: str | Path | tables.file.File,
-        columns: tuple,
         path: str,
         row0: None | int,
         row1: None | int,
     ) -> np.ndarray:
     if isinstance(h5_file, tables.file.File):
-        out = _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5_file)
+        out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1)
     else:
         with tables.open_file(h5_file) as h5:
-            out = _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5)
+            out = _read_h5_table_from_open_h5_file(h5, path, row0, row1)
 
     out = np.asarray(out)  # Convert to structured ndarray (not recarray)
     return out
 
-def _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5):
+def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
     data = getattr(h5.root, path)
-    if columns:
-        out = {col: data.read(field=col, start=row0, stop=row1) for col in columns}
-        out = np.rec.fromarrays(list(out.values()), names=list(out.keys()))
-    else:
-        out = data.read(start=row0, stop=row1)
+    out = data.read(start=row0, stop=row1)
     return out
 
 
@@ -332,7 +306,7 @@ def add_pmcorr_columns(stars, date):
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
                    pm_filter=True, fix_color1=True, use_supplement=None,
-                   columns=None, cache=False):
+                   cache=False):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -358,7 +332,6 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
     :param use_supplement: Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
-    :param columns: Columns to return (default=all)
     :param cache: Cache the AGASC data in memory (default=False)
 
     :returns: astropy Table of AGASC entries
@@ -374,18 +347,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
-    # Ensure that the columns we need are read from the AGASC file. Sort the columns
-    # so caching is effective.
-    if columns is None:
-        columns_query = None
-    else:
-        columns_set = (set(columns) | set(COLUMNS_REQUIRED)) - {
-            "RA_PMCORR",
-            "DEC_PMCORR",
-        }
-        columns_query = tuple(sorted(columns_set))
-
-    stars = get_stars_func(ra, dec, rad_pm, agasc_file, columns_query, cache)
+    stars = get_stars_func(ra, dec, rad_pm, agasc_file, cache)
     add_pmcorr_columns(stars, date)
     if fix_color1:
         update_color1_column(stars)
@@ -398,9 +360,6 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
 
     update_from_supplement(stars, use_supplement)
 
-    if columns is not None:
-        stars = Table({col: stars[col] for col in columns}, copy=False)
-
     return stars
 
 
@@ -409,7 +368,6 @@ def get_stars_from_dec_sorted_h5(
         dec: float,
         radius: float,
         agasc_file: str | Path,
-        columns: Optional[list[str] | tuple[str]] = None,
         cache: bool = False,
     ) -> Table:
     """
@@ -425,8 +383,6 @@ def get_stars_from_dec_sorted_h5(
         The radius of the search circle, in degrees.
     agasc_file : str or Path
         The path to the AGASC HDF5 file.
-    columns : list or tuple, optional
-        The columns to read from the AGASC file. If not specified, all columns are read.
     cache : bool, optional
         Whether to cache the AGASC data in memory. Default is False.
 
@@ -441,7 +397,7 @@ def get_stars_from_dec_sorted_h5(
     dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
     ok = dists <= radius
 
-    stars = read_h5_table(agasc_file, columns, row0=idx0, row1=idx1, cache=cache)
+    stars = read_h5_table(agasc_file, row0=idx0, row1=idx1, cache=cache)
     stars = Table(stars[ok])
 
     return stars
