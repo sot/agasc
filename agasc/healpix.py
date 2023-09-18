@@ -12,6 +12,7 @@ get_stars_from_healpix_h5(ra, dec, radius, agasc_file)
 
 import functools
 from pathlib import Path
+from typing import Optional
 
 import astropy.units as u
 import astropy_healpix as hpx
@@ -32,29 +33,58 @@ def is_healpix(agasc_file):
 
 @functools.lru_cache(maxsize=12)
 def get_healpix(nside):
+    """
+    Returns a HEALPix object with the specified nside and nested order.
+
+    Parameters
+    -----------
+    nside : int
+        The nside parameter for the HEALPix object.
+
+    Returns:
+    --------
+    hpx : HEALPix object
+        A HEALPix object with the specified nside and order.
+    """
     return hpx.HEALPix(nside=nside, order="nested")
 
 
 @functools.lru_cache(maxsize=8)
-def get_healpix_index(agasc_file):
+def get_healpix_info(agasc_file: str | Path) -> tuple[dict[int, tuple[int, int]], int]:
     """
     Get the healpix index table for an AGASC file.
 
     The healpix index table is a table with columns ``healpix``, ``idx0`` and ``idx1``.
     This corresponds to row ranges in the main ``data`` table in the HDF5 file.
 
-    :param agasc_file: AGASC file
-    :returns: Table healpix index for catalog
+    Parameters
+    ----------
+    agasc_file : str or Path
+        Path to the AGASC HDF5 file.
+
+    Returns
+    -------
+    healpix_index : dict
+        Dictionary of healpix index to row range.
+    nside : int
+        HEALPix nside parameter.
     """
     with tables.open_file(agasc_file, mode="r") as h5:
         tbl = h5.root.healpix_index[:]
+        nside = h5.root.healpix_index.attrs["nside"]
+
     out = {row["healpix"]: (row["row0"], row["row1"]) for row in tbl}
 
-    return out
+    return out, nside
 
 
 def get_stars_from_healpix_h5(
-    ra: float, dec: float, radius: float, agasc_file: str | Path
+    ra: float,
+    dec: float,
+    radius: float,
+    agasc_file: str | Path,
+    columns: Optional[list[str] | tuple[str]] = None,
+    cache: bool = False,
 ) -> Table:
     """
     Returns a table of stars within a given radius around a given sky position (RA, Dec),
@@ -70,29 +100,52 @@ def get_stars_from_healpix_h5(
         Radius of the search cone, in degrees.
     agasc_file : str or Path
         Path to the HDF5 file containing the AGASC data with a HEALPix index.
+    columns : list or tuple, optional
+        The columns to read from the AGASC file. If not specified, all columns are read.
+    cache : bool, optional
+        Whether to cache the AGASC data in memory. Default is False.
 
     Returns
     -------
     stars : astropy.table.Table
         Table of stars within the search cone, with columns from the AGASC data table.
     """
-    from agasc import sphere_dist
+    from agasc import sphere_dist, read_h5_table
 
     # Table of healpix, idx0, idx1 where idx is the index into main AGASC data table
-    healpix_index_map = get_healpix_index(agasc_file)
+    healpix_index_map, nside = get_healpix_info(agasc_file)
+    hp = get_healpix(nside)
+
+    # Get healpix index for ever pixel that intersects the cone.
+    healpix_indices = hp.cone_search_lonlat(
+        ra * u.deg, dec * u.deg, radius=radius * u.deg
+    )
 
     stars_list = []
-    with tables.open_file(agasc_file) as h5:
-        nside = h5.root.healpix_index.attrs["nside"]
-        hp = get_healpix(nside)
-        # Get healpix index for ever pixel that intersects the cone.
-        healpix_indices = hp.cone_search_lonlat(
-            ra * u.deg, dec * u.deg, radius=radius * u.deg
-        )
 
+    if cache:
         for healpix_index in healpix_indices:
             idx0, idx1 = healpix_index_map[healpix_index]
-            stars_list.append(h5.root.data[idx0:idx1])
+            stars = read_h5_table(agasc_file, columns, row0=idx0, row1=idx1, cache=True)
+            stars_list.append(stars)
+    else:
+        with tables.open_file(agasc_file) as h5:
+            data = h5.root.data
+
+            for healpix_index in healpix_indices:
+                idx0, idx1 = healpix_index_map[healpix_index]
+                if columns:
+                    stars_dict = {
+                        col: data.read(field=col, start=idx0, stop=idx1)
+                        for col in columns
+                    }
+                    stars = np.rec.fromarrays(
+                        list(stars_dict.values()),
+                        names=list(stars_dict.keys()),
+                    )
+                else:
+                    stars = data.read(start=idx0, stop=idx1)
+                stars_list.append(stars)
 
     stars = Table(np.concatenate(stars_list))
     dists = sphere_dist(ra, dec, stars["RA"], stars["DEC"])

@@ -60,7 +60,12 @@ def main():
     near_ids = set()
     for sp in tqdm.tqdm(nears):
         near = agasc.get_agasc_cone(
-            sp["RA"], sp["DEC"], radius=radius, date="2000:001", agasc_file=agasc_full
+            sp["RA"],
+            sp["DEC"],
+            radius=radius,
+            date="2000:001",
+            agasc_file=agasc_full,
+            use_supplement=False,
         )
         for id in near["AGASC_ID"]:
             if id != sp["AGASC_ID"]:
