@@ -10,7 +10,7 @@ of AGASC 1.7 on a local (fast) drive.
 
 Usage::
 
-  $ python make_near_neighbor_ids.py --version=1.7
+  $ python make_near_neighbor_ids.py --version=1p7
 """
 import argparse
 import os
@@ -66,13 +66,14 @@ def main():
             date="2000:001",
             agasc_file=agasc_full,
             use_supplement=False,
+            cache=True,
         )
         for id in near["AGASC_ID"]:
             if id != sp["AGASC_ID"]:
                 near_ids.add(id)
 
     t = Table([list(near_ids)], names=["near_id"])
-    t.write(f"near_neighbor_ids_{version}.fits.gz", format="fits")
+    t.write(f"near_neighbor_ids_{version}.fits.gz", format="fits", overwrite=True)
 
 
 if __name__ == "__main__":
