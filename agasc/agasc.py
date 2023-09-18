@@ -150,7 +150,7 @@ def get_ra_decs(agasc_file):
 
 
 def read_h5_table(
-        h5_file: str | Path,
+        h5_file: str | Path | tables.file.File,
         columns: Optional[list | tuple] = None,
         row0: Optional[int] = None,
         row1: Optional[int] = None,
@@ -170,7 +170,7 @@ def read_h5_table(
 
     Parameters
     ----------
-    h5_file : str, Path
+    h5_file : str, Path, tables.file.File
         Path to the HDF5 file to read.
     columns : list or tuple, optional
         Column names to read from the file. If not specified, all columns are read.
@@ -190,38 +190,50 @@ def read_h5_table(
     """
     if columns is not None:
         columns = tuple(columns)
-    read_func = _read_h5_table_cached if cache else _read_h5_table
-    out = read_func(h5_file, columns, row0, row1, path)
+
+    if cache:
+        if isinstance(h5_file, tables.file.File):
+            h5_file = h5_file.filename
+        data = _read_h5_table_cached(h5_file, columns, path)
+        out = data[row0:row1]
+    else:
+        out = _read_h5_table(h5_file, columns, path, row0, row1)
+
     return out
 
 
 @functools.lru_cache(maxsize=1)
 def _read_h5_table_cached(
-    h5_file: str,
+    h5_file: str | Path,
     columns: tuple,
-    row0: None | int,
-    row1: None | int,
     path: str,
 ) -> np.ndarray:
-    return _read_h5_table(h5_file, columns, row0, row1, path)
+    return _read_h5_table(h5_file, columns, path, row0=None, row1=None)
 
 
 def _read_h5_table(
-        h5_file: str,
+        h5_file: str | Path | tables.file.File,
         columns: tuple,
+        path: str,
         row0: None | int,
         row1: None | int,
-        path: str
     ) -> np.ndarray:
-    with tables.open_file(h5_file) as h5:
-        data = getattr(h5.root, path)
-        if columns:
-            out = {col: data.read(field=col, start=row0, stop=row1) for col in columns}
-            out = np.rec.fromarrays(list(out.values()), names=list(out.keys()))
-        else:
-            out = data.read(start=row0, stop=row1)
+    if isinstance(h5_file, tables.file.File):
+        out = _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5_file)
+    else:
+        with tables.open_file(h5_file) as h5:
+            out = _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5)
 
     out = np.asarray(out)  # Convert to structured ndarray (not recarray)
+    return out
+
+def _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5):
+    data = getattr(h5.root, path)
+    if columns:
+        out = {col: data.read(field=col, start=row0, stop=row1) for col in columns}
+        out = np.rec.fromarrays(list(out.values()), names=list(out.keys()))
+    else:
+        out = data.read(start=row0, stop=row1)
     return out
 
 
@@ -364,11 +376,15 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
 
     # Ensure that the columns we need are read from the AGASC file. Sort the columns
     # so caching is effective.
-    columns_query = (
-        None
-        if columns is None else
-        tuple(sorted(set(columns) | set(COLUMNS_REQUIRED)))
-    )
+    if columns is None:
+        columns_query = None
+    else:
+        columns_set = (set(columns) | set(COLUMNS_REQUIRED)) - {
+            "RA_PMCORR",
+            "DEC_PMCORR",
+        }
+        columns_query = tuple(sorted(columns_set))
+
     stars = get_stars_func(ra, dec, rad_pm, agasc_file, columns_query, cache)
     add_pmcorr_columns(stars, date)
     if fix_color1:

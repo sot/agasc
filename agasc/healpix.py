@@ -123,29 +123,17 @@ def get_stars_from_healpix_h5(
 
     stars_list = []
 
-    if cache:
+    def make_stars_list(h5_file):
         for healpix_index in healpix_indices:
             idx0, idx1 = healpix_index_map[healpix_index]
-            stars = read_h5_table(agasc_file, columns, row0=idx0, row1=idx1, cache=True)
+            stars = read_h5_table(h5_file, columns, row0=idx0, row1=idx1, cache=cache)
             stars_list.append(stars)
+
+    if cache:
+        make_stars_list(agasc_file)
     else:
         with tables.open_file(agasc_file) as h5:
-            data = h5.root.data
-
-            for healpix_index in healpix_indices:
-                idx0, idx1 = healpix_index_map[healpix_index]
-                if columns:
-                    stars_dict = {
-                        col: data.read(field=col, start=idx0, stop=idx1)
-                        for col in columns
-                    }
-                    stars = np.rec.fromarrays(
-                        list(stars_dict.values()),
-                        names=list(stars_dict.keys()),
-                    )
-                else:
-                    stars = data.read(start=idx0, stop=idx1)
-                stars_list.append(stars)
+            make_stars_list(h5)
 
     stars = Table(np.concatenate(stars_list))
     dists = sphere_dist(ra, dec, stars["RA"], stars["DEC"])
