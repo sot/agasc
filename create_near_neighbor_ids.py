@@ -63,7 +63,7 @@ def main():
             sp["RA"],
             sp["DEC"],
             radius=radius,
-            date="2000:001",
+            date="2024:001",
             agasc_file=agasc_full,
             use_supplement=False,
             cache=True,
