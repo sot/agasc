@@ -10,9 +10,9 @@ The output can be either ``miniagasc_<version>.h5`` or ``proseco_agasc_<version>
 The mini AGASC file is a subset of the full AGASC file that contains only the stars
 satisfying ``stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5``.
 
-The proseco AGASC file is a subset of the mini AGASC file that contains only the columns
-needed for proseco. It also includes the near-neighbor stars (which are close to a
-candidate guide or acq star) that got cut by the magnitude filter.
+The proseco AGASC file is a variation of the mini AGASC file that contains only the
+columns needed for proseco. It also adds back the near-neighbor stars (which are close
+to a candidate guide or acq star) that got cut by the magnitude filter.
 
 The script depends on the file ``agasc<version>_near_neighbor_ids.fits.gz`` which is
 created using ``create_near_neighbor_ids.py``.

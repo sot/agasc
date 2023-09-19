@@ -10,7 +10,7 @@ of AGASC 1.7 on a local (fast) drive.
 
 Usage::
 
-  $ python make_near_neighbor_ids.py --version=1p7
+  $ python create_near_neighbor_ids.py --version=1p7
 """
 import argparse
 from pathlib import Path
