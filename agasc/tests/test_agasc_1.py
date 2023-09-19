@@ -6,7 +6,8 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-from .. import agasc
+import agasc
+from agasc.agasc import update_color1_column
 
 
 def test_multi_agasc():
@@ -61,7 +62,7 @@ def test_update_color1_func():
     # Fifth is still 1.5 because RSV3=0 (no good mag available so still "bad mag")
     # Sixth now gets COLOR1 = COLOR2 * 0.850 = 2.0
     stars = Table([color1, color2, rsv3], names=['COLOR1', 'COLOR2', 'RSV3'])
-    agasc.update_color1_column(stars)
+    update_color1_column(stars)
 
     assert np.allclose(stars['COLOR1'], [1.0, 1.0, 1.5, 1.499, 1.5, 2.0])
     assert np.allclose(stars['COLOR2'], color2)
