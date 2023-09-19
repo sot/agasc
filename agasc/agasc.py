@@ -3,6 +3,7 @@ import contextlib
 import functools
 import os
 from pathlib import Path
+import re
 from typing import Optional
 
 import numexpr
@@ -12,10 +13,11 @@ from astropy.table import Column, Table
 from Chandra.Time import DateTime
 
 from .healpix import get_stars_from_healpix_h5, is_healpix
-from .paths import default_agasc_dir, default_agasc_file
+from .paths import default_agasc_dir
 from .supplement.utils import get_supplement_table
 
 __all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars', 'read_h5_table',
+           'get_agasc_filename',
            'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT',
            'set_supplement_enabled', 'SUPPLEMENT_ENABLED_ENV']
 
@@ -42,9 +44,18 @@ COMMON_DOC = """By default, stars with available mag estimates or bad star entri
     To disable the magnitude / bad star updates from the AGASC supplement, see
     the ``set_supplement_enabled`` context manager / decorator.
 
-    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
-    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
-    or ``$SKA/data/agasc``.
+    The default for ``agasc_file`` is (in order of precedence):
+    - ``${AGASC_HDF5_FILE}`` if that environment variable is defined.
+    - ``${SKA}/data/agasc/miniagasc_<version>.h5`` where ``<version>`` is the latest
+      version found in the ``${SKA}/data/agasc`` directory. This is the "full" AGASC.
+
+    If ``agasc_file`` does not end in ``.h5`` then it is interpreted as a root name for
+    versioned files within the default AGASC directory. For example, for
+    ``agasc_file="agasc"`` then the return value is ``${SKA}/data/agasc/agasc1p8.h5``
+    assuming version 1.8 is the latest full release of the AGASC.
+
+    The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
+    otherwise ``${SKA}/data/agasc``.
 
     The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``."""
 
@@ -211,6 +222,78 @@ def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
     return out
 
 
+def get_agasc_filename(agasc_file: Optional[str | Path]=None):
+    """Get a matching AGASC file name from ``agasc_file``.
+
+    If ``agasc_file`` is None the return value is (in order of precedence):
+    - ``${AGASC_HDF5_FILE}`` if that environment variable is defined.
+    - ``${SKA}/data/agasc/miniagasc<version>.h5`` where ``<version>`` is the latest
+      version found in the ``${SKA}/data/agasc`` directory. This is the "full" AGASC.
+
+    If ``agasc_file`` ends in ``.h5`` the return value is ``agasc_file``.
+
+    Other values of ``agasc_file`` are interpreted as a root name for files within
+    the default AGASC directory. The return value is the latest version of files
+    matching that root name. For example, for ``agasc_file="miniagasc"`` then the
+    return value is ``${SKA}/data/agasc/miniagasc_<version>.h5`` where ``<version>``
+    is the latest version found in the ``${SKA}/data/agasc`` directory.
+
+    File versions are required to match the pattern ``1p[0-9]+``. Note that release
+    candidate files (e.g. "agasc1p8rc3.h5") are not included, only full releases are
+    matched.
+
+    The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
+    otherwise ``${SKA}/data/agasc``.
+
+    Parameters
+    ----------
+    agasc_file : str, Path, optional
+        AGASC file name (default=None)
+
+    Returns
+    -------
+    filename : str
+        Matching AGASC file name
+
+    Raises
+    ------
+    FileNotFoundError
+        If no matching AGASC file is found.
+    """
+    if agasc_file is None:
+        agasc_file = os.environ.get('AGASC_HDF5_FILE')
+        if agasc_file is None:
+            return get_agasc_filename("miniagasc")
+
+    agasc_file = str(agasc_file)
+
+    if agasc_file.endswith('.h5'):
+        out = agasc_file
+    else:
+        # Get latest version of file matching agasc_file in the default AGASC dir
+        agasc_dir = default_agasc_dir()
+        candidates = []
+        for path in agasc_dir.glob(f"{agasc_file}*.h5"):
+            name = path.name
+            if (match := re.match(rf'{agasc_file}_?1p([0-9]+).h5', name)):
+                version = int(match.group(1))
+                candidates.append((version, path))
+
+        if len(candidates) == 0:
+            raise FileNotFoundError(
+                f"No AGASC files in {agasc_dir} found matching "
+                f"{agasc_file}_?1p([0-9]+).h5"
+            )
+        # Get candidate with highest version number. Tuples are sorted lexically starting
+        # by first element, which is the version number here.
+        out = sorted(candidates)[-1][1]
+
+    if not Path(out).exists():
+        raise FileNotFoundError(f"AGASC file {out} does not exist")
+
+    return str(out)
+
+
 def sphere_dist(ra1, dec1, ra2, dec2):
     """
     Haversine formula for angular distance on a sphere: more stable at poles.
@@ -327,7 +410,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param dec: Declination (deg)
     :param radius: Cone search radius (deg)
     :param date: Date for proper motion (default=Now)
-    :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
+    :param agasc_file: AGASC file (see ``) (optional)
     :param pm_filter: Use PM-corrected positions in filtering
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
     :param use_supplement: Use estimated mag from AGASC supplement where available
@@ -336,8 +419,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
 
     :returns: astropy Table of AGASC entries
     """
-    if agasc_file is None:
-        agasc_file = default_agasc_file()
+    agasc_file = get_agasc_filename(agasc_file)
 
     get_stars_func = (
         get_stars_from_healpix_h5
@@ -441,8 +523,7 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
     :returns: astropy Table Row of entry for id
     """
 
-    if agasc_file is None:
-        agasc_file = default_agasc_file()
+    agasc_file = get_agasc_filename(agasc_file)
 
     with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
@@ -550,9 +631,7 @@ def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
     :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input
     """
-
-    if agasc_file is None:
-        agasc_file = default_agasc_file()
+    agasc_file = get_agasc_filename(agasc_file)
 
     dates_in = DateTime(dates).date
     dates_is_scalar = np.asarray(dates_in).shape == ()

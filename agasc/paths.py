@@ -24,8 +24,9 @@ def default_agasc_dir():
 
 
 def default_agasc_file():
-    """Default main AGASC file ``agasc_dir() / miniagasc.h5``.
+    """Default main AGASC file.
 
     :returns: str
     """
-    return str(default_agasc_dir() / 'miniagasc.h5')
+    from agasc import get_agasc_filename
+    return get_agasc_filename()
