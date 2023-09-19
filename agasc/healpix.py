@@ -12,7 +12,6 @@ get_stars_from_healpix_h5(ra, dec, radius, agasc_file)
 
 import functools
 from pathlib import Path
-from typing import Optional
 
 import astropy.units as u
 import astropy_healpix as hpx
