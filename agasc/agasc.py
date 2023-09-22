@@ -225,25 +225,25 @@ def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
 def get_agasc_filename(agasc_file: Optional[str | Path]=None):
     """Get a matching AGASC file name from ``agasc_file``.
 
-    If ``agasc_file`` is None the return value is (in order of precedence):
-    - ``${AGASC_HDF5_FILE}`` if that environment variable is defined.
-    - ``${SKA}/data/agasc/miniagasc<version>.h5`` where ``<version>`` is the latest
-      version found in the ``${SKA}/data/agasc`` directory. This is the "full" AGASC.
+    The logic is best described by pseudo-code, where ``${VAR}`` is an environment
+    variable ``VAR``::
 
-    If ``agasc_file`` ends in ``.h5`` the return value is ``agasc_file``.
+      if agasc_file is None:
+          agasc_file = ${AGASC_HDF5_FILE} if defined else "miniagasc"
 
-    Other values of ``agasc_file`` are interpreted as a root name for files within
-    the default AGASC directory. The return value is the latest version of files
-    matching that root name. For example, for ``agasc_file="miniagasc"`` then the
-    return value is ``${SKA}/data/agasc/miniagasc_<version>.h5`` where ``<version>``
-    is the latest version found in the ``${SKA}/data/agasc`` directory.
+      if agasc_file ends with ".h5":
+          return agasc_file
 
-    File versions are required to match the pattern ``1p[0-9]+``. Note that release
-    candidate files (e.g. "agasc1p8rc3.h5") are not included, only full releases are
-    matched.
+      agasc_dir = ${AGASC_DIR} if defined else "${SKA}/data/agasc"
 
-    The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
-    otherwise ``${SKA}/data/agasc``.
+      if "*" not in agasc_file:
+          return agasc_dir / agasc_file + ".h5"
+
+      # Replace "*" glob with regex selecting valid full AGASC version suffix.
+      agasc_file_re = agasc_file.replace_string("*", "_?1p[0-9]+")
+
+      matches = files in agasc_dir matching agasc_file_re + ".h5"
+      return match with highest version number
 
     Parameters
     ----------
@@ -255,41 +255,76 @@ def get_agasc_filename(agasc_file: Optional[str | Path]=None):
     filename : str
         Matching AGASC file name
 
-    Raises
-    ------
-    FileNotFoundError
-        If no matching AGASC file is found.
+    Examples
+    --------
+    Setup:
+
+    >>> from agasc import get_agasc_filename
+
+    Selecting files in the default AGASC directory:
+
+    >>> get_agasc_filename()
+    '/Users/aldcroft/ska/data/agasc/miniagasc_1p7.h5'
+    >>> get_agasc_filename("miniagasc")
+    '/Users/aldcroft/ska/data/agasc/miniagasc.h5'
+    >>> get_agasc_filename("miniagasc*")
+    '/Users/aldcroft/ska/data/agasc/miniagasc_1p7.h5'
+    >>> get_agasc_filename("agas*")
+    Traceback (most recent call last):
+       ...
+    FileNotFoundError: No AGASC files in /Users/aldcroft/ska/data/agasc found matching agas*_?1p([0-9]+).h5
+
+    Selecting non-default AGASC file in the default directory:
+
+    >>> os.environ["AGASC_HDF5_FILE"] = "proseco_agasc*"
+    >>> get_agasc_filename()
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
+
+    Changing the default AGASC directory:
+
+    >>> os.environ["AGASC_DIR"] = "."
+    >>> get_agasc_filename()
+    'proseco_agasc_1p7.h5'
+
+    Selecting an arbitrary AGASC file name either directly or with the AGASC_HDF5_FILE
+    environment variable:
+
+    >>> get_agasc_filename("any_agasc.h5")
+    'any_agasc.h5'
+    >>> os.environ["AGASC_HDF5_FILE"] = "whatever.h5"
+    >>> get_agasc_filename()
+    'whatever.h5'
     """
     if agasc_file is None:
-        agasc_file = os.environ.get('AGASC_HDF5_FILE')
-        if agasc_file is None:
-            return get_agasc_filename("miniagasc")
+        agasc_file = os.environ.get('AGASC_HDF5_FILE', "miniagasc*")
 
     agasc_file = str(agasc_file)
 
     if agasc_file.endswith('.h5'):
-        out = agasc_file
-    else:
-        # Get latest version of file matching agasc_file in the default AGASC dir
-        agasc_dir = default_agasc_dir()
-        candidates = []
-        for path in agasc_dir.glob(f"{agasc_file}*.h5"):
-            name = path.name
-            if (match := re.match(rf'{agasc_file}_?1p([0-9]+).h5', name)):
-                version = int(match.group(1))
-                candidates.append((version, path))
+        return agasc_file
 
-        if len(candidates) == 0:
-            raise FileNotFoundError(
-                f"No AGASC files in {agasc_dir} found matching "
-                f"{agasc_file}_?1p([0-9]+).h5"
-            )
-        # Get candidate with highest version number. Tuples are sorted lexically starting
-        # by first element, which is the version number here.
-        out = sorted(candidates)[-1][1]
+    # Get latest version of file matching agasc_file in the default AGASC dir
+    agasc_dir = default_agasc_dir()
 
-    if not Path(out).exists():
-        raise FileNotFoundError(f"AGASC file {out} does not exist")
+    if "*" not in agasc_file:
+        return str(agasc_dir / (agasc_file + ".h5"))
+
+    agasc_file_re = agasc_file.replace('*', '_?1p([0-9]+)') + ".h5$"
+    matches = []
+    for path in agasc_dir.glob("*.h5"):
+        name = path.name
+        if (match := re.match(agasc_file_re, name)):
+            version = int(match.group(1))
+            matches.append((version, path))
+
+    if len(matches) == 0:
+        raise FileNotFoundError(
+            f"No AGASC files in {agasc_dir} found matching "
+            f"{agasc_file}_?1p([0-9]+).h5"
+        )
+    # Get candidate with highest version number. Tuples are sorted lexically starting
+    # by first element, which is the version number here.
+    out = sorted(matches)[-1][1]
 
     return str(out)
 
