@@ -2,9 +2,8 @@
 import contextlib
 import functools
 import os
-from pathlib import Path
-from packaging.version import Version
 import re
+from pathlib import Path
 from typing import Optional
 
 import numexpr
@@ -159,7 +158,7 @@ def read_h5_table(
         row1: Optional[int] = None,
         path="data",
         cache=False,
-    ) -> np.ndarray:
+) -> np.ndarray:
     """
     Read HDF5 table from group ``path`` in ``h5_file``.
 
@@ -212,7 +211,7 @@ def _read_h5_table(
         path: str,
         row0: None | int,
         row1: None | int,
-    ) -> np.ndarray:
+) -> np.ndarray:
     if isinstance(h5_file, tables.file.File):
         out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1)
     else:
@@ -221,6 +220,7 @@ def _read_h5_table(
 
     out = np.asarray(out)  # Convert to structured ndarray (not recarray)
     return out
+
 
 def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
     data = getattr(h5.root, path)
@@ -478,7 +478,7 @@ def get_stars_from_dec_sorted_h5(
         radius: float,
         agasc_file: str | Path,
         cache: bool = False,
-    ) -> Table:
+) -> Table:
     """
     Returns a table of stars within a given radius of a given RA and Dec.
 
@@ -691,10 +691,11 @@ def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color
 # Interpolate common docs into function docstrings. Using f-string interpolation in the
 # docstring itself does not work.
 for func in get_stars, get_star, get_agasc_cone:
-   func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
+    func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
 get_agasc_filename.__doc__ = get_agasc_filename.__doc__.format(
-   common_agasc_file_doc=COMMON_AGASC_FILE_DOC
+    common_agasc_file_doc=COMMON_AGASC_FILE_DOC
 )
+
 
 def update_from_supplement(stars, use_supplement=None):
     """Update mag, color1 and class information from AGASC supplement in ``stars``.
