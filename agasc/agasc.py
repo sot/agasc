@@ -3,6 +3,7 @@ import contextlib
 import functools
 import os
 from pathlib import Path
+from packaging.version import Version
 import re
 from typing import Optional
 
@@ -28,7 +29,22 @@ BAD_CLASS_SUPPLEMENT = 100
 
 RA_DECS_CACHE = {}
 
-COMMON_DOC = """By default, stars with available mag estimates or bad star entries
+COMMON_AGASC_FILE_DOC = """\
+If ``agasc_file`` is not specified (or is None) then return either
+    ``default_agasc_dir()/${AGASC_HDF5_FILE}`` if ``${AGASC_HDF5_FILE}`` is defined;
+    or return the latest version of ``proseco_agasc`` in ``default_agasc_dir()``.
+
+    If ``agasc_file`` ends with the suffix ``.h5`` then it is returned as-is.
+
+    Without the ``.h5`` suffix the ``agasc_file`` is interpreted as a root name for
+    files in the ``default_agasc_dir()`` directory.  If the root name ends with "*" then
+    the latest AGASC version (e.g. 1p8) of the file matching the root name is returned;
+    otherwise ``default_agasc_dir()/${agasc_file}.h5`` is returned.
+
+    The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
+    otherwise ``${SKA}/data/agasc``."""
+
+COMMON_DOC = f"""By default, stars with available mag estimates or bad star entries
     in the AGASC supplement are updated in-place in the output ``stars`` Table:
 
     - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
@@ -44,20 +60,10 @@ COMMON_DOC = """By default, stars with available mag estimates or bad star entri
     To disable the magnitude / bad star updates from the AGASC supplement, see
     the ``set_supplement_enabled`` context manager / decorator.
 
-    The default for ``agasc_file`` is (in order of precedence):
-    - ``${AGASC_HDF5_FILE}`` if that environment variable is defined.
-    - ``${SKA}/data/agasc/miniagasc_<version>.h5`` where ``<version>`` is the latest
-      version found in the ``${SKA}/data/agasc`` directory. This is the "full" AGASC.
+    {COMMON_AGASC_FILE_DOC}
 
-    If ``agasc_file`` does not end in ``.h5`` then it is interpreted as a root name for
-    versioned files within the default AGASC directory. For example, for
-    ``agasc_file="agasc"`` then the return value is ``${SKA}/data/agasc/agasc1p8.h5``
-    assuming version 1.8 is the latest full release of the AGASC.
-
-    The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
-    otherwise ``${SKA}/data/agasc``.
-
-    The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``."""
+    The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``.
+    """
 
 
 @contextlib.contextmanager
@@ -222,28 +228,10 @@ def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
     return out
 
 
-def get_agasc_filename(agasc_file: Optional[str | Path]=None):
+def get_agasc_filename(agasc_file: Optional[str | Path] = None):
     """Get a matching AGASC file name from ``agasc_file``.
 
-    The logic is best described by pseudo-code, where ``${VAR}`` is an environment
-    variable ``VAR``::
-
-      if agasc_file is None:
-          agasc_file = ${AGASC_HDF5_FILE} if defined else "miniagasc"
-
-      if agasc_file ends with ".h5":
-          return agasc_file
-
-      agasc_dir = ${AGASC_DIR} if defined else "${SKA}/data/agasc"
-
-      if "*" not in agasc_file:
-          return agasc_dir / agasc_file + ".h5"
-
-      # Replace "*" glob with regex selecting valid full AGASC version suffix.
-      agasc_file_re = agasc_file.replace_string("*", "_?1p[0-9]+")
-
-      matches = files in agasc_dir matching agasc_file_re + ".h5"
-      return match with highest version number
+    {common_agasc_file_doc}
 
     Parameters
     ----------
@@ -264,15 +252,16 @@ def get_agasc_filename(agasc_file: Optional[str | Path]=None):
     Selecting files in the default AGASC directory:
 
     >>> get_agasc_filename()
-    '/Users/aldcroft/ska/data/agasc/miniagasc_1p7.h5'
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
     >>> get_agasc_filename("miniagasc")
     '/Users/aldcroft/ska/data/agasc/miniagasc.h5'
-    >>> get_agasc_filename("miniagasc*")
-    '/Users/aldcroft/ska/data/agasc/miniagasc_1p7.h5'
+    >>> get_agasc_filename("proseco_agasc*")
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
     >>> get_agasc_filename("agas*")
     Traceback (most recent call last):
        ...
-    FileNotFoundError: No AGASC files in /Users/aldcroft/ska/data/agasc found matching agas*_?1p([0-9]+).h5
+    FileNotFoundError: No AGASC files in /Users/aldcroft/ska/data/agasc found matching
+      agas*_?1p([0-9]+).h5
 
     Selecting non-default AGASC file in the default directory:
 
@@ -293,27 +282,30 @@ def get_agasc_filename(agasc_file: Optional[str | Path]=None):
     'any_agasc.h5'
     >>> os.environ["AGASC_HDF5_FILE"] = "whatever.h5"
     >>> get_agasc_filename()
-    'whatever.h5'
+    '/Users/aldcroft/ska/data/agasc/whatever.h5'
     """
     if agasc_file is None:
-        agasc_file = os.environ.get('AGASC_HDF5_FILE', "miniagasc*")
+        if "AGASC_HDF5_FILE" in os.environ:
+            return default_agasc_dir() / os.environ["AGASC_HDF5_FILE"]
+        else:
+            agasc_file = "proseco_agasc*"
 
     agasc_file = str(agasc_file)
 
-    if agasc_file.endswith('.h5'):
+    if agasc_file.endswith(".h5"):
         return agasc_file
 
     # Get latest version of file matching agasc_file in the default AGASC dir
     agasc_dir = default_agasc_dir()
 
-    if "*" not in agasc_file:
+    if not agasc_file.endswith("*"):
         return str(agasc_dir / (agasc_file + ".h5"))
 
-    agasc_file_re = agasc_file.replace('*', '_?1p([0-9]+)') + ".h5$"
+    agasc_file_re = agasc_file[:-1] + r"_? 1p([0-9]+) \.h5$"
     matches = []
     for path in agasc_dir.glob("*.h5"):
         name = path.name
-        if (match := re.match(agasc_file_re, name)):
+        if match := re.match(agasc_file_re, name, re.VERBOSE):
             version = int(match.group(1))
             matches.append((version, path))
 
@@ -445,7 +437,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param dec: Declination (deg)
     :param radius: Cone search radius (deg)
     :param date: Date for proper motion (default=Now)
-    :param agasc_file: AGASC file (see ``) (optional)
+    :param agasc_file: AGASC file (optional)
     :param pm_filter: Use PM-corrected positions in filtering
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
     :param use_supplement: Use estimated mag from AGASC supplement where available
@@ -696,10 +688,13 @@ def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color
     return t if ids.shape else t[0]
 
 
-# Interpolate COMMON_DOC into those function docstrings
+# Interpolate common docs into function docstrings. Using f-string interpolation in the
+# docstring itself does not work.
 for func in get_stars, get_star, get_agasc_cone:
-    func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
-
+   func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
+get_agasc_filename.__doc__ = get_agasc_filename.__doc__.format(
+   common_agasc_file_doc=COMMON_AGASC_FILE_DOC
+)
 
 def update_from_supplement(stars, use_supplement=None):
     """Update mag, color1 and class information from AGASC supplement in ``stars``.
