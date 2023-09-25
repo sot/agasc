@@ -3,8 +3,10 @@ import os
 import tempfile
 
 import numpy as np
+import pytest
 import tables
 from astropy.table import Table
+from ska_helpers.utils import temp_env_var
 
 import agasc
 from agasc.agasc import update_color1_column
@@ -106,3 +108,55 @@ def test_update_color1_get_agasc_cone():
     stars.add_index('AGASC_ID')
     assert np.isclose(stars.loc[759960152]['COLOR1'], 1.5, rtol=0, atol=0.0005)
     assert np.isclose(stars.loc[759439648]['COLOR1'], 1.5, rtol=0, atol=0.0005)
+
+
+def test_get_agasc_filename(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGASC_DIR", str(tmp_path))
+    names = [
+        "agasc1p6.h5",
+        "agasc1p7.h5",
+        "agasc1p8.h5",
+        "agasc1p8.hdf5",
+        "agasc1p8rc2.h5",
+        "proseco_agasc_1p6.h5",
+        "proseco_agasc_1p7.h5",
+        "proseco_agasc_1p8.h5",
+        "proseco_agasc_1p8rc2.h5",
+        "miniagasc_1p6.h5",
+        "miniagasc_1p7.h5",
+        "miniagasC_1p7.h5",
+        "miniagasc_1p10.h5",
+        "miniagasc_2p8.h5",
+    ]
+    for name in names:
+        (tmp_path / name).touch()
+
+    def _check(filename, expected):
+        assert agasc.get_agasc_filename(filename) == str(expected)
+
+    # Default is latest proseco_agasc in AGASC_DIR
+    _check(None, tmp_path / "proseco_agasc_1p8.h5")
+
+    # With no wildcard just add .h5. File existence is not required by this function.
+    _check("agasc1p6", tmp_path / "agasc1p6.h5")
+    _check("doesnt-exist", tmp_path / "doesnt-exist.h5")
+
+    # Doesn't find the rc2 version
+    _check("agasc*", tmp_path / "agasc1p8.h5")
+
+    # Wildcard finds the right file (and double-digit version is OK)
+    _check("miniagasc*", tmp_path / "miniagasc_1p10.h5")
+
+    # With .h5 supplied just return the file, again don't require existence.
+    _check("agasc1p7.h5", "agasc1p7.h5")
+    _check("doesnt-exist.h5", "doesnt-exist.h5")
+
+    # With AGASC_HDF5_FILE set, use that if agasc_file is None
+    with temp_env_var("AGASC_HDF5_FILE", "proseco_agasc_1p5.h5"):
+        _check(None, tmp_path / "proseco_agasc_1p5.h5")
+        # Explicit agasc_file overrides AGASC_HDF5_FILE
+        _check("agasc1p7.h5", "agasc1p7.h5")
+
+    # With a glob pattern existence of a matching file is required
+    with pytest.raises(FileNotFoundError, match="No AGASC files"):
+        agasc.get_agasc_filename("doesnt-exist*")

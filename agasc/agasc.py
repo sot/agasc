@@ -265,9 +265,9 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None):
 
     Selecting non-default AGASC file in the default directory:
 
-    >>> os.environ["AGASC_HDF5_FILE"] = "proseco_agasc*"
+    >>> os.environ["AGASC_HDF5_FILE"] = "proseco_agasc_1p6.h5"
     >>> get_agasc_filename()
-    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p6.h5'
 
     Changing the default AGASC directory:
 
@@ -286,7 +286,7 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None):
     """
     if agasc_file is None:
         if "AGASC_HDF5_FILE" in os.environ:
-            return default_agasc_dir() / os.environ["AGASC_HDF5_FILE"]
+            return str(default_agasc_dir() / os.environ["AGASC_HDF5_FILE"])
         else:
             agasc_file = "proseco_agasc*"
 
