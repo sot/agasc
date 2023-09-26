@@ -1,33 +1,37 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-create_mini_agasc_h5
-====================
+This script creates an AGASC HDF5 file which is derived from the full AGASC catalog.
 
-This script creates a mini AGASC HDF5 file from the full AGASC catalog.
+There are three key common options for creating the new AGASC file:
 
-The output can be either ``miniagasc_<version>.h5`` or ``proseco_agasc_<version>.h5``.
+- ``--filter-faint``: Filter out faint stars satisfying
+  ``stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 >= 11.5``.
+- ``--include-near-neighbors``: Include near-neighbor stars even if filtered out by
+    by ``--filter-faint`.
+- ``--proseco-columns``: Include only columns needed for proseco.
 
-The mini AGASC file is a subset of the full AGASC file that contains only the stars
-satisfying ``stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5``.
+These can be combined in various ways to create different AGASC files, but in practice
+the following AGASC flavors are used with options:
 
-The proseco AGASC file is a variation of the mini AGASC file that contains only the
-columns needed for proseco. It also adds back the near-neighbor stars (which are close
-to a candidate guide or acq star) that got cut by the magnitude filter.
+- "proseco_agasc": ``--filter-faint``, ``--include-near-neighbors``, ``--proseco-columns``
+- "miniagasc": ``--filter-faint``
 
 The script depends on the file ``agasc<version>_near_neighbor_ids.fits.gz`` which is
 created using ``create_near_neighbor_ids.py``.
 
-Since version 1.8 the mini AGASC file is sorted by HEALPix index and includes a
+Since version 1.8, AGASC files should be sorted by HEALPix index and include a
 ``healpix_index`` table.
 
 Examples
 --------
 
-Most common usage::
-
-  $ python create_mini_agasc_h5.py --version 1.8 --include-near-neighbors
-  $ python create_mini_agasc_h5.py --version 1.8 --proseco
+  $ python create_derived_agasc_h5.py proseco_agasc --version 1.8 \
+      --filter-faint --include-near-neighbors --proseco-columns
+  $ python create_derived_agasc_h5.py miniagasc --version 1.8 --filter-faint
+  $ python create_derived_agasc_h5.py agasc_healpix --version 1.7
 """
+
+
 import argparse
 from pathlib import Path
 
@@ -37,10 +41,20 @@ import tables
 from astropy.table import Table
 
 from agasc.healpix import get_healpix
+from agasc import default_agasc_dir
+
+
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description="Create mini AGASC HDF5 file")
+    parser = argparse.ArgumentParser(
+        description="Create derived AGASC HDF5 file", usage=__doc__
+    )
+    parser.add_argument(
+        "out_root",
+        type=str,
+        help="Output filename root to create <out_root>_<version>.h5",
+    )
     parser.add_argument(
         "--version",
         type=str,
@@ -53,17 +67,19 @@ def get_parser():
         help="Include near neighbor stars even if filtered out by magnitude",
     )
     parser.add_argument(
-        "--proseco",
+        "--filter-faint",
         action="store_true",
-        help=(
-            "Create `proseco_agasc_<version>.h5` instead of `miniagasc_<version>.h5`. "
-            "This option implies --include-near-neighbors."
-        ),
+        help=('Filter: stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5 '),
     )
     parser.add_argument(
-        "--healpix",
+        "--proseco-columns",
         action="store_true",
-        help="Create AGASC file using HEALpix ordering with a healpix_index table",
+        help="Include only columns needed for proseco",
+    )
+    parser.add_argument(
+        "--dec-order",
+        action="store_true",
+        help="Create legacy AGASC file using Dec ordering (default is HEALpix)",
     )
     parser.add_argument(
         "--nside",
@@ -80,36 +96,34 @@ def main():
 
     version_num = args.version
     version = version_num.replace(".", "p")
-    rootname = "proseco_agasc" if args.proseco else "miniagasc"
+    rootname = args.out_root
 
-    filename_full = f"agasc{version}.h5"
-    filename_mini = f"{rootname}_{version}.h5"
+    filename_full = default_agasc_dir() / f"agasc{version}.h5"
+    filename_derived = f"{rootname}_{version}.h5"
 
-    stars = get_mini_agasc_stars(
+    stars = get_derived_agasc_stars(
         filename_full,
-        version,
-        proseco=args.proseco,
-        include_near_neighbors=args.include_near_neighbors or args.proseco,
+        filter_faint=args.filter_faint,
+        include_near_neighbors=args.include_near_neighbors,
     )
 
-    if args.proseco:
-        stars = filter_proseco_stars(stars)
-        args.healpix = True
+    if args.proseco_columns:
+        stars = filter_proseco_columns(stars)
 
-    if args.healpix:
+    if args.dec_order:
+        print("Sorting on DEC column")
+        idx_sort = np.argsort(stars["DEC"])
+    else:
         print(
             f"Creating healpix_index table for nside={args.nside} "
             "and sorting by healpix index"
         )
         healpix_index, idx_sort = get_healpix_index_table(stars, args.nside)
-    else:
-        print("Sorting on DEC column")
-        idx_sort = np.argsort(stars["DEC"])
     stars = stars.take(idx_sort)
 
-    write_mini_agasc(filename_mini, stars, version)
-    if args.healpix:
-        write_healpix_index_table(filename_mini, healpix_index, args.nside)
+    write_derived_agasc(filename_derived, stars, version)
+    if not args.dec_order:
+        write_healpix_index_table(filename_derived, healpix_index, args.nside)
 
 
 def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
@@ -136,7 +150,7 @@ def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
         h5.root.healpix_index.attrs["nside"] = nside
 
 
-def write_mini_agasc(filename: str, stars: np.ndarray, version_num: str):
+def write_derived_agasc(filename: str, stars: np.ndarray, version_num: str):
     print(f"Creating {filename}")
 
     with tables.open_file(filename, mode="w") as h5:
@@ -152,7 +166,7 @@ def write_mini_agasc(filename: str, stars: np.ndarray, version_num: str):
         h5.flush()
 
 
-def filter_proseco_stars(stars):
+def filter_proseco_columns(stars):
     print("Excluding columns not needed for proseco")
     # fmt: off
     excludes = ['PLX', 'PLX_ERR', 'PLX_CATID',
@@ -174,33 +188,30 @@ def filter_proseco_stars(stars):
     return stars
 
 
-def get_mini_agasc_stars(
+def get_derived_agasc_stars(
     agasc_full: str,
-    version_str: str,
-    proseco: bool,
+    filter_faint: bool,
     include_near_neighbors: bool,
 ) -> np.ndarray:
     """
     Reads the full AGASC data from the given file and selects the usable stars based on
     their magnitude. If `proseco` is True or `include_near_neighbors` is False, it
     includes the near-neighbor stars that got cut by the magnitude filter. Filters down
-    to miniagasc stars and returns the resulting structured ndarray.
+    to derived AGASC stars and returns the resulting structured ndarray.
 
     Parameters:
     -----------
     filename : str
         The path to the file containing the full AGASC data.
-    version_str : str
-        The version string to use for the near-neighbor file.
-    proseco : bool
-        If True, create proseco_agasc_<version>.h5 instead of miniagasc_<version>.h5.
+    filter_faint : bool
+        If True, filter faint stars
     include_near_neighbors : bool
         If True, include the near-neighbor stars that got cut by the magnitude filter.
 
     Returns:
     --------
     np.ndarray
-        The resulting array of miniagasc stars.
+        The resulting array of derived AGASC stars.
     """
     print(f"Reading full AGASC {agasc_full} and selecting useable stars")
 
@@ -208,11 +219,14 @@ def get_mini_agasc_stars(
         stars = h5.root.data[:]
 
     # Filter mags
-    ok = stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5
+    ok = np.ones(len(stars), dtype=bool)
+
+    if filter_faint:
+        ok &= stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5
 
     # Put back near-neighbor stars that got cut by above mag filter. This file
     # is made with create_near_neighbor_ids.py.
-    if proseco or include_near_neighbors:
+    if include_near_neighbors:
         agasc_full_name = Path(agasc_full).with_suffix("").name
         near_file = f"{agasc_full_name}_near_neighbor_ids.fits.gz"
         near_table = Table.read(near_file, format="fits")
@@ -222,7 +236,7 @@ def get_mini_agasc_stars(
             if agasc_id in near_ids:
                 ok[idx] = True
 
-    # Filter down to miniagasc stars
+    # Filter down to derived agasc stars
     print(f"Filtering from {len(stars)} to {np.count_nonzero(ok)} stars")
     stars = stars[ok]
 
