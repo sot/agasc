@@ -29,16 +29,17 @@ BAD_CLASS_SUPPLEMENT = 100
 RA_DECS_CACHE = {}
 
 COMMON_AGASC_FILE_DOC = """\
-If ``agasc_file`` is not specified (or is None) then return either
+If ``agasc_file`` is not specified or is None then return either
     ``default_agasc_dir()/${AGASC_HDF5_FILE}`` if ``${AGASC_HDF5_FILE}`` is defined;
     or return the latest version of ``proseco_agasc`` in ``default_agasc_dir()``.
 
     If ``agasc_file`` ends with the suffix ``.h5`` then it is returned as-is.
 
-    Without the ``.h5`` suffix the ``agasc_file`` is interpreted as a root name for
-    files in the ``default_agasc_dir()`` directory.  If the root name ends with "*" then
-    the latest AGASC version (e.g. 1p8) of the file matching the root name is returned;
-    otherwise ``default_agasc_dir()/${agasc_file}.h5`` is returned.
+    If ``agasc_file`` ends with ``*`` then the latest version of the matching AGASC file
+    in ``default_agasc_dir()`` is returned. For example, ``proseco_agasc*`` could return
+    ``${SKA}/data/agasc/proseco_agasc_1p7.h5``.
+
+    Any other ending for ``agasc_file`` raises a ``ValueError``.
 
     The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
     otherwise ``${SKA}/data/agasc``."""
@@ -59,7 +60,7 @@ COMMON_DOC = f"""By default, stars with available mag estimates or bad star entr
     To disable the magnitude / bad star updates from the AGASC supplement, see
     the ``set_supplement_enabled`` context manager / decorator.
 
-    {COMMON_AGASC_FILE_DOC}
+    {COMMON_AGASC_FILE_DOC.replace("return", "use")}
 
     The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``.
     """
@@ -299,7 +300,7 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None):
     agasc_dir = default_agasc_dir()
 
     if not agasc_file.endswith("*"):
-        return str(agasc_dir / (agasc_file + ".h5"))
+        raise ValueError("agasc_file must end with '*' or '.h5'")
 
     agasc_file_re = agasc_file[:-1] + r"_? 1p([0-9]+) \.h5$"
     matches = []

@@ -138,8 +138,8 @@ def test_get_agasc_filename(tmp_path, monkeypatch):
     _check(None, tmp_path / "proseco_agasc_1p8.h5")
 
     # With no wildcard just add .h5. File existence is not required by this function.
-    _check("agasc1p6", tmp_path / "agasc1p6.h5")
-    _check("doesnt-exist", tmp_path / "doesnt-exist.h5")
+    with pytest.raises(ValueError, match="agasc_file must end with '*' or '.h5'"):
+        _check("agasc1p6", tmp_path / "agasc1p6.h5")
 
     # Doesn't find the rc2 version
     _check("agasc*", tmp_path / "agasc1p8.h5")
