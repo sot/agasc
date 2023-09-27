@@ -122,6 +122,7 @@ def test_get_agasc_filename(tmp_path, monkeypatch):
         "proseco_agasc_1p7.h5",
         "proseco_agasc_1p8.h5",
         "proseco_agasc_1p8rc2.h5",
+        "proseco_agasc_1p9rc1.h5",
         "miniagasc_1p6.h5",
         "miniagasc_1p7.h5",
         "miniagasC_1p7.h5",
@@ -131,18 +132,23 @@ def test_get_agasc_filename(tmp_path, monkeypatch):
     for name in names:
         (tmp_path / name).touch()
 
-    def _check(filename, expected):
-        assert agasc.get_agasc_filename(filename) == str(expected)
+    def _check(filename, expected, allow_rc=False):
+        assert agasc.get_agasc_filename(filename, allow_rc) == str(expected)
 
     # Default is latest proseco_agasc in AGASC_DIR
     _check(None, tmp_path / "proseco_agasc_1p8.h5")
 
+    # Default is latest proseco_agasc in AGASC_DIR
+    _check(None, tmp_path / "proseco_agasc_1p9rc1.h5", allow_rc=True)
+
     # With no wildcard just add .h5. File existence is not required by this function.
-    with pytest.raises(ValueError, match="agasc_file must end with '*' or '.h5'"):
+    with pytest.raises(ValueError, match=r"agasc_file must end with '\*' or '.h5'"):
         _check("agasc1p6", tmp_path / "agasc1p6.h5")
 
-    # Doesn't find the rc2 version
-    _check("agasc*", tmp_path / "agasc1p8.h5")
+    # Doesn't find the rc2 version regardless of allow_rc (agasc_1p8.h5 wins over
+    # agasc_1p8rc2.h5).
+    _check("agasc*", tmp_path / "agasc1p8.h5", allow_rc=False)
+    _check("agasc*", tmp_path / "agasc1p8.h5", allow_rc=True)
 
     # Wildcard finds the right file (and double-digit version is OK)
     _check("miniagasc*", tmp_path / "miniagasc_1p10.h5")

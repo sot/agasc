@@ -3,6 +3,7 @@ import contextlib
 import functools
 import os
 import re
+from packaging.version import Version
 from pathlib import Path
 from typing import Optional
 
@@ -229,7 +230,7 @@ def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
     return out
 
 
-def get_agasc_filename(agasc_file: Optional[str | Path] = None):
+def get_agasc_filename(agasc_file: Optional[str | Path] = None, allow_rc: bool=False):
     """Get a matching AGASC file name from ``agasc_file``.
 
     {common_agasc_file_doc}
@@ -238,6 +239,8 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None):
     ----------
     agasc_file : str, Path, optional
         AGASC file name (default=None)
+    allow_rc : bool, optional
+        Allow AGASC release candidate files (default=False)
 
     Returns
     -------
@@ -302,13 +305,16 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None):
     if not agasc_file.endswith("*"):
         raise ValueError("agasc_file must end with '*' or '.h5'")
 
-    agasc_file_re = agasc_file[:-1] + r"_? 1p([0-9]+) \.h5$"
+    agasc_file_re = agasc_file[:-1] + r"_? (1p[0-9]+) (rc[1-9][0-9]*)? \.h5$"
     matches = []
     for path in agasc_dir.glob("*.h5"):
         name = path.name
         if match := re.match(agasc_file_re, name, re.VERBOSE):
-            version = int(match.group(1))
-            matches.append((version, path))
+            if not allow_rc and match.group(2):
+                continue
+            version = match.group(1).replace("p", ".")
+            rc = match.group(2) or ""
+            matches.append((Version(version + rc), path))
 
     if len(matches) == 0:
         raise FileNotFoundError(
