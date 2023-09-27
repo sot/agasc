@@ -230,7 +230,11 @@ def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
     return out
 
 
-def get_agasc_filename(agasc_file: Optional[str | Path] = None, allow_rc: bool=False):
+def get_agasc_filename(
+        agasc_file: Optional[str | Path] = None,
+        allow_rc: bool=False,
+        version: Optional[str]=None,
+) -> str:
     """Get a matching AGASC file name from ``agasc_file``.
 
     {common_agasc_file_doc}
@@ -241,6 +245,8 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None, allow_rc: bool=F
         AGASC file name (default=None)
     allow_rc : bool, optional
         Allow AGASC release candidate files (default=False)
+    version : str, optional
+        Version number to match (e.g. "1p8" or "1p8rc4", default=None)
 
     Returns
     -------
@@ -257,10 +263,10 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None, allow_rc: bool=F
 
     >>> get_agasc_filename()
     '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
-    >>> get_agasc_filename("miniagasc")
-    '/Users/aldcroft/ska/data/agasc/miniagasc.h5'
-    >>> get_agasc_filename("proseco_agasc*")
+    >>> get_agasc_filename("proseco_agasc_*")
     '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
+    >>> get_agasc_filename("proseco_agasc_*", version="1p8", allow_rc=True)
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p8rc4.h5'
     >>> get_agasc_filename("agas*")
     Traceback (most recent call last):
        ...
@@ -292,7 +298,7 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None, allow_rc: bool=F
         if "AGASC_HDF5_FILE" in os.environ:
             return str(default_agasc_dir() / os.environ["AGASC_HDF5_FILE"])
         else:
-            agasc_file = "proseco_agasc*"
+            agasc_file = "proseco_agasc_*"
 
     agasc_file = str(agasc_file)
 
@@ -305,21 +311,26 @@ def get_agasc_filename(agasc_file: Optional[str | Path] = None, allow_rc: bool=F
     if not agasc_file.endswith("*"):
         raise ValueError("agasc_file must end with '*' or '.h5'")
 
-    agasc_file_re = agasc_file[:-1] + r"_? (1p[0-9]+) (rc[1-9][0-9]*)? \.h5$"
+    agasc_file_re = agasc_file[:-1] + r"(1p[0-9]+) (rc[1-9][0-9]*)? \.h5$"
     matches = []
     for path in agasc_dir.glob("*.h5"):
         name = path.name
         if match := re.match(agasc_file_re, name, re.VERBOSE):
             if not allow_rc and match.group(2):
                 continue
-            version = match.group(1).replace("p", ".")
-            rc = match.group(2) or ""
-            matches.append((Version(version + rc), path))
+            version_str = match.group(1)
+            rc_str = match.group(2) or ""
+            if (
+                version is not None
+                and version not in (version_str, version_str + rc_str)
+            ):
+                continue
+            matches.append((Version(version_str.replace("p", ".") + rc_str), path))
 
     if len(matches) == 0:
+        with_version = f" with {version=}" if version is not None else ""
         raise FileNotFoundError(
-            f"No AGASC files in {agasc_dir} found matching "
-            f"{agasc_file}_?1p([0-9]+).h5"
+            f"No AGASC files in {agasc_dir}{with_version} matching {agasc_file_re}"
         )
     # Get candidate with highest version number. Tuples are sorted lexically starting
     # by first element, which is the version number here.

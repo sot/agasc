@@ -5,43 +5,31 @@ This uses AGASC 1.8 which is the first release to use such ordering.
 """
 import numpy as np
 import pytest
-import tables
-from astropy.table import Table
-from ska_helpers.utils import temp_env_var
 
 import agasc
 from agasc.healpix import get_healpix_info
 
 
-# Look for any AGASC 1.8 files in the default AGASC dir, potentially including release
-# candidate files. This is to allow testing prior to the final release of AGASC 1.8.
-def get_agasc_1p8():
-    root = "proseco_agasc"
-    agasc_files = agasc.default_agasc_dir().glob(f"{root}_1p8*.h5")
-    paths = {path.name: path for path in agasc_files}
-    if paths:
-        if f"{root}_1p8.h5" in paths:
-            agasc_file = paths[f"{root}_1p8.h5"]
-        else:
-            # Take the last one alphabetically which works for rc < 10
-            name = sorted(paths)[-1]
-            agasc_file = paths[name]
+AGASC_FILES = {}
+for root, version in [("proseco_agasc_*", "1p8"), ("agasc_healpix_*", "1p7")]:
+    try:
+        fn = agasc.get_agasc_filename(root, version=version, allow_rc=True)
+    except FileNotFoundError:
+        AGASC_FILES[root, version] = None
     else:
-        agasc_file = None
-    return agasc_file
+        AGASC_FILES[root, version] = fn
 
 
-AGASC_FILE_1P8 = get_agasc_1p8()
-
-if AGASC_FILE_1P8 is None:
-    pytest.skip("No proseco_agasc 1.8 file found", allow_module_level=True)
-
-
+@pytest.mark.skipif(
+    AGASC_FILES["proseco_agasc_*", "1p8"] is None,
+    reason="No AGASC 1.8 file found",
+)
 def test_healpix_index():
     """
     Test that the healpix index table is present and has the right number of rows.
     """
-    healpix_index_map, nside = get_healpix_info(AGASC_FILE_1P8)
+    agasc_file = AGASC_FILES["proseco_agasc_*", "1p8"]
+    healpix_index_map, nside = get_healpix_info(agasc_file)
     assert len(healpix_index_map) == 12 * nside**2
 
 
@@ -51,16 +39,25 @@ ras = [0]
 decs = [-40]
 
 
+@pytest.mark.skipif(
+    AGASC_FILES["agasc_healpix_*", "1p7"] is None,
+    reason="No AGASC 1.7 HEALpix file found",
+)
 @pytest.mark.parametrize("ra, dec", zip(ras, decs))
 def test_get_agasc_cone(ra, dec):
     stars1p7 = agasc.get_agasc_cone(
         ra,
         dec,
         radius=0.2,
-        agasc_file=agasc.default_agasc_dir() / "proseco_agasc_1p7.h5",
-        date="1997:001",
+        agasc_file=agasc.get_agasc_filename("agasc*", version="1p7"),
+        date="2023:001",
     )
-    stars1p8 = agasc.get_agasc_cone(
-        ra, dec, radius=0.2, agasc_file=AGASC_FILE_1P8, date="1997:001"
+
+    stars1p7_healpix = agasc.get_agasc_cone(
+        ra,
+        dec,
+        radius=0.2,
+        agasc_file=AGASC_FILES["agasc_healpix_*", "1p7"],
+        date="2023:001",
     )
-    assert np.all(stars1p7["AGASC_ID"] == stars1p8["AGASC_ID"])
+    assert np.all(stars1p7["AGASC_ID"] == stars1p7_healpix["AGASC_ID"])

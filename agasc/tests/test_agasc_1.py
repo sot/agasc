@@ -132,8 +132,8 @@ def test_get_agasc_filename(tmp_path, monkeypatch):
     for name in names:
         (tmp_path / name).touch()
 
-    def _check(filename, expected, allow_rc=False):
-        assert agasc.get_agasc_filename(filename, allow_rc) == str(expected)
+    def _check(filename, expected, allow_rc=False, version=None):
+        assert agasc.get_agasc_filename(filename, allow_rc, version) == str(expected)
 
     # Default is latest proseco_agasc in AGASC_DIR
     _check(None, tmp_path / "proseco_agasc_1p8.h5")
@@ -150,8 +150,30 @@ def test_get_agasc_filename(tmp_path, monkeypatch):
     _check("agasc*", tmp_path / "agasc1p8.h5", allow_rc=False)
     _check("agasc*", tmp_path / "agasc1p8.h5", allow_rc=True)
 
+    # 1p8rc2 is available but it takes the non-RC version 1p8
+    _check(
+        "proseco_agasc_*",
+        tmp_path / "proseco_agasc_1p8.h5",
+        allow_rc=True,
+        version="1p8",
+    )
+    # You can choose the RC version explicitly
+    _check(
+        "proseco_agasc_*",
+        tmp_path / "proseco_agasc_1p8rc2.h5",
+        allow_rc=True,
+        version="1p8rc2",
+    )
+    # For version="1p9" only the 1p9rc1 version is available
+    _check(
+        "proseco_agasc_*",
+        tmp_path / "proseco_agasc_1p9rc1.h5",
+        allow_rc=True,
+        version="1p9",
+    )
+
     # Wildcard finds the right file (and double-digit version is OK)
-    _check("miniagasc*", tmp_path / "miniagasc_1p10.h5")
+    _check("miniagasc_*", tmp_path / "miniagasc_1p10.h5")
 
     # With .h5 supplied just return the file, again don't require existence.
     _check("agasc1p7.h5", "agasc1p7.h5")
