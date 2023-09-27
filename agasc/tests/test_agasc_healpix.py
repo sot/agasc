@@ -35,8 +35,6 @@ def test_healpix_index():
 
 ras = np.linspace(0, 180, 10)
 decs = np.linspace(-40, 40, 10)
-ras = [0]
-decs = [-40]
 
 
 @pytest.mark.skipif(
@@ -44,20 +42,28 @@ decs = [-40]
     reason="No AGASC 1.7 HEALpix file found",
 )
 @pytest.mark.parametrize("ra, dec", zip(ras, decs))
-def test_get_agasc_cone(ra, dec):
-    stars1p7 = agasc.get_agasc_cone(
-        ra,
-        dec,
-        radius=0.2,
-        agasc_file=agasc.get_agasc_filename("agasc*", version="1p7"),
-        date="2023:001",
+def test_get_functions_dec_order_vs_healpix(ra, dec):
+    # AGASC 1p7 is dec-ordered.
+    agasc_dec = agasc.get_agasc_filename("agasc*", version="1p7")
+    agasc_healpix = agasc.get_agasc_filename("agasc_healpix_*", version="1p7")
+    stars_dec = agasc.get_agasc_cone(
+        ra, dec, radius=0.2, agasc_file=agasc_dec, date="2023:001"
     )
 
-    stars1p7_healpix = agasc.get_agasc_cone(
-        ra,
-        dec,
-        radius=0.2,
-        agasc_file=AGASC_FILES["agasc_healpix_*", "1p7"],
-        date="2023:001",
+    stars_healpix = agasc.get_agasc_cone(
+        ra, dec, radius=0.2, agasc_file=agasc_healpix, date="2023:001"
     )
-    assert np.all(stars1p7["AGASC_ID"] == stars1p7_healpix["AGASC_ID"])
+    assert np.all(stars_dec == stars_healpix)
+
+    agasc_ids = stars_dec["AGASC_ID"]
+    star = agasc.get_star(agasc_ids[0], agasc_file=agasc_dec, date="2023:001")
+    star_healpix = agasc.get_star(
+        agasc_ids[0], agasc_file=agasc_healpix, date="2023:001"
+    )
+    assert star == star_healpix
+
+    stars = agasc.get_stars(agasc_ids, agasc_file=agasc_dec, dates="2023:001")
+    stars_healpix = agasc.get_stars(
+        agasc_ids, agasc_file=agasc_healpix, dates="2023:001"
+    )
+    assert np.all(stars == stars_healpix)

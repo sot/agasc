@@ -37,7 +37,7 @@ If ``agasc_file`` is not specified or is None then return either
     If ``agasc_file`` ends with the suffix ``.h5`` then it is returned as-is.
 
     If ``agasc_file`` ends with ``*`` then the latest version of the matching AGASC file
-    in ``default_agasc_dir()`` is returned. For example, ``proseco_agasc*`` could return
+    in ``default_agasc_dir()`` is returned. For example, ``proseco_agasc_*`` could return
     ``${SKA}/data/agasc/proseco_agasc_1p7.h5``.
 
     Any other ending for ``agasc_file`` raises a ``ValueError``.
