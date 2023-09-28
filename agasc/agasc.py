@@ -231,9 +231,9 @@ def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
 
 
 def get_agasc_filename(
-        agasc_file: Optional[str | Path] = None,
-        allow_rc: bool=False,
-        version: Optional[str]=None,
+    agasc_file: Optional[str | Path] = None,
+    allow_rc: bool = False,
+    version: Optional[str] = None,
 ) -> str:
     """Get a matching AGASC file name from ``agasc_file``.
 
