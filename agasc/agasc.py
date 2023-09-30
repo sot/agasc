@@ -762,17 +762,19 @@ def update_from_supplement(stars, use_supplement=None):
 
     # Get estimate mags and errs from supplement as a dict of dict
     # agasc_id : {mag_aca: .., mag_aca_err: ..}.
-    supplement_mags = get_supplement_table('mags', agasc_dir=default_agasc_dir(),
-                                           as_dict=True)
+    supplement_mags = get_supplement_table('mags', agasc_dir=default_agasc_dir())
+    supplement_mags_index = supplement_mags.meta["index"]
 
     # Get bad stars as {agasc_id: {source: ..}}
-    bad_stars = get_supplement_table('bad', agasc_dir=default_agasc_dir(), as_dict=True)
+    bad_stars = get_supplement_table('bad', agasc_dir=default_agasc_dir())
+    bad_stars_index = bad_stars.meta["index"]
 
     for star in stars:
         agasc_id = int(star['AGASC_ID'])
-        if agasc_id in supplement_mags:
-            mag_est = supplement_mags[agasc_id]['mag_aca']
-            mag_est_err = supplement_mags[agasc_id]['mag_aca_err']
+        if agasc_id in supplement_mags_index:
+            idx = supplement_mags_index[agasc_id]
+            mag_est = supplement_mags['mag_aca'][idx]
+            mag_est_err = supplement_mags['mag_aca_err'][idx]
 
             set_star(star, 'MAG_ACA', mag_est)
             # Mag err is stored as int16 in units of 0.01 mag. Use same convention here.
@@ -783,5 +785,5 @@ def update_from_supplement(stars, use_supplement=None):
                 if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
                     star['COLOR1'] = color1 - 0.01
 
-        if agasc_id in bad_stars:
+        if agasc_id in bad_stars_index:
             set_star(star, 'CLASS', BAD_CLASS_SUPPLEMENT)

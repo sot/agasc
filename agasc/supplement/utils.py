@@ -123,6 +123,8 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
                 out[key] = {nm: row[nm].item() for nm in row.dtype.names if nm not in key_names}
     else:
         out = Table(dat)
+        index = {agasc_id: idx for idx, agasc_id in enumerate(out['agasc_id'])}
+        out.meta["index"] = index
 
     return out
 
