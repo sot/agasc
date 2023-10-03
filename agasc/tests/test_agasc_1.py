@@ -3,10 +3,13 @@ import os
 import tempfile
 
 import numpy as np
+import pytest
 import tables
 from astropy.table import Table
+from ska_helpers.utils import temp_env_var
 
-from .. import agasc
+import agasc
+from agasc.agasc import update_color1_column
 
 
 def test_multi_agasc():
@@ -61,7 +64,7 @@ def test_update_color1_func():
     # Fifth is still 1.5 because RSV3=0 (no good mag available so still "bad mag")
     # Sixth now gets COLOR1 = COLOR2 * 0.850 = 2.0
     stars = Table([color1, color2, rsv3], names=['COLOR1', 'COLOR2', 'RSV3'])
-    agasc.update_color1_column(stars)
+    update_color1_column(stars)
 
     assert np.allclose(stars['COLOR1'], [1.0, 1.0, 1.5, 1.499, 1.5, 2.0])
     assert np.allclose(stars['COLOR2'], color2)
@@ -105,3 +108,83 @@ def test_update_color1_get_agasc_cone():
     stars.add_index('AGASC_ID')
     assert np.isclose(stars.loc[759960152]['COLOR1'], 1.5, rtol=0, atol=0.0005)
     assert np.isclose(stars.loc[759439648]['COLOR1'], 1.5, rtol=0, atol=0.0005)
+
+
+def test_get_agasc_filename(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGASC_DIR", str(tmp_path))
+    names = [
+        "agasc1p6.h5",
+        "agasc1p7.h5",
+        "agasc1p8.h5",
+        "agasc1p8.hdf5",
+        "agasc1p8rc2.h5",
+        "proseco_agasc_1p6.h5",
+        "proseco_agasc_1p7.h5",
+        "proseco_agasc_1p8.h5",
+        "proseco_agasc_1p8rc2.h5",
+        "proseco_agasc_1p9rc1.h5",
+        "miniagasc_1p6.h5",
+        "miniagasc_1p7.h5",
+        "miniagasC_1p7.h5",
+        "miniagasc_1p10.h5",
+        "miniagasc_2p8.h5",
+    ]
+    for name in names:
+        (tmp_path / name).touch()
+
+    def _check(filename, expected, allow_rc=False, version=None):
+        assert agasc.get_agasc_filename(filename, allow_rc, version) == str(expected)
+
+    # Default is latest proseco_agasc in AGASC_DIR
+    _check(None, tmp_path / "proseco_agasc_1p8.h5")
+
+    # Default is latest proseco_agasc in AGASC_DIR
+    _check(None, tmp_path / "proseco_agasc_1p9rc1.h5", allow_rc=True)
+
+    # With no wildcard just add .h5. File existence is not required by this function.
+    with pytest.raises(ValueError, match=r"agasc_file must end with '\*' or '.h5'"):
+        _check("agasc1p6", tmp_path / "agasc1p6.h5")
+
+    # Doesn't find the rc2 version regardless of allow_rc (agasc_1p8.h5 wins over
+    # agasc_1p8rc2.h5).
+    _check("agasc*", tmp_path / "agasc1p8.h5", allow_rc=False)
+    _check("agasc*", tmp_path / "agasc1p8.h5", allow_rc=True)
+
+    # 1p8rc2 is available but it takes the non-RC version 1p8
+    _check(
+        "proseco_agasc_*",
+        tmp_path / "proseco_agasc_1p8.h5",
+        allow_rc=True,
+        version="1p8",
+    )
+    # You can choose the RC version explicitly
+    _check(
+        "proseco_agasc_*",
+        tmp_path / "proseco_agasc_1p8rc2.h5",
+        allow_rc=True,
+        version="1p8rc2",
+    )
+    # For version="1p9" only the 1p9rc1 version is available
+    _check(
+        "proseco_agasc_*",
+        tmp_path / "proseco_agasc_1p9rc1.h5",
+        allow_rc=True,
+        version="1p9",
+    )
+
+    # Wildcard finds the right file (and double-digit version is OK)
+    _check("miniagasc_*", tmp_path / "miniagasc_1p10.h5")
+
+    # With .h5 supplied just return the file, again don't require existence.
+    _check("agasc1p7.h5", "agasc1p7.h5")
+    _check("doesnt-exist.h5", "doesnt-exist.h5")
+
+    # With AGASC_HDF5_FILE set, use that if agasc_file is None
+    with temp_env_var("AGASC_HDF5_FILE", "proseco_agasc_1p5.h5"):
+        _check(None, tmp_path / "proseco_agasc_1p5.h5")
+        # Explicit agasc_file overrides AGASC_HDF5_FILE
+        _check("agasc1p7.h5", "agasc1p7.h5")
+
+    # With a glob pattern existence of a matching file is required
+    with pytest.raises(FileNotFoundError, match="No AGASC files"):
+        agasc.get_agasc_filename("doesnt-exist*")

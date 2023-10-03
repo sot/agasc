@@ -1,18 +1,24 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import os
 import contextlib
+import functools
+import os
+import re
+from packaging.version import Version
+from pathlib import Path
+from typing import Optional
 
-import numpy as np
 import numexpr
+import numpy as np
 import tables
-
+from astropy.table import Column, Table
 from Chandra.Time import DateTime
-from astropy.table import Table, Column
 
-from .paths import default_agasc_dir, default_agasc_file
+from .healpix import get_stars_from_healpix_h5, is_healpix
+from .paths import default_agasc_dir
 from .supplement.utils import get_supplement_table
 
-__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars',
+__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars', 'read_h5_table',
+           'get_agasc_filename',
            'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT',
            'set_supplement_enabled', 'SUPPLEMENT_ENABLED_ENV']
 
@@ -23,7 +29,23 @@ BAD_CLASS_SUPPLEMENT = 100
 
 RA_DECS_CACHE = {}
 
-COMMON_DOC = """By default, stars with available mag estimates or bad star entries
+COMMON_AGASC_FILE_DOC = """\
+If ``agasc_file`` is not specified or is None then return either
+    ``default_agasc_dir()/${AGASC_HDF5_FILE}`` if ``${AGASC_HDF5_FILE}`` is defined;
+    or return the latest version of ``proseco_agasc`` in ``default_agasc_dir()``.
+
+    If ``agasc_file`` ends with the suffix ``.h5`` then it is returned as-is.
+
+    If ``agasc_file`` ends with ``*`` then the latest version of the matching AGASC file
+    in ``default_agasc_dir()`` is returned. For example, ``proseco_agasc_*`` could return
+    ``${SKA}/data/agasc/proseco_agasc_1p7.h5``.
+
+    Any other ending for ``agasc_file`` raises a ``ValueError``.
+
+    The default AGASC directory is the environment variable ``${AGASC_DIR}`` if defined,
+    otherwise ``${SKA}/data/agasc``."""
+
+COMMON_DOC = f"""By default, stars with available mag estimates or bad star entries
     in the AGASC supplement are updated in-place in the output ``stars`` Table:
 
     - ``MAG_ACA`` and ``MAG_ACA_ERR`` are set according to the supplement.
@@ -39,11 +61,10 @@ COMMON_DOC = """By default, stars with available mag estimates or bad star entri
     To disable the magnitude / bad star updates from the AGASC supplement, see
     the ``set_supplement_enabled`` context manager / decorator.
 
-    The default ``agasc_file`` is ``<AGASC_DIR>/miniagasc.h5``, where
-    ``<AGASC_DIR>`` is either the ``AGASC_DIR`` environment variable if defined
-    or ``$SKA/data/agasc``.
+    {COMMON_AGASC_FILE_DOC.replace("return", "use")}
 
-    The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``."""
+    The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``.
+    """
 
 
 @contextlib.contextmanager
@@ -131,6 +152,191 @@ def get_ra_decs(agasc_file):
     if agasc_file not in RA_DECS_CACHE:
         RA_DECS_CACHE[agasc_file] = RaDec(agasc_file)
     return RA_DECS_CACHE[agasc_file]
+
+
+def read_h5_table(
+        h5_file: str | Path | tables.file.File,
+        row0: Optional[int] = None,
+        row1: Optional[int] = None,
+        path="data",
+        cache=False,
+) -> np.ndarray:
+    """
+    Read HDF5 table from group ``path`` in ``h5_file``.
+
+    If ``row0`` and ``row1`` are specified then only the rows in that range are read,
+    e.g. ``data[row0:row1]``.
+
+    If ``cache`` is ``True`` then the data for the last read is cached in memory. The
+    cache key is ``(h5_file, path)`` and only one cache entry is kept. If ``h5_file``
+    is an HDF5 file object then the filename is used as the cache key.
+
+    Parameters
+    ----------
+    h5_file : str, Path, tables.file.File
+        Path to the HDF5 file to read or an open HDF5 file from ``tables.open_file``.
+    row0 : int, optional
+        First row to read. Default is None (read from first row).
+    row1 : int, optional
+        Last row to read. Default is None (read to last row).
+    path : str, optional
+        Path to the data table in the HDF5 file. Default is 'data'.
+    cache : bool, optional
+        Whether to cache the read data. Default is False.
+
+    Returns
+    -------
+    out : np.ndarray
+        The HDF5 data as a numpy structured array
+    """
+    if cache:
+        if isinstance(h5_file, tables.file.File):
+            h5_file = h5_file.filename
+        data = _read_h5_table_cached(h5_file, path)
+        out = data[row0:row1]
+    else:
+        out = _read_h5_table(h5_file, path, row0, row1)
+
+    return out
+
+
+@functools.lru_cache(maxsize=1)
+def _read_h5_table_cached(
+    h5_file: str | Path,
+    path: str,
+) -> np.ndarray:
+    return _read_h5_table(h5_file, path, row0=None, row1=None)
+
+
+def _read_h5_table(
+        h5_file: str | Path | tables.file.File,
+        path: str,
+        row0: None | int,
+        row1: None | int,
+) -> np.ndarray:
+    if isinstance(h5_file, tables.file.File):
+        out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1)
+    else:
+        with tables.open_file(h5_file) as h5:
+            out = _read_h5_table_from_open_h5_file(h5, path, row0, row1)
+
+    out = np.asarray(out)  # Convert to structured ndarray (not recarray)
+    return out
+
+
+def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
+    data = getattr(h5.root, path)
+    out = data.read(start=row0, stop=row1)
+    return out
+
+
+def get_agasc_filename(
+    agasc_file: Optional[str | Path] = None,
+    allow_rc: bool = False,
+    version: Optional[str] = None,
+) -> str:
+    """Get a matching AGASC file name from ``agasc_file``.
+
+    {common_agasc_file_doc}
+
+    Parameters
+    ----------
+    agasc_file : str, Path, optional
+        AGASC file name (default=None)
+    allow_rc : bool, optional
+        Allow AGASC release candidate files (default=False)
+    version : str, optional
+        Version number to match (e.g. "1p8" or "1p8rc4", default=None)
+
+    Returns
+    -------
+    filename : str
+        Matching AGASC file name
+
+    Examples
+    --------
+    Setup:
+
+    >>> from agasc import get_agasc_filename
+
+    Selecting files in the default AGASC directory:
+
+    >>> get_agasc_filename()
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
+    >>> get_agasc_filename("proseco_agasc_*")
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5'
+    >>> get_agasc_filename("proseco_agasc_*", version="1p8", allow_rc=True)
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p8rc4.h5'
+    >>> get_agasc_filename("agas*")
+    Traceback (most recent call last):
+       ...
+    FileNotFoundError: No AGASC files in /Users/aldcroft/ska/data/agasc found matching
+      agas*_?1p([0-9]+).h5
+
+    Selecting non-default AGASC file in the default directory:
+
+    >>> os.environ["AGASC_HDF5_FILE"] = "proseco_agasc_1p6.h5"
+    >>> get_agasc_filename()
+    '/Users/aldcroft/ska/data/agasc/proseco_agasc_1p6.h5'
+
+    Changing the default AGASC directory:
+
+    >>> os.environ["AGASC_DIR"] = "."
+    >>> get_agasc_filename()
+    'proseco_agasc_1p7.h5'
+
+    Selecting an arbitrary AGASC file name either directly or with the AGASC_HDF5_FILE
+    environment variable:
+
+    >>> get_agasc_filename("any_agasc.h5")
+    'any_agasc.h5'
+    >>> os.environ["AGASC_HDF5_FILE"] = "whatever.h5"
+    >>> get_agasc_filename()
+    '/Users/aldcroft/ska/data/agasc/whatever.h5'
+    """
+    if agasc_file is None:
+        if "AGASC_HDF5_FILE" in os.environ:
+            return str(default_agasc_dir() / os.environ["AGASC_HDF5_FILE"])
+        else:
+            agasc_file = "proseco_agasc_*"
+
+    agasc_file = str(agasc_file)
+
+    if agasc_file.endswith(".h5"):
+        return agasc_file
+
+    # Get latest version of file matching agasc_file in the default AGASC dir
+    agasc_dir = default_agasc_dir()
+
+    if not agasc_file.endswith("*"):
+        raise ValueError("agasc_file must end with '*' or '.h5'")
+
+    agasc_file_re = agasc_file[:-1] + r"(1p[0-9]+) (rc[1-9][0-9]*)? \.h5$"
+    matches = []
+    for path in agasc_dir.glob("*.h5"):
+        name = path.name
+        if match := re.match(agasc_file_re, name, re.VERBOSE):
+            if not allow_rc and match.group(2):
+                continue
+            version_str = match.group(1)
+            rc_str = match.group(2) or ""
+            if (
+                version is not None
+                and version not in (version_str, version_str + rc_str)
+            ):
+                continue
+            matches.append((Version(version_str.replace("p", ".") + rc_str), path))
+
+    if len(matches) == 0:
+        with_version = f" with {version=}" if version is not None else ""
+        raise FileNotFoundError(
+            f"No AGASC files in {agasc_dir}{with_version} matching {agasc_file_re}"
+        )
+    # Get candidate with highest version number. Tuples are sorted lexically starting
+    # by first element, which is the version number here.
+    out = sorted(matches)[-1][1]
+
+    return str(out)
 
 
 def sphere_dist(ra1, dec1, ra2, dec2):
@@ -227,7 +433,8 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True, fix_color1=True, use_supplement=None):
+                   pm_filter=True, fix_color1=True, use_supplement=None,
+                   cache=False):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -248,30 +455,26 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
     :param dec: Declination (deg)
     :param radius: Cone search radius (deg)
     :param date: Date for proper motion (default=Now)
-    :param agasc_file: Mini-agasc HDF5 file sorted by Dec (optional)
+    :param agasc_file: AGASC file (optional)
     :param pm_filter: Use PM-corrected positions in filtering
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
     :param use_supplement: Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
+    :param cache: Cache the AGASC data in memory (default=False)
 
     :returns: astropy Table of AGASC entries
     """
-    if agasc_file is None:
-        agasc_file = default_agasc_file()
+    agasc_file = get_agasc_filename(agasc_file)
 
+    get_stars_func = (
+        get_stars_from_healpix_h5
+        if is_healpix(agasc_file)
+        else get_stars_from_dec_sorted_h5
+    )
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
-    ra_decs = get_ra_decs(agasc_file)
-
-    idx0, idx1 = np.searchsorted(ra_decs.dec, [dec - rad_pm, dec + rad_pm])
-
-    dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
-    ok = dists <= rad_pm
-
-    with tables.open_file(agasc_file) as h5:
-        stars = Table(h5.root.data[idx0:idx1][ok], copy=False)
-
+    stars = get_stars_func(ra, dec, rad_pm, agasc_file, cache)
     add_pmcorr_columns(stars, date)
     if fix_color1:
         update_color1_column(stars)
@@ -283,6 +486,47 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         stars = stars[ok]
 
     update_from_supplement(stars, use_supplement)
+    stars.meta["agasc_file"] = agasc_file
+
+    return stars
+
+
+def get_stars_from_dec_sorted_h5(
+        ra: float,
+        dec: float,
+        radius: float,
+        agasc_file: str | Path,
+        cache: bool = False,
+) -> Table:
+    """
+    Returns a table of stars within a given radius of a given RA and Dec.
+
+    Parameters
+    ----------
+    ra : float
+        The right ascension of the center of the search radius, in degrees.
+    dec : float
+        The declination of the center of the search radius, in degrees.
+    radius : float
+        The radius of the search circle, in degrees.
+    agasc_file : str or Path
+        The path to the AGASC HDF5 file.
+    cache : bool, optional
+        Whether to cache the AGASC data in memory. Default is False.
+
+    Returns
+    -------
+    stars : astropy.table.Table
+        A structured ndarray of stars within the search radius, sorted by declination.
+    """
+    ra_decs = get_ra_decs(agasc_file)
+    idx0, idx1 = np.searchsorted(ra_decs.dec, [dec - radius, dec + radius])
+
+    dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
+    ok = dists <= radius
+
+    stars = read_h5_table(agasc_file, row0=idx0, row1=idx1, cache=cache)
+    stars = Table(stars[ok])
 
     return stars
 
@@ -325,8 +569,7 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
     :returns: astropy Table Row of entry for id
     """
 
-    if agasc_file is None:
-        agasc_file = default_agasc_file()
+    agasc_file = get_agasc_filename(agasc_file)
 
     with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
@@ -434,9 +677,7 @@ def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
     :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input
     """
-
-    if agasc_file is None:
-        agasc_file = default_agasc_file()
+    agasc_file = get_agasc_filename(agasc_file)
 
     dates_in = DateTime(dates).date
     dates_is_scalar = np.asarray(dates_in).shape == ()
@@ -466,9 +707,13 @@ def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color
     return t if ids.shape else t[0]
 
 
-# Interpolate COMMON_DOC into those function docstrings
+# Interpolate common docs into function docstrings. Using f-string interpolation in the
+# docstring itself does not work.
 for func in get_stars, get_star, get_agasc_cone:
     func.__doc__ = func.__doc__.format(common_doc=COMMON_DOC)
+get_agasc_filename.__doc__ = get_agasc_filename.__doc__.format(
+    common_agasc_file_doc=COMMON_AGASC_FILE_DOC
+)
 
 
 def update_from_supplement(stars, use_supplement=None):
@@ -518,17 +763,19 @@ def update_from_supplement(stars, use_supplement=None):
 
     # Get estimate mags and errs from supplement as a dict of dict
     # agasc_id : {mag_aca: .., mag_aca_err: ..}.
-    supplement_mags = get_supplement_table('mags', agasc_dir=default_agasc_dir(),
-                                           as_dict=True)
+    supplement_mags = get_supplement_table('mags', agasc_dir=default_agasc_dir())
+    supplement_mags_index = supplement_mags.meta["index"]
 
     # Get bad stars as {agasc_id: {source: ..}}
-    bad_stars = get_supplement_table('bad', agasc_dir=default_agasc_dir(), as_dict=True)
+    bad_stars = get_supplement_table('bad', agasc_dir=default_agasc_dir())
+    bad_stars_index = bad_stars.meta["index"]
 
     for star in stars:
         agasc_id = int(star['AGASC_ID'])
-        if agasc_id in supplement_mags:
-            mag_est = supplement_mags[agasc_id]['mag_aca']
-            mag_est_err = supplement_mags[agasc_id]['mag_aca_err']
+        if agasc_id in supplement_mags_index:
+            idx = supplement_mags_index[agasc_id]
+            mag_est = supplement_mags['mag_aca'][idx]
+            mag_est_err = supplement_mags['mag_aca_err'][idx]
 
             set_star(star, 'MAG_ACA', mag_est)
             # Mag err is stored as int16 in units of 0.01 mag. Use same convention here.
@@ -539,5 +786,5 @@ def update_from_supplement(stars, use_supplement=None):
                 if np.isclose(color1, 0.7) or np.isclose(color1, 1.5):
                     star['COLOR1'] = color1 - 0.01
 
-        if agasc_id in bad_stars:
+        if agasc_id in bad_stars_index:
             set_star(star, 'CLASS', BAD_CLASS_SUPPLEMENT)

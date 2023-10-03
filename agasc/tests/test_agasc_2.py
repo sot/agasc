@@ -110,13 +110,20 @@ AGASC_COLNAMES = [line.split()[0] for line in AGASC_COL_DESCR.strip().splitlines
 
 TEST_RADIUS = 0.6  # standard testing radius
 TEST_DIR = Path(__file__).parent
-DATA_DIR = Path(os.environ['SKA'], 'data', 'agasc')
-AGASC_FILE = {}
-AGASC_FILE['1p6'] = DATA_DIR / 'miniagasc_1p6.h5'
-AGASC_FILE['1p7'] = DATA_DIR / 'miniagasc.h5'  # Latest release
 
 # Whether to test DS AGASC vs. agasc package HDF5 files
-TEST_ASCDS = DS_AGASC_VERSION is not None and AGASC_FILE[DS_AGASC_VERSION].exists()
+if DS_AGASC_VERSION is None:
+    TEST_ASCDS = False
+else:
+    try:
+        agasc.get_agasc_filename('miniagasc_*', version=DS_AGASC_VERSION)
+    except FileNotFoundError:
+        TEST_ASCDS = False
+    else:
+        TEST_ASCDS = True
+
+# Latest full release of miniagasc
+MINIAGASC = agasc.get_agasc_filename('miniagasc_*')
 
 
 def get_ds_agasc_cone(ra, dec):
@@ -163,9 +170,14 @@ def test_agasc_conesearch(ra, dec, version):
         ref_stars = get_reference_agasc_values(ra, dec, version=version)
     except FileNotFoundError:
         if os.environ.get('WRITE_AGASC_TEST_FILES'):
-            ref_stars = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
-                                             agasc_file=AGASC_FILE[version],
-                                             date='2000:001', fix_color1=False)
+            ref_stars = agasc.get_agasc_cone(
+                ra,
+                dec,
+                radius=TEST_RADIUS,
+                agasc_file=agasc.get_agasc_filename('miniagasc_*', version=version),
+                date='2000:001',
+                fix_color1=False
+            )
             test_file = get_test_file(ra, dec, version)
             print(f'\nWriting {test_file} based on miniagasc\n')
             ref_stars.write(test_file, format='fits')
@@ -186,8 +198,9 @@ def test_against_ds_agasc(ra, dec):
 
 
 def _test_agasc(ra, dec, ref_stars, version='1p7'):
+    agasc_file = agasc.get_agasc_filename('miniagasc_*', version=version)
     stars1 = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
-                                  agasc_file=AGASC_FILE[version],
+                                  agasc_file=agasc_file,
                                   date='2000:001', fix_color1=False)
     stars1.sort('AGASC_ID')
 
@@ -336,7 +349,7 @@ def mp_get_agascid(agasc_id):
 @pytest.mark.skipif('not TEST_ASCDS')
 @pytest.mark.parametrize("ra,dec", list(zip(RAS[:2], DECS[:2])))
 def test_agasc_id(ra, dec, radius=0.2, nstar_limit=5):
-    agasc_file = AGASC_FILE[DS_AGASC_VERSION]
+    agasc_file = agasc.get_agasc_filename("miniagasc_*", version=DS_AGASC_VERSION)
 
     print('ra, dec =', ra, dec)
     stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file,
@@ -355,15 +368,14 @@ def test_agasc_id(ra, dec, radius=0.2, nstar_limit=5):
 
 
 def test_proseco_agasc_1p7():
-    proseco_file = DATA_DIR / 'proseco_agasc_1p7.h5'
-    if not proseco_file.exists():
-        pytest.skip(f'No proseco agasc file {proseco_file} found')
+    proseco_file = agasc.get_agasc_filename("proseco_agasc_*", version="1p7")
+    mini_file = agasc.get_agasc_filename("miniagasc_*", version="1p7")
 
     # Stars looking toward galactic center (dense!)
     p_stars = agasc.get_agasc_cone(-266, -29, 3,
                                    agasc_file=proseco_file, date='2000:001')
     m_stars = agasc.get_agasc_cone(-266, -29, 3,
-                                   agasc_file=AGASC_FILE['1p7'], date='2000:001')
+                                   agasc_file=mini_file, date='2000:001')
 
     # Every miniagasc_1p7 star is in proseco_agasc_1p7
     m_ids = m_stars['AGASC_ID']
@@ -382,8 +394,12 @@ def test_proseco_agasc_1p7():
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
-    stars1 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=False)
-    stars2 = agasc.get_agasc_cone(ra, dec, date='2021:001', use_supplement=True)
+    stars1 = agasc.get_agasc_cone(
+        ra, dec, date='2021:001', agasc_file=MINIAGASC, use_supplement=False
+    )
+    stars2 = agasc.get_agasc_cone(
+        ra, dec, date='2021:001', agasc_file=MINIAGASC, use_supplement=True
+    )
     ok = stars2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
     change_names = ['MAG_CATID', 'COLOR1', 'MAG_ACA', 'MAG_ACA_ERR']
@@ -420,8 +436,8 @@ def test_supplement_get_star():
     agasc_id = 58720672
     # Also checks that the default is False given the os.environ override for
     # this test file.
-    star1 = agasc.get_star(agasc_id)
-    star2 = agasc.get_star(agasc_id, use_supplement=True)
+    star1 = agasc.get_star(agasc_id, agasc_file=MINIAGASC)
+    star2 = agasc.get_star(agasc_id, agasc_file=MINIAGASC, use_supplement=True)
     assert star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT
     assert star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT
 
@@ -463,8 +479,8 @@ def test_supplement_get_star_disable_decorator():
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason='no mags in supplement')
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
-    star1 = agasc.get_stars(agasc_ids)
-    star2 = agasc.get_stars(agasc_ids, use_supplement=True)
+    star1 = agasc.get_stars(agasc_ids, agasc_file=MINIAGASC)
+    star2 = agasc.get_stars(agasc_ids, agasc_file=MINIAGASC, use_supplement=True)
     assert np.all(star1['MAG_CATID'] != agasc.MAG_CATID_SUPPLEMENT)
     assert np.all(star2['MAG_CATID'] == agasc.MAG_CATID_SUPPLEMENT)
 
