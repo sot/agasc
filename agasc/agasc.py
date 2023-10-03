@@ -486,6 +486,7 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
         stars = stars[ok]
 
     update_from_supplement(stars, use_supplement)
+    stars.meta["agasc_file"] = agasc_file
 
     return stars
 
