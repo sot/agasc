@@ -21,7 +21,7 @@ from email.mime.text import MIMEText
 from cxotime import CxoTime
 
 
-AGASC_DATA = Path(os.environ['SKA']) / 'data' / 'agasc'
+AGASC_DATA = Path(os.environ["SKA"]) / "data" / "agasc"
 
 
 def email_promotion_report(
@@ -44,14 +44,14 @@ def update_rc():
     """
     Update the supplement in $SKA/data/agasc/rc
     """
-    filenames = list((AGASC_DATA / 'rc' / 'promote').glob('*'))
+    filenames = list((AGASC_DATA / "rc" / "promote").glob("*"))
     if filenames:
         for file in filenames:
             file.rename(AGASC_DATA / file.name)
-        email_promotion_report(filenames, destdir=AGASC_DATA, to='aca@cfa.harvard.edu')
+        email_promotion_report(filenames, destdir=AGASC_DATA, to="aca@cfa.harvard.edu")
 
     subprocess.run(
-        ['task_schedule3.pl', '-config', 'agasc/task_schedule_update_supplement_rc.cfg']
+        ["task_schedule3.pl", "-config", "agasc/task_schedule_update_supplement_rc.cfg"]
     )
 
 
@@ -63,9 +63,9 @@ def disposition():
     """
     subprocess.run(
         [
-            'task_schedule3.pl',
-            '-config',
-            'agasc/task_schedule_supplement_dispositions.cfg',
+            "task_schedule3.pl",
+            "-config",
+            "agasc/task_schedule_supplement_dispositions.cfg",
         ]
     )
 
@@ -77,21 +77,21 @@ def stage_promotion():
     It just copies the files into $SKA/data/agasc/rc/promote.
     The promotion task_schedule will move them to $SKA/data/agasc.
     """
-    promote_dir = AGASC_DATA / 'rc' / 'promote'
-    rc_dir = AGASC_DATA / 'rc'
+    promote_dir = AGASC_DATA / "rc" / "promote"
+    rc_dir = AGASC_DATA / "rc"
     promote_dir.mkdir(exist_ok=True)
     for filename in [
-        'agasc_supplement.h5',
-        'mag_stats_agasc.fits',
-        'mag_stats_obsid.fits',
+        "agasc_supplement.h5",
+        "mag_stats_agasc.fits",
+        "mag_stats_obsid.fits",
     ]:
         shutil.copy(rc_dir / filename, promote_dir / filename)
 
 
 TASKS = {
-    'update-rc': update_rc,
-    'disposition': disposition,
-    'schedule-promotion': stage_promotion,
+    "update-rc": update_rc,
+    "disposition": disposition,
+    "schedule-promotion": stage_promotion,
 }
 
 
@@ -99,7 +99,7 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('task', choices=TASKS)
+    parser.add_argument("task", choices=TASKS)
     return parser
 
 
@@ -108,5 +108,5 @@ def main():
     TASKS[args.task]()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

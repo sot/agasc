@@ -3,7 +3,7 @@ from pathlib import Path
 from Ska.Shell import bash
 
 
-for agasc_dir in Path('agasc').glob("*"):
+for agasc_dir in Path("agasc").glob("*"):
     updir = agasc_dir.name.upper()
     if not os.path.exists(updir):
         os.makedirs(updir)
