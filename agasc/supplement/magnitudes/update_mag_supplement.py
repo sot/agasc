@@ -376,7 +376,7 @@ def write_obs_status_yaml(obs_stats=None, fails=(), filename=None):
             continue
         mp_starcat_times = (
             fail["mp_starcat_time"]
-            if type(fail["mp_starcat_time"]) is list
+            if isinstance(fail["mp_starcat_time"], list)
             else [fail["mp_starcat_time"]]
         )
         agasc_id = fail["agasc_id"]
@@ -457,7 +457,7 @@ obs:
                {%- endfor -%}]
     comments: {{ obs.comments }}
   {%- endfor %}
-"""  # noqa
+"""  # noqa: E501
     tpl = jinja2.Template(yaml_template)
     result = tpl.render(observations=obs, agasc_ids=agasc_ids)
     if filename:

@@ -409,7 +409,7 @@ class MagEstimateReport:
             ax.set_title(title)
         elif obsid is not None:
             ax.set_title(f"OBSID {obsid}")
-        if type(highlight_obsid) is not list and np.isscalar(highlight_obsid):
+        if not isinstance(highlight_obsid, list) and np.isscalar(highlight_obsid):
             highlight_obsid = [highlight_obsid]
 
         agasc_stat = self.agasc_stats[self.agasc_stats["agasc_id"] == agasc_id][0]
@@ -456,7 +456,7 @@ class MagEstimateReport:
         timeline["std"] = np.nan
         timeline["mag_mean"] = np.nan
         timeline["mag_std"] = np.nan
-        for i, obsid in enumerate(np.unique(timeline["obsid"])):
+        for obsid in np.unique(timeline["obsid"]):
             sel = obs_stats["obsid"] == obsid
             if draw_obs_mag_stats and np.any(sel):
                 timeline["mag_mean"][timeline["obsid"] == obsid] = obs_stats[sel][
@@ -810,7 +810,7 @@ class MagEstimateReport:
             ]
 
         if obsid:
-            for i, (l, o) in enumerate(flags):
+            for i, (l, o) in enumerate(flags):  # noqa: E741
                 flags[i] = (l, o[timeline["obsid"] == obsid])
             all_ok = all_ok[timeline["obsid"] == obsid]
             timeline = timeline[timeline["obsid"] == obsid]
@@ -823,7 +823,7 @@ class MagEstimateReport:
                 all_ok = timeline["obs_ok"] & all_ok
                 flags = [("OBS not OK", ~timeline["obs_ok"])] + flags
 
-            for i, obsid in enumerate(obsids):
+            for obsid in obsids:
                 limits[obsid] = (
                     timeline["x"][timeline["obsid"] == obsid].min(),
                     timeline["x"][timeline["obsid"] == obsid].max(),

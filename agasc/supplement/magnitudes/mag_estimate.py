@@ -68,10 +68,10 @@ class MagStatsException(Exception):
         self.error_code = EXCEPTION_CODES[msg]
         self.msg = msg
         self.agasc_id = agasc_id
-        self.obsid = obsid[0] if type(obsid) is list and len(obsid) == 1 else obsid
+        self.obsid = obsid[0] if isinstance(obsid, list) and len(obsid) == 1 else obsid
         self.mp_starcat_time = (
             mp_starcat_time[0]
-            if type(mp_starcat_time) is list and len(mp_starcat_time) == 1
+            if isinstance(mp_starcat_time, list) and len(mp_starcat_time) == 1
             else mp_starcat_time
         )
         for k in kwargs:
@@ -143,12 +143,12 @@ def get_responsivity(time):
     This was estimated with bright stars that were observed more than a hundred times during the
     mission. More details in the `responsivity notebook`_:
 
-    .. _responsivity notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb  # noqa
+    .. _responsivity notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb
 
     :param time: float
         Time in CXC seconds
     :return:
-    """
+    """  # noqa: E501
     a, b, c = [3.19776750e-02, 5.35201479e08, 8.49670756e07]
     return -a * (1 + scipy.special.erf((time - b) / c)) / 2
 
@@ -161,12 +161,12 @@ def get_droop_systematic_shift(magnitude):
     The magnitude shift is time-independent. It depends only on the catalog magnitude and is zero
     for bright stars. More details in the `droop notebook`_:
 
-    .. _droop notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb  # noqa
+    .. _droop notebook: https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb
 
     :param magnitude: float
         Catalog ACA magnitude
     :return:
-    """
+    """  # noqa: E501
     a, b = [11.25572, 0.59486369]
     return np.exp((magnitude - a) / b)
 

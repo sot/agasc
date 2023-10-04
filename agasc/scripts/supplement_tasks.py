@@ -50,7 +50,12 @@ def update_rc():
         email_promotion_report(filenames, destdir=AGASC_DATA, to="aca@cfa.harvard.edu")
 
     subprocess.run(
-        ["task_schedule3.pl", "-config", "agasc/task_schedule_update_supplement_rc.cfg"]
+        [
+            "task_schedule3.pl",
+            "-config",
+            "agasc/task_schedule_update_supplement_rc.cfg",
+        ],
+        check=False,
     )
 
 
@@ -65,7 +70,8 @@ def disposition():
             "task_schedule3.pl",
             "-config",
             "agasc/task_schedule_supplement_dispositions.cfg",
-        ]
+        ],
+        check=False,
     )
 
 
