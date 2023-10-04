@@ -5,3 +5,21 @@ ignore = [
     "**/*.ipynb",
     ".git"
 ]
+
+[tool.black]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.vscode
+  | \.eggs
+  | _build
+  | buck-out
+  | build
+  | dist
+  | docs
+)/
+'''
