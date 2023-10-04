@@ -40,8 +40,8 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-from agasc.healpix import get_healpix
 from agasc import default_agasc_dir
+from agasc.healpix import get_healpix
 
 
 def get_parser():

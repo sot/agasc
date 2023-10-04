@@ -1,13 +1,11 @@
 import os
+
 import numpy as np
 import tables
-
-from astropy.table import Table, join
 from astropy import table
-
+from astropy.table import Table, join
 from chandra_aca.transform import yagzag_to_pixels
 from kadi import commands, events
-
 
 STARS_OBS = None
 """The table of star observations"""

@@ -4,19 +4,18 @@
 Generate diff between to supplement files and output in HTML format.
 """
 
-import os
-import tables
-from pathlib import Path
-import difflib
-import pygments.lexers
-import pygments.formatters
 import argparse
 import datetime
-
+import difflib
+import os
 from io import StringIO
+from pathlib import Path
 
-from astropy.io import ascii
+import pygments.formatters
+import pygments.lexers
+import tables
 from astropy import table
+from astropy.io import ascii
 
 
 def read_file(filename, exclude=[]):

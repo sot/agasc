@@ -9,17 +9,16 @@ The available tasks are:
 * schedule-promotion: schedule supplement promotion
 """
 
-import os
-import subprocess
 import argparse
-from pathlib import Path
-import shutil
 import getpass
+import os
 import platform
+import shutil
+import subprocess
 from email.mime.text import MIMEText
+from pathlib import Path
 
 from cxotime import CxoTime
-
 
 AGASC_DATA = Path(os.environ["SKA"]) / "data" / "agasc"
 

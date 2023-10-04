@@ -1,16 +1,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from pathlib import Path
 import logging
 import warnings
+from pathlib import Path
+
 import numpy as np
-
-from ska_helpers.utils import lru_cache_timed
 import tables
+from astropy.table import Table, unique, vstack
 from cxotime import CxoTime
-from astropy.table import Table, vstack, unique
+from ska_helpers.utils import lru_cache_timed
 
-from ..paths import SUPPLEMENT_FILENAME, default_agasc_dir
-
+from agasc.paths import SUPPLEMENT_FILENAME, default_agasc_dir
 
 __all__ = [
     "get_supplement_table",

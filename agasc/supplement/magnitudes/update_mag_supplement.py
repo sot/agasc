@@ -1,30 +1,31 @@
 #!/usr/bin/env python
-import traceback
-import sys
-import warnings
-import os
-import pickle
 import datetime
 import logging
+import os
+import pickle
+import sys
+import traceback
+import warnings
 from functools import partial
 from multiprocessing import Pool
+
 import jinja2
-
-from tqdm import tqdm
-import tables
 import numpy as np
-from astropy import table
-from astropy import time, units as u
-
+import tables
+from astropy import table, time
+from astropy import units as u
+from cxotime import CxoTime
 from mica.starcheck import get_starcheck_catalog
+from tqdm import tqdm
+
 from agasc.supplement.magnitudes import (
-    star_obs_catalogs,
     mag_estimate,
+    star_obs_catalogs,
+)
+from agasc.supplement.magnitudes import (
     mag_estimate_report as msr,
 )
-from agasc.supplement.utils import save_version, MAGS_DTYPE
-from cxotime import CxoTime
-
+from agasc.supplement.utils import MAGS_DTYPE, save_version
 
 logger = logging.getLogger("agasc.supplement")
 
@@ -35,8 +36,8 @@ def level0_archive_time_range():
 
     :return: tuple of CxoTime
     """
-    import sqlite3
     import os
+    import sqlite3
 
     db_file = os.path.expandvars("$SKA/data/mica/archive/aca0/archfiles.db3")
     with sqlite3.connect(db_file) as connection:
@@ -62,8 +63,9 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
     :return: astropy.table.Table, astropy.table.Table, list
         obs_stats, agasc_stats, fails
     """
-    from agasc.supplement.magnitudes import mag_estimate
     from astropy.table import Table, vstack
+
+    from agasc.supplement.magnitudes import mag_estimate
 
     fails = []
     obs_stats = []
@@ -137,7 +139,8 @@ def get_agasc_id_stats_pool(
         obs_stats, agasc_stats, fails, failed_jobs
     """
     import time
-    from astropy.table import vstack, Table
+
+    from astropy.table import Table, vstack
 
     if obs_status_override is None:
         obs_status_override = {}
@@ -602,7 +605,7 @@ def do(
                         )
 
     if len(stars_obs) == 0:
-        logger.info(f"There are no new observations to process")
+        logger.info("There are no new observations to process")
         return
 
     # do the processing
@@ -666,7 +669,7 @@ def do(
     if report and len(agasc_stats):
         if report_date is None:
             report_dir = reports_dir
-            report_data_file = report_dir / f"report_data.pkl"
+            report_data_file = report_dir / "report_data.pkl"
             nav_links = None
             report_date = CxoTime.now()
         else:
@@ -717,18 +720,18 @@ def do(
                 },
             ]
 
-            multi_star_html_args = dict(
-                filename="index.html",
-                sections=sections,
-                updated_stars=updated_stars,
-                fails=fails,
-                report_date=report_date.date,
-                tstart=start,
-                tstop=stop,
-                nav_links=nav_links,
-                include_all_stars=False,
-                no_progress=no_progress,
-            )
+            multi_star_html_args = {
+                "filename": "index.html",
+                "sections": sections,
+                "updated_stars": updated_stars,
+                "fails": fails,
+                "report_date": report_date.date,
+                "tstart": start,
+                "tstop": stop,
+                "nav_links": nav_links,
+                "include_all_stars": False,
+                "no_progress": no_progress,
+            }
 
         try:
             report = msr.MagEstimateReport(

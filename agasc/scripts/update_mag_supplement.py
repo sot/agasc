@@ -5,17 +5,18 @@ Update Magnitude Statistics.
 
 
 """
-import os
-from pathlib import Path
 import argparse
 import logging
-import yaml
-import pyyaks.logger
+import os
+from pathlib import Path
 
-from agasc.supplement.magnitudes import star_obs_catalogs
-from agasc.supplement.magnitudes import update_mag_supplement
+import pyyaks.logger
+import yaml
+from cxotime import CxoTime
+from cxotime import units as u
+
 from agasc.scripts import update_supplement
-from cxotime import CxoTime, units as u
+from agasc.supplement.magnitudes import star_obs_catalogs, update_mag_supplement
 
 
 def get_parser():

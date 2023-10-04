@@ -19,7 +19,6 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-
 __all__ = ["is_healpix", "get_stars_from_healpix_h5"]
 
 
@@ -106,7 +105,7 @@ def get_stars_from_healpix_h5(
     stars : astropy.table.Table
         Table of stars within the search cone, with columns from the AGASC data table.
     """
-    from agasc import sphere_dist, read_h5_table
+    from agasc import read_h5_table, sphere_dist
 
     # Table of healpix, idx0, idx1 where idx is the index into main AGASC data table
     healpix_index_map, nside = get_healpix_info(agasc_file)

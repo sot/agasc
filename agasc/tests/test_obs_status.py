@@ -1,15 +1,16 @@
-import pytest
+import builtins
 import io
 import os
-import numpy as np
 import pathlib
-from astropy import table
-import tables
-import builtins
 
-from agasc.supplement.magnitudes import mag_estimate, star_obs_catalogs
+import numpy as np
+import pytest
+import tables
+from astropy import table
+
 from agasc.scripts import update_supplement
-from agasc.supplement.utils import OBS_DTYPE, BAD_DTYPE
+from agasc.supplement.magnitudes import mag_estimate, star_obs_catalogs
+from agasc.supplement.utils import BAD_DTYPE, OBS_DTYPE
 
 TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
 
@@ -575,7 +576,7 @@ def test_parse_file(monkeypatch, mock_open):
         data = update_supplement._sanitize_args(data)
         assert (
             data == TEST_DATA[filename]
-        ), f"update_supplement._sanitize_args should be idempotent"
+        ), "update_supplement._sanitize_args should be idempotent"
 
 
 def test_parse_args_file(monkeypatch, mock_open):
@@ -1183,7 +1184,7 @@ def test_save_version(monkeypatch):
     # write method is called
     import agasc
 
-    versions = dict(obs=agasc.__version__, mags=agasc.__version__)
+    versions = {"obs": agasc.__version__, "mags": agasc.__version__}
 
     def mock_write(*args, **kwargs):
         mock_write.calls.append((args, kwargs))
@@ -1193,7 +1194,7 @@ def test_save_version(monkeypatch):
         assert len(args[0]) == 1
         assert "supplement" in args[0].colnames
         if kwargs["path"] == "agasc_versions":
-            for k, v in versions.items():
+            for k, _v in versions.items():
                 assert k in args[0].colnames
                 assert args[0][k][0] == versions[k]
 

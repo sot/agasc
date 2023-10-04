@@ -2,30 +2,29 @@
 Functions to estimate observed ACA magnitudes
 """
 
+import collections
+import logging
 import sys
 import traceback
-import logging
-import collections
 
-import scipy.stats
-import scipy.special
-import numpy as np
 import numba
-from astropy.table import Table, vstack
-
-from Chandra.Time import DateTime
-from cheta import fetch
-from Quaternion import Quat
+import numpy as np
+import scipy.special
+import scipy.stats
 import Ska.quatutil
-from mica.archive import aca_l0
-from mica.archive.aca_dark.dark_cal import get_dark_cal_image
+from astropy.table import Table, vstack
+from Chandra.Time import DateTime
 from chandra_aca.transform import count_rate_to_mag, pixels_to_yagzag
+from cheta import fetch
 from cxotime import CxoTime
 from kadi import events
+from mica.archive import aca_l0
+from mica.archive.aca_dark.dark_cal import get_dark_cal_image
+from Quaternion import Quat
 
-from . import star_obs_catalogs
 from agasc import get_star
 
+from . import star_obs_catalogs
 
 logger = logging.getLogger("agasc.supplement")
 
@@ -492,7 +491,7 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
     if len(obs) > 1:
         obs = obs.loc["mp_starcat_time", sorted(obs["mp_starcat_time"])]
     telem = []
-    for i, o in enumerate(obs):
+    for _i, o in enumerate(obs):
         try:
             t = Table(get_telemetry(o))
             t["obsid"] = o["obsid"]

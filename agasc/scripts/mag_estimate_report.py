@@ -4,11 +4,13 @@
 Produce reports of the magnitude supplement.
 """
 
-import os
 import argparse
+import os
 from pathlib import Path
+
 import numpy as np
-from astropy import table, time, units as u
+from astropy import table, time
+from astropy import units as u
 from cxotime import CxoTime, units
 
 from agasc.supplement.magnitudes import mag_estimate_report

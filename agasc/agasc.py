@@ -3,7 +3,6 @@ import contextlib
 import functools
 import os
 import re
-from packaging.version import Version
 from pathlib import Path
 from typing import Optional
 
@@ -12,6 +11,7 @@ import numpy as np
 import tables
 from astropy.table import Column, Table
 from Chandra.Time import DateTime
+from packaging.version import Version
 
 from .healpix import get_stars_from_healpix_h5, is_healpix
 from .paths import default_agasc_dir
@@ -367,8 +367,8 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     dec1 = np.radians(dec1).astype(np.float64)
     dec2 = np.radians(dec2).astype(np.float64)
 
-    numerator = numexpr.evaluate(
-        "sin((dec2 - dec1) / 2) ** 2 + "  # noqa
+    numerator = numexpr.evaluate( # noqa: F841
+        "sin((dec2 - dec1) / 2) ** 2 + "
         "cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2"
     )
 
@@ -623,7 +623,7 @@ def _get_rows_read_where(ids_1d, dates_1d, agasc_file):
     rows = []
     with tables.open_file(agasc_file) as h5:
         tbl = h5.root.data
-        for id, date in zip(ids_1d, dates_1d):
+        for id, _date in zip(ids_1d, dates_1d):
             id_rows = tbl.read_where("(AGASC_ID == {})".format(id))
 
             if len(id_rows) > 1:
@@ -645,7 +645,7 @@ def _get_rows_read_entire(ids_1d, dates_1d, agasc_file):
     agasc_idx = {agasc_id: idx for idx, agasc_id in enumerate(tbl["AGASC_ID"])}
 
     rows = []
-    for agasc_id, date in zip(ids_1d, dates_1d):
+    for agasc_id, _date in zip(ids_1d, dates_1d):
         if agasc_id not in agasc_idx:
             raise IdNotFound(f"No entry found for {agasc_id} in AGASC")
 

@@ -10,16 +10,16 @@ information relevant for the magnitude estimation from acq data.
 """
 
 import argparse
-from pathlib import Path
 import logging
-from cxotime.cxotime import CxoTime
-import yaml
+from pathlib import Path
+
 import numpy as np
 import pyyaks.logger
+import yaml
+from cxotime.cxotime import CxoTime
 
 from agasc.supplement.magnitudes import star_obs_catalogs as cat
-from agasc.supplement.utils import update_mags_table, update_obs_table, add_bad_star
-
+from agasc.supplement.utils import add_bad_star, update_mags_table, update_obs_table
 
 logger = logging.getLogger("agasc.supplement")
 
@@ -79,7 +79,7 @@ def _sanitize_args(status):
             )
 
         if "agasc_id" not in value:
-            value["agasc_id"] = list(sorted(rows["agasc_id"]))
+            value["agasc_id"] = sorted(rows["agasc_id"])
         else:
             value["agasc_id"] = list(np.atleast_1d(value["agasc_id"]))
         if "comments" not in value:

@@ -1,10 +1,10 @@
+import argparse
 import os
 from pathlib import Path
-import numpy as np
-import astropy.io.fits as fits
-from astropy.table import Table
-import argparse
 
+import numpy as np
+from astropy.io import fits
+from astropy.table import Table
 
 NEW_COMMENT = (
     " ",

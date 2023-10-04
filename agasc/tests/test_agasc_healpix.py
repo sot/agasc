@@ -9,7 +9,6 @@ import pytest
 import agasc
 from agasc.healpix import get_healpix_info
 
-
 AGASC_FILES = {}
 for root, version in [("proseco_agasc_*", "1p8"), ("agasc_healpix_*", "1p7")]:
     try:

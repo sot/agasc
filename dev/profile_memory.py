@@ -6,18 +6,18 @@ import sparkles
 
 import agasc
 
-STD_INFO = dict(
-    att=(0, 0, 0),
-    detector="ACIS-S",
-    sim_offset=0,
-    focus_offset=0,
-    date="2018:001",
-    n_guide=5,
-    n_fid=3,
-    t_ccd=-11,
-    man_angle=90,
-    dither=8.0,
-)
+STD_INFO = {
+    "att": (0, 0, 0),
+    "detector": "ACIS-S",
+    "sim_offset": 0,
+    "focus_offset": 0,
+    "date": "2018:001",
+    "n_guide": 5,
+    "n_fid": 3,
+    "t_ccd": -11,
+    "man_angle": 90,
+    "dither": 8.0,
+}
 
 
 print(f"agasc.__version__ = {agasc.__version__}")

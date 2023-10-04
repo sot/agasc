@@ -25,10 +25,10 @@ import re
 from pathlib import Path
 
 import numpy as np
+import pytest
 import Ska.Shell
 from astropy.io import ascii
-from astropy.table import Table, Row
-import pytest
+from astropy.table import Row, Table
 
 import agasc
 
@@ -283,7 +283,7 @@ def test_get_stars3():
 
 def test_get_stars_many():
     """Test get_stars() with at least GET_STARS_METHOD_THRESHOLD (5000) stars"""
-    from .. import agasc
+    from agasc import agasc
 
     stars = agasc.get_agasc_cone(0, 0, radius=0.5)
     agasc_ids = stars["AGASC_ID"]

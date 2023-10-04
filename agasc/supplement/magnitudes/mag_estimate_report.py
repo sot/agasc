@@ -1,25 +1,25 @@
-import platform
-import getpass
-import logging
-import errno
-import os
 import copy
+import errno
+import getpass
 import json
+import logging
+import os
+import platform
 import warnings
-from subprocess import Popen, PIPE
-from pathlib import Path
 from email.mime.text import MIMEText
+from pathlib import Path
+from subprocess import PIPE, Popen
+
 import jinja2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from astropy import table
+from cxotime import CxoTime
 from matplotlib.ticker import FixedLocator
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 from tqdm import tqdm
-from astropy import table
-from cxotime import CxoTime
 
 from agasc.supplement.magnitudes import mag_estimate
-
 
 JINJA2 = jinja2.Environment(
     loader=jinja2.PackageLoader("agasc.supplement.magnitudes", "templates"),
@@ -831,7 +831,7 @@ class MagEstimateReport:
 
         ok = [f[1] for f in flags]
         labels = [f[0] for f in flags]
-        ticks = [i for i in range(len(flags))]
+        ticks = list(range(len(flags)))
 
         for i in range(len(ok)):
             ax.scatter(
