@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>API documentation &#8212; Agasc 4.16.0 documentation</title>
+    <title>API documentation &#8212; Agasc 4.17.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -59,7 +59,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.16.0 documentation</a>
+	<a href="index.html">Agasc 4.17.0 documentation</a>
 	 &#187;
       </li>
       
@@ -77,7 +77,7 @@
 <span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-agasc.agasc" title="Permalink to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.agasc.get_agasc_cone">
-<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_color1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supplement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_color1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supplement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get AGASC catalog entries within <code class="docutils literal notranslate"><span class="pre">radius</span></code> degrees of <code class="docutils literal notranslate"><span class="pre">ra</span></code>, <code class="docutils literal notranslate"><span class="pre">dec</span></code>.</p>
 <p>The star positions are corrected for proper motion using the <code class="docutils literal notranslate"><span class="pre">date</span></code>
 argument, which defaults to the current date if not supplied.  The
@@ -98,9 +98,16 @@ meaning based on deep heritage in the AGASC catalog itself.</p></li>
 </ul>
 <p>To disable the magnitude / bad star updates from the AGASC supplement, see
 the <code class="docutils literal notranslate"><span class="pre">set_supplement_enabled</span></code> context manager / decorator.</p>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/miniagasc.h5</span></code>, where
-<code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;</span></code> is either the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined
-or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is not specified or is None then use either
+<code class="docutils literal notranslate"><span class="pre">default_agasc_dir()/${AGASC_HDF5_FILE}</span></code> if <code class="docutils literal notranslate"><span class="pre">${AGASC_HDF5_FILE}</span></code> is defined;
+or use the latest version of <code class="docutils literal notranslate"><span class="pre">proseco_agasc</span></code> in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with the suffix <code class="docutils literal notranslate"><span class="pre">.h5</span></code> then it is useed as-is.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with <code class="docutils literal notranslate"><span class="pre">*</span></code> then the latest version of the matching AGASC file
+in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code> is useed. For example, <code class="docutils literal notranslate"><span class="pre">proseco_agasc_*</span></code> could use
+<code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc/proseco_agasc_1p7.h5</span></code>.</p>
+<p>Any other ending for <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
+otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
 <p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
@@ -115,17 +122,92 @@ or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc<
 <li><p><strong>dec</strong> – Declination (deg)</p></li>
 <li><p><strong>radius</strong> – Cone search radius (deg)</p></li>
 <li><p><strong>date</strong> – Date for proper motion (default=Now)</p></li>
-<li><p><strong>agasc_file</strong> – Mini-agasc HDF5 file sorted by Dec (optional)</p></li>
+<li><p><strong>agasc_file</strong> – AGASC file (optional)</p></li>
 <li><p><strong>pm_filter</strong> – Use PM-corrected positions in filtering</p></li>
 <li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color</p></li>
 <li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
 (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
+<li><p><strong>cache</strong> – Cache the AGASC data in memory (default=False)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>astropy Table of AGASC entries</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agasc.agasc.get_agasc_filename">
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_rc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a matching AGASC file name from <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is not specified or is None then return either
+<code class="docutils literal notranslate"><span class="pre">default_agasc_dir()/${AGASC_HDF5_FILE}</span></code> if <code class="docutils literal notranslate"><span class="pre">${AGASC_HDF5_FILE}</span></code> is defined;
+or return the latest version of <code class="docutils literal notranslate"><span class="pre">proseco_agasc</span></code> in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with the suffix <code class="docutils literal notranslate"><span class="pre">.h5</span></code> then it is returned as-is.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with <code class="docutils literal notranslate"><span class="pre">*</span></code> then the latest version of the matching AGASC file
+in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code> is returned. For example, <code class="docutils literal notranslate"><span class="pre">proseco_agasc_*</span></code> could return
+<code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc/proseco_agasc_1p7.h5</span></code>.</p>
+<p>Any other ending for <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
+otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>agasc_file</strong><span class="classifier">str, Path, optional</span></dt><dd><p>AGASC file name (default=None)</p>
+</dd>
+<dt><strong>allow_rc</strong><span class="classifier">bool, optional</span></dt><dd><p>Allow AGASC release candidate files (default=False)</p>
+</dd>
+<dt><strong>version</strong><span class="classifier">str, optional</span></dt><dd><p>Version number to match (e.g. “1p8” or “1p8rc4”, default=None)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Matching AGASC file name</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Setup:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">agasc</span> <span class="kn">import</span> <span class="n">get_agasc_filename</span>
+</pre></div>
+</div>
+<p>Selecting files in the default AGASC directory:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">()</span>
+<span class="go">&#39;/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">(</span><span class="s2">&quot;proseco_agasc_*&quot;</span><span class="p">)</span>
+<span class="go">&#39;/Users/aldcroft/ska/data/agasc/proseco_agasc_1p7.h5&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">(</span><span class="s2">&quot;proseco_agasc_*&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1p8&quot;</span><span class="p">,</span> <span class="n">allow_rc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">&#39;/Users/aldcroft/ska/data/agasc/proseco_agasc_1p8rc4.h5&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">(</span><span class="s2">&quot;agas*&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">   </span><span class="c">...</span>
+<span class="gr">FileNotFoundError</span>: <span class="n">No AGASC files in /Users/aldcroft/ska/data/agasc found matching</span>
+<span class="go">  agas*_?1p([0-9]+).h5</span>
+</pre></div>
+</div>
+<p>Selecting non-default AGASC file in the default directory:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AGASC_HDF5_FILE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;proseco_agasc_1p6.h5&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">()</span>
+<span class="go">&#39;/Users/aldcroft/ska/data/agasc/proseco_agasc_1p6.h5&#39;</span>
+</pre></div>
+</div>
+<p>Changing the default AGASC directory:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AGASC_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">()</span>
+<span class="go">&#39;proseco_agasc_1p7.h5&#39;</span>
+</pre></div>
+</div>
+<p>Selecting an arbitrary AGASC file name either directly or with the AGASC_HDF5_FILE
+environment variable:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">(</span><span class="s2">&quot;any_agasc.h5&quot;</span><span class="p">)</span>
+<span class="go">&#39;any_agasc.h5&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AGASC_HDF5_FILE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;whatever.h5&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_agasc_filename</span><span class="p">()</span>
+<span class="go">&#39;/Users/aldcroft/ska/data/agasc/whatever.h5&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -147,9 +229,16 @@ meaning based on deep heritage in the AGASC catalog itself.</p></li>
 </ul>
 <p>To disable the magnitude / bad star updates from the AGASC supplement, see
 the <code class="docutils literal notranslate"><span class="pre">set_supplement_enabled</span></code> context manager / decorator.</p>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/miniagasc.h5</span></code>, where
-<code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;</span></code> is either the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined
-or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is not specified or is None then use either
+<code class="docutils literal notranslate"><span class="pre">default_agasc_dir()/${AGASC_HDF5_FILE}</span></code> if <code class="docutils literal notranslate"><span class="pre">${AGASC_HDF5_FILE}</span></code> is defined;
+or use the latest version of <code class="docutils literal notranslate"><span class="pre">proseco_agasc</span></code> in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with the suffix <code class="docutils literal notranslate"><span class="pre">.h5</span></code> then it is useed as-is.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with <code class="docutils literal notranslate"><span class="pre">*</span></code> then the latest version of the matching AGASC file
+in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code> is useed. For example, <code class="docutils literal notranslate"><span class="pre">proseco_agasc_*</span></code> could use
+<code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc/proseco_agasc_1p7.h5</span></code>.</p>
+<p>Any other ending for <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
+otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
 <p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
@@ -222,9 +311,16 @@ meaning based on deep heritage in the AGASC catalog itself.</p></li>
 </ul>
 <p>To disable the magnitude / bad star updates from the AGASC supplement, see
 the <code class="docutils literal notranslate"><span class="pre">set_supplement_enabled</span></code> context manager / decorator.</p>
-<p>The default <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/miniagasc.h5</span></code>, where
-<code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;</span></code> is either the <code class="docutils literal notranslate"><span class="pre">AGASC_DIR</span></code> environment variable if defined
-or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is not specified or is None then use either
+<code class="docutils literal notranslate"><span class="pre">default_agasc_dir()/${AGASC_HDF5_FILE}</span></code> if <code class="docutils literal notranslate"><span class="pre">${AGASC_HDF5_FILE}</span></code> is defined;
+or use the latest version of <code class="docutils literal notranslate"><span class="pre">proseco_agasc</span></code> in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with the suffix <code class="docutils literal notranslate"><span class="pre">.h5</span></code> then it is useed as-is.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with <code class="docutils literal notranslate"><span class="pre">*</span></code> then the latest version of the matching AGASC file
+in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code> is useed. For example, <code class="docutils literal notranslate"><span class="pre">proseco_agasc_*</span></code> could use
+<code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc/proseco_agasc_1p7.h5</span></code>.</p>
+<p>Any other ending for <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
+otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
 <p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
 <dl>
 <dt>Example::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
@@ -264,6 +360,39 @@ or <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc<
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>astropy Table of AGASC entries, or Table Row of one entry for scalar input</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agasc.agasc.read_h5_table">
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">read_h5_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#read_h5_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.read_h5_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read HDF5 table from group <code class="docutils literal notranslate"><span class="pre">path</span></code> in <code class="docutils literal notranslate"><span class="pre">h5_file</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">row0</span></code> and <code class="docutils literal notranslate"><span class="pre">row1</span></code> are specified then only the rows in that range are read,
+e.g. <code class="docutils literal notranslate"><span class="pre">data[row0:row1]</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">cache</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> then the data for the last read is cached in memory. The
+cache key is <code class="docutils literal notranslate"><span class="pre">(h5_file,</span> <span class="pre">path)</span></code> and only one cache entry is kept. If <code class="docutils literal notranslate"><span class="pre">h5_file</span></code>
+is an HDF5 file object then the filename is used as the cache key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>h5_file</strong><span class="classifier">str, Path, tables.file.File</span></dt><dd><p>Path to the HDF5 file to read or an open HDF5 file from <code class="docutils literal notranslate"><span class="pre">tables.open_file</span></code>.</p>
+</dd>
+<dt><strong>row0</strong><span class="classifier">int, optional</span></dt><dd><p>First row to read. Default is None (read from first row).</p>
+</dd>
+<dt><strong>row1</strong><span class="classifier">int, optional</span></dt><dd><p>Last row to read. Default is None (read to last row).</p>
+</dd>
+<dt><strong>path</strong><span class="classifier">str, optional</span></dt><dd><p>Path to the data table in the HDF5 file. Default is ‘data’.</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to cache the read data. Default is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>out</strong><span class="classifier">np.ndarray</span></dt><dd><p>The HDF5 data as a numpy structured array</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -340,7 +469,7 @@ of 2 to 3.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.paths.default_agasc_file">
 <span class="sig-prename descclassname"><span class="pre">agasc.paths.</span></span><span class="sig-name descname"><span class="pre">default_agasc_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/paths.html#default_agasc_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.paths.default_agasc_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Default main AGASC file <code class="docutils literal notranslate"><span class="pre">agasc_dir()</span> <span class="pre">/</span> <span class="pre">miniagasc.h5</span></code>.</p>
+<dd><p>Default main AGASC file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
@@ -493,8 +622,10 @@ Create a supplement file if it does not exist</p></li>
 <ul>
 <li><a class="reference internal" href="#">API documentation</a><ul>
 <li><a class="reference internal" href="#agasc.agasc.get_agasc_cone"><code class="docutils literal notranslate"><span class="pre">get_agasc_cone()</span></code></a></li>
+<li><a class="reference internal" href="#agasc.agasc.get_agasc_filename"><code class="docutils literal notranslate"><span class="pre">get_agasc_filename()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_star"><code class="docutils literal notranslate"><span class="pre">get_star()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_stars"><code class="docutils literal notranslate"><span class="pre">get_stars()</span></code></a></li>
+<li><a class="reference internal" href="#agasc.agasc.read_h5_table"><code class="docutils literal notranslate"><span class="pre">read_h5_table()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.set_supplement_enabled"><code class="docutils literal notranslate"><span class="pre">set_supplement_enabled()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.sphere_dist"><code class="docutils literal notranslate"><span class="pre">sphere_dist()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.paths.default_agasc_dir"><code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code></a></li>

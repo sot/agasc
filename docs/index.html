@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>AGASC Catalog Description and History &#8212; Agasc 4.16.0 documentation</title>
+    <title>AGASC Catalog Description and History &#8212; Agasc 4.17.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -52,7 +52,7 @@
 	</a>
       </li>
       <li>
-	<a href="#">Agasc 4.16.0 documentation</a>
+	<a href="#">Agasc 4.17.0 documentation</a>
 	 &#187;
       </li>
       
@@ -91,6 +91,23 @@ for stars near a location on the sky or by AGASC ID.</p>
 <li><p><a class="reference internal" href="api.html#agasc.agasc.get_star" title="agasc.agasc.get_star"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_star()</span></code></a>: Get information for one star by AGASC ID</p></li>
 <li><p><a class="reference internal" href="api.html#agasc.agasc.get_stars" title="agasc.agasc.get_stars"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_stars()</span></code></a>: Get information for a list of stars by AGASC ID</p></li>
 </ul>
+<section id="agasc-catalog-order">
+<h2>AGASC catalog order<a class="headerlink" href="#agasc-catalog-order" title="Permalink to this heading">¶</a></h2>
+<p>Catalogs with version 1.7 or before are ordered by increasing Declination. Cone search
+is done by selecting a band of Declination and then searching for stars within the
+required spatial cone.</p>
+<p>Starting with version 1.8, catalogs are ordered by <a class="reference external" href="https://healpix.sourceforge.io/">HEALpix</a> index. HEALpix is a library that provides a fast way
+to uniquely tile a sphere with tiles of uniform area, providing a map between any point
+on the sphere and the index number. The HEALpix index is a pixel number between 0 and
+12*NSIDE**2-1, where NSIDE is the HEALpix resolution parameter. For AGASC 1.8, NSIDE=64.</p>
+<p>HEALpix-ordered catalogs include a <code class="docutils literal notranslate"><span class="pre">healpix_index</span></code> table that provides the row range
+for each HEALpix index. Cone search is done by finding the HEALpix pixels that overlap
+the required spatial cone and extracting the stars from the catalog that are in those
+pixels. This strategy is faster than the Declination-ordered catalog search and requires
+less memory.</p>
+<p>Note that for testing, some version 1.7 catalogs are available in HEALpix order. These
+are denoted with a <code class="docutils literal notranslate"><span class="pre">_healpix</span></code> suffix in the filename.</p>
+</section>
 </section>
 <section id="agasc-package-api-documentation">
 <h1><code class="docutils literal notranslate"><span class="pre">agasc</span></code> package API documentation<a class="headerlink" href="#agasc-package-api-documentation" title="Permalink to this heading">¶</a></h1>
@@ -98,8 +115,10 @@ for stars near a location on the sky or by AGASC ID.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.get_agasc_cone"><code class="docutils literal notranslate"><span class="pre">get_agasc_cone()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.get_agasc_filename"><code class="docutils literal notranslate"><span class="pre">get_agasc_filename()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.get_star"><code class="docutils literal notranslate"><span class="pre">get_star()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.get_stars"><code class="docutils literal notranslate"><span class="pre">get_stars()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.read_h5_table"><code class="docutils literal notranslate"><span class="pre">read_h5_table()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.set_supplement_enabled"><code class="docutils literal notranslate"><span class="pre">set_supplement_enabled()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#agasc.agasc.sphere_dist"><code class="docutils literal notranslate"><span class="pre">sphere_dist()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#agasc.paths.default_agasc_dir"><code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code></a></li>
@@ -159,7 +178,10 @@ for stars near a location on the sky or by AGASC ID.</p>
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">AGASC Catalog Description and History</a></li>
-<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#agasc-catalog-order">AGASC catalog order</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#agasc-package-api-documentation"><code class="docutils literal notranslate"><span class="pre">agasc</span></code> package API documentation</a></li>
 <li><a class="reference internal" href="#topics-for-maintainers">Topics For Maintainers</a></li>
 </ul>
