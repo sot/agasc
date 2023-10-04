@@ -38,7 +38,9 @@ os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = 'False'
 try:
     ascrc_file = '{}/.ascrc'.format(os.environ['HOME'])
     assert os.path.exists(ascrc_file)
-    ascds_env = Ska.Shell.getenv('source {} -r release'.format(ascrc_file), shell='tcsh')
+    ascds_env = Ska.Shell.getenv(
+        'source {} -r release'.format(ascrc_file), shell='tcsh'
+    )
     assert 'ASCDS_BIN' in ascds_env
     cmd = 'mp_get_agasc -r 10 -d 20 -w 0.01'
     # Run the command to check for bad status (which will throw exception)
@@ -153,7 +155,7 @@ def get_reference_agasc_values(ra, dec, version='1p7'):
     return dat
 
 
-RAS = np.hstack([0., 180., 0.1, 180., 275.36])
+RAS = np.hstack([0.0, 180.0, 0.1, 180.0, 275.36])
 DECS = np.hstack([89.9, -89.9, 0.0, 0.0, 8.09])
 # The (275.36, 8.09) coordinate fails unless date=2000:001 due to
 # mp_get_agasc not accounting for proper motion.
@@ -176,7 +178,7 @@ def test_agasc_conesearch(ra, dec, version):
                 radius=TEST_RADIUS,
                 agasc_file=agasc.get_agasc_filename('miniagasc_*', version=version),
                 date='2000:001',
-                fix_color1=False
+                fix_color1=False,
             )
             test_file = get_test_file(ra, dec, version)
             print(f'\nWriting {test_file} based on miniagasc\n')
@@ -199,9 +201,14 @@ def test_against_ds_agasc(ra, dec):
 
 def _test_agasc(ra, dec, ref_stars, version='1p7'):
     agasc_file = agasc.get_agasc_filename('miniagasc_*', version=version)
-    stars1 = agasc.get_agasc_cone(ra, dec, radius=TEST_RADIUS,
-                                  agasc_file=agasc_file,
-                                  date='2000:001', fix_color1=False)
+    stars1 = agasc.get_agasc_cone(
+        ra,
+        dec,
+        radius=TEST_RADIUS,
+        agasc_file=agasc_file,
+        date='2000:001',
+        fix_color1=False,
+    )
     stars1.sort('AGASC_ID')
 
     stars2 = ref_stars.copy()
@@ -220,8 +227,7 @@ def _test_agasc(ra, dec, ref_stars, version='1p7'):
 
     # Second make sure that the non-common stars are all just at the edge
     # of the faint mag limit, due to precision loss in mp_get_agasc
-    for s1, s2 in ((stars1, stars2),
-                   (stars2, stars1)):
+    for s1, s2 in ((stars1, stars2), (stars2, stars1)):
         mm1 = set(s1['AGASC_ID']) - set(s2['AGASC_ID'])
         for agasc_id in mm1:
             idx = np.flatnonzero(s1['AGASC_ID'] == agasc_id)[0]
@@ -278,10 +284,13 @@ def test_get_stars3():
 def test_get_stars_many():
     """Test get_stars() with at least GET_STARS_METHOD_THRESHOLD (5000) stars"""
     from .. import agasc
+
     stars = agasc.get_agasc_cone(0, 0, radius=0.5)
     agasc_ids = stars['AGASC_ID']
     stars1 = agasc.get_stars(agasc_ids, dates='2020:001')  # read_where method
-    stars2 = agasc.get_stars(agasc_ids, dates='2020:001', method_threshold=1)  # read entire AGASC
+    stars2 = agasc.get_stars(
+        agasc_ids, dates='2020:001', method_threshold=1
+    )  # read entire AGASC
 
     assert stars1.get_stars_method == 'tables_read_where'
     assert stars2.get_stars_method == 'read_entire_agasc'
@@ -292,7 +301,7 @@ def test_get_stars_many():
 
 
 def test_float16():
-    stars = agasc.get_agasc_cone(np.float16(219.90279), np.float16(-60.83358), .015)
+    stars = agasc.get_agasc_cone(np.float16(219.90279), np.float16(-60.83358), 0.015)
     assert stars['AGASC_ID'][0] == 1180612176
 
 
@@ -310,23 +319,36 @@ def test_proper_motion():
     stars = agasc.get_agasc_cone(star['RA'], star['DEC'], radius, date='2017:001')
     assert len(stars) == 0
 
-    stars = agasc.get_agasc_cone(star['RA'], star['DEC'], radius, date='2017:001',
-                                 pm_filter=False)
+    stars = agasc.get_agasc_cone(
+        star['RA'], star['DEC'], radius, date='2017:001', pm_filter=False
+    )
     assert len(stars) == 1
 
-    stars = agasc.get_agasc_cone(star['RA_PMCORR'], star['DEC_PMCORR'], radius, date='2017:001')
+    stars = agasc.get_agasc_cone(
+        star['RA_PMCORR'], star['DEC_PMCORR'], radius, date='2017:001'
+    )
     assert len(stars) == 1
 
-    stars = agasc.get_agasc_cone(star['RA_PMCORR'], star['DEC_PMCORR'], radius, date='2017:001',
-                                 pm_filter=False)
+    stars = agasc.get_agasc_cone(
+        star['RA_PMCORR'], star['DEC_PMCORR'], radius, date='2017:001', pm_filter=False
+    )
     assert len(stars) == 0
 
 
 @pytest.mark.parametrize(
     "agasc_id,date,ra_pmcorr,dec_pmcorr,label",
-    [(1180612288, '2020:001', 219.864331, -60.831868, "high proper motion, epoch 2000"),
-     (198451217, '2020:001', 247.892206, 19.276605, "epoch 1982 star"),
-     (501219465, '2020:001', 166.998976, 52.822080, "epoch 1984 star")])
+    [
+        (
+            1180612288,
+            '2020:001',
+            219.864331,
+            -60.831868,
+            "high proper motion, epoch 2000",
+        ),
+        (198451217, '2020:001', 247.892206, 19.276605, "epoch 1982 star"),
+        (501219465, '2020:001', 166.998976, 52.822080, "epoch 1984 star"),
+    ],
+)
 def test_add_pmcorr_is_consistent(agasc_id, date, ra_pmcorr, dec_pmcorr, label):
     """
     Check that the proper-motion corrected position is consistent reference/regress values.
@@ -352,8 +374,9 @@ def test_agasc_id(ra, dec, radius=0.2, nstar_limit=5):
     agasc_file = agasc.get_agasc_filename("miniagasc_*", version=DS_AGASC_VERSION)
 
     print('ra, dec =', ra, dec)
-    stars = agasc.get_agasc_cone(ra, dec, radius=radius, agasc_file=agasc_file,
-                                 fix_color1=False)
+    stars = agasc.get_agasc_cone(
+        ra, dec, radius=radius, agasc_file=agasc_file, fix_color1=False
+    )
     stars.sort('AGASC_ID')
 
     for agasc_id in stars['AGASC_ID'][:nstar_limit]:
@@ -372,10 +395,10 @@ def test_proseco_agasc_1p7():
     mini_file = agasc.get_agasc_filename("miniagasc_*", version="1p7")
 
     # Stars looking toward galactic center (dense!)
-    p_stars = agasc.get_agasc_cone(-266, -29, 3,
-                                   agasc_file=proseco_file, date='2000:001')
-    m_stars = agasc.get_agasc_cone(-266, -29, 3,
-                                   agasc_file=mini_file, date='2000:001')
+    p_stars = agasc.get_agasc_cone(
+        -266, -29, 3, agasc_file=proseco_file, date='2000:001'
+    )
+    m_stars = agasc.get_agasc_cone(-266, -29, 3, agasc_file=mini_file, date='2000:001')
 
     # Every miniagasc_1p7 star is in proseco_agasc_1p7
     m_ids = m_stars['AGASC_ID']
@@ -545,7 +568,13 @@ def test_get_supplement_table_mags_dict():
 def test_get_supplement_table_obs():
     obs = agasc.get_supplement_table('obs')
     assert isinstance(obs, Table)
-    assert obs.colnames == ['mp_starcat_time', 'agasc_id', 'obsid', 'status', 'comments']
+    assert obs.colnames == [
+        'mp_starcat_time',
+        'agasc_id',
+        'obsid',
+        'status',
+        'comments',
+    ]
 
 
 @pytest.mark.skipif(NO_OBS_IN_SUPPLEMENT, reason='no obs in supplement')

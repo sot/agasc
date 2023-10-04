@@ -26,11 +26,15 @@ def get_star_observations(start=None, stop=None, obsid=None):
     observations = observations[~observations['starcat_date'].mask]
     # the following line removes manual commands
     observations = observations[observations['source'] != 'CMD_EVT']
-    catalogs = commands.get_starcats_as_table(start=start, stop=stop, obsid=obsid, unique=True)
+    catalogs = commands.get_starcats_as_table(
+        start=start, stop=stop, obsid=obsid, unique=True
+    )
     catalogs = catalogs[np.in1d(catalogs['type'], ['BOT', 'GUI'])]
     star_obs = join(observations, catalogs, keys=join_keys)
     star_obs.rename_columns(['id', 'starcat_date'], ['agasc_id', 'mp_starcat_time'])
-    star_obs['row'], star_obs['col'] = yagzag_to_pixels(star_obs['yang'], star_obs['zang'])
+    star_obs['row'], star_obs['col'] = yagzag_to_pixels(
+        star_obs['yang'], star_obs['zang']
+    )
 
     # Add mag_aca_err column
     filename = os.path.join(os.environ['SKA'], 'data', 'agasc', 'proseco_agasc_1p7.h5')

@@ -25,15 +25,14 @@ AGASC_DATA = Path(os.environ['SKA']) / 'data' / 'agasc'
 
 
 def email_promotion_report(
-    filenames,
-    destdir,
-    to,
-    sender=f"{getpass.getuser()}@{platform.uname()[1]}"
+    filenames, destdir, to, sender=f"{getpass.getuser()}@{platform.uname()[1]}"
 ):
     date = CxoTime().date[:14]
     filenames = "- " + "\n- ".join([str(f) for f in filenames])
 
-    msg = MIMEText(f"The following files were promoted to {destdir} on {date}:\n{filenames}")
+    msg = MIMEText(
+        f"The following files were promoted to {destdir} on {date}:\n{filenames}"
+    )
     msg["From"] = sender
     msg["To"] = to
     msg["Subject"] = "AGASC RC supplement promoted"
@@ -49,17 +48,11 @@ def update_rc():
     if filenames:
         for file in filenames:
             file.rename(AGASC_DATA / file.name)
-        email_promotion_report(
-            filenames,
-            destdir=AGASC_DATA,
-            to='aca@cfa.harvard.edu'
-        )
+        email_promotion_report(filenames, destdir=AGASC_DATA, to='aca@cfa.harvard.edu')
 
-    subprocess.run([
-        'task_schedule3.pl',
-        '-config',
-        'agasc/task_schedule_update_supplement_rc.cfg'
-    ])
+    subprocess.run(
+        ['task_schedule3.pl', '-config', 'agasc/task_schedule_update_supplement_rc.cfg']
+    )
 
 
 def disposition():
@@ -68,11 +61,13 @@ def disposition():
 
     This actually schedules a task to run.
     """
-    subprocess.run([
-        'task_schedule3.pl',
-        '-config',
-        'agasc/task_schedule_supplement_dispositions.cfg'
-    ])
+    subprocess.run(
+        [
+            'task_schedule3.pl',
+            '-config',
+            'agasc/task_schedule_supplement_dispositions.cfg',
+        ]
+    )
 
 
 def stage_promotion():
@@ -85,7 +80,11 @@ def stage_promotion():
     promote_dir = AGASC_DATA / 'rc' / 'promote'
     rc_dir = AGASC_DATA / 'rc'
     promote_dir.mkdir(exist_ok=True)
-    for filename in ['agasc_supplement.h5', 'mag_stats_agasc.fits', 'mag_stats_obsid.fits']:
+    for filename in [
+        'agasc_supplement.h5',
+        'mag_stats_agasc.fits',
+        'mag_stats_obsid.fits',
+    ]:
         shutil.copy(rc_dir / filename, promote_dir / filename)
 
 
@@ -98,8 +97,7 @@ TASKS = {
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('task', choices=TASKS)
     return parser

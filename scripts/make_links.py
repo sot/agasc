@@ -12,4 +12,3 @@ for agasc_dir in Path('agasc').glob("*"):
         newname = ffile.name.upper()
         os.symlink((".." / ffile), newname)
         os.chdir("..")
-

@@ -20,59 +20,100 @@ from cxotime import CxoTime, units as u
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        parents=[update_supplement.get_obs_status_parser()]
+        description=__doc__, parents=[update_supplement.get_obs_status_parser()]
     )
-    parser.add_argument('--start',
-                        help='Include only stars observed after this time.'
-                             ' CxoTime-compatible time stamp.'
-                             ' Default: now - 30 days.')
-    parser.add_argument('--stop',
-                        help='Include only stars observed before this time.'
-                             ' CxoTime-compatible time stamp.'
-                             ' Default: now.')
-    parser.add_argument('--whole-history',
-                        help='Include all star observations and ignore --start/stop.',
-                        action='store_true', default=False)
-    parser.add_argument('--agasc-id-file',
-                        help='Include only observations of stars whose AGASC IDs are specified '
-                             'in this file, one per line.')
-    parser.add_argument('--output-dir',
-                        help='Directory where agasc_supplement.h5 is located.'
-                             'Other output is placed here as well. Default: .',
-                        default='.')
-    parser.add_argument('--include-bad',
-                        help='Do not exclude "bad" stars from magnitude estimates. Default: False',
-                        action='store_true', default=False)
+    parser.add_argument(
+        '--start',
+        help=(
+            'Include only stars observed after this time.'
+            ' CxoTime-compatible time stamp.'
+            ' Default: now - 30 days.'
+        ),
+    )
+    parser.add_argument(
+        '--stop',
+        help=(
+            'Include only stars observed before this time.'
+            ' CxoTime-compatible time stamp.'
+            ' Default: now.'
+        ),
+    )
+    parser.add_argument(
+        '--whole-history',
+        help='Include all star observations and ignore --start/stop.',
+        action='store_true',
+        default=False,
+    )
+    parser.add_argument(
+        '--agasc-id-file',
+        help=(
+            'Include only observations of stars whose AGASC IDs are specified '
+            'in this file, one per line.'
+        ),
+    )
+    parser.add_argument(
+        '--output-dir',
+        help=(
+            'Directory where agasc_supplement.h5 is located.'
+            'Other output is placed here as well. Default: .'
+        ),
+        default='.',
+    )
+    parser.add_argument(
+        '--include-bad',
+        help='Do not exclude "bad" stars from magnitude estimates. Default: False',
+        action='store_true',
+        default=False,
+    )
     report = parser.add_argument_group('Reporting')
-    report.add_argument('--report',
-                        help='Generate HTML report for the period covered. Default: False',
-                        action='store_true', default=False)
-    report.add_argument('--reports-dir',
-                        help='Directory where to place reports.'
-                             ' Default: <output_dir>/supplement_reports/weekly.')
+    report.add_argument(
+        '--report',
+        help='Generate HTML report for the period covered. Default: False',
+        action='store_true',
+        default=False,
+    )
+    report.add_argument(
+        '--reports-dir',
+        help=(
+            'Directory where to place reports.'
+            ' Default: <output_dir>/supplement_reports/weekly.'
+        ),
+    )
 
     other = parser.add_argument_group('Other')
-    other.add_argument('--multi-process',
-                       help="Use multi-processing to accelerate run.",
-                       action='store_true', default=False)
-    other.add_argument('--log-level',
-                       default='info',
-                       choices=['debug', 'info', 'warning', 'error'])
-    other.add_argument('--no-progress', dest='no_progress',
-                       help='Do not show a progress bar',
-                       action='store_true')  # this has no default, it will be None.
-    other.add_argument('--args-file',
-                       help='YAML file with arguments to '
-                            'agasc.supplement.magnitudes.update_mag_supplement.do')
-    other.add_argument("--dry-run",
-                       action="store_true",
-                       help="Dry run (no actual file or database updates)")
+    other.add_argument(
+        '--multi-process',
+        help="Use multi-processing to accelerate run.",
+        action='store_true',
+        default=False,
+    )
+    other.add_argument(
+        '--log-level', default='info', choices=['debug', 'info', 'warning', 'error']
+    )
+    other.add_argument(
+        '--no-progress',
+        dest='no_progress',
+        help='Do not show a progress bar',
+        action='store_true',
+    )  # this has no default, it will be None.
+    other.add_argument(
+        '--args-file',
+        help=(
+            'YAML file with arguments to '
+            'agasc.supplement.magnitudes.update_mag_supplement.do'
+        ),
+    )
+    other.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Dry run (no actual file or database updates)",
+    )
     return parser
 
 
 def main():
     import kadi.commands
+
     kadi.commands.conf.commands_version = '1'
 
     logger = logging.getLogger('agasc.supplement')
@@ -100,7 +141,9 @@ def main():
 
     if args.whole_history:
         if args.start or args.stop:
-            logger.error('--whole-history argument is incompatible with --start/--stop arguments')
+            logger.error(
+                '--whole-history argument is incompatible with --start/--stop arguments'
+            )
             the_parser.exit(1)
         args.start = None
         args.stop = None
@@ -108,13 +151,16 @@ def main():
     pyyaks.logger.get_logger(
         name='agasc.supplement',
         level=args.log_level.upper(),
-        format="%(asctime)s %(message)s"
+        format="%(asctime)s %(message)s",
     )
 
-    if (((args.obsid or args.mp_starcat_time) and not args.status)
-            or (not (args.obsid or args.mp_starcat_time) and args.status)):
+    if ((args.obsid or args.mp_starcat_time) and not args.status) or (
+        not (args.obsid or args.mp_starcat_time) and args.status
+    ):
         logger.error(
-            'To override OBS status, both --obs/mp-starcat-time and --status options are needed.')
+            'To override OBS status, both --obs/mp-starcat-time and --status options'
+            ' are needed.'
+        )
         the_parser.exit(1)
 
     star_obs_catalogs.load(args.stop)
@@ -136,7 +182,11 @@ def main():
         args.stop = CxoTime(star_obs_catalogs.STARS_OBS['mp_starcat_time']).max().date
     else:
         args.stop = CxoTime(args.stop).date if args.stop else CxoTime.now().date
-        args.start = CxoTime(args.start).date if args.start else (CxoTime.now() - 30 * u.day).date
+        args.start = (
+            CxoTime(args.start).date
+            if args.start
+            else (CxoTime.now() - 30 * u.day).date
+        )
 
     report_date = None
     if args.report:
@@ -151,8 +201,9 @@ def main():
         args.output_dir.mkdir(parents=True)
     with open(args_log_file, 'w') as fh:
         # there must be a better way to do this...
-        yaml_args = {k: str(v) if issubclass(type(v), Path) else v
-                     for k, v in vars(args).items()}
+        yaml_args = {
+            k: str(v) if issubclass(type(v), Path) else v for k, v in vars(args).items()
+        }
         yaml.dump(yaml_args, fh)
 
     update_mag_supplement.do(
@@ -169,7 +220,9 @@ def main():
         no_progress=args.no_progress,
     )
     if args.report and (args.reports_dir / f'{report_date.date[:8]}').exists():
-        args_log_file.replace(args.reports_dir / f'{report_date.date[:8]}' / args_log_file.name)
+        args_log_file.replace(
+            args.reports_dir / f'{report_date.date[:8]}' / args_log_file.name
+        )
 
 
 if __name__ == '__main__':

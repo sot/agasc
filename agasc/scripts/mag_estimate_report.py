@@ -16,34 +16,66 @@ from agasc.supplement.magnitudes import mag_estimate_report
 
 def get_parser():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--start', help='Time to start processing new observations.'
-                        ' CxoTime-compatible time stamp.'
-                        ' Default: now - 90 days')
-    parser.add_argument('--stop', help='Time to stop processing new observations.'
-                        ' CxoTime-compatible time stamp.'
-                        ' Default: now')
-    parser.add_argument('--input-dir', default='$SKA/data/agasc',
-                        help='Directory containing mag-stats files. Default: $SKA/data/agasc')
-    parser.add_argument('--output-dir', default='supplement_reports/suspect',
-                        help='Output directory.'
-                             ' Default: supplement_reports/suspect')
-    parser.add_argument('--obs-stats', default='mag_stats_obsid.fits',
-                        help='FITS file with mag-stats for all observations.'
-                             ' Default: mag_stats_obsid.fits')
-    parser.add_argument('--agasc-stats', default='mag_stats_agasc.fits',
-                        help='FITS file with mag-stats for all observed AGASC stars.'
-                             ' Default: mag_stats_agasc.fits')
-    parser.add_argument('--weekly-report',
-                        help="Add links to navigate weekly reports.",
-                        action='store_true', default=False)
-    parser.add_argument('--all-stars',
-                        help="Include all stars in the report, not just suspect.",
-                        action='store_true', default=False)
+    parser.add_argument(
+        '--start',
+        help=(
+            'Time to start processing new observations.'
+            ' CxoTime-compatible time stamp.'
+            ' Default: now - 90 days'
+        ),
+    )
+    parser.add_argument(
+        '--stop',
+        help=(
+            'Time to stop processing new observations.'
+            ' CxoTime-compatible time stamp.'
+            ' Default: now'
+        ),
+    )
+    parser.add_argument(
+        '--input-dir',
+        default='$SKA/data/agasc',
+        help='Directory containing mag-stats files. Default: $SKA/data/agasc',
+    )
+    parser.add_argument(
+        '--output-dir',
+        default='supplement_reports/suspect',
+        help='Output directory. Default: supplement_reports/suspect',
+    )
+    parser.add_argument(
+        '--obs-stats',
+        default='mag_stats_obsid.fits',
+        help=(
+            'FITS file with mag-stats for all observations.'
+            ' Default: mag_stats_obsid.fits'
+        ),
+    )
+    parser.add_argument(
+        '--agasc-stats',
+        default='mag_stats_agasc.fits',
+        help=(
+            'FITS file with mag-stats for all observed AGASC stars.'
+            ' Default: mag_stats_agasc.fits'
+        ),
+    )
+    parser.add_argument(
+        '--weekly-report',
+        help="Add links to navigate weekly reports.",
+        action='store_true',
+        default=False,
+    )
+    parser.add_argument(
+        '--all-stars',
+        help="Include all stars in the report, not just suspect.",
+        action='store_true',
+        default=False,
+    )
     return parser
 
 
 def main():
     import kadi.commands
+
     kadi.commands.conf.commands_version = '1'
 
     args = get_parser().parse_args()
@@ -64,16 +96,12 @@ def main():
     else:
         args.start = CxoTime(args.start)
 
-    t = (obs_stats['mp_starcat_time'])
+    t = obs_stats['mp_starcat_time']
     ok = (t < args.stop) & (t > args.start)
     if not args.all_stars:
         ok &= ~obs_stats['obs_ok']
     stars = np.unique(obs_stats[ok]['agasc_id'])
-    sections = [{
-        'id': 'stars',
-        'title': 'Stars',
-        'stars': stars
-    }]
+    sections = [{'id': 'stars', 'title': 'Stars', 'stars': stars}]
 
     agasc_stats = agasc_stats[np.in1d(agasc_stats['agasc_id'], stars)]
 
@@ -84,18 +112,22 @@ def main():
         nav_links = {
             'previous': f'../{(t - week).date[:8]}',
             'up': '..',
-            'next': f'../{(t + week).date[:8]}'
+            'next': f'../{(t + week).date[:8]}',
         }
     else:
         directory = args.output_dir
         nav_links = None
 
-    msr = mag_estimate_report.MagEstimateReport(agasc_stats,
-                                                obs_stats,
-                                                directory=directory)
-    msr.multi_star_html(sections=sections, tstart=args.start, tstop=args.stop,
-                        filename='index.html',
-                        nav_links=nav_links)
+    msr = mag_estimate_report.MagEstimateReport(
+        agasc_stats, obs_stats, directory=directory
+    )
+    msr.multi_star_html(
+        sections=sections,
+        tstart=args.start,
+        tstop=args.stop,
+        filename='index.html',
+        nav_links=nav_links,
+    )
 
 
 if __name__ == '__main__':

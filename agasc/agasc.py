@@ -17,10 +17,18 @@ from .healpix import get_stars_from_healpix_h5, is_healpix
 from .paths import default_agasc_dir
 from .supplement.utils import get_supplement_table
 
-__all__ = ['sphere_dist', 'get_agasc_cone', 'get_star', 'get_stars', 'read_h5_table',
-           'get_agasc_filename',
-           'MAG_CATID_SUPPLEMENT', 'BAD_CLASS_SUPPLEMENT',
-           'set_supplement_enabled', 'SUPPLEMENT_ENABLED_ENV']
+__all__ = [
+    'sphere_dist',
+    'get_agasc_cone',
+    'get_star',
+    'get_stars',
+    'read_h5_table',
+    'get_agasc_filename',
+    'MAG_CATID_SUPPLEMENT',
+    'BAD_CLASS_SUPPLEMENT',
+    'set_supplement_enabled',
+    'SUPPLEMENT_ENABLED_ENV',
+]
 
 SUPPLEMENT_ENABLED_ENV = 'AGASC_SUPPLEMENT_ENABLED'
 SUPPLEMENT_ENABLED_DEFAULT = 'True'
@@ -155,11 +163,11 @@ def get_ra_decs(agasc_file):
 
 
 def read_h5_table(
-        h5_file: str | Path | tables.file.File,
-        row0: Optional[int] = None,
-        row1: Optional[int] = None,
-        path="data",
-        cache=False,
+    h5_file: str | Path | tables.file.File,
+    row0: Optional[int] = None,
+    row1: Optional[int] = None,
+    path="data",
+    cache=False,
 ) -> np.ndarray:
     """
     Read HDF5 table from group ``path`` in ``h5_file``.
@@ -209,10 +217,10 @@ def _read_h5_table_cached(
 
 
 def _read_h5_table(
-        h5_file: str | Path | tables.file.File,
-        path: str,
-        row0: None | int,
-        row1: None | int,
+    h5_file: str | Path | tables.file.File,
+    path: str,
+    row0: None | int,
+    row1: None | int,
 ) -> np.ndarray:
     if isinstance(h5_file, tables.file.File):
         out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1)
@@ -320,9 +328,9 @@ def get_agasc_filename(
                 continue
             version_str = match.group(1)
             rc_str = match.group(2) or ""
-            if (
-                version is not None
-                and version not in (version_str, version_str + rc_str)
+            if version is not None and version not in (
+                version_str,
+                version_str + rc_str,
             ):
                 continue
             matches.append((Version(version_str.replace("p", ".") + rc_str), path))
@@ -359,8 +367,10 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     dec1 = np.radians(dec1).astype(np.float64)
     dec2 = np.radians(dec2).astype(np.float64)
 
-    numerator = numexpr.evaluate('sin((dec2 - dec1) / 2) ** 2 + '  # noqa
-                                 'cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2')
+    numerator = numexpr.evaluate(
+        'sin((dec2 - dec1) / 2) ** 2 + '  # noqa
+        'cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2'
+    )
 
     dists = numexpr.evaluate('2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)')
     return np.degrees(dists)
@@ -418,23 +428,39 @@ def add_pmcorr_columns(stars, date):
     # ndarray float64 for consistent results between scalar and array cases.
     dyear = dates.frac_year - stars['EPOCH'].view(np.ndarray).astype(np.float64)
 
-    pm_to_degrees = dyear / (3600. * 1000.)
-    dec_pmcorr = np.where(stars['PM_DEC'] != -9999,
-                          stars['DEC'] + stars['PM_DEC'] * pm_to_degrees,
-                          stars['DEC'])
+    pm_to_degrees = dyear / (3600.0 * 1000.0)
+    dec_pmcorr = np.where(
+        stars['PM_DEC'] != -9999,
+        stars['DEC'] + stars['PM_DEC'] * pm_to_degrees,
+        stars['DEC'],
+    )
     ra_scale = np.cos(np.radians(stars['DEC']))
-    ra_pmcorr = np.where(stars['PM_RA'] != -9999,
-                         stars['RA'] + stars['PM_RA'] * pm_to_degrees / ra_scale,
-                         stars['RA'])
+    ra_pmcorr = np.where(
+        stars['PM_RA'] != -9999,
+        stars['RA'] + stars['PM_RA'] * pm_to_degrees / ra_scale,
+        stars['RA'],
+    )
 
     # Add the proper-motion corrected columns to table using astropy.table.Table
-    stars.add_columns([Column(data=ra_pmcorr, name='RA_PMCORR'),
-                       Column(data=dec_pmcorr, name='DEC_PMCORR')])
+    stars.add_columns(
+        [
+            Column(data=ra_pmcorr, name='RA_PMCORR'),
+            Column(data=dec_pmcorr, name='DEC_PMCORR'),
+        ]
+    )
 
 
-def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
-                   pm_filter=True, fix_color1=True, use_supplement=None,
-                   cache=False):
+def get_agasc_cone(
+    ra,
+    dec,
+    radius=1.5,
+    date=None,
+    agasc_file=None,
+    pm_filter=True,
+    fix_color1=True,
+    use_supplement=None,
+    cache=False,
+):
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -492,11 +518,11 @@ def get_agasc_cone(ra, dec, radius=1.5, date=None, agasc_file=None,
 
 
 def get_stars_from_dec_sorted_h5(
-        ra: float,
-        dec: float,
-        radius: float,
-        agasc_file: str | Path,
-        cache: bool = False,
+    ra: float,
+    dec: float,
+    radius: float,
+    agasc_file: str | Path,
+    cache: bool = False,
 ) -> Table:
     """
     Returns a table of stars within a given radius of a given RA and Dec.
@@ -577,7 +603,8 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
 
     if len(id_rows) > 1:
         raise InconsistentCatalogError(
-            "More than one entry found for {} in AGASC".format(id))
+            "More than one entry found for {} in AGASC".format(id)
+        )
 
     if id_rows is None or len(id_rows) == 0:
         raise IdNotFound()
@@ -601,7 +628,8 @@ def _get_rows_read_where(ids_1d, dates_1d, agasc_file):
 
             if len(id_rows) > 1:
                 raise InconsistentCatalogError(
-                    f'More than one entry found for {id} in AGASC')
+                    f'More than one entry found for {id} in AGASC'
+                )
 
             if id_rows is None or len(id_rows) == 0:
                 raise IdNotFound(f'No entry found for {id} in AGASC')
@@ -625,8 +653,14 @@ def _get_rows_read_entire(ids_1d, dates_1d, agasc_file):
     return rows
 
 
-def get_stars(ids, agasc_file=None, dates=None, method_threshold=5000, fix_color1=True,
-              use_supplement=None):
+def get_stars(
+    ids,
+    agasc_file=None,
+    dates=None,
+    method_threshold=5000,
+    fix_color1=True,
+    use_supplement=None,
+):
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
@@ -743,10 +777,14 @@ def update_from_supplement(stars, use_supplement=None):
         Use the supplement (default=None, see above)
     """
     if use_supplement is None:
-        supplement_enabled_env = os.environ.get(SUPPLEMENT_ENABLED_ENV, SUPPLEMENT_ENABLED_DEFAULT)
+        supplement_enabled_env = os.environ.get(
+            SUPPLEMENT_ENABLED_ENV, SUPPLEMENT_ENABLED_DEFAULT
+        )
         if supplement_enabled_env not in ('True', 'False'):
-            raise ValueError(f'{SUPPLEMENT_ENABLED_ENV} env var must be either "True" or "False" '
-                             f'got {supplement_enabled_env}')
+            raise ValueError(
+                f'{SUPPLEMENT_ENABLED_ENV} env var must be either "True" or "False" '
+                f'got {supplement_enabled_env}'
+            )
         supplement_enabled = supplement_enabled_env == 'True'
     else:
         supplement_enabled = use_supplement

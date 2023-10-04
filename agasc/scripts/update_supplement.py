@@ -55,7 +55,9 @@ def _sanitize_args(status):
         else:
             obs = cat.STARS_OBS[cat.STARS_OBS['agasc_id'] == star['agasc_id']]
             if len(obs) == 0:
-                raise Exception(f"Can not guess last_obs_time for agasc_id={star['agasc_id']}")
+                raise Exception(
+                    f"Can not guess last_obs_time for agasc_id={star['agasc_id']}"
+                )
             star['last_obs_time'] = CxoTime(obs['mp_starcat_time']).max().cxcsec
 
     for value in status['obs']:
@@ -63,7 +65,9 @@ def _sanitize_args(status):
             raise RuntimeError('Observation catalog is not initialized')
         if 'mp_starcat_time' in value:
             key = 'mp_starcat_time'
-            rows = cat.STARS_OBS[cat.STARS_OBS['mp_starcat_time'] == value['mp_starcat_time']]
+            rows = cat.STARS_OBS[
+                cat.STARS_OBS['mp_starcat_time'] == value['mp_starcat_time']
+            ]
         elif 'obsid' in value:
             key = 'obsid'
             rows = cat.STARS_OBS[cat.STARS_OBS['obsid'] == value['obsid']]
@@ -77,7 +81,7 @@ def _sanitize_args(status):
         if 'agasc_id' not in value:
             value['agasc_id'] = list(sorted(rows['agasc_id']))
         else:
-            value['agasc_id'] = (list(np.atleast_1d(value['agasc_id'])))
+            value['agasc_id'] = list(np.atleast_1d(value['agasc_id']))
         if 'comments' not in value:
             value['comments'] = ''
         if 'mp_starcat_time' not in value:
@@ -104,10 +108,17 @@ def _sanitize_args(status):
     return status
 
 
-def parse_args(filename=None, bad_star_id=None, bad_star_source=None,
-               obsid=None, status=None, comments='', agasc_id=None, mp_starcat_time=None,
-               **_
-               ):
+def parse_args(
+    filename=None,
+    bad_star_id=None,
+    bad_star_source=None,
+    obsid=None,
+    status=None,
+    comments='',
+    agasc_id=None,
+    mp_starcat_time=None,
+    **_,
+):
     """
     Combine obs/bad-star status from file and from arguments.
 
@@ -145,17 +156,23 @@ def parse_args(filename=None, bad_star_id=None, bad_star_source=None,
             'agasc_id': agasc_id,
             'obsid': obsid,
             'status': status,
-            'comments': comments
+            'comments': comments,
         }
         optional = ['obsid', 'mp_starcat_time', 'agasc_id', 'comments']
         obs_status_override.append(
-            {key: row[key] for key in row if key not in optional or row[key] is not None}
+            {
+                key: row[key]
+                for key in row
+                if key not in optional or row[key] is not None
+            }
         )
 
     for bs in bad_star_id:
         bad_dict = dict(bad)
         if bs in bad_dict and bad_dict[bs] != bad_star_source:
-            raise RuntimeError('name collision: conflicting bad_star in file and in args')
+            raise RuntimeError(
+                'name collision: conflicting bad_star in file and in args'
+            )
         if (bs, bad_star_source) not in bad:
             bad.append((bs, bad_star_source))
 
@@ -173,23 +190,40 @@ def get_obs_status_parser():
     parser = argparse.ArgumentParser(add_help=False)
     status = parser.add_argument_group(
         'OBS/star status',
-        'options to modify the "bads" and "obs" tables in AGASC supplement. '
-        'Modifications to supplement happen before all magnitude estimates are made.'
+        (
+            'options to modify the "bads" and "obs" tables in AGASC supplement.'
+            ' Modifications to supplement happen before all magnitude estimates are'
+            ' made.'
+        ),
     )
-    status.add_argument('--obs-status-file',
-                        help='YAML file with star/observation status. '
-                             'More info at https://sot.github.io/agasc/supplement.html')
-    status.add_argument('--mp-starcat-time',
-                        help='Observation starcat time for status override. '
-                             'Usually the mission planning catalog time')
+    status.add_argument(
+        '--obs-status-file',
+        help=(
+            'YAML file with star/observation status. '
+            'More info at https://sot.github.io/agasc/supplement.html'
+        ),
+    )
+    status.add_argument(
+        '--mp-starcat-time',
+        help=(
+            'Observation starcat time for status override. '
+            'Usually the mission planning catalog time'
+        ),
+    )
     status.add_argument('--obsid', help='OBSID for status override.', type=int)
     status.add_argument('--agasc-id', help='AGASC ID for status override.', type=int)
     status.add_argument('--status', help='Status to override.')
     status.add_argument('--comments', help='Comments for status override.', default='')
-    status.add_argument('--bad-star-id', help='AGASC ID of bad star.',
-                        default=[], action='append', type=int)
-    status.add_argument("--bad-star-source", type=int,
-                        help="Source identifier indicating provenance.")
+    status.add_argument(
+        '--bad-star-id',
+        help='AGASC ID of bad star.',
+        default=[],
+        action='append',
+        type=int,
+    )
+    status.add_argument(
+        "--bad-star-source", type=int, help="Source identifier indicating provenance."
+    )
 
     return parser
 
@@ -201,19 +235,22 @@ def get_parser():
     :return: argparse.ArgumentParser
     """
     parse = argparse.ArgumentParser(
-        description=__doc__,
-        parents=[get_obs_status_parser()]
+        description=__doc__, parents=[get_obs_status_parser()]
     )
-    parse.add_argument("--output-dir",
-                       default='.',
-                       type=Path,
-                       help="Directory containing agasc_supplement.h5 (default='.')")
-    parse.add_argument('--log-level',
-                       default='info',
-                       choices=['debug', 'info', 'warning', 'error'])
-    parse.add_argument("--dry-run",
-                       action="store_true",
-                       help="Dry run (no actual file or database updates)")
+    parse.add_argument(
+        "--output-dir",
+        default='.',
+        type=Path,
+        help="Directory containing agasc_supplement.h5 (default='.')",
+    )
+    parse.add_argument(
+        '--log-level', default='info', choices=['debug', 'info', 'warning', 'error']
+    )
+    parse.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Dry run (no actual file or database updates)",
+    )
     return parse
 
 
@@ -225,34 +262,28 @@ def update(args):
 
     Returns a list of AGASC IDs whose records were updated in the supplement
     """
-    status = parse_args(
-        filename=args.obs_status_file,
-        **vars(args)
-    )
+    status = parse_args(filename=args.obs_status_file, **vars(args))
 
     if status['mags']:
         update_mags_table(
             args.output_dir / 'agasc_supplement.h5',
             status['mags'],
-            dry_run=args.dry_run
+            dry_run=args.dry_run,
         )
 
     if status['obs']:
         update_obs_table(
-            args.output_dir / 'agasc_supplement.h5',
-            status['obs'],
-            dry_run=args.dry_run
+            args.output_dir / 'agasc_supplement.h5', status['obs'], dry_run=args.dry_run
         )
 
     if status['bad']:
         add_bad_star(
-            args.output_dir / 'agasc_supplement.h5',
-            status['bad'],
-            dry_run=args.dry_run
+            args.output_dir / 'agasc_supplement.h5', status['bad'], dry_run=args.dry_run
         )
 
-    agasc_ids = sorted(set([o['agasc_id'] for o in status['obs']]
-                           + [o[0] for o in status['bad']]))
+    agasc_ids = sorted(
+        set([o['agasc_id'] for o in status['obs']] + [o[0] for o in status['bad']])
+    )
     return agasc_ids
 
 
@@ -261,6 +292,7 @@ def main():
     The main function for the update_obs_status script.
     """
     import kadi.commands
+
     kadi.commands.conf.commands_version = '1'
 
     args = get_parser().parse_args()
@@ -272,7 +304,7 @@ def main():
     pyyaks.logger.get_logger(
         name='agasc.supplement',
         level=args.log_level.upper(),
-        format="%(asctime)s %(message)s"
+        format="%(asctime)s %(message)s",
     )
 
     cat.load()

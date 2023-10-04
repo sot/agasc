@@ -29,4 +29,5 @@ def default_agasc_file():
     :returns: str
     """
     from agasc import get_agasc_filename
+
     return get_agasc_filename()

@@ -25,12 +25,14 @@ NEW_COMMENT = (
     ' ',
     ' ',
     'File written on Sept 5 2018',
-    ' ')
+    ' ',
+)
 
 
 def get_options():
     parser = argparse.ArgumentParser(
-       description="Make new AGASC fits files from old AGASC and new h5 source")
+        description="Make new AGASC fits files from old AGASC and new h5 source"
+    )
     parser.add_argument("--h5", default='/proj/sot/ska/data/agasc/agasc1p7.h5')
     parser.add_argument("--olddir", default="/data/agasc1p6/agasc")
     parser.add_argument("--out", default="./testagasc")
@@ -93,7 +95,7 @@ def main(h5file, srcdir, outdir):
             newfile = newdir.joinpath(f.name)
             update_file(f, newfile, tbl)
 
+
 if __name__ == '__main__':
     args = get_options()
     main(args.h5, args.olddir, args.out)
-    

@@ -44,8 +44,6 @@ from agasc.healpix import get_healpix
 from agasc import default_agasc_dir
 
 
-
-
 def get_parser():
     parser = argparse.ArgumentParser(
         description="Create derived AGASC HDF5 file", usage=__doc__
@@ -69,7 +67,7 @@ def get_parser():
     parser.add_argument(
         "--filter-faint",
         action="store_true",
-        help=('Filter: stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5 '),
+        help='Filter: stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5 ',
     )
     parser.add_argument(
         "--proseco-columns",
