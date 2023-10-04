@@ -367,7 +367,7 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     dec1 = np.radians(dec1).astype(np.float64)
     dec2 = np.radians(dec2).astype(np.float64)
 
-    numerator = numexpr.evaluate( # noqa: F841
+    numerator = numexpr.evaluate(  # noqa: F841
         "sin((dec2 - dec1) / 2) ** 2 + "
         "cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2"
     )
