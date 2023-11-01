@@ -1,7 +1,9 @@
-import time
-import numpy as np
 import argparse
+import time
 from pathlib import Path
+
+import numpy as np
+
 import agasc
 
 
@@ -25,7 +27,7 @@ def get_ra_decs():
 
 
 def time_get_agasc_cone(agasc_file, ras, decs, n_cone, cache=False):
-    kwargs = dict(radius=1.0, agasc_file=agasc_file)
+    kwargs = {"radius": 1.0, "agasc_file": agasc_file}
     if cache:
         kwargs["cache"] = True
 

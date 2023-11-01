@@ -2,7 +2,9 @@ sleep_time = 2
 
 print("importing time")
 import time
+
 t0 = time.time()
+
 
 def wait_until_time(t1):
     t_now = time.time()
@@ -10,20 +12,7 @@ def wait_until_time(t1):
 
 
 print(f"import other dependencies at {time.time() - t0:.2f} s")
-import contextlib
-import functools
 import os
-import re
-from packaging.version import Version
-from pathlib import Path
-from typing import Optional
-
-import numexpr
-import numpy as np
-import tables
-from astropy.table import Column, Table
-from Chandra.Time import DateTime
-import tables
 
 wait_until_time(2.0)
 
@@ -50,7 +39,6 @@ import proseco
 wait_until_time(8.0)
 
 print(f"importing sparkles at {time.time() - t0:.2f} s")
-import sparkles
 
 wait_until_time(10.0)
 

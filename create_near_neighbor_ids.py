@@ -81,9 +81,7 @@ def main():
             if id != sp["AGASC_ID"]:
                 near_ids.add(id)
 
-    outfile = (
-        Path(args.outdir) / f"{agasc_full.name[:-3]}_near_neighbor_ids.fits.gz"
-    )
+    outfile = Path(args.outdir) / f"{agasc_full.name[:-3]}_near_neighbor_ids.fits.gz"
     t = Table([list(near_ids)], names=["near_id"])
     print(f"Writing {len(t)} near-neighbor IDs to {outfile}")
     t.write(str(outfile), format="fits", overwrite=True)

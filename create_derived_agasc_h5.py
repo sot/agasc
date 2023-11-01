@@ -40,10 +40,8 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-from agasc.healpix import get_healpix
 from agasc import default_agasc_dir
-
-
+from agasc.healpix import get_healpix
 
 
 def get_parser():
@@ -69,7 +67,7 @@ def get_parser():
     parser.add_argument(
         "--filter-faint",
         action="store_true",
-        help=('Filter: stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5 '),
+        help='Filter: stars["MAG_ACA"] - 3.0 * stars["MAG_ACA_ERR"] / 100.0 < 11.5 ',
     )
     parser.add_argument(
         "--proseco-columns",
@@ -169,16 +167,16 @@ def write_derived_agasc(filename: str, stars: np.ndarray, version_num: str):
 def filter_proseco_columns(stars):
     print("Excluding columns not needed for proseco")
     # fmt: off
-    excludes = ['PLX', 'PLX_ERR', 'PLX_CATID',
-                'ACQQ1', 'ACQQ2', 'ACQQ3', 'ACQQ4', 'ACQQ5', 'ACQQ6',
-                'XREF_ID1', 'XREF_ID2', 'XREF_ID3', 'XREF_ID4', 'XREF_ID5',
-                'RSV4', 'RSV5', 'RSV6',
-                'POS_CATID', 'PM_CATID',
-                'MAG', 'MAG_ERR', 'MAG_BAND', 'MAG_CATID',
-                'COLOR1_ERR', 'C1_CATID',  # Keep color1, 2, 3
-                'COLOR2_ERR', 'C2_CATID',
-                'RSV2',
-                'VAR_CATID']
+    excludes = ["PLX", "PLX_ERR", "PLX_CATID",
+                "ACQQ1", "ACQQ2", "ACQQ3", "ACQQ4", "ACQQ5", "ACQQ6",
+                "XREF_ID1", "XREF_ID2", "XREF_ID3", "XREF_ID4", "XREF_ID5",
+                "RSV4", "RSV5", "RSV6",
+                "POS_CATID", "PM_CATID",
+                "MAG", "MAG_ERR", "MAG_BAND", "MAG_CATID",
+                "COLOR1_ERR", "C1_CATID",  # Keep color1, 2, 3
+                "COLOR2_ERR", "C2_CATID",
+                "RSV2",
+                "VAR_CATID"]
     # fmt: on
 
     names = [name for name in stars.dtype.names if name not in excludes]
