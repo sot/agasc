@@ -1,117 +1,55 @@
-# Copy ruff settings from pandas
-line-length = 100
+# Copied originally from pandas
 target-version = "py310"
+
 # fix = true
 unfixable = []
 
 select = [
-  # isort
-  "I",
-  # pyflakes
-  "F",
-  # pycodestyle
-  "E", "W",
-  # flake8-2020
-  "YTT",
-  # flake8-bugbear
-  "B",
-  # flake8-quotes
-  "Q",
-  # flake8-debugger
-  "T10",
-  # flake8-gettext
-  "INT",
-  # pylint
-  "PLC", "PLE", "PLR", "PLW",
-  # misc lints
-  "PIE",
-  # flake8-pyi
-  "PYI",
-  # tidy imports
-  "TID",
-  # implicit string concatenation
-  "ISC",
-  # type-checking imports
-  "TCH",
-  # comprehensions
-  "C4",
-  # pygrep-hooks
-  "PGH"
+  "I", # isort
+  "F", # pyflakes
+  "E", "W", # pycodestyle
+  "YTT", # flake8-2020
+  "B", # flake8-bugbear
+  "Q", # flake8-quotes
+  "T10", # flake8-debugger
+  "INT", # flake8-gettext
+  "PLC", "PLE", "PLR", "PLW", # pylint
+  "PIE", # misc lints
+  "PYI", # flake8-pyi
+  "TID", # tidy imports
+  "ISC", # implicit string concatenation
+  "TCH", # type-checking imports
+  "C4", # comprehensions
+  "PGH" # pygrep-hooks
 ]
 
 ignore = [
-  # space before : (needed for how black formats slicing)
-  # "E203",  # not yet implemented
-  # module level import not at top of file
-  "E402",
-  # do not assign a lambda expression, use a def
-  "E731",
-  # line break before binary operator
-  # "W503",  # not yet implemented
-  # line break after binary operator
-  # "W504",  # not yet implemented
-  # controversial
-  "B006",
-  # controversial?: Loop control variable not used within loop body
-  # "B007",
-  # controversial
-  "B008",
-  # setattr is used to side-step mypy
-  "B009",
-  # getattr is used to side-step mypy
-  "B010",
-  # tests use assert False
-  "B011",
-  # tests use comparisons but not their returned value
-  "B015",
-  # false positives
-  "B019",
-  # Loop control variable overrides iterable it iterates
-  "B020",
-  # Function definition does not bind loop variable
-  "B023",
-  # No explicit `stacklevel` keyword argument found
-  "B028",
-  # Functions defined inside a loop must not use variables redefined in the loop
-  # "B301",  # not yet implemented
-  # Only works with python >=3.10
-  "B905",
-  # Too many arguments to function call
-  "PLR0913",
-  # Too many returns
-  "PLR0911",
-  # Too many branches
-  "PLR0912",
-  # Too many statements
-  "PLR0915",
-  # Redefined loop name
-  "PLW2901",
-  # Global statements are discouraged
-  "PLW0603",
-  # Docstrings should not be included in stubs
-  "PYI021",
-  # No builtin `eval()` allowed
-  "PGH001",
-  # compare-to-empty-string
-  "PLC1901",
-  # Use typing_extensions.TypeAlias for type aliases
-  # "PYI026",  # not yet implemented
-  # Use "collections.abc.*" instead of "typing.*" (PEP 585 syntax)
-  # "PYI027",  # not yet implemented
-  # while int | float can be shortened to float, the former is more explicit
-  # "PYI041",  # not yet implemented
-
-  # Additional checks that don't pass yet
-  # Useless statement
-  "B018",
-  # Within an except clause, raise exceptions with ...
-  "B904",
-  # Magic number
-  "PLR2004",
-  # Consider `elif` instead of `else` then `if` to remove indentation level
-  "PLR5501",
+  "ISC001", # Disable this for compatibility with ruff format
+  "B028", # No explicit `stacklevel` keyword argument found
+  "B905", # `zip()` without an explicit `strict=` parameter
+  "E402", # module level import not at top of file
+  "E731", # do not assign a lambda expression, use a def
+  "PLC1901", # compare-to-empty-string
+  "PLR0911", # Too many returns
+  "PLR0912", # Too many branches
+  "PLR0913", # Too many arguments to function call
+  "PLR2004", # Magic number
+  "PYI021", # Docstrings should not be included in stubs
+  "PLR0915", # Too many statements
 ]
 
-exclude = [
-  "docs/",
+# TODO : fix these and stop ignoring. Commented out ones are common and OK to except.
+extend-ignore = [
+  "PGH004", # Use specific rule codes when using `noqa`
 ]
+
+extend-exclude = [
+  "docs",
+  "validate",
+]
+
+[pycodestyle]
+max-line-length = 100 # E501 reports lines that exceed the length of 100.
+
+[lint.extend-per-file-ignores]
+"__init__.py" = ["E402", "F401", "F403"]

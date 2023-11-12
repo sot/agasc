@@ -55,6 +55,6 @@ def load(tstop=None):
     """
     Populate this module's global variable STARS_OBS.
     """
-    global STARS_OBS
+    global STARS_OBS  # noqa: PLW0603
     if STARS_OBS is None:
         STARS_OBS = get_star_observations(stop=tstop)
