@@ -49,7 +49,9 @@ def level0_archive_time_range():
         return CxoTime(t_stop).date, CxoTime(t_start).date
 
 
-def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progress=None):
+def get_agasc_id_stats(
+    agasc_ids, obs_status_override=None, tstop=None, no_progress=None
+):
     """
     Call mag_stats.get_agasc_id_stats for each AGASC ID
 
@@ -67,6 +69,8 @@ def get_agasc_id_stats(agasc_ids, obs_status_override={}, tstop=None, no_progres
 
     from agasc.supplement.magnitudes import mag_estimate
 
+    if obs_status_override is None:
+        obs_status_override = {}
     fails = []
     obs_stats = []
     agasc_stats = []

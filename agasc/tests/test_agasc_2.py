@@ -238,7 +238,7 @@ def _test_agasc(ra, dec, ref_stars, version="1p7"):
             if adj_mag < 11.5 * 0.99:
                 # Allow for loss of precision in output of mp_get_agasc
                 print("Bad star", agasc_id, rad, adj_mag, bad_is_star1)
-                assert False
+                raise AssertionError()
 
 
 def test_basic():

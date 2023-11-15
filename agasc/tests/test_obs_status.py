@@ -908,7 +908,7 @@ def test_update_obs_blank_slate(monkeypatch, mock_open):
         monkeypatch.setattr(
             table.Table,
             "write",
-            lambda *args, **kwargs: mock_write(filename, *args, **kwargs),
+            lambda *args, **kwargs: mock_write(filename, *args, **kwargs),  # noqa: B023
         )
         status = update_supplement.parse_args(filename=filename)
         print(filename)
@@ -927,7 +927,7 @@ def test_update_obs(monkeypatch, mock_open):
         if "path" in kwargs and kwargs["path"] == "bad":
             mock_write.n_calls += 1
             ref = table.Table()
-            assert False
+            raise AssertionError()
         if "path" in kwargs and kwargs["path"] == "obs":
             mock_write.n_calls += 1
             ref = table.Table(

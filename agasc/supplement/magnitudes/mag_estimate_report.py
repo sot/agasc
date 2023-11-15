@@ -25,6 +25,7 @@ JINJA2 = jinja2.Environment(
     loader=jinja2.PackageLoader("agasc.supplement.magnitudes", "templates"),
     autoescape=jinja2.select_autoescape(["html", "xml"]),
 )
+SENDER = f"{getpass.getuser()}@{platform.uname()[1]}"
 
 logger = logging.getLogger("agasc.supplement")
 
@@ -503,8 +504,9 @@ class MagEstimateReport:
                 ylims_set = True
         if ylim == "max" or not ylims_set:
             if np.any(ok_ylim):
-                ymin, ymax = np.min(telem["mags"][ok_ylim]), np.max(
-                    telem["mags"][ok_ylim]
+                ymin, ymax = (
+                    np.min(telem["mags"][ok_ylim]),
+                    np.max(telem["mags"][ok_ylim]),
                 )
             else:
                 ymin, ymax = np.min(telem["mags"]), np.max(telem["mags"])
@@ -939,9 +941,7 @@ class MagEstimateReport:
         return fig
 
 
-def email_bad_obs_report(
-    bad_obs, to, sender=f"{getpass.getuser()}@{platform.uname()[1]}"
-):
+def email_bad_obs_report(bad_obs, to, sender=SENDER):
     date = CxoTime().date[:14]
     message = JINJA2.get_template("email_report.txt")
 

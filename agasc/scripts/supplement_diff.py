@@ -18,7 +18,9 @@ from astropy import table
 from astropy.io import ascii
 
 
-def read_file(filename, exclude=[]):
+def read_file(filename, exclude=None):
+    if exclude is None:
+        exclude = []
     formats = {
         "agasc_versions": {k: "{:>21s}" for k in ["mags", "obs", "bad", "supplement"]},
         "last_updated": {k: "{:>21s}" for k in ["mags", "obs", "bad", "supplement"]},
@@ -36,7 +38,7 @@ def read_file(filename, exclude=[]):
                 continue
             node = h5.get_node(f"/{name}")
             t = table.Table(node[:])
-            t.convert_bytestring_to_unicode
+            t.convert_bytestring_to_unicode()
             s = StringIO()
             ascii.write(t, s, format="fixed_width", formats=formats.get(name, {}))
             s.seek(0)

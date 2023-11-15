@@ -21,11 +21,10 @@ from pathlib import Path
 from cxotime import CxoTime
 
 AGASC_DATA = Path(os.environ["SKA"]) / "data" / "agasc"
+SENDER = f"{getpass.getuser()}@{platform.uname()[1]}"
 
 
-def email_promotion_report(
-    filenames, destdir, to, sender=f"{getpass.getuser()}@{platform.uname()[1]}"
-):
+def email_promotion_report(filenames, destdir, to, sender=SENDER):
     date = CxoTime().date[:14]
     filenames = "- " + "\n- ".join([str(f) for f in filenames])
 
