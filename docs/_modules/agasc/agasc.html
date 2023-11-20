@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.17.0 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.17.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.17.0 documentation</a>
+	<a href="../../index.html">Agasc 4.17.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -66,7 +66,6 @@
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -75,18 +74,27 @@
 <span class="kn">import</span> <span class="nn">tables</span>
 <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Table</span>
 <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
+<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
 
 <span class="kn">from</span> <span class="nn">.healpix</span> <span class="kn">import</span> <span class="n">get_stars_from_healpix_h5</span><span class="p">,</span> <span class="n">is_healpix</span>
 <span class="kn">from</span> <span class="nn">.paths</span> <span class="kn">import</span> <span class="n">default_agasc_dir</span>
 <span class="kn">from</span> <span class="nn">.supplement.utils</span> <span class="kn">import</span> <span class="n">get_supplement_table</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sphere_dist&#39;</span><span class="p">,</span> <span class="s1">&#39;get_agasc_cone&#39;</span><span class="p">,</span> <span class="s1">&#39;get_star&#39;</span><span class="p">,</span> <span class="s1">&#39;get_stars&#39;</span><span class="p">,</span> <span class="s1">&#39;read_h5_table&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;get_agasc_filename&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;MAG_CATID_SUPPLEMENT&#39;</span><span class="p">,</span> <span class="s1">&#39;BAD_CLASS_SUPPLEMENT&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;set_supplement_enabled&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPPLEMENT_ENABLED_ENV&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;sphere_dist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_agasc_cone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_star&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_stars&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;read_h5_table&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;get_agasc_filename&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MAG_CATID_SUPPLEMENT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BAD_CLASS_SUPPLEMENT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;set_supplement_enabled&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SUPPLEMENT_ENABLED_ENV&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="n">SUPPLEMENT_ENABLED_ENV</span> <span class="o">=</span> <span class="s1">&#39;AGASC_SUPPLEMENT_ENABLED&#39;</span>
-<span class="n">SUPPLEMENT_ENABLED_DEFAULT</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+<span class="n">SUPPLEMENT_ENABLED_ENV</span> <span class="o">=</span> <span class="s2">&quot;AGASC_SUPPLEMENT_ENABLED&quot;</span>
+<span class="n">SUPPLEMENT_ENABLED_DEFAULT</span> <span class="o">=</span> <span class="s2">&quot;True&quot;</span>
 <span class="n">MAG_CATID_SUPPLEMENT</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">BAD_CLASS_SUPPLEMENT</span> <span class="o">=</span> <span class="mi">100</span>
 
@@ -162,7 +170,7 @@
 <span class="sd">        Whether to use the AGASC supplement in the context / decorator</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;value must be bool (True|False)&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;value must be bool (True|False)&quot;</span><span class="p">)</span>
     <span class="n">orig</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="p">)</span>
     <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
@@ -192,21 +200,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ra&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_ra&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ra_dec</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_dec&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_dec&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ra_dec</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span>
 
     <span class="k">def</span> <span class="nf">read_ra_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Read the RA and DEC values from the agasc</span>
         <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
-            <span class="n">ras</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;RA&#39;</span><span class="p">)</span>
-            <span class="n">decs</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">&#39;DEC&#39;</span><span class="p">)</span>
+            <span class="n">ras</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;RA&quot;</span><span class="p">)</span>
+            <span class="n">decs</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;DEC&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ras</span><span class="p">,</span> <span class="n">decs</span>
 
 
@@ -218,11 +226,11 @@
 
 
 <div class="viewcode-block" id="read_h5_table"><a class="viewcode-back" href="../../api.html#agasc.agasc.read_h5_table">[docs]</a><span class="k">def</span> <span class="nf">read_h5_table</span><span class="p">(</span>
-        <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
-        <span class="n">row0</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">row1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">path</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
-        <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
+    <span class="n">row0</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">row1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read HDF5 table from group ``path`` in ``h5_file``.</span>
@@ -272,10 +280,10 @@
 
 
 <span class="k">def</span> <span class="nf">_read_h5_table</span><span class="p">(</span>
-        <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">row0</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">row1</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">row0</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">row1</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">_read_h5_table_from_open_h5_file</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">row0</span><span class="p">,</span> <span class="n">row1</span><span class="p">)</span>
@@ -383,9 +391,9 @@
                 <span class="k">continue</span>
             <span class="n">version_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">rc_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="ow">and</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">version_str</span><span class="p">,</span> <span class="n">version_str</span> <span class="o">+</span> <span class="n">rc_str</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="n">version_str</span><span class="p">,</span>
+                <span class="n">version_str</span> <span class="o">+</span> <span class="n">rc_str</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="k">continue</span>
             <span class="n">matches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">Version</span><span class="p">(</span><span class="n">version_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">rc_str</span><span class="p">),</span> <span class="n">path</span><span class="p">))</span>
@@ -422,10 +430,12 @@
     <span class="n">dec1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dec1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="n">dec2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dec2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
-    <span class="n">numerator</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s1">&#39;sin((dec2 - dec1) / 2) ** 2 + &#39;</span>  <span class="c1"># noqa</span>
-                                 <span class="s1">&#39;cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2&#39;</span><span class="p">)</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>  <span class="c1"># noqa: F841</span>
+        <span class="s2">&quot;sin((dec2 - dec1) / 2) ** 2 + &quot;</span>
+        <span class="s2">&quot;cos(dec1) * cos(dec2) * sin((ra2 - ra1) / 2) ** 2&quot;</span>
+    <span class="p">)</span>
 
-    <span class="n">dists</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s1">&#39;2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)&#39;</span><span class="p">)</span>
+    <span class="n">dists</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span></div>
 
 
@@ -445,8 +455,8 @@
 <span class="sd">    This updates ``stars`` in place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Select red stars that have a reliable mag in AGASC 1.7 and later.</span>
-    <span class="n">color15</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RSV3&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">new_color1</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR2&#39;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.850</span>
+    <span class="n">color15</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;RSV3&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">new_color1</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;COLOR2&quot;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.850</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_color1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># Ensure no new COLOR1 are within 0.001 of 1.5, so downstream tests of</span>
@@ -455,7 +465,7 @@
         <span class="n">new_color1</span><span class="p">[</span><span class="n">fix15</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.499</span>  <span class="c1"># Insignificantly different from 1.50</span>
 
         <span class="c1"># For stars with a reliable mag, now COLOR1 is really the B-V color.</span>
-        <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_color1</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_color1</span>
 
 
 <span class="k">def</span> <span class="nf">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
@@ -479,25 +489,41 @@
 
     <span class="c1"># Compute delta year.  stars[&#39;EPOCH&#39;] is Column, float32. Need to coerce to</span>
     <span class="c1"># ndarray float64 for consistent results between scalar and array cases.</span>
-    <span class="n">dyear</span> <span class="o">=</span> <span class="n">dates</span><span class="o">.</span><span class="n">frac_year</span> <span class="o">-</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;EPOCH&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">dyear</span> <span class="o">=</span> <span class="n">dates</span><span class="o">.</span><span class="n">frac_year</span> <span class="o">-</span> <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;EPOCH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 
-    <span class="n">pm_to_degrees</span> <span class="o">=</span> <span class="n">dyear</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3600.</span> <span class="o">*</span> <span class="mf">1000.</span><span class="p">)</span>
-    <span class="n">dec_pmcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_DEC&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
-                          <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_DEC&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_to_degrees</span><span class="p">,</span>
-                          <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">])</span>
-    <span class="n">ra_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">]))</span>
-    <span class="n">ra_pmcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_RA&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
-                         <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;PM_RA&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_to_degrees</span> <span class="o">/</span> <span class="n">ra_scale</span><span class="p">,</span>
-                         <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">])</span>
+    <span class="n">pm_to_degrees</span> <span class="o">=</span> <span class="n">dyear</span> <span class="o">/</span> <span class="p">(</span><span class="mf">3600.0</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">)</span>
+    <span class="n">dec_pmcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;PM_DEC&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;PM_DEC&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_to_degrees</span><span class="p">,</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">ra_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">]))</span>
+    <span class="n">ra_pmcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;PM_RA&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;PM_RA&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">pm_to_degrees</span> <span class="o">/</span> <span class="n">ra_scale</span><span class="p">,</span>
+        <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;RA&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
 
     <span class="c1"># Add the proper-motion corrected columns to table using astropy.table.Table</span>
-    <span class="n">stars</span><span class="o">.</span><span class="n">add_columns</span><span class="p">([</span><span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ra_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;RA_PMCORR&#39;</span><span class="p">),</span>
-                       <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dec_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;DEC_PMCORR&#39;</span><span class="p">)])</span>
+    <span class="n">stars</span><span class="o">.</span><span class="n">add_columns</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ra_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RA_PMCORR&quot;</span><span class="p">),</span>
+            <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dec_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;DEC_PMCORR&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
 
 
-<div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                   <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span>
+    <span class="n">ra</span><span class="p">,</span>
+    <span class="n">dec</span><span class="p">,</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.</span>
 
@@ -544,7 +570,7 @@
 
     <span class="c1"># Final filtering using proper-motion corrected positions</span>
     <span class="k">if</span> <span class="n">pm_filter</span><span class="p">:</span>
-        <span class="n">dists</span> <span class="o">=</span> <span class="n">sphere_dist</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA_PMCORR&#39;</span><span class="p">],</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC_PMCORR&#39;</span><span class="p">])</span>
+        <span class="n">dists</span> <span class="o">=</span> <span class="n">sphere_dist</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;RA_PMCORR&quot;</span><span class="p">],</span> <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;DEC_PMCORR&quot;</span><span class="p">])</span>
         <span class="n">ok</span> <span class="o">=</span> <span class="n">dists</span> <span class="o">&lt;=</span> <span class="n">radius</span>
         <span class="n">stars</span> <span class="o">=</span> <span class="n">stars</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
 
@@ -555,11 +581,11 @@
 
 
 <span class="k">def</span> <span class="nf">get_stars_from_dec_sorted_h5</span><span class="p">(</span>
-        <span class="n">ra</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">dec</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">agasc_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-        <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">ra</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dec</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">agasc_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a table of stars within a given radius of a given RA and Dec.</span>
@@ -636,11 +662,12 @@
 
     <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span>
-        <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s1">&#39;(AGASC_ID == </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+        <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s2">&quot;(AGASC_ID == </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">InconsistentCatalogError</span><span class="p">(</span>
-            <span class="s2">&quot;More than one entry found for </span><span class="si">{}</span><span class="s2"> in AGASC&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+            <span class="s2">&quot;More than one entry found for </span><span class="si">{}</span><span class="s2"> in AGASC&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">id_rows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">()</span>
@@ -659,15 +686,16 @@
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">date</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">):</span>
-            <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s1">&#39;(AGASC_ID == </span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">_date</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">):</span>
+            <span class="n">id_rows</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">read_where</span><span class="p">(</span><span class="s2">&quot;(AGASC_ID == </span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">InconsistentCatalogError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;More than one entry found for </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1"> in AGASC&#39;</span><span class="p">)</span>
+                    <span class="sa">f</span><span class="s2">&quot;More than one entry found for </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> in AGASC&quot;</span>
+                <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">id_rows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">id_rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No entry found for </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1"> in AGASC&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No entry found for </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> in AGASC&quot;</span><span class="p">)</span>
 
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">id_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">rows</span>
@@ -677,19 +705,25 @@
     <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span>
 
-    <span class="n">agasc_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">agasc_id</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="s1">&#39;AGASC_ID&#39;</span><span class="p">])}</span>
+    <span class="n">agasc_idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">agasc_id</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="s2">&quot;AGASC_ID&quot;</span><span class="p">])}</span>
 
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">agasc_id</span><span class="p">,</span> <span class="n">date</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">agasc_id</span><span class="p">,</span> <span class="n">_date</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">agasc_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agasc_idx</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No entry found for </span><span class="si">{</span><span class="n">agasc_id</span><span class="si">}</span><span class="s1"> in AGASC&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">IdNotFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No entry found for </span><span class="si">{</span><span class="n">agasc_id</span><span class="si">}</span><span class="s2"> in AGASC&quot;</span><span class="p">)</span>
 
         <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tbl</span><span class="p">[</span><span class="n">agasc_idx</span><span class="p">[</span><span class="n">agasc_id</span><span class="p">]])</span>
     <span class="k">return</span> <span class="n">rows</span>
 
 
-<div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method_threshold</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-              <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span>
+    <span class="n">ids</span><span class="p">,</span>
+    <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">method_threshold</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+    <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries for star ``ids`` at ``dates``.</span>
 
@@ -750,10 +784,10 @@
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">method_threshold</span><span class="p">:</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">_get_rows_read_where</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">)</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;tables_read_where&#39;</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;tables_read_where&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">_get_rows_read_entire</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">)</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;read_entire_agasc&#39;</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;read_entire_agasc&quot;</span>
 
     <span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
 
@@ -763,7 +797,7 @@
     <span class="n">add_pmcorr_columns</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dates_in</span> <span class="k">if</span> <span class="n">dates_is_scalar</span> <span class="k">else</span> <span class="n">dates</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fix_color1</span><span class="p">:</span>
         <span class="n">update_color1_column</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">t</span><span class="p">[</span><span class="s1">&#39;DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dates</span>
+    <span class="n">t</span><span class="p">[</span><span class="s2">&quot;DATE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dates</span>
 
     <span class="n">update_from_supplement</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">use_supplement</span><span class="p">)</span>
 
@@ -806,11 +840,15 @@
 <span class="sd">        Use the supplement (default=None, see above)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">use_supplement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">supplement_enabled_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="p">,</span> <span class="n">SUPPLEMENT_ENABLED_DEFAULT</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">supplement_enabled_env</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="si">}</span><span class="s1"> env var must be either &quot;True&quot; or &quot;False&quot; &#39;</span>
-                             <span class="sa">f</span><span class="s1">&#39;got </span><span class="si">{</span><span class="n">supplement_enabled_env</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">supplement_enabled</span> <span class="o">=</span> <span class="n">supplement_enabled_env</span> <span class="o">==</span> <span class="s1">&#39;True&#39;</span>
+        <span class="n">supplement_enabled_env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="p">,</span> <span class="n">SUPPLEMENT_ENABLED_DEFAULT</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">supplement_enabled_env</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="si">}</span><span class="s1"> env var must be either &quot;True&quot; or &quot;False&quot; &#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">supplement_enabled_env</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="n">supplement_enabled</span> <span class="o">=</span> <span class="n">supplement_enabled_env</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">supplement_enabled</span> <span class="o">=</span> <span class="n">use_supplement</span>
 
@@ -826,31 +864,31 @@
 
     <span class="c1"># Get estimate mags and errs from supplement as a dict of dict</span>
     <span class="c1"># agasc_id : {mag_aca: .., mag_aca_err: ..}.</span>
-    <span class="n">supplement_mags</span> <span class="o">=</span> <span class="n">get_supplement_table</span><span class="p">(</span><span class="s1">&#39;mags&#39;</span><span class="p">,</span> <span class="n">agasc_dir</span><span class="o">=</span><span class="n">default_agasc_dir</span><span class="p">())</span>
+    <span class="n">supplement_mags</span> <span class="o">=</span> <span class="n">get_supplement_table</span><span class="p">(</span><span class="s2">&quot;mags&quot;</span><span class="p">,</span> <span class="n">agasc_dir</span><span class="o">=</span><span class="n">default_agasc_dir</span><span class="p">())</span>
     <span class="n">supplement_mags_index</span> <span class="o">=</span> <span class="n">supplement_mags</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
 
     <span class="c1"># Get bad stars as {agasc_id: {source: ..}}</span>
-    <span class="n">bad_stars</span> <span class="o">=</span> <span class="n">get_supplement_table</span><span class="p">(</span><span class="s1">&#39;bad&#39;</span><span class="p">,</span> <span class="n">agasc_dir</span><span class="o">=</span><span class="n">default_agasc_dir</span><span class="p">())</span>
+    <span class="n">bad_stars</span> <span class="o">=</span> <span class="n">get_supplement_table</span><span class="p">(</span><span class="s2">&quot;bad&quot;</span><span class="p">,</span> <span class="n">agasc_dir</span><span class="o">=</span><span class="n">default_agasc_dir</span><span class="p">())</span>
     <span class="n">bad_stars_index</span> <span class="o">=</span> <span class="n">bad_stars</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span>
 
     <span class="k">for</span> <span class="n">star</span> <span class="ow">in</span> <span class="n">stars</span><span class="p">:</span>
-        <span class="n">agasc_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">star</span><span class="p">[</span><span class="s1">&#39;AGASC_ID&#39;</span><span class="p">])</span>
+        <span class="n">agasc_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">star</span><span class="p">[</span><span class="s2">&quot;AGASC_ID&quot;</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">supplement_mags_index</span><span class="p">:</span>
             <span class="n">idx</span> <span class="o">=</span> <span class="n">supplement_mags_index</span><span class="p">[</span><span class="n">agasc_id</span><span class="p">]</span>
-            <span class="n">mag_est</span> <span class="o">=</span> <span class="n">supplement_mags</span><span class="p">[</span><span class="s1">&#39;mag_aca&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
-            <span class="n">mag_est_err</span> <span class="o">=</span> <span class="n">supplement_mags</span><span class="p">[</span><span class="s1">&#39;mag_aca_err&#39;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">mag_est</span> <span class="o">=</span> <span class="n">supplement_mags</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">mag_est_err</span> <span class="o">=</span> <span class="n">supplement_mags</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">][</span><span class="n">idx</span><span class="p">]</span>
 
-            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s1">&#39;MAG_ACA&#39;</span><span class="p">,</span> <span class="n">mag_est</span><span class="p">)</span>
+            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s2">&quot;MAG_ACA&quot;</span><span class="p">,</span> <span class="n">mag_est</span><span class="p">)</span>
             <span class="c1"># Mag err is stored as int16 in units of 0.01 mag. Use same convention here.</span>
-            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s1">&#39;MAG_ACA_ERR&#39;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mag_est_err</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
-            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s1">&#39;MAG_CATID&#39;</span><span class="p">,</span> <span class="n">MAG_CATID_SUPPLEMENT</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;COLOR1&#39;</span> <span class="ow">in</span> <span class="n">stars</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
-                <span class="n">color1</span> <span class="o">=</span> <span class="n">star</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">]</span>
+            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s2">&quot;MAG_ACA_ERR&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">mag_est_err</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s2">&quot;MAG_CATID&quot;</span><span class="p">,</span> <span class="n">MAG_CATID_SUPPLEMENT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;COLOR1&quot;</span> <span class="ow">in</span> <span class="n">stars</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+                <span class="n">color1</span> <span class="o">=</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">color1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">):</span>
-                    <span class="n">star</span><span class="p">[</span><span class="s1">&#39;COLOR1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color1</span> <span class="o">-</span> <span class="mf">0.01</span>
+                    <span class="n">star</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color1</span> <span class="o">-</span> <span class="mf">0.01</span>
 
         <span class="k">if</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">bad_stars_index</span><span class="p">:</span>
-            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s1">&#39;CLASS&#39;</span><span class="p">,</span> <span class="n">BAD_CLASS_SUPPLEMENT</span><span class="p">)</span>
+            <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s2">&quot;CLASS&quot;</span><span class="p">,</span> <span class="n">BAD_CLASS_SUPPLEMENT</span><span class="p">)</span>
 </pre></div>
 
             <div class="clearer"></div>

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Magnitude Supplement API &#8212; Agasc 4.17.0 documentation</title>
+    <title>Magnitude Supplement API &#8212; Agasc 4.17.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -53,7 +53,7 @@
 	
       </li>
       <li>
-	<a href="index.html">Agasc 4.17.0 documentation</a>
+	<a href="index.html">Agasc 4.17.1 documentation</a>
 	 &#187;
       </li>
       
@@ -140,7 +140,7 @@ dictionary with stats</p>
 <dd><p>Difference between the magnitude determined from DC-subtracted image telemetry and
 the catalog ACA magnitude.</p>
 <p>The magnitude shift is time-independent. It depends only on the catalog magnitude and is zero
-for bright stars. More details in the <a class="reference external" href="https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb#noqa">droop notebook</a>:</p>
+for bright stars. More details in the <a class="reference external" href="https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/04-DroopAfterSubtractionAndResponsivity-fit.ipynb">droop notebook</a>:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>magnitude</strong> – float
@@ -199,7 +199,7 @@ dictionary with stats</p>
 <span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.mag_estimate.</span></span><span class="sig-name descname"><span class="pre">get_responsivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#get_responsivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.get_responsivity" title="Permalink to this definition">¶</a></dt>
 <dd><p>ACA magnitude response over time.</p>
 <p>This was estimated with bright stars that were observed more than a hundred times during the
-mission. More details in the <a class="reference external" href="https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb#noqa">responsivity notebook</a>:</p>
+mission. More details in the <a class="reference external" href="https://nbviewer.jupyter.org/urls/cxc.cfa.harvard.edu/mta/ASPECT/jgonzalez/mag_stats/notebooks/03-high_mag_responsivity-fit.ipynb">responsivity notebook</a>:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>time</strong> – float
@@ -335,7 +335,7 @@ Hide progress bar</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">
-<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">get_agasc_id_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_status_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">get_agasc_id_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_status_override</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tstop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#get_agasc_id_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call mag_stats.get_agasc_id_stats for each AGASC ID</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
