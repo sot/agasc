@@ -40,7 +40,7 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-from agasc import default_agasc_dir, Order
+from agasc import default_agasc_dir, Order, write_agasc
 from agasc.healpix import get_healpix_index_table
 
 
