@@ -5,7 +5,9 @@ import os
 import re
 from pathlib import Path
 from typing import Optional
+import logging
 
+from enum import Enum
 import numexpr
 import numpy as np
 import tables
@@ -13,7 +15,7 @@ from astropy.table import Column, Table
 from Chandra.Time import DateTime
 from packaging.version import Version
 
-from .healpix import get_stars_from_healpix_h5, is_healpix
+from .healpix import get_stars_from_healpix_h5, is_healpix, get_healpix_index_table
 from .paths import default_agasc_dir
 from .supplement.utils import get_supplement_table
 
@@ -28,7 +30,10 @@ __all__ = [
     "BAD_CLASS_SUPPLEMENT",
     "set_supplement_enabled",
     "SUPPLEMENT_ENABLED_ENV",
+    "write_agasc",
 ]
+
+logger = logging.getLogger("agasc")
 
 SUPPLEMENT_ENABLED_ENV = "AGASC_SUPPLEMENT_ENABLED"
 SUPPLEMENT_ENABLED_DEFAULT = "True"
@@ -826,3 +831,68 @@ def update_from_supplement(stars, use_supplement=None):
 
         if agasc_id in bad_stars_index:
             set_star(star, "CLASS", BAD_CLASS_SUPPLEMENT)
+
+
+def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
+    """
+    Write a HEALPix index table to an HDF5 file.
+
+    Parameters
+    ----------
+    filename : str
+        The path to the HDF5 file to write to.
+    healpix_index : astropy.table.Table
+        The HEALPix index table to write.
+    nside : int
+        The NSIDE parameter used to generate the HEALPix index.
+
+    Returns
+    -------
+    None
+    """
+    healpix_index_np = healpix_index.as_array()
+
+    with tables.open_file(filename, mode="a") as h5:
+        h5.create_table("/", "healpix_index", healpix_index_np, title="HEALPix index")
+        h5.root.healpix_index.attrs["nside"] = nside
+
+
+class Order(Enum):
+    NONE = 1
+    DEC = 2
+    HEALPIX = 3
+
+
+def write_agasc(
+    filename: str, stars: np.ndarray, version: str, nside=64, order=Order.HEALPIX
+):
+    if order == Order.DEC:
+        logger.info("Sorting on DEC column")
+        idx_sort = np.argsort(stars["DEC"])
+    elif order == Order.HEALPIX:
+        logger.info(
+            f"Creating healpix_index table for nside={nside} "
+            "and sorting by healpix index"
+        )
+        healpix_index, idx_sort = get_healpix_index_table(stars, nside)
+    stars = stars.take(idx_sort)
+
+    write_agasc_(filename, stars, version)
+    if order == Order.HEALPIX:
+        write_healpix_index_table(filename, healpix_index, nside)
+
+
+def write_agasc_(filename, stars, version):
+    logger.info(f"Creating {filename}")
+
+    with tables.open_file(filename, mode="w") as h5:
+        data = h5.create_table("/", "data", stars, title=f"AGASC {version}")
+        data.attrs["version"] = version
+        data.flush()
+
+        logger.info("  Creating AGASC_ID index")
+        data.cols.AGASC_ID.create_csindex()
+
+        logger.info(f"  Flush and close {filename}")
+        data.flush()
+        h5.flush()
