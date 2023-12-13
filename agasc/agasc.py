@@ -1,13 +1,13 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import contextlib
 import functools
+import logging
 import os
 import re
+from enum import Enum
 from pathlib import Path
 from typing import Optional
-import logging
 
-from enum import Enum
 import numexpr
 import numpy as np
 import tables
@@ -15,7 +15,7 @@ from astropy.table import Column, Table
 from Chandra.Time import DateTime
 from packaging.version import Version
 
-from .healpix import get_stars_from_healpix_h5, is_healpix, get_healpix_index_table
+from .healpix import get_healpix_index_table, get_stars_from_healpix_h5, is_healpix
 from .paths import default_agasc_dir
 from .supplement.utils import get_supplement_table
 

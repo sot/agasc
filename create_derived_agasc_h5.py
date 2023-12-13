@@ -39,7 +39,7 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-from agasc import default_agasc_dir, Order, write_agasc
+from agasc import Order, default_agasc_dir, write_agasc
 
 
 def get_parser():

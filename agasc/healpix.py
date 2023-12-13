@@ -141,9 +141,9 @@ def get_stars_from_healpix_h5(
 
 
 def make_index(stars, nside, outfile=None):
-    from astropy.table import Table
-    from astropy import units as u
     import astropy_healpix as hpx
+    from astropy import units as u
+    from astropy.table import Table
 
     hp = hpx.HEALPix(nside=nside, order="nested")
     indices = hp.lonlat_to_healpix(stars["RA"] * u.degree, stars["DEC"] * u.degree)
