@@ -31,6 +31,8 @@ __all__ = [
     "set_supplement_enabled",
     "SUPPLEMENT_ENABLED_ENV",
     "write_agasc",
+    "DTYPE",
+    "Order",
 ]
 
 logger = logging.getLogger("agasc")
@@ -857,6 +859,59 @@ def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
         h5.root.healpix_index.attrs["nside"] = nside
 
 
+DTYPE = np.dtype(
+    [
+        ("AGASC_ID", np.int32),
+        ("RA", np.float64),
+        ("DEC", np.float64),
+        ("POS_ERR", np.int16),
+        ("POS_CATID", np.uint8),
+        ("EPOCH", np.float32),
+        ("PM_RA", np.int16),
+        ("PM_DEC", np.int16),
+        ("PM_CATID", np.uint8),
+        ("PLX", np.int16),
+        ("PLX_ERR", np.int16),
+        ("PLX_CATID", np.uint8),
+        ("MAG_ACA", np.float32),
+        ("MAG_ACA_ERR", np.int16),
+        ("CLASS", np.int16),
+        ("MAG", np.float32),
+        ("MAG_ERR", np.int16),
+        ("MAG_BAND", np.int16),
+        ("MAG_CATID", np.uint8),
+        ("COLOR1", np.float32),
+        ("COLOR1_ERR", np.int16),
+        ("C1_CATID", np.uint8),
+        ("COLOR2", np.float32),
+        ("COLOR2_ERR", np.int16),
+        ("C2_CATID", np.uint8),
+        ("RSV1", np.float32),
+        ("RSV2", np.int16),
+        ("RSV3", np.uint8),
+        ("VAR", np.int16),
+        ("VAR_CATID", np.uint8),
+        ("ASPQ1", np.int16),
+        ("ASPQ2", np.int16),
+        ("ASPQ3", np.int16),
+        ("ACQQ1", np.int16),
+        ("ACQQ2", np.int16),
+        ("ACQQ3", np.int16),
+        ("ACQQ4", np.int16),
+        ("ACQQ5", np.int16),
+        ("ACQQ6", np.int16),
+        ("XREF_ID1", np.int32),
+        ("XREF_ID2", np.int32),
+        ("XREF_ID3", np.int32),
+        ("XREF_ID4", np.int32),
+        ("XREF_ID5", np.int32),
+        ("RSV4", np.int16),
+        ("RSV5", np.int16),
+        ("RSV6", np.int16),
+    ]
+)
+
+
 class Order(Enum):
     NONE = 1
     DEC = 2
@@ -866,6 +921,13 @@ class Order(Enum):
 def write_agasc(
     filename: str, stars: np.ndarray, version: str, nside=64, order=Order.HEALPIX
 ):
+    if stars.dtype != DTYPE:
+        cols = DTYPE.names
+        missing_keys = set(cols) - set(stars.dtype.names)
+        assert not missing_keys, f"Missing keys in stars: {missing_keys}"
+        stars = Table(stars)[cols].as_array().astype(DTYPE)
+    assert stars.dtype == DTYPE
+
     if order == Order.DEC:
         logger.info("Sorting on DEC column")
         idx_sort = np.argsort(stars["DEC"])

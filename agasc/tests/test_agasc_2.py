@@ -581,3 +581,44 @@ def test_get_supplement_table_obs():
 def test_get_supplement_table_obs_dict():
     obs = agasc.get_supplement_table("obs", as_dict=True)
     assert isinstance(obs, dict)
+
+
+def test_write():
+    import tempfile
+    from pathlib import Path
+
+    import tables
+
+    from agasc import write_agasc
+
+    with (
+        tempfile.TemporaryDirectory() as tempdir,
+        tables.open_file(
+            Path(os.environ["SKA"]) / "data" / "agasc" / "agasc_1p7.h5"
+        ) as h5_in,
+    ):
+        t = Table(h5_in.root.data[:1000])
+        # this is an extra column that should not make it to the output
+        t["extra_col"] = np.arange(1000)
+        # channging these column types, which should then be fixed on writing
+        t["AGASC_ID"] = t["AGASC_ID"].astype(np.int64)
+        t["MAG_ACA"] = t["MAG_ACA"].astype(np.float64)
+        t = t.as_array()
+
+        temp = Path(tempdir) / "test.h5"
+        write_agasc(temp, stars=t, version="test", order=agasc.Order.DEC)
+        with tables.open_file(temp) as h5_out:
+            assert "data" in h5_out.root
+            assert "healpix_index" not in h5_out.root
+            assert h5_out.root.data.attrs["version"] == "test"
+            assert h5_out.root.data.attrs["NROWS"] == 1000
+            assert h5_out.root.data.dtype == agasc.DTYPE
+            assert np.all(np.diff(h5_out.root.data[:]["DEC"]) >= 0)
+
+        write_agasc(temp, stars=t, version="test")
+        with tables.open_file(temp) as h5_out:
+            assert "data" in h5_out.root
+            assert "healpix_index" in h5_out.root
+            assert h5_out.root.data.attrs["version"] == "test"
+            assert h5_out.root.data.attrs["NROWS"] == 1000
+            assert h5_out.root.data.dtype == agasc.DTYPE
