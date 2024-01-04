@@ -915,7 +915,12 @@ TABLE_DTYPE = np.dtype(
 
 class TableOrder(Enum):
     """
-    Enumeration type to specify the AGASC table ordering.
+    Enumeration type to specify the AGASC table ordering:
+
+    - TableOrder.NONE. The stars are not sorted.
+    - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.
+    - TableOrder.DEC. The stars are sorted by declination.
+
     """
     NONE = 1
     DEC = 2
@@ -928,7 +933,7 @@ def write_agasc(
     """
     Write AGASC stars to a new HDF5 file.
 
-    The table is coerced to the correct dtype if necessary (`TABLE_DTYPE`).
+    The table is coerced to the correct dtype if necessary (:any:`TABLE_DTYPE`).
 
     Parameters
     ----------
@@ -941,12 +946,12 @@ def write_agasc(
     nside : int, optional
         The HEALPix NSIDE parameter to use for the HEALPix index table.
         Default is 64.
-    order : TableOrder, optional
+    order : :any:`TableOrder`, optional
         The order of the stars in the AGASC file (Default is TableOrder.HEALPIX).
         The options are:
 
             - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.
-            - TableOrder.DEC). The stars are sorted by declination.
+            - TableOrder.DEC. The stars are sorted by declination.
     """
     if stars.dtype != TABLE_DTYPE:
         cols = TABLE_DTYPE.names
