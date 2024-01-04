@@ -928,15 +928,16 @@ def write_agasc(
         stars = Table(stars)[cols].as_array().astype(DTYPE)
     assert stars.dtype == DTYPE
 
-    if order == Order.DEC:
-        logger.info("Sorting on DEC column")
-        idx_sort = np.argsort(stars["DEC"])
-    elif order == Order.HEALPIX:
-        logger.info(
-            f"Creating healpix_index table for nside={nside} "
-            "and sorting by healpix index"
-        )
-        healpix_index, idx_sort = get_healpix_index_table(stars, nside)
+    match order:
+        case Order.DEC:
+            logger.info("Sorting on DEC column")
+            idx_sort = np.argsort(stars["DEC"])
+        case Order.HEALPIX:
+            logger.info(
+                f"Creating healpix_index table for nside={nside} "
+                "and sorting by healpix index"
+            )
+            healpix_index, idx_sort = get_healpix_index_table(stars, nside)
     stars = stars.take(idx_sort)
 
     write_agasc_(filename, stars, version)
