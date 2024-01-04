@@ -584,7 +584,6 @@ def test_get_supplement_table_obs_dict():
 
 
 def test_write(tmp_path):
-    import tempfile
     from pathlib import Path
 
     import tables
