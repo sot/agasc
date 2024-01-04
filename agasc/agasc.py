@@ -940,12 +940,12 @@ def write_agasc(
             healpix_index, idx_sort = get_healpix_index_table(stars, nside)
     stars = stars.take(idx_sort)
 
-    write_agasc_(filename, stars, version)
+    _write_agasc(filename, stars, version)
     if order == Order.HEALPIX:
         write_healpix_index_table(filename, healpix_index, nside)
 
 
-def write_agasc_(filename, stars, version):
+def _write_agasc(filename, stars, version):
     logger.info(f"Creating {filename}")
 
     with tables.open_file(filename, mode="w") as h5:
