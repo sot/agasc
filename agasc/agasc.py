@@ -924,9 +924,9 @@ def write_agasc(
     if stars.dtype != DTYPE:
         cols = DTYPE.names
         missing_keys = set(cols) - set(stars.dtype.names)
-        assert not missing_keys, f"Missing keys in stars: {missing_keys}"
+        if missing_keys:
+            raise ValueError(f"Missing keys in stars: {missing_keys}")
         stars = Table(stars)[cols].as_array().astype(DTYPE)
-    assert stars.dtype == DTYPE
 
     match order:
         case Order.DEC:
