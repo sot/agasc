@@ -39,7 +39,7 @@ import numpy as np
 import tables
 from astropy.table import Table
 
-from agasc import Order, default_agasc_dir, write_agasc
+from agasc import TableOrder, default_agasc_dir, write_agasc
 
 
 def get_parser():
@@ -108,9 +108,9 @@ def main():
 
     if args.dec_order:
         print("Will sort on DEC column")
-        order = Order.DEC
+        order = TableOrder.DEC
     else:
-        order = Order.HEALPIX
+        order = TableOrder.HEALPIX
         print(
             f"Will create healpix_index table for nside={args.nside} "
             "and sort by healpix index"

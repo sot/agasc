@@ -604,13 +604,13 @@ def test_write(tmp_path):
     stars = stars.as_array()
 
     temp = tmp_path / "test.h5"
-    write_agasc(temp, stars=stars, version="test", order=agasc.Order.DEC)
+    write_agasc(temp, stars=stars, version="test", order=agasc.TableOrder.DEC)
     with tables.open_file(temp) as h5_out:
         assert "data" in h5_out.root
         assert "healpix_index" not in h5_out.root
         assert h5_out.root.data.attrs["version"] == "test"
         assert h5_out.root.data.attrs["NROWS"] == 1000
-        assert h5_out.root.data.dtype == agasc.DTYPE
+        assert h5_out.root.data.dtype == agasc.TABLE_DTYPE
         assert np.all(np.diff(h5_out.root.data[:]["DEC"]) >= 0)
 
     write_agasc(temp, stars=stars, version="test")
@@ -619,4 +619,4 @@ def test_write(tmp_path):
         assert "healpix_index" in h5_out.root
         assert h5_out.root.data.attrs["version"] == "test"
         assert h5_out.root.data.attrs["NROWS"] == 1000
-        assert h5_out.root.data.dtype == agasc.DTYPE
+        assert h5_out.root.data.dtype == agasc.TABLE_DTYPE

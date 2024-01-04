@@ -31,8 +31,8 @@ __all__ = [
     "set_supplement_enabled",
     "SUPPLEMENT_ENABLED_ENV",
     "write_agasc",
-    "DTYPE",
-    "Order",
+    "TABLE_DTYPE",
+    "TableOrder",
 ]
 
 logger = logging.getLogger("agasc")
@@ -859,7 +859,7 @@ def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
         h5.root.healpix_index.attrs["nside"] = nside
 
 
-DTYPE = np.dtype(
+TABLE_DTYPE = np.dtype(
     [
         ("AGASC_ID", np.int32),
         ("RA", np.float64),
@@ -912,27 +912,27 @@ DTYPE = np.dtype(
 )
 
 
-class Order(Enum):
+class TableOrder(Enum):
     NONE = 1
     DEC = 2
     HEALPIX = 3
 
 
 def write_agasc(
-    filename: str, stars: np.ndarray, version: str, nside=64, order=Order.HEALPIX
+    filename: str, stars: np.ndarray, version: str, nside=64, order=TableOrder.HEALPIX
 ):
-    if stars.dtype != DTYPE:
-        cols = DTYPE.names
+    if stars.dtype != TABLE_DTYPE:
+        cols = TABLE_DTYPE.names
         missing_keys = set(cols) - set(stars.dtype.names)
         if missing_keys:
             raise ValueError(f"Missing keys in stars: {missing_keys}")
-        stars = Table(stars)[cols].as_array().astype(DTYPE)
+        stars = Table(stars)[cols].as_array().astype(TABLE_DTYPE)
 
     match order:
-        case Order.DEC:
+        case TableOrder.DEC:
             logger.info("Sorting on DEC column")
             idx_sort = np.argsort(stars["DEC"])
-        case Order.HEALPIX:
+        case TableOrder.HEALPIX:
             logger.info(
                 f"Creating healpix_index table for nside={nside} "
                 "and sorting by healpix index"
@@ -941,7 +941,7 @@ def write_agasc(
     stars = stars.take(idx_sort)
 
     _write_agasc(filename, stars, version)
-    if order == Order.HEALPIX:
+    if order == TableOrder.HEALPIX:
         write_healpix_index_table(filename, healpix_index, nside)
 
 
