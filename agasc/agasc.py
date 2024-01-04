@@ -922,6 +922,7 @@ class TableOrder(Enum):
     - TableOrder.DEC. The stars are sorted by declination.
 
     """
+
     NONE = 1
     DEC = 2
     HEALPIX = 3
