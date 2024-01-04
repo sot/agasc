@@ -910,9 +910,13 @@ TABLE_DTYPE = np.dtype(
         ("RSV6", np.int16),
     ]
 )
+"""Standard dtype for AGASC table."""
 
 
 class TableOrder(Enum):
+    """
+    Enumeration type to specify the AGASC table ordering.
+    """
     NONE = 1
     DEC = 2
     HEALPIX = 3
@@ -921,6 +925,29 @@ class TableOrder(Enum):
 def write_agasc(
     filename: str, stars: np.ndarray, version: str, nside=64, order=TableOrder.HEALPIX
 ):
+    """
+    Write AGASC stars to a new HDF5 file.
+
+    The table is coerced to the correct dtype if necessary (`TABLE_DTYPE`).
+
+    Parameters
+    ----------
+    filename : str
+        The path to the HDF5 file to write to.
+    stars : np.ndarray
+        The AGASC stars to write.
+    version : str
+        The AGASC version number. This sets an attribute in the table.
+    nside : int, optional
+        The HEALPix NSIDE parameter to use for the HEALPix index table.
+        Default is 64.
+    order : TableOrder, optional
+        The order of the stars in the AGASC file (Default is TableOrder.HEALPIX).
+        The options are:
+
+            - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.
+            - TableOrder.DEC). The stars are sorted by declination.
+    """
     if stars.dtype != TABLE_DTYPE:
         cols = TABLE_DTYPE.names
         missing_keys = set(cols) - set(stars.dtype.names)
@@ -946,6 +973,7 @@ def write_agasc(
 
 
 def _write_agasc(filename, stars, version):
+    """Do the actual writing to HDF file."""
     logger.info(f"Creating {filename}")
 
     with tables.open_file(filename, mode="w") as h5:
