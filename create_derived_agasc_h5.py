@@ -35,13 +35,11 @@ Examples
 import argparse
 from pathlib import Path
 
-import astropy.units as u
 import numpy as np
 import tables
 from astropy.table import Table
 
-from agasc import default_agasc_dir
-from agasc.healpix import get_healpix
+from agasc import TableOrder, default_agasc_dir, write_agasc
 
 
 def get_parser():
@@ -109,59 +107,16 @@ def main():
         stars = filter_proseco_columns(stars)
 
     if args.dec_order:
-        print("Sorting on DEC column")
-        idx_sort = np.argsort(stars["DEC"])
+        print("Will sort on DEC column")
+        order = TableOrder.DEC
     else:
+        order = TableOrder.HEALPIX
         print(
-            f"Creating healpix_index table for nside={args.nside} "
-            "and sorting by healpix index"
+            f"Will create healpix_index table for nside={args.nside} "
+            "and sort by healpix index"
         )
-        healpix_index, idx_sort = get_healpix_index_table(stars, args.nside)
-    stars = stars.take(idx_sort)
 
-    write_derived_agasc(filename_derived, stars, version)
-    if not args.dec_order:
-        write_healpix_index_table(filename_derived, healpix_index, args.nside)
-
-
-def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
-    """
-    Write a HEALPix index table to an HDF5 file.
-
-    Parameters
-    ----------
-    filename : str
-        The path to the HDF5 file to write to.
-    healpix_index : astropy.table.Table
-        The HEALPix index table to write.
-    nside : int
-        The NSIDE parameter used to generate the HEALPix index.
-
-    Returns
-    -------
-    None
-    """
-    healpix_index_np = healpix_index.as_array()
-
-    with tables.open_file(filename, mode="a") as h5:
-        h5.create_table("/", "healpix_index", healpix_index_np, title="HEALPix index")
-        h5.root.healpix_index.attrs["nside"] = nside
-
-
-def write_derived_agasc(filename: str, stars: np.ndarray, version_num: str):
-    print(f"Creating {filename}")
-
-    with tables.open_file(filename, mode="w") as h5:
-        data = h5.create_table("/", "data", stars, title=f"AGASC {version_num}")
-        data.attrs["version"] = version_num
-        data.flush()
-
-        print("  Creating AGASC_ID index")
-        data.cols.AGASC_ID.create_csindex()
-
-        print(f"  Flush and close {filename}")
-        data.flush()
-        h5.flush()
+    write_agasc(filename_derived, stars, version, nside=args.nside, order=order)
 
 
 def filter_proseco_columns(stars):
@@ -239,42 +194,6 @@ def get_derived_agasc_stars(
     stars = stars[ok]
 
     return stars
-
-
-def get_healpix_index_table(stars, nside) -> tuple[Table, np.ndarray]:
-    """Return table that maps healpix index to row ranges in ``stars``.
-
-    Parameters
-    ----------
-    stars : astropy.table.Table
-        A table of stars with columns "RA" and "DEC" in degrees.
-    nside : int
-        The nside parameter of the HEALPix grid to use.
-
-    Returns
-    -------
-    healpix_index : astropy.table.Table
-        A table with columns "healpix", "row0", and "row1". The "healpix" column
-        contains the healpix index for each group of rows, and the "row0" and "row1"
-        columns contain the starting and ending row indices in `stars` for each group.
-    idxs_sort : numpy.ndarray
-        The indices that sort ``stars`` by healpix index.
-    """
-    hp = get_healpix(nside)
-
-    idxs_healpix = hp.lonlat_to_healpix(stars["RA"] * u.deg, stars["DEC"] * u.deg)
-    idxs_sort = np.argsort(idxs_healpix)
-    idxs_healpix_sort = idxs_healpix[idxs_sort]
-
-    # Make an index table for the positions where idxs_healpix_sort changes.
-    # This is the start of each healpix.
-    i0 = np.flatnonzero(np.diff(idxs_healpix_sort) != 0)
-    i0s = np.concatenate([[0], i0 + 1])
-    i1s = np.concatenate([i0 + 1, [len(idxs_healpix_sort)]])
-    healpix_index = Table(
-        [idxs_healpix_sort[i0s], i0s, i1s], names=["healpix", "row0", "row1"]
-    )
-    return healpix_index, idxs_sort
 
 
 if __name__ == "__main__":

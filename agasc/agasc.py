@@ -1,8 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import contextlib
 import functools
+import logging
 import os
 import re
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -13,7 +15,7 @@ from astropy.table import Column, Table
 from Chandra.Time import DateTime
 from packaging.version import Version
 
-from .healpix import get_stars_from_healpix_h5, is_healpix
+from .healpix import get_healpix_index_table, get_stars_from_healpix_h5, is_healpix
 from .paths import default_agasc_dir
 from .supplement.utils import get_supplement_table
 
@@ -28,7 +30,12 @@ __all__ = [
     "BAD_CLASS_SUPPLEMENT",
     "set_supplement_enabled",
     "SUPPLEMENT_ENABLED_ENV",
+    "write_agasc",
+    "TABLE_DTYPE",
+    "TableOrder",
 ]
+
+logger = logging.getLogger("agasc")
 
 SUPPLEMENT_ENABLED_ENV = "AGASC_SUPPLEMENT_ENABLED"
 SUPPLEMENT_ENABLED_DEFAULT = "True"
@@ -826,3 +833,163 @@ def update_from_supplement(stars, use_supplement=None):
 
         if agasc_id in bad_stars_index:
             set_star(star, "CLASS", BAD_CLASS_SUPPLEMENT)
+
+
+def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
+    """
+    Write a HEALPix index table to an HDF5 file.
+
+    Parameters
+    ----------
+    filename : str
+        The path to the HDF5 file to write to.
+    healpix_index : astropy.table.Table
+        The HEALPix index table to write.
+    nside : int
+        The NSIDE parameter used to generate the HEALPix index.
+
+    Returns
+    -------
+    None
+    """
+    healpix_index_np = healpix_index.as_array()
+
+    with tables.open_file(filename, mode="a") as h5:
+        h5.create_table("/", "healpix_index", healpix_index_np, title="HEALPix index")
+        h5.root.healpix_index.attrs["nside"] = nside
+
+
+TABLE_DTYPE = np.dtype(
+    [
+        ("AGASC_ID", np.int32),
+        ("RA", np.float64),
+        ("DEC", np.float64),
+        ("POS_ERR", np.int16),
+        ("POS_CATID", np.uint8),
+        ("EPOCH", np.float32),
+        ("PM_RA", np.int16),
+        ("PM_DEC", np.int16),
+        ("PM_CATID", np.uint8),
+        ("PLX", np.int16),
+        ("PLX_ERR", np.int16),
+        ("PLX_CATID", np.uint8),
+        ("MAG_ACA", np.float32),
+        ("MAG_ACA_ERR", np.int16),
+        ("CLASS", np.int16),
+        ("MAG", np.float32),
+        ("MAG_ERR", np.int16),
+        ("MAG_BAND", np.int16),
+        ("MAG_CATID", np.uint8),
+        ("COLOR1", np.float32),
+        ("COLOR1_ERR", np.int16),
+        ("C1_CATID", np.uint8),
+        ("COLOR2", np.float32),
+        ("COLOR2_ERR", np.int16),
+        ("C2_CATID", np.uint8),
+        ("RSV1", np.float32),
+        ("RSV2", np.int16),
+        ("RSV3", np.uint8),
+        ("VAR", np.int16),
+        ("VAR_CATID", np.uint8),
+        ("ASPQ1", np.int16),
+        ("ASPQ2", np.int16),
+        ("ASPQ3", np.int16),
+        ("ACQQ1", np.int16),
+        ("ACQQ2", np.int16),
+        ("ACQQ3", np.int16),
+        ("ACQQ4", np.int16),
+        ("ACQQ5", np.int16),
+        ("ACQQ6", np.int16),
+        ("XREF_ID1", np.int32),
+        ("XREF_ID2", np.int32),
+        ("XREF_ID3", np.int32),
+        ("XREF_ID4", np.int32),
+        ("XREF_ID5", np.int32),
+        ("RSV4", np.int16),
+        ("RSV5", np.int16),
+        ("RSV6", np.int16),
+    ]
+)
+"""Standard dtype for AGASC table."""
+
+
+class TableOrder(Enum):
+    """
+    Enumeration type to specify the AGASC table ordering:
+
+    - TableOrder.NONE. The stars are not sorted.
+    - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.
+    - TableOrder.DEC. The stars are sorted by declination.
+
+    """
+
+    NONE = 1
+    DEC = 2
+    HEALPIX = 3
+
+
+def write_agasc(
+    filename: str, stars: np.ndarray, version: str, nside=64, order=TableOrder.HEALPIX
+):
+    """
+    Write AGASC stars to a new HDF5 file.
+
+    The table is coerced to the correct dtype if necessary (:any:`TABLE_DTYPE`).
+
+    Parameters
+    ----------
+    filename : str
+        The path to the HDF5 file to write to.
+    stars : np.ndarray
+        The AGASC stars to write.
+    version : str
+        The AGASC version number. This sets an attribute in the table.
+    nside : int, optional
+        The HEALPix NSIDE parameter to use for the HEALPix index table.
+        Default is 64.
+    order : :any:`TableOrder`, optional
+        The order of the stars in the AGASC file (Default is TableOrder.HEALPIX).
+        The options are:
+
+            - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.
+            - TableOrder.DEC. The stars are sorted by declination.
+    """
+    if stars.dtype != TABLE_DTYPE:
+        cols = TABLE_DTYPE.names
+        missing_keys = set(cols) - set(stars.dtype.names)
+        if missing_keys:
+            raise ValueError(f"Missing keys in stars: {missing_keys}")
+        stars = Table(stars)[cols].as_array().astype(TABLE_DTYPE)
+
+    match order:
+        case TableOrder.DEC:
+            logger.info("Sorting on DEC column")
+            idx_sort = np.argsort(stars["DEC"])
+        case TableOrder.HEALPIX:
+            logger.info(
+                f"Creating healpix_index table for nside={nside} "
+                "and sorting by healpix index"
+            )
+            healpix_index, idx_sort = get_healpix_index_table(stars, nside)
+    stars = stars.take(idx_sort)
+
+    _write_agasc(filename, stars, version)
+    if order == TableOrder.HEALPIX:
+        write_healpix_index_table(filename, healpix_index, nside)
+
+
+def _write_agasc(filename, stars, version):
+    """Do the actual writing to HDF file."""
+    logger.info(f"Creating {filename}")
+
+    with tables.open_file(filename, mode="w") as h5:
+        data = h5.create_table("/", "data", stars, title=f"AGASC {version}")
+        data.attrs["version"] = version
+        data.flush()
+
+        logger.info("  Creating AGASC_ID index")
+        data.cols.AGASC_ID.create_csindex()
+
+        logger.info(f"  Flush and close {filename}")
+        data.flush()
+        h5.flush()
