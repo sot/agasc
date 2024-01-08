@@ -591,7 +591,7 @@ def test_write(tmp_path):
     from agasc import write_agasc
 
     with tables.open_file(
-        Path(os.environ["SKA"]) / "data" / "agasc" / "agasc_1p7.h5"
+        Path(os.environ["SKA"]) / "data" / "agasc" / "agasc1p7.h5"
     ) as h5_in:
         stars = Table(h5_in.root.data[:1000])
 
