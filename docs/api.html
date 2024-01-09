@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>API documentation &#8212; Agasc 4.17.1 documentation</title>
+    <title>API documentation &#8212; Agasc 4.18.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
@@ -59,7 +59,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.17.1 documentation</a>
+	<a href="index.html">Agasc 4.18.0 documentation</a>
 	 &#187;
       </li>
       
@@ -75,6 +75,23 @@
             
   <section id="module-agasc.agasc">
 <span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-agasc.agasc" title="Permalink to this heading">¶</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="agasc.agasc.TABLE_DTYPE">
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">TABLE_DTYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">dtype([('AGASC_ID',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('RA',</span> <span class="pre">'&lt;f8'),</span> <span class="pre">('DEC',</span> <span class="pre">'&lt;f8'),</span> <span class="pre">('POS_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('POS_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('EPOCH',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('PM_RA',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PM_DEC',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PM_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('PLX',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PLX_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PLX_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('MAG_ACA',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('MAG_ACA_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('CLASS',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('MAG_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG_BAND',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('COLOR1',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('COLOR1_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('C1_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('COLOR2',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('COLOR2_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('C2_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('RSV1',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('RSV2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV3',</span> <span class="pre">'u1'),</span> <span class="pre">('VAR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('VAR_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('ASPQ1',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ASPQ2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ASPQ3',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ1',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ3',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ4',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ5',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ6',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('XREF_ID1',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID2',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID3',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID4',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID5',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('RSV4',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV5',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV6',</span> <span class="pre">'&lt;i2')])</span></em><a class="headerlink" href="#agasc.agasc.TABLE_DTYPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard dtype for AGASC table.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="agasc.agasc.TableOrder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">TableOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#TableOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.TableOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enumeration type to specify the AGASC table ordering:</p>
+<ul class="simple">
+<li><p>TableOrder.NONE. The stars are not sorted.</p></li>
+<li><p>TableOrder.HEALPIX. The stars are sorted using a HEALPix index.</p></li>
+<li><p>TableOrder.DEC. The stars are sorted by declination.</p></li>
+</ul>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.agasc.get_agasc_cone">
 <span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_color1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supplement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Permalink to this definition">¶</a></dt>
@@ -453,6 +470,37 @@ of 2 to 3.</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="agasc.agasc.write_agasc">
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">write_agasc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nside</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">TableOrder.HEALPIX</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#write_agasc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.write_agasc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write AGASC stars to a new HDF5 file.</p>
+<p>The table is coerced to the correct dtype if necessary (<a class="reference internal" href="#agasc.agasc.TABLE_DTYPE" title="agasc.agasc.TABLE_DTYPE"><code class="xref any py py-data docutils literal notranslate"><span class="pre">TABLE_DTYPE</span></code></a>).</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>The path to the HDF5 file to write to.</p>
+</dd>
+<dt><strong>stars</strong><span class="classifier">np.ndarray</span></dt><dd><p>The AGASC stars to write.</p>
+</dd>
+<dt><strong>version</strong><span class="classifier">str</span></dt><dd><p>The AGASC version number. This sets an attribute in the table.</p>
+</dd>
+<dt><strong>nside</strong><span class="classifier">int, optional</span></dt><dd><p>The HEALPix NSIDE parameter to use for the HEALPix index table.
+Default is 64.</p>
+</dd>
+<dt><strong>order</strong><span class="classifier"><a class="reference internal" href="#agasc.agasc.TableOrder" title="agasc.agasc.TableOrder"><code class="xref any py py-class docutils literal notranslate"><span class="pre">TableOrder</span></code></a>, optional</span></dt><dd><p>The order of the stars in the AGASC file (Default is TableOrder.HEALPIX).
+The options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>TableOrder.HEALPIX. The stars are sorted using a HEALPix index.</p></li>
+<li><p>TableOrder.DEC. The stars are sorted by declination.</p></li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
 <span class="target" id="module-agasc.paths"></span><dl class="py function">
 <dt class="sig sig-object py" id="agasc.paths.default_agasc_dir">
 <span class="sig-prename descclassname"><span class="pre">agasc.paths.</span></span><span class="sig-name descname"><span class="pre">default_agasc_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/paths.html#default_agasc_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.paths.default_agasc_dir" title="Permalink to this definition">¶</a></dt>
@@ -621,6 +669,8 @@ Create a supplement file if it does not exist</p></li>
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">API documentation</a><ul>
+<li><a class="reference internal" href="#agasc.agasc.TABLE_DTYPE"><code class="docutils literal notranslate"><span class="pre">TABLE_DTYPE</span></code></a></li>
+<li><a class="reference internal" href="#agasc.agasc.TableOrder"><code class="docutils literal notranslate"><span class="pre">TableOrder</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_agasc_cone"><code class="docutils literal notranslate"><span class="pre">get_agasc_cone()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_agasc_filename"><code class="docutils literal notranslate"><span class="pre">get_agasc_filename()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_star"><code class="docutils literal notranslate"><span class="pre">get_star()</span></code></a></li>
@@ -628,6 +678,7 @@ Create a supplement file if it does not exist</p></li>
 <li><a class="reference internal" href="#agasc.agasc.read_h5_table"><code class="docutils literal notranslate"><span class="pre">read_h5_table()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.set_supplement_enabled"><code class="docutils literal notranslate"><span class="pre">set_supplement_enabled()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.sphere_dist"><code class="docutils literal notranslate"><span class="pre">sphere_dist()</span></code></a></li>
+<li><a class="reference internal" href="#agasc.agasc.write_agasc"><code class="docutils literal notranslate"><span class="pre">write_agasc()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.paths.default_agasc_dir"><code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.paths.default_agasc_file"><code class="docutils literal notranslate"><span class="pre">default_agasc_file()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.supplement.utils.add_bad_star"><code class="docutils literal notranslate"><span class="pre">add_bad_star()</span></code></a></li>

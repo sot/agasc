@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.17.1 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.18.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
     
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.17.1 documentation</a>
+	<a href="../../index.html">Agasc 4.18.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -64,8 +64,10 @@
 <span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
@@ -76,7 +78,7 @@
 <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
 <span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
 
-<span class="kn">from</span> <span class="nn">.healpix</span> <span class="kn">import</span> <span class="n">get_stars_from_healpix_h5</span><span class="p">,</span> <span class="n">is_healpix</span>
+<span class="kn">from</span> <span class="nn">.healpix</span> <span class="kn">import</span> <span class="n">get_healpix_index_table</span><span class="p">,</span> <span class="n">get_stars_from_healpix_h5</span><span class="p">,</span> <span class="n">is_healpix</span>
 <span class="kn">from</span> <span class="nn">.paths</span> <span class="kn">import</span> <span class="n">default_agasc_dir</span>
 <span class="kn">from</span> <span class="nn">.supplement.utils</span> <span class="kn">import</span> <span class="n">get_supplement_table</span>
 
@@ -91,7 +93,12 @@
     <span class="s2">&quot;BAD_CLASS_SUPPLEMENT&quot;</span><span class="p">,</span>
     <span class="s2">&quot;set_supplement_enabled&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SUPPLEMENT_ENABLED_ENV&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;write_agasc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TABLE_DTYPE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TableOrder&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;agasc&quot;</span><span class="p">)</span>
 
 <span class="n">SUPPLEMENT_ENABLED_ENV</span> <span class="o">=</span> <span class="s2">&quot;AGASC_SUPPLEMENT_ENABLED&quot;</span>
 <span class="n">SUPPLEMENT_ENABLED_DEFAULT</span> <span class="o">=</span> <span class="s2">&quot;True&quot;</span>
@@ -889,6 +896,166 @@
 
         <span class="k">if</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="n">bad_stars_index</span><span class="p">:</span>
             <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s2">&quot;CLASS&quot;</span><span class="p">,</span> <span class="n">BAD_CLASS_SUPPLEMENT</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">write_healpix_index_table</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">healpix_index</span><span class="p">:</span> <span class="n">Table</span><span class="p">,</span> <span class="n">nside</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write a HEALPix index table to an HDF5 file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The path to the HDF5 file to write to.</span>
+<span class="sd">    healpix_index : astropy.table.Table</span>
+<span class="sd">        The HEALPix index table to write.</span>
+<span class="sd">    nside : int</span>
+<span class="sd">        The NSIDE parameter used to generate the HEALPix index.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">healpix_index_np</span> <span class="o">=</span> <span class="n">healpix_index</span><span class="o">.</span><span class="n">as_array</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="n">h5</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;healpix_index&quot;</span><span class="p">,</span> <span class="n">healpix_index_np</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;HEALPix index&quot;</span><span class="p">)</span>
+        <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">healpix_index</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;nside&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nside</span>
+
+
+<span class="n">TABLE_DTYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;AGASC_ID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;DEC&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;POS_ERR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;POS_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;EPOCH&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;PM_RA&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;PM_DEC&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;PM_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;PLX&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;PLX_ERR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;PLX_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;MAG_ACA&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;MAG_ACA_ERR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;CLASS&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;MAG&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;MAG_ERR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;MAG_BAND&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;MAG_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;COLOR1_ERR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;C1_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;COLOR2&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;COLOR2_ERR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;C2_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RSV1&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RSV2&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RSV3&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;VAR&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;VAR_CATID&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ASPQ1&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ASPQ2&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ASPQ3&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ACQQ1&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ACQQ2&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ACQQ3&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ACQQ4&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ACQQ5&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ACQQ6&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;XREF_ID1&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;XREF_ID2&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;XREF_ID3&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;XREF_ID4&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;XREF_ID5&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RSV4&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RSV5&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;RSV6&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Standard dtype for AGASC table.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="TableOrder"><a class="viewcode-back" href="../../api.html#agasc.agasc.TableOrder">[docs]</a><span class="k">class</span> <span class="nc">TableOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration type to specify the AGASC table ordering:</span>
+
+<span class="sd">    - TableOrder.NONE. The stars are not sorted.</span>
+<span class="sd">    - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.</span>
+<span class="sd">    - TableOrder.DEC. The stars are sorted by declination.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">DEC</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">HEALPIX</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+
+<div class="viewcode-block" id="write_agasc"><a class="viewcode-back" href="../../api.html#agasc.agasc.write_agasc">[docs]</a><span class="k">def</span> <span class="nf">write_agasc</span><span class="p">(</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stars</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nside</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">TableOrder</span><span class="o">.</span><span class="n">HEALPIX</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write AGASC stars to a new HDF5 file.</span>
+
+<span class="sd">    The table is coerced to the correct dtype if necessary (:any:`TABLE_DTYPE`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        The path to the HDF5 file to write to.</span>
+<span class="sd">    stars : np.ndarray</span>
+<span class="sd">        The AGASC stars to write.</span>
+<span class="sd">    version : str</span>
+<span class="sd">        The AGASC version number. This sets an attribute in the table.</span>
+<span class="sd">    nside : int, optional</span>
+<span class="sd">        The HEALPix NSIDE parameter to use for the HEALPix index table.</span>
+<span class="sd">        Default is 64.</span>
+<span class="sd">    order : :any:`TableOrder`, optional</span>
+<span class="sd">        The order of the stars in the AGASC file (Default is TableOrder.HEALPIX).</span>
+<span class="sd">        The options are:</span>
+
+<span class="sd">            - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.</span>
+<span class="sd">            - TableOrder.DEC. The stars are sorted by declination.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">stars</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">TABLE_DTYPE</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">TABLE_DTYPE</span><span class="o">.</span><span class="n">names</span>
+        <span class="n">missing_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">stars</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing keys in stars: </span><span class="si">{</span><span class="n">missing_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">stars</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">stars</span><span class="p">)[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">as_array</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">TABLE_DTYPE</span><span class="p">)</span>
+
+    <span class="k">match</span> <span class="n">order</span><span class="p">:</span>
+        <span class="k">case</span> <span class="n">TableOrder</span><span class="o">.</span><span class="n">DEC</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sorting on DEC column&quot;</span><span class="p">)</span>
+            <span class="n">idx_sort</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s2">&quot;DEC&quot;</span><span class="p">])</span>
+        <span class="k">case</span> <span class="n">TableOrder</span><span class="o">.</span><span class="n">HEALPIX</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Creating healpix_index table for nside=</span><span class="si">{</span><span class="n">nside</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;and sorting by healpix index&quot;</span>
+            <span class="p">)</span>
+            <span class="n">healpix_index</span><span class="p">,</span> <span class="n">idx_sort</span> <span class="o">=</span> <span class="n">get_healpix_index_table</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">nside</span><span class="p">)</span>
+    <span class="n">stars</span> <span class="o">=</span> <span class="n">stars</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">idx_sort</span><span class="p">)</span>
+
+    <span class="n">_write_agasc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">stars</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="n">TableOrder</span><span class="o">.</span><span class="n">HEALPIX</span><span class="p">:</span>
+        <span class="n">write_healpix_index_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">healpix_index</span><span class="p">,</span> <span class="n">nside</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_write_agasc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">stars</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do the actual writing to HDF file.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">stars</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;AGASC </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  Creating AGASC_ID index&quot;</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">AGASC_ID</span><span class="o">.</span><span class="n">create_csindex</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Flush and close </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">h5</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 </pre></div>
 
             <div class="clearer"></div>
