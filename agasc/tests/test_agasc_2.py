@@ -131,7 +131,7 @@ MINIAGASC = agasc.get_agasc_filename("miniagasc_*")
 def get_ds_agasc_cone(ra, dec):
     cmd = "mp_get_agasc -r {!r} -d {!r} -w {!r}".format(ra, dec, TEST_RADIUS)
     lines = Ska.Shell.tcsh(cmd, env=ascds_env)
-    dat = ascii.read(lines, Reader=ascii.NoHeader, names=AGASC_COLNAMES)
+    dat = ascii.read(lines, format="no_header", names=AGASC_COLNAMES)
 
     ok1 = agasc.sphere_dist(ra, dec, dat["RA"], dat["DEC"]) <= TEST_RADIUS
     ok2 = dat["MAG_ACA"] - 3.0 * dat["MAG_ACA_ERR"] / 100.0 < 11.5
@@ -362,7 +362,7 @@ def mp_get_agascid(agasc_id):
     cmd = "mp_get_agascid {!r}".format(agasc_id)
     lines = Ska.Shell.tcsh(cmd, env=ascds_env)
     lines = [line for line in lines if re.match(r"^\s*\d", line)]
-    dat = ascii.read(lines, Reader=ascii.NoHeader, names=AGASC_COLNAMES)
+    dat = ascii.read(lines, format="no_header", names=AGASC_COLNAMES)
 
     return dat
 
