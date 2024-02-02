@@ -1,4 +1,5 @@
 """Profile performance of get_agasc_cone with and without cache"""
+
 import time
 from pathlib import Path
 
