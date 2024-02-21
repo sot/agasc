@@ -488,8 +488,8 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
             (star_obs_catalogs.STARS_OBS["agasc_id"] == agasc_id)
             & (star_obs_catalogs.STARS_OBS["obsid"] == obsid)
         ]
-    if len(obs) > 1:
-        obs = obs.loc["mp_starcat_time", sorted(obs["mp_starcat_time"])]
+    obs.sort("mp_starcat_time")
+
     telem = []
     for _i, o in enumerate(obs):
         try:
@@ -1150,8 +1150,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     star_obs = star_obs_catalogs.STARS_OBS[
         star_obs_catalogs.STARS_OBS["agasc_id"] == agasc_id
     ]
-    if len(star_obs) > 1:
-        star_obs = star_obs.loc["mp_starcat_time", sorted(star_obs["mp_starcat_time"])]
+    star_obs.sort("mp_starcat_time")
 
     # this is the default result, if nothing gets calculated
     result = {
