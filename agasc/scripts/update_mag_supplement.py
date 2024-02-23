@@ -231,6 +231,7 @@ def get_args():
         args_log_file=args_log_file,
     )
 
+
 def main():
     import kadi.commands
 
@@ -241,7 +242,10 @@ def main():
 
     update_mag_supplement.do(**args)
 
-    if args["report"] and (args["reports_dir"] / f"{args['report_date'].date[:8]}").exists():
+    if (
+        args["report"]
+        and (args["reports_dir"] / f"{args['report_date'].date[:8]}").exists()
+    ):
         args_log_file.replace(
             args["reports_dir"] / f"{args['report_date'].date[:8]}" / args_log_file.name
         )
