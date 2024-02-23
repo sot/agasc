@@ -216,20 +216,20 @@ def get_args():
     for line in pformat(yaml_args).split("\n"):
         logger.info(line.rstrip())
 
-    return dict(
-        output_dir=args.output_dir,
-        reports_dir=args.reports_dir,
-        report_date=report_date,
-        agasc_ids=agasc_ids if agasc_ids else None,
-        multi_process=args.multi_process,
-        start=args.start,
-        stop=args.stop,
-        report=args.report,
-        include_bad=args.include_bad,
-        dry_run=args.dry_run,
-        no_progress=args.no_progress,
-        args_log_file=args_log_file,
-    )
+    return {
+        "output_dir": args.output_dir,
+        "reports_dir": args.reports_dir,
+        "report_date": report_date,
+        "agasc_ids": agasc_ids if agasc_ids else None,
+        "multi_process": args.multi_process,
+        "start": args.start,
+        "stop": args.stop,
+        "report": args.report,
+        "include_bad": args.include_bad,
+        "dry_run": args.dry_run,
+        "no_progress": args.no_progress,
+        "args_log_file": args_log_file,
+    }
 
 
 def main():
