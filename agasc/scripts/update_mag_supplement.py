@@ -199,7 +199,7 @@ def get_args():
         report_date += ((7 - report_date.datetime.weekday()) % 7) * u.day
         report_date = CxoTime(report_date.date[:8])
 
-    args_log_file = args.output_dir / "call_args.yml"
+    args_log_file = get_next_file_name(args.output_dir / "call_args.yml")
     if not args.output_dir.exists():
         args.output_dir.mkdir(parents=True)
 
@@ -209,6 +209,7 @@ def get_args():
     }
     yaml_args["report_date"] = report_date.date
     yaml_args["agasc_ids"] = agasc_ids
+    logger.info(f"Writing input arguments to {args_log_file}")
     with open(args_log_file, "w") as fh:
         yaml.dump(yaml_args, fh)
 
@@ -231,6 +232,16 @@ def get_args():
         "args_log_file": args_log_file,
     }
 
+
+def get_next_file_name(file_name):
+    if not file_name.exists():
+        return file_name
+    i = 1
+    while True:
+        new_file_name = file_name.with_suffix(f".{i}{file_name.suffix}")
+        if not new_file_name.exists():
+            return new_file_name
+        i += 1
 
 def main():
     import kadi.commands
