@@ -9,6 +9,7 @@ import argparse
 import logging
 import os
 from pathlib import Path
+from pprint import pformat
 
 import pyyaks.logger
 import yaml
@@ -112,8 +113,7 @@ def get_parser():
     return parser
 
 
-def main():
-
+def get_args():
     logger = logging.getLogger("agasc.supplement")
     the_parser = get_parser()
     args = the_parser.parse_args()
@@ -163,14 +163,17 @@ def main():
 
     star_obs_catalogs.load(args.stop)
 
-    # set the list of AGASC IDs from file if specified. If not, it will include all.
-    agasc_ids = []
-    if args.agasc_id_file:
-        with open(args.agasc_id_file, "r") as f:
-            agasc_ids = [int(line.strip()) for line in f.readlines()]
+    if "agasc_ids" in file_args:
+        agasc_ids = file_args["agasc_ids"]
+    else:
+        # set the list of AGASC IDs from file if specified. If not, it will include all.
+        agasc_ids = []
+        if args.agasc_id_file:
+            with open(args.agasc_id_file, "r") as f:
+                agasc_ids = [int(line.strip()) for line in f.readlines()]
 
-    # update 'bad' and 'obs' tables in supplement
-    agasc_ids += update_supplement.update(args)
+        # update 'bad' and 'obs' tables in supplement
+        agasc_ids += update_supplement.update(args)
 
     # set start/stop times
     if args.whole_history:
@@ -187,7 +190,9 @@ def main():
         )
 
     report_date = None
-    if args.report:
+    if "report_date" in file_args:
+        report_date = CxoTime(file_args["report_date"])
+    elif args.report:
         report_date = CxoTime(args.stop)
         # the nominal date for reports is the first Monday after the stop date.
         # this is not perfect, because it needs to agree with nav_links in update_mag_supplement.do
@@ -197,29 +202,49 @@ def main():
     args_log_file = args.output_dir / "call_args.yml"
     if not args.output_dir.exists():
         args.output_dir.mkdir(parents=True)
+
+    # there must be a better way to do this...
+    yaml_args = {
+        k: str(v) if issubclass(type(v), Path) else v for k, v in vars(args).items()
+    }
+    yaml_args["report_date"] = report_date.date
+    yaml_args["agasc_ids"] = agasc_ids
     with open(args_log_file, "w") as fh:
-        # there must be a better way to do this...
-        yaml_args = {
-            k: str(v) if issubclass(type(v), Path) else v for k, v in vars(args).items()
-        }
         yaml.dump(yaml_args, fh)
 
-    update_mag_supplement.do(
-        output_dir=args.output_dir,
-        reports_dir=args.reports_dir,
-        report_date=report_date,
-        agasc_ids=agasc_ids if agasc_ids else None,
-        multi_process=args.multi_process,
-        start=args.start,
-        stop=args.stop,
-        report=args.report,
-        include_bad=args.include_bad,
-        dry_run=args.dry_run,
-        no_progress=args.no_progress,
-    )
-    if args.report and (args.reports_dir / f"{report_date.date[:8]}").exists():
+    logger.info("Input arguments")
+    for line in pformat(yaml_args).split("\n"):
+        logger.info(line.rstrip())
+
+    return {
+        "output_dir": args.output_dir,
+        "reports_dir": args.reports_dir,
+        "report_date": report_date,
+        "agasc_ids": agasc_ids if agasc_ids else None,
+        "multi_process": args.multi_process,
+        "start": args.start,
+        "stop": args.stop,
+        "report": args.report,
+        "include_bad": args.include_bad,
+        "dry_run": args.dry_run,
+        "no_progress": args.no_progress,
+        "args_log_file": args_log_file,
+    }
+
+
+def main():
+
+    args = get_args()
+    args_log_file = args.pop("args_log_file")
+
+    update_mag_supplement.do(**args)
+
+    if (
+        args["report"]
+        and (args["reports_dir"] / f"{args['report_date'].date[:8]}").exists()
+    ):
         args_log_file.replace(
-            args.reports_dir / f"{report_date.date[:8]}" / args_log_file.name
+            args["reports_dir"] / f"{args['report_date'].date[:8]}" / args_log_file.name
         )
 
 
