@@ -52,6 +52,15 @@ def test_get_functions_dec_order_vs_healpix(ra, dec):
     stars_healpix = agasc.get_agasc_cone(
         ra, dec, radius=0.2, agasc_file=agasc_healpix, date="2023:001"
     )
+
+    # See https://github.com/sot/agasc/issues/169.
+    assert len(stars_dec) == len(stars_healpix)
+    # Make sure that both versions have DEC in ascending order.
+    assert np.all(np.diff(stars_dec["DEC"]) >= 0)
+    assert np.all(np.diff(stars_healpix["DEC"]) >= 0)
+    # Now lexically sort in-place by DEC and AGASC_ID and compare.
+    stars_dec.sort(["DEC", "AGASC_ID"])
+    stars_healpix.sort(["DEC", "AGASC_ID"])
     assert np.all(stars_dec == stars_healpix)
 
     agasc_ids = stars_dec["AGASC_ID"]
