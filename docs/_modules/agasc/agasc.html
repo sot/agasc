@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.18.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
+    <title>agasc.agasc &#8212; Agasc 4.18.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/documentation_options.js?v=39372dd1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -45,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.18.1 documentation</a>
+	<a href="../../index.html">Agasc 4.18.2 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -145,7 +144,9 @@
 <span class="s2">    &quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="set_supplement_enabled"><a class="viewcode-back" href="../../api.html#agasc.agasc.set_supplement_enabled">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<div class="viewcode-block" id="set_supplement_enabled">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.set_supplement_enabled">[docs]</a>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">set_supplement_enabled</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator / context manager to temporarily set the default for use of</span>
 <span class="sd">    AGASC supplement in query functions.</span>
@@ -187,6 +188,7 @@
         <span class="k">del</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">SUPPLEMENT_ENABLED_ENV</span><span class="p">]</span> <span class="o">=</span> <span class="n">orig</span></div>
+
 
 
 <span class="k">class</span> <span class="nc">IdNotFound</span><span class="p">(</span><span class="ne">LookupError</span><span class="p">):</span>
@@ -232,7 +234,9 @@
     <span class="k">return</span> <span class="n">RA_DECS_CACHE</span><span class="p">[</span><span class="n">agasc_file</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="read_h5_table"><a class="viewcode-back" href="../../api.html#agasc.agasc.read_h5_table">[docs]</a><span class="k">def</span> <span class="nf">read_h5_table</span><span class="p">(</span>
+<div class="viewcode-block" id="read_h5_table">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.read_h5_table">[docs]</a>
+<span class="k">def</span> <span class="nf">read_h5_table</span><span class="p">(</span>
     <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
     <span class="n">row0</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">row1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -278,6 +282,7 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
+
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">_read_h5_table_cached</span><span class="p">(</span>
     <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -308,7 +313,9 @@
     <span class="k">return</span> <span class="n">out</span>
 
 
-<div class="viewcode-block" id="get_agasc_filename"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_filename">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_filename</span><span class="p">(</span>
+<div class="viewcode-block" id="get_agasc_filename">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_filename">[docs]</a>
+<span class="k">def</span> <span class="nf">get_agasc_filename</span><span class="p">(</span>
     <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">allow_rc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -417,7 +424,10 @@
     <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="sphere_dist"><a class="viewcode-back" href="../../api.html#agasc.agasc.sphere_dist">[docs]</a><span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="sphere_dist">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.sphere_dist">[docs]</a>
+<span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Haversine formula for angular distance on a sphere: more stable at poles.</span>
 <span class="sd">    This version uses arctan instead of arcsin and thus does better with sign</span>
@@ -444,6 +454,7 @@
 
     <span class="n">dists</span> <span class="o">=</span> <span class="n">numexpr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;2 * arctan2(numerator ** 0.5, (1 - numerator) ** 0.5)&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">update_color1_column</span><span class="p">(</span><span class="n">stars</span><span class="p">):</span>
@@ -520,7 +531,9 @@
     <span class="p">)</span>
 
 
-<div class="viewcode-block" id="get_agasc_cone"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a><span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span>
+<div class="viewcode-block" id="get_agasc_cone">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a>
+<span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span>
     <span class="n">ra</span><span class="p">,</span>
     <span class="n">dec</span><span class="p">,</span>
     <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
@@ -587,6 +600,7 @@
     <span class="k">return</span> <span class="n">stars</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">get_stars_from_dec_sorted_h5</span><span class="p">(</span>
     <span class="n">ra</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">dec</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -627,7 +641,9 @@
     <span class="k">return</span> <span class="n">stars</span>
 
 
-<div class="viewcode-block" id="get_star"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_star">[docs]</a><span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="get_star">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.get_star">[docs]</a>
+<span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entry for star with requested id.</span>
 
@@ -689,6 +705,7 @@
     <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">_get_rows_read_where</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
@@ -723,7 +740,9 @@
     <span class="k">return</span> <span class="n">rows</span>
 
 
-<div class="viewcode-block" id="get_stars"><a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a><span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span>
+<div class="viewcode-block" id="get_stars">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a>
+<span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span>
     <span class="n">ids</span><span class="p">,</span>
     <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -809,6 +828,7 @@
     <span class="n">update_from_supplement</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">use_supplement</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">t</span> <span class="k">if</span> <span class="n">ids</span><span class="o">.</span><span class="n">shape</span> <span class="k">else</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
 
 
 <span class="c1"># Interpolate common docs into function docstrings. Using f-string interpolation in the</span>
@@ -976,7 +996,9 @@
 <span class="sd">&quot;&quot;&quot;Standard dtype for AGASC table.&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="TableOrder"><a class="viewcode-back" href="../../api.html#agasc.agasc.TableOrder">[docs]</a><span class="k">class</span> <span class="nc">TableOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="TableOrder">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.TableOrder">[docs]</a>
+<span class="k">class</span> <span class="nc">TableOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enumeration type to specify the AGASC table ordering:</span>
 
@@ -991,7 +1013,10 @@
     <span class="n">HEALPIX</span> <span class="o">=</span> <span class="mi">3</span></div>
 
 
-<div class="viewcode-block" id="write_agasc"><a class="viewcode-back" href="../../api.html#agasc.agasc.write_agasc">[docs]</a><span class="k">def</span> <span class="nf">write_agasc</span><span class="p">(</span>
+
+<div class="viewcode-block" id="write_agasc">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.write_agasc">[docs]</a>
+<span class="k">def</span> <span class="nf">write_agasc</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stars</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nside</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">TableOrder</span><span class="o">.</span><span class="n">HEALPIX</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1041,6 +1066,7 @@
         <span class="n">write_healpix_index_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">healpix_index</span><span class="p">,</span> <span class="n">nside</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">_write_agasc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">stars</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Do the actual writing to HDF file.&quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1080,7 +1106,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
   </p>
 </footer>
   </body>
