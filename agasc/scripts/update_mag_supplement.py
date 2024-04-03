@@ -113,9 +113,6 @@ def get_parser():
 
 
 def main():
-    import kadi.commands
-
-    kadi.commands.conf.commands_version = "1"
 
     logger = logging.getLogger("agasc.supplement")
     the_parser = get_parser()
