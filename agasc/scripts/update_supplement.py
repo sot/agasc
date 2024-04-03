@@ -291,9 +291,6 @@ def main():
     """
     The main function for the update_obs_status script.
     """
-    import kadi.commands
-
-    kadi.commands.conf.commands_version = "1"
 
     args = get_parser().parse_args()
 

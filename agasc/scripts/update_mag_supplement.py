@@ -244,9 +244,6 @@ def get_next_file_name(file_name):
         i += 1
 
 def main():
-    import kadi.commands
-
-    kadi.commands.conf.commands_version = "1"
 
     args = get_args()
     args_log_file = args.pop("args_log_file")
