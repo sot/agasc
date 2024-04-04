@@ -172,8 +172,8 @@ def get_args():
             with open(args.agasc_id_file, "r") as f:
                 agasc_ids = [int(line.strip()) for line in f.readlines()]
 
-        # update 'bad' and 'obs' tables in supplement
-        agasc_ids += update_supplement.update(args)
+    # update 'bad' and 'obs' tables in supplement
+    agasc_ids += update_supplement.update(args)
 
     # set start/stop times
     if args.whole_history:
