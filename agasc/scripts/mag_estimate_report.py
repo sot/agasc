@@ -76,9 +76,6 @@ def get_parser():
 
 
 def main():
-    import kadi.commands
-
-    kadi.commands.conf.commands_version = "1"
 
     args = get_parser().parse_args()
 

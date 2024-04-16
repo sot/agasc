@@ -615,6 +615,20 @@ def do(
     # do the processing
     logger.info(f"Will process {len(agasc_ids)} stars on {len(stars_obs)} observations")
     logger.info(f"from {start} to {stop}")
+
+    obs_times = CxoTime(star_obs_catalogs.STARS_OBS["mp_starcat_time"])
+    latest = np.sort(
+        np.unique(
+            star_obs_catalogs.STARS_OBS[["mp_starcat_time", "obsid"]][
+                obs_times > obs_times.max() - 1 * u.day
+            ]
+        )
+    )[-10:]
+    logger.info("latest observations:")
+    for row in latest:
+        logger.info(
+            f"  mp_starcat_time: {row['mp_starcat_time']}, OBSID {row['obsid']}"
+        )
     if dry_run:
         return
 
