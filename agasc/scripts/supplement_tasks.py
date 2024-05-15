@@ -56,7 +56,7 @@ def update_rc():
             AGASC_DATA / "rc" / "promote" / "agasc_supplement.h5",
         )
         diff.write(
-            "/proj/sot/ska/www/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv",
+            f"{os.environ['SKA']}/www/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv",
             overwrite=True,
         )
     if filenames:
