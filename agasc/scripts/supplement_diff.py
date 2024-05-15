@@ -109,9 +109,9 @@ def table_diff(file_from, file_to):
     )
     for name in table_names:
         if hasattr(mags[f"mag_aca_{name}"], "mask"):
-            mags[f"mag_aca_{name}"][mags[f"mag_aca_{name}"].mask] = mags[
-                "mag_aca"
-            ][mags[f"mag_aca_{name}"].mask]
+            mags[f"mag_aca_{name}"][mags[f"mag_aca_{name}"].mask] = mags["mag_aca"][
+                mags[f"mag_aca_{name}"].mask
+            ]
 
     mags = table.join(mags, bad, join_type="outer")
 
@@ -122,8 +122,10 @@ def table_diff(file_from, file_to):
 
     # now we select the rows that changed
     mag_changed = (
-        (mags[f"mag_aca_{table_names[0]}"] != mags[f"mag_aca_{table_names[1]}"])
-        | (mags[f"bad_star_source_{table_names[0]}"] != mags[f"bad_star_source_{table_names[1]}"])
+        mags[f"mag_aca_{table_names[0]}"] != mags[f"mag_aca_{table_names[1]}"]
+    ) | (
+        mags[f"bad_star_source_{table_names[0]}"]
+        != mags[f"bad_star_source_{table_names[1]}"]
     )
     for name in table_names:
         if hasattr(mags[f"mag_aca_{name}"], "mask"):
