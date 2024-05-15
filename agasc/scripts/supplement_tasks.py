@@ -25,18 +25,18 @@ from agasc.scripts import supplement_diff
 AGASC_DATA = Path(os.environ["SKA"]) / "data" / "agasc"
 SENDER = f"{getpass.getuser()}@{platform.uname()[1]}"
 
-
-def email_promotion_report(filenames, destdir, to, sender=SENDER):
-    date = CxoTime().date[:14]
-    filenames = "  - " + "\n  - ".join([str(f) for f in filenames])
-
-    msg = MIMEText(f"""The following files were promoted to {destdir} on {date}:
+TEXT = """The following files were promoted to {destdir} on {date}:
 {filenames}
 
 The corresponding changes are documented at
     https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv
 """
-    )
+
+def email_promotion_report(filenames, destdir, to, sender=SENDER):
+    date = CxoTime().date[:14]
+    filenames = "  - " + "\n  - ".join([str(f) for f in filenames])
+
+    msg = MIMEText(TEXT.format(destdir=destdir, date=date, filenames=filenames))
     msg["From"] = sender
     msg["To"] = to
     msg["Subject"] = "AGASC RC supplement promoted"
