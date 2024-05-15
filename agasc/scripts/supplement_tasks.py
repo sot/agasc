@@ -20,6 +20,8 @@ from pathlib import Path
 
 from cxotime import CxoTime
 
+from agasc.scripts import supplement_diff
+
 AGASC_DATA = Path(os.environ["SKA"]) / "data" / "agasc"
 SENDER = f"{getpass.getuser()}@{platform.uname()[1]}"
 
@@ -29,7 +31,12 @@ def email_promotion_report(filenames, destdir, to, sender=SENDER):
     filenames = "- " + "\n- ".join([str(f) for f in filenames])
 
     msg = MIMEText(
-        f"The following files were promoted to {destdir} on {date}:\n{filenames}"
+        f"""
+        The following files were promoted to {destdir} on {date}:\n{filenames}
+
+        The corresponding changes are documented at
+        https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv
+        """
     )
     msg["From"] = sender
     msg["To"] = to
@@ -43,6 +50,14 @@ def update_rc():
     Update the supplement in $SKA/data/agasc/rc
     """
     filenames = list((AGASC_DATA / "rc" / "promote").glob("*"))
+    diff = supplement_diff.table_diff(
+        AGASC_DATA / "agasc_supplement.h5",
+        AGASC_DATA / "rc" / "promote" / "agasc_supplement.h5",
+    )
+    diff.write(
+        "/proj/sot/ska/www/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv",
+        overwrite=True,
+    )
     if filenames:
         for file in filenames:
             file.rename(AGASC_DATA / file.name)
