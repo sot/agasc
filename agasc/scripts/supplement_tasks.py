@@ -50,14 +50,15 @@ def update_rc():
     Update the supplement in $SKA/data/agasc/rc
     """
     filenames = list((AGASC_DATA / "rc" / "promote").glob("*"))
-    diff = supplement_diff.table_diff(
-        AGASC_DATA / "agasc_supplement.h5",
-        AGASC_DATA / "rc" / "promote" / "agasc_supplement.h5",
-    )
-    diff.write(
-        "/proj/sot/ska/www/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv",
-        overwrite=True,
-    )
+    if (AGASC_DATA / "rc" / "promote" / "agasc_supplement.h5").exists():
+        diff = supplement_diff.table_diff(
+            AGASC_DATA / "agasc_supplement.h5",
+            AGASC_DATA / "rc" / "promote" / "agasc_supplement.h5",
+        )
+        diff.write(
+            "/proj/sot/ska/www/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv",
+            overwrite=True,
+        )
     if filenames:
         for file in filenames:
             file.rename(AGASC_DATA / file.name)
