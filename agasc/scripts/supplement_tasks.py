@@ -32,6 +32,7 @@ The corresponding changes are documented at
     https://cxc.cfa.harvard.edu/mta/ASPECT/agasc/supplement/agasc_supplement_diff.ecsv
 """
 
+
 def email_promotion_report(filenames, destdir, to, sender=SENDER):
     date = CxoTime().date[:14]
     filenames = "  - " + "\n  - ".join([str(f) for f in filenames])
