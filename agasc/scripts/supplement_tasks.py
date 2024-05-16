@@ -47,6 +47,7 @@ def update_rc():
         for file in filenames:
             file.rename(AGASC_DATA / file.name)
         email_promotion_report(filenames, destdir=AGASC_DATA, to="aca@cfa.harvard.edu")
+        email_promotion_report(filenames, destdir=AGASC_DATA, to="mp@cfa.harvard.edu")
 
     subprocess.run(
         [
