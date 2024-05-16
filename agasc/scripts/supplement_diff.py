@@ -17,6 +17,8 @@ import tables
 from astropy import table
 from astropy.io import ascii
 
+import agasc
+
 
 def read_file(filename, exclude=None):
     if exclude is None:
@@ -66,6 +68,81 @@ def diff_to_html(diff):
     return pygments.highlight(diff, lexer, formatter)
 
 
+def table_diff(file_from, file_to):
+    table_names = ["from", "to"]
+    agasc_filename = agasc.get_agasc_filename()
+    with tables.open_file(agasc_filename) as h5:
+        stars = table.Table(h5.root.data[:])
+    stars.rename_columns(["AGASC_ID", "MAG_ACA"], ["agasc_id", "mag_aca"])
+
+    with tables.open_file(file_from) as h5_from, tables.open_file(file_to) as h5_to:
+        mags = table.join(
+            table.Table(h5_from.get_node("/mags")[:]),
+            table.Table(h5_to.get_node("/mags")[:]),
+            join_type="outer",
+            table_names=table_names,
+            keys="agasc_id",
+            metadata_conflicts="silent",
+        )
+        # the `bad` table will be joined with the `mags` table.
+        # I rename the columns so the names are self-explanatory.
+        b1 = table.Table(h5_from.get_node("/bad")[:])
+        b1.rename_column("source", "bad_star_source")
+        b2 = table.Table(h5_to.get_node("/bad")[:])
+        b2.rename_column("source", "bad_star_source")
+        bad = table.join(
+            b1,
+            b2,
+            join_type="outer",
+            table_names=table_names,
+            keys="agasc_id",
+            metadata_conflicts="silent",
+        )
+
+    # missing magnitudes in the supplement are filled with catalog magnitudes
+    mags = table.join(
+        mags,
+        stars[["agasc_id", "mag_aca"]],
+        keys="agasc_id",
+        join_type="left",
+        metadata_conflicts="silent",
+    )
+    for name in table_names:
+        if hasattr(mags[f"mag_aca_{name}"], "mask"):
+            mags[f"mag_aca_{name}"][mags[f"mag_aca_{name}"].mask] = mags["mag_aca"][
+                mags[f"mag_aca_{name}"].mask
+            ]
+
+    mags = table.join(mags, bad, join_type="outer")
+
+    # filling remaining masked values so they can be compared
+    for name in table_names:
+        mags[f"bad_star_source_{name}"][mags[f"bad_star_source_{name}"].mask] = -9999
+        mags[f"mag_aca_{name}"][mags[f"mag_aca_{name}"].mask] = -9999
+
+    # now we select the rows that changed
+    mag_changed = (
+        mags[f"mag_aca_{table_names[0]}"] != mags[f"mag_aca_{table_names[1]}"]
+    ) | (
+        mags[f"bad_star_source_{table_names[0]}"]
+        != mags[f"bad_star_source_{table_names[1]}"]
+    )
+    for name in table_names:
+        if hasattr(mags[f"mag_aca_{name}"], "mask"):
+            mag_changed |= mags[f"mag_aca_{name}"].mask
+
+    mags = mags[mag_changed]
+
+    mags["d_mag"] = (
+        mags[f"mag_aca_{table_names[1]}"] - mags[f"mag_aca_{table_names[0]}"]
+    )
+    mags["d_mag_err"] = (
+        mags[f"mag_aca_err_{table_names[1]}"] - mags[f"mag_aca_err_{table_names[0]}"]
+    )
+
+    return mags
+
+
 def get_parser():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -104,11 +181,15 @@ def main():
     if not args.o.parent.exists():
         args.o.parent.mkdir()
 
-    with open(args.o, "w") as fh:
-        diff = diff_to_html(
-            diff_files(args.fromfile, args.tofile, exclude_mags=args.exclude_mags)
-        )
-        fh.write(diff)
+    if args.o.suffix == ".html":
+        with open(args.o, "w") as fh:
+            diff = diff_to_html(
+                diff_files(args.fromfile, args.tofile, exclude_mags=args.exclude_mags)
+            )
+            fh.write(diff)
+    else:
+        mags = table_diff(args.fromfile, args.tofile)
+        mags.write(args.o, overwrite=True)
 
 
 if __name__ == "__main__":
