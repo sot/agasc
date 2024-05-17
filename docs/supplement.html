@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.18.3 documentation</title>
+    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.19.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=9d4fa9c8"></script>
+    <script src="_static/documentation_options.js?v=db6269fb"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.18.3 documentation</a>
+	<a href="index.html">Agasc 4.19.0 documentation</a>
 	 &#187;
       </li>
       
@@ -318,12 +318,235 @@ The location of these files can also be specified in the command line. More info
 <h2>Scripts<a class="headerlink" href="#scripts" title="Link to this heading">¶</a></h2>
 <section id="agasc-update-supplement">
 <span id="id1"></span><h3><a class="reference internal" href="#agasc-update-supplement"><span class="std std-ref">agasc-update-supplement</span></a><a class="headerlink" href="#agasc-update-supplement" title="Link to this heading">¶</a></h3>
+<p><p>Update the ‘bad’ and ‘obs’ tables in the agasc supplement (agasc_supplement.h5).</p>
+<p>This file is a supplement to the stable AGASC to inform star selection
+and star catalog checking.</p>
+<p>This script can add one or many bad stars to the bad star table, as well as observation status
+information relevant for the magnitude estimation from acq data.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">supplement</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span><span class="o">-</span><span class="n">file</span> <span class="n">OBS_STATUS_FILE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">mp</span><span class="o">-</span><span class="n">starcat</span><span class="o">-</span><span class="n">time</span> <span class="n">MP_STARCAT_TIME</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">obsid</span> <span class="n">OBSID</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGASC_ID</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">status</span> <span class="n">STATUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">comments</span> <span class="n">COMMENTS</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="nb">id</span> <span class="n">BAD_STAR_ID</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="n">source</span> <span class="n">BAD_STAR_SOURCE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span> <span class="p">{</span><span class="n">debug</span><span class="p">,</span><span class="n">info</span><span class="p">,</span><span class="n">warning</span><span class="p">,</span><span class="n">error</span><span class="p">}]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--output-dir</kbd></dt>
+<dd><p>Directory containing agasc_supplement.h5 (default=’.’)</p>
+<p>Default: .</p>
+</dd>
+<dt><kbd>--log-level</kbd></dt>
+<dd><p>Possible choices: debug, info, warning, error</p>
+<p>Default: “info”</p>
+</dd>
+<dt><kbd>--dry-run</kbd></dt>
+<dd><p>Dry run (no actual file or database updates)</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+<section id="obs/star-status">
+<h4>OBS/star status<a class="headerlink" href="#obs/star-status" title="Link to this heading">¶</a></h4>
+<p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
+<dl class="option-list">
+<dt><kbd>--obs-status-file</kbd></dt>
+<dd><p>YAML file with star/observation status. More info at <a class="reference external" href="https://sot.github.io/agasc/supplement.html">https://sot.github.io/agasc/supplement.html</a></p>
+</dd>
+<dt><kbd>--mp-starcat-time</kbd></dt>
+<dd><p>Observation starcat time for status override. Usually the mission planning catalog time</p>
+</dd>
+<dt><kbd>--obsid</kbd></dt>
+<dd><p>OBSID for status override.</p>
+</dd>
+<dt><kbd>--agasc-id</kbd></dt>
+<dd><p>AGASC ID for status override.</p>
+</dd>
+<dt><kbd>--status</kbd></dt>
+<dd><p>Status to override.</p>
+</dd>
+<dt><kbd>--comments</kbd></dt>
+<dd><p>Comments for status override.</p>
+<p>Default: “”</p>
+</dd>
+<dt><kbd>--bad-star-id</kbd></dt>
+<dd><p>AGASC ID of bad star.</p>
+<p>Default: []</p>
+</dd>
+<dt><kbd>--bad-star-source</kbd></dt>
+<dd><p>Source identifier indicating provenance.</p>
+</dd>
+</dl>
+</section>
 </section>
 <section id="agasc-update-magnitudes">
 <span id="id2"></span><h3><a class="reference internal" href="#agasc-update-magnitudes"><span class="std std-ref">agasc-update-magnitudes</span></a><a class="headerlink" href="#agasc-update-magnitudes" title="Link to this heading">¶</a></h3>
+<p><p>Update Magnitude Statistics.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">magnitudes</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">status</span><span class="o">-</span><span class="n">file</span> <span class="n">OBS_STATUS_FILE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">mp</span><span class="o">-</span><span class="n">starcat</span><span class="o">-</span><span class="n">time</span> <span class="n">MP_STARCAT_TIME</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">obsid</span> <span class="n">OBSID</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span> <span class="n">AGASC_ID</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">status</span> <span class="n">STATUS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">comments</span> <span class="n">COMMENTS</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="nb">id</span> <span class="n">BAD_STAR_ID</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">bad</span><span class="o">-</span><span class="n">star</span><span class="o">-</span><span class="n">source</span> <span class="n">BAD_STAR_SOURCE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">start</span> <span class="n">START</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stop</span> <span class="n">STOP</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">whole</span><span class="o">-</span><span class="n">history</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="nb">id</span><span class="o">-</span><span class="n">file</span> <span class="n">AGASC_ID_FILE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">include</span><span class="o">-</span><span class="n">bad</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">report</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">reports</span><span class="o">-</span><span class="nb">dir</span> <span class="n">REPORTS_DIR</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">multi</span><span class="o">-</span><span class="n">process</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span> <span class="p">{</span><span class="n">debug</span><span class="p">,</span><span class="n">info</span><span class="p">,</span><span class="n">warning</span><span class="p">,</span><span class="n">error</span><span class="p">}]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">progress</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">args</span><span class="o">-</span><span class="n">file</span> <span class="n">ARGS_FILE</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--start</kbd></dt>
+<dd><p>Include only stars observed after this time. CxoTime-compatible time stamp. Default: now - 30 days.</p>
+</dd>
+<dt><kbd>--stop</kbd></dt>
+<dd><p>Include only stars observed before this time. CxoTime-compatible time stamp. Default: now.</p>
+</dd>
+<dt><kbd>--whole-history</kbd></dt>
+<dd><p>Include all star observations and ignore –start/stop.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--agasc-id-file</kbd></dt>
+<dd><p>Include only observations of stars whose AGASC IDs are specified in this file, one per line.</p>
+</dd>
+<dt><kbd>--output-dir</kbd></dt>
+<dd><p>Directory where agasc_supplement.h5 is located.Other output is placed here as well. Default: .</p>
+<p>Default: “.”</p>
+</dd>
+<dt><kbd>--include-bad</kbd></dt>
+<dd><p>Do not exclude “bad” stars from magnitude estimates. Default: False</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
+<section id="obs/star-status">
+<h4>OBS/star status<a class="headerlink" href="#obs/star-status" title="Link to this heading">¶</a></h4>
+<p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
+<dl class="option-list">
+<dt><kbd>--obs-status-file</kbd></dt>
+<dd><p>YAML file with star/observation status. More info at <a class="reference external" href="https://sot.github.io/agasc/supplement.html">https://sot.github.io/agasc/supplement.html</a></p>
+</dd>
+<dt><kbd>--mp-starcat-time</kbd></dt>
+<dd><p>Observation starcat time for status override. Usually the mission planning catalog time</p>
+</dd>
+<dt><kbd>--obsid</kbd></dt>
+<dd><p>OBSID for status override.</p>
+</dd>
+<dt><kbd>--agasc-id</kbd></dt>
+<dd><p>AGASC ID for status override.</p>
+</dd>
+<dt><kbd>--status</kbd></dt>
+<dd><p>Status to override.</p>
+</dd>
+<dt><kbd>--comments</kbd></dt>
+<dd><p>Comments for status override.</p>
+<p>Default: “”</p>
+</dd>
+<dt><kbd>--bad-star-id</kbd></dt>
+<dd><p>AGASC ID of bad star.</p>
+<p>Default: []</p>
+</dd>
+<dt><kbd>--bad-star-source</kbd></dt>
+<dd><p>Source identifier indicating provenance.</p>
+</dd>
+</dl>
+</section>
+<section id="reporting">
+<h4>Reporting<a class="headerlink" href="#reporting" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--report</kbd></dt>
+<dd><p>Generate HTML report for the period covered. Default: False</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--reports-dir</kbd></dt>
+<dd><p>Directory where to place reports. Default: &lt;output_dir&gt;/supplement_reports/weekly.</p>
+</dd>
+</dl>
+</section>
+<section id="other">
+<h4>Other<a class="headerlink" href="#other" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--multi-process</kbd></dt>
+<dd><p>Use multi-processing to accelerate run.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--log-level</kbd></dt>
+<dd><p>Possible choices: debug, info, warning, error</p>
+<p>Default: “info”</p>
+</dd>
+<dt><kbd>--no-progress</kbd></dt>
+<dd><p>Do not show a progress bar</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--args-file</kbd></dt>
+<dd><p>YAML file with arguments to agasc.supplement.magnitudes.update_mag_supplement.do</p>
+</dd>
+<dt><kbd>--dry-run</kbd></dt>
+<dd><p>Dry run (no actual file or database updates)</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
 </section>
 <section id="agasc-magnitudes-report">
 <span id="id3"></span><h3><a class="reference internal" href="#agasc-magnitudes-report"><span class="std std-ref">agasc-magnitudes-report</span></a><a class="headerlink" href="#agasc-magnitudes-report" title="Link to this heading">¶</a></h3>
+<p><p>Produce reports of the magnitude supplement.</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">magnitudes</span><span class="o">-</span><span class="n">report</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">start</span> <span class="n">START</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">stop</span> <span class="n">STOP</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="nb">input</span><span class="o">-</span><span class="nb">dir</span> <span class="n">INPUT_DIR</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">output</span><span class="o">-</span><span class="nb">dir</span> <span class="n">OUTPUT_DIR</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">obs</span><span class="o">-</span><span class="n">stats</span> <span class="n">OBS_STATS</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="n">agasc</span><span class="o">-</span><span class="n">stats</span> <span class="n">AGASC_STATS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">weekly</span><span class="o">-</span><span class="n">report</span><span class="p">]</span>
+                               <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">stars</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<dl class="option-list">
+<dt><kbd>--start</kbd></dt>
+<dd><p>Time to start processing new observations. CxoTime-compatible time stamp. Default: now - 90 days</p>
+</dd>
+<dt><kbd>--stop</kbd></dt>
+<dd><p>Time to stop processing new observations. CxoTime-compatible time stamp. Default: now</p>
+</dd>
+<dt><kbd>--input-dir</kbd></dt>
+<dd><p>Directory containing mag-stats files. Default: $SKA/data/agasc</p>
+<p>Default: “$SKA/data/agasc”</p>
+</dd>
+<dt><kbd>--output-dir</kbd></dt>
+<dd><p>Output directory. Default: supplement_reports/suspect</p>
+<p>Default: “supplement_reports/suspect”</p>
+</dd>
+<dt><kbd>--obs-stats</kbd></dt>
+<dd><p>FITS file with mag-stats for all observations. Default: mag_stats_obsid.fits</p>
+<p>Default: “mag_stats_obsid.fits”</p>
+</dd>
+<dt><kbd>--agasc-stats</kbd></dt>
+<dd><p>FITS file with mag-stats for all observed AGASC stars. Default: mag_stats_agasc.fits</p>
+<p>Default: “mag_stats_agasc.fits”</p>
+</dd>
+<dt><kbd>--weekly-report</kbd></dt>
+<dd><p>Add links to navigate weekly reports.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--all-stars</kbd></dt>
+<dd><p>Include all stars in the report, not just suspect.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</section>
 </section>
 <section id="agasc-supplement-tasks">
 <span id="id4"></span><h3><a class="reference internal" href="#agasc-supplement-tasks"><span class="std std-ref">agasc-supplement-tasks</span></a><a class="headerlink" href="#agasc-supplement-tasks" title="Link to this heading">¶</a></h3>
@@ -1002,9 +1225,22 @@ star-observations to date, but if it is created if it does not exist already.</p
 </ul>
 </li>
 <li><a class="reference internal" href="#scripts">Scripts</a><ul>
-<li><a class="reference internal" href="#agasc-update-supplement"><span class="xref std std-ref">agasc-update-supplement</span></a></li>
-<li><a class="reference internal" href="#agasc-update-magnitudes"><span class="xref std std-ref">agasc-update-magnitudes</span></a></li>
-<li><a class="reference internal" href="#agasc-magnitudes-report"><span class="xref std std-ref">agasc-magnitudes-report</span></a></li>
+<li><a class="reference internal" href="#agasc-update-supplement"><span class="xref std std-ref">agasc-update-supplement</span></a><ul>
+<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#obs/star-status">OBS/star status</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agasc-update-magnitudes"><span class="xref std std-ref">agasc-update-magnitudes</span></a><ul>
+<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#obs/star-status">OBS/star status</a></li>
+<li><a class="reference internal" href="#reporting">Reporting</a></li>
+<li><a class="reference internal" href="#other">Other</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#agasc-magnitudes-report"><span class="xref std std-ref">agasc-magnitudes-report</span></a><ul>
+<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#agasc-supplement-tasks"><span class="xref std std-ref">agasc-supplement-tasks</span></a><ul>
 <li><a class="reference internal" href="#positional-arguments">Positional Arguments</a></li>
 </ul>
