@@ -163,7 +163,7 @@ def get_args():
 
     star_obs_catalogs.load(args.stop)
 
-    if "agasc_ids" in file_args:
+    if args.args_file and "agasc_ids" in file_args:
         agasc_ids = file_args["agasc_ids"]
     else:
         # set the list of AGASC IDs from file if specified. If not, it will include all.
@@ -190,7 +190,7 @@ def get_args():
         )
 
     report_date = None
-    if "report_date" in file_args:
+    if args.args_file and "report_date" in file_args:
         report_date = CxoTime(file_args["report_date"])
     elif args.report:
         report_date = CxoTime(args.stop)
