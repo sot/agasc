@@ -28,9 +28,9 @@ Examples
   $ python create_derived_agasc_h5.py proseco_agasc --version 1.8 \
       --filter-faint --include-near-neighbors --proseco-columns
   $ python create_derived_agasc_h5.py miniagasc --version 1.8 --filter-faint
+  $ python create_derived_agasc_h5.py miniagasc --version 1.7 --filter-faint --dec-order
   $ python create_derived_agasc_h5.py agasc_healpix --version 1.7
 """
-
 
 import argparse
 from pathlib import Path
@@ -86,9 +86,9 @@ def get_parser():
     return parser
 
 
-def main():
+def main(args_sys=None):
     parser = get_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(args_sys)
 
     version_num = args.version
     version = version_num.replace(".", "p")
@@ -116,7 +116,14 @@ def main():
             "and sort by healpix index"
         )
 
-    write_agasc(filename_derived, stars, version, nside=args.nside, order=order)
+    write_agasc(
+        filename_derived,
+        stars,
+        version,
+        nside=args.nside,
+        order=order,
+        full_agasc=not args.proseco_columns,
+    )
 
 
 def filter_proseco_columns(stars):

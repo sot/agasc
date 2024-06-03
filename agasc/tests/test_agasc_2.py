@@ -609,7 +609,7 @@ def test_write(tmp_path):
         assert "healpix_index" not in h5_out.root
         assert h5_out.root.data.attrs["version"] == "test"
         assert h5_out.root.data.attrs["NROWS"] == 1000
-        assert h5_out.root.data.dtype == agasc.TABLE_DTYPE
+        assert h5_out.root.data.dtype == np.dtype(agasc.TABLE_DTYPES)
         assert np.all(np.diff(h5_out.root.data[:]["DEC"]) >= 0)
 
     write_agasc(temp, stars=stars, version="test")
@@ -618,4 +618,4 @@ def test_write(tmp_path):
         assert "healpix_index" in h5_out.root
         assert h5_out.root.data.attrs["version"] == "test"
         assert h5_out.root.data.attrs["NROWS"] == 1000
-        assert h5_out.root.data.dtype == agasc.TABLE_DTYPE
+        assert h5_out.root.data.dtype == agasc.TABLE_DTYPES
