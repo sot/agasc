@@ -8,9 +8,8 @@ of AGASC IDs corresponding to all stars in AGASC 1.7 that are within
 This takes a while to run and should be done on a computer with copy
 of AGASC 1.7 on a local (fast) drive.
 
-Usage::
-
-  $ python create_near_neighbor_ids.py --version=1p7
+This creates an output file like ``agasc<version>_near_neighbor_ids.fits.gz`` which can
+be used by ``create_derived_agasc_h5.py`` to include near neighbors.
 """
 import argparse
 from pathlib import Path
@@ -23,7 +22,7 @@ import agasc
 
 
 def get_parser():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(__doc__)
     parser.add_argument(
         "agasc_full",
         type=str,
