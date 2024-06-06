@@ -27,10 +27,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 import Ska.Shell
+import tables
 from astropy.io import ascii
 from astropy.table import Row, Table
 
 import agasc
+from agasc import write_agasc
 
 os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = "False"
 
@@ -583,24 +585,21 @@ def test_get_supplement_table_obs_dict():
     assert isinstance(obs, dict)
 
 
-def test_write(tmp_path):
-    from pathlib import Path
-
-    import tables
-
-    from agasc import write_agasc
-
+@pytest.fixture(scope="module")
+def stars_in():
     with tables.open_file(
         Path(os.environ["SKA"]) / "data" / "agasc" / "agasc1p7.h5"
     ) as h5_in:
-        stars = Table(h5_in.root.data[:1000])
+        stars_in = Table(h5_in.root.data[:1000])
 
-    # this is an extra column that should not make it to the output
-    stars["extra_col"] = np.arange(1000)
-    # channging these column types, which should then be fixed on writing
-    stars["AGASC_ID"] = stars["AGASC_ID"].astype(np.int64)
-    stars["MAG_ACA"] = stars["MAG_ACA"].astype(np.float64)
-    stars = stars.as_array()
+    return stars_in
+
+
+def test_write_munge_types(tmp_path, stars_in):
+    # changing these column types, which should then be fixed on writing
+    stars_in["AGASC_ID"] = stars_in["AGASC_ID"].astype(np.int64)
+    stars_in["MAG_ACA"] = stars_in["MAG_ACA"].astype(np.float64)
+    stars = stars_in.as_array()
 
     temp = tmp_path / "test.h5"
     write_agasc(temp, stars=stars, version="test", order=agasc.TableOrder.DEC)
@@ -619,3 +618,26 @@ def test_write(tmp_path):
         assert h5_out.root.data.attrs["version"] == "test"
         assert h5_out.root.data.attrs["NROWS"] == 1000
         assert h5_out.root.data.dtype == agasc.TABLE_DTYPE
+
+
+@pytest.mark.parametrize("full_agasc", [True, False])
+def test_write_extra_column(tmp_path, stars_in, full_agasc):
+    temp = tmp_path / "test.h5"
+    # this is an extra column that should not make it to the output
+    stars_in["extra_col"] = np.arange(len(stars_in))
+    stars = stars_in.as_array()
+    with pytest.raises(ValueError, match=r"stars has disallowed keys: {'extra_col'}"):
+        write_agasc(temp, stars=stars, version="test", full_agasc=full_agasc)
+    del stars_in["extra_col"]
+
+
+def test_write_missing_column(tmp_path, stars_in):
+    temp = tmp_path / "test.h5"
+    del stars_in["MAG_ACA"]
+    stars = stars_in.as_array()
+
+    with pytest.raises(ValueError, match=r"missing keys in stars: {'MAG_ACA'}"):
+        write_agasc(temp, stars=stars, version="test")
+
+    # OK for full_agasc=False
+    write_agasc(temp, stars=stars, version="test", full_agasc=False)

@@ -859,58 +859,61 @@ def write_healpix_index_table(filename: str, healpix_index: Table, nside: int):
         h5.root.healpix_index.attrs["nside"] = nside
 
 
-TABLE_DTYPE = np.dtype(
-    [
-        ("AGASC_ID", np.int32),
-        ("RA", np.float64),
-        ("DEC", np.float64),
-        ("POS_ERR", np.int16),
-        ("POS_CATID", np.uint8),
-        ("EPOCH", np.float32),
-        ("PM_RA", np.int16),
-        ("PM_DEC", np.int16),
-        ("PM_CATID", np.uint8),
-        ("PLX", np.int16),
-        ("PLX_ERR", np.int16),
-        ("PLX_CATID", np.uint8),
-        ("MAG_ACA", np.float32),
-        ("MAG_ACA_ERR", np.int16),
-        ("CLASS", np.int16),
-        ("MAG", np.float32),
-        ("MAG_ERR", np.int16),
-        ("MAG_BAND", np.int16),
-        ("MAG_CATID", np.uint8),
-        ("COLOR1", np.float32),
-        ("COLOR1_ERR", np.int16),
-        ("C1_CATID", np.uint8),
-        ("COLOR2", np.float32),
-        ("COLOR2_ERR", np.int16),
-        ("C2_CATID", np.uint8),
-        ("RSV1", np.float32),
-        ("RSV2", np.int16),
-        ("RSV3", np.uint8),
-        ("VAR", np.int16),
-        ("VAR_CATID", np.uint8),
-        ("ASPQ1", np.int16),
-        ("ASPQ2", np.int16),
-        ("ASPQ3", np.int16),
-        ("ACQQ1", np.int16),
-        ("ACQQ2", np.int16),
-        ("ACQQ3", np.int16),
-        ("ACQQ4", np.int16),
-        ("ACQQ5", np.int16),
-        ("ACQQ6", np.int16),
-        ("XREF_ID1", np.int32),
-        ("XREF_ID2", np.int32),
-        ("XREF_ID3", np.int32),
-        ("XREF_ID4", np.int32),
-        ("XREF_ID5", np.int32),
-        ("RSV4", np.int16),
-        ("RSV5", np.int16),
-        ("RSV6", np.int16),
-    ]
-)
-"""Standard dtype for AGASC table."""
+import numpy.typing as npt
+
+TABLE_DTYPES: dict[str, npt.DTypeLike] = {
+    "AGASC_ID": np.int32,
+    "RA": np.float64,
+    "DEC": np.float64,
+    "POS_ERR": np.int16,
+    "POS_CATID": np.uint8,
+    "EPOCH": np.float32,
+    "PM_RA": np.int16,
+    "PM_DEC": np.int16,
+    "PM_CATID": np.uint8,
+    "PLX": np.int16,
+    "PLX_ERR": np.int16,
+    "PLX_CATID": np.uint8,
+    "MAG_ACA": np.float32,
+    "MAG_ACA_ERR": np.int16,
+    "CLASS": np.int16,
+    "MAG": np.float32,
+    "MAG_ERR": np.int16,
+    "MAG_BAND": np.int16,
+    "MAG_CATID": np.uint8,
+    "COLOR1": np.float32,
+    "COLOR1_ERR": np.int16,
+    "C1_CATID": np.uint8,
+    "COLOR2": np.float32,
+    "COLOR2_ERR": np.int16,
+    "C2_CATID": np.uint8,
+    "RSV1": np.float32,
+    "RSV2": np.int16,
+    "RSV3": np.uint8,
+    "VAR": np.int16,
+    "VAR_CATID": np.uint8,
+    "ASPQ1": np.int16,
+    "ASPQ2": np.int16,
+    "ASPQ3": np.int16,
+    "ACQQ1": np.int16,
+    "ACQQ2": np.int16,
+    "ACQQ3": np.int16,
+    "ACQQ4": np.int16,
+    "ACQQ5": np.int16,
+    "ACQQ6": np.int16,
+    "XREF_ID1": np.int32,
+    "XREF_ID2": np.int32,
+    "XREF_ID3": np.int32,
+    "XREF_ID4": np.int32,
+    "XREF_ID5": np.int32,
+    "RSV4": np.int16,
+    "RSV5": np.int16,
+    "RSV6": np.int16,
+}
+
+
+TABLE_DTYPE = np.dtype(list(TABLE_DTYPES.items()))
+"""Standard dtypes for AGASC table."""
 
 
 class TableOrder(Enum):
@@ -929,7 +932,12 @@ class TableOrder(Enum):
 
 
 def write_agasc(
-    filename: str, stars: np.ndarray, version: str, nside=64, order=TableOrder.HEALPIX
+    filename: str,
+    stars: np.ndarray,
+    version: str,
+    nside=64,
+    order=TableOrder.HEALPIX,
+    full_agasc=True,
 ):
     """
     Write AGASC stars to a new HDF5 file.
@@ -953,13 +961,34 @@ def write_agasc(
 
             - TableOrder.HEALPIX. The stars are sorted using a HEALPix index.
             - TableOrder.DEC. The stars are sorted by declination.
+    full_agasc : bool, optional
+        Whether writing a full AGASC table with all columns or a subset (normally
+        proseco). Default is True, in which case all AGASC columns are required.
     """
-    if stars.dtype != TABLE_DTYPE:
-        cols = TABLE_DTYPE.names
-        missing_keys = set(cols) - set(stars.dtype.names)
-        if missing_keys:
-            raise ValueError(f"Missing keys in stars: {missing_keys}")
-        stars = Table(stars)[cols].as_array().astype(TABLE_DTYPE)
+    star_cols_set = set(stars.dtype.names)
+    table_dtypes_list = list(TABLE_DTYPES.items())
+
+    if stars.dtype != np.dtype(table_dtypes_list):
+        if disallowed_keys := star_cols_set - set(TABLE_DTYPES):
+            # Stars has keys that are not in allowed set
+            raise ValueError(f"stars has disallowed keys: {disallowed_keys}")
+
+        if full_agasc:
+            if missing_keys := set(TABLE_DTYPES) - star_cols_set:
+                # Stars is missing some keys in required set
+                raise ValueError(f"missing keys in stars: {missing_keys}")
+            stars_out_dtypes = table_dtypes_list
+        else:
+            # Allow for a subset of AGASC columns in stars (e.g. proseco_agasc) making
+            # sure to preserve standard AGASC column ordering and dtype.
+            stars_out_dtypes = [
+                (col, dtype) for col, dtype in table_dtypes_list if col in star_cols_set
+            ]
+
+        # Coerce stars structured ndarray to the correct column ordering and dtype with
+        # a side trip through astropy Table.
+        cols = [col for col, _ in stars_out_dtypes]
+        stars = Table(stars)[cols].as_array().astype(stars_out_dtypes)
 
     match order:
         case TableOrder.DEC:
