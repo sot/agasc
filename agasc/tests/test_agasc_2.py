@@ -533,13 +533,13 @@ def test_get_supplement_table_bad_dict():
 
 
 @agasc.set_supplement_enabled(True)
-def test_get_bad_star_with_supplement():
+def test_get_bad_star_with_supplement(proseco_agasc_1p7):
     agasc_id = 797847184
     star = agasc.get_star(agasc_id, use_supplement=True)
     assert star["CLASS"] == agasc.BAD_CLASS_SUPPLEMENT
 
 
-def test_bad_agasc_supplement_env_var():
+def test_bad_agasc_supplement_env_var(proseco_agasc_1p7):
     try:
         os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = "asdfasdf"
         with pytest.raises(ValueError, match="env var must be either"):

@@ -20,9 +20,23 @@ def test_multi_agasc():
     with tables.open_file(agasc.default_agasc_file()) as h5:
         middle = int(len(h5.root.data) // 2)
         stars1 = Table(h5.root.data[middle : middle + 20])
-        stars1.write(os.path.join(tempdir, "stars1.h5"), path="data")
+        agasc.write_agasc(
+            os.path.join(tempdir, "stars1.h5"),
+            stars=stars1.as_array(),
+            version="test",
+            order=agasc.TableOrder.DEC,
+            full_agasc=False,
+        )
+        # stars1.write(os.path.join(tempdir, "stars1.h5"), path="data")
         stars2 = Table(h5.root.data[middle + 20 : middle + 60])
-        stars2.write(os.path.join(tempdir, "stars2.h5"), path="data")
+        agasc.write_agasc(
+            os.path.join(tempdir, "stars2.h5"),
+            stars=stars2.as_array(),
+            version="test",
+            order=agasc.TableOrder.DEC,
+            full_agasc=False,
+        )
+        # stars2.write(os.path.join(tempdir, "stars2.h5"), path="data")
 
     # Fetch all the stars from a custom agasc and make sure we have the right number of stars
     # with no errors
@@ -77,7 +91,7 @@ def test_update_color1_func():
     assert np.allclose(stars["COLOR2"], color2)
 
 
-def test_update_color1_get_star():
+def test_update_color1_get_star(proseco_agasc_1p7):
     """
     Test updated color1 in get_star() call.
 
@@ -101,7 +115,7 @@ def test_update_color1_get_star():
     assert np.isclose(star["COLOR1"], 1.5)
 
 
-def test_update_color1_get_agasc_cone():
+def test_update_color1_get_agasc_cone(proseco_agasc_1p7):
     """
     Test updated color1 in get_agasc_cone() call.
     """
@@ -118,6 +132,7 @@ def test_update_color1_get_agasc_cone():
 
 
 def test_get_agasc_filename(tmp_path, monkeypatch):
+    monkeypatch.delenv("AGASC_HDF5_FILE", raising=False)
     monkeypatch.setenv("AGASC_DIR", str(tmp_path))
     names = [
         "agasc1p6.h5",
