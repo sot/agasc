@@ -126,8 +126,8 @@ else:
     else:
         TEST_ASCDS = True
 
-# Latest full release of miniagasc
-MINIAGASC = agasc.get_agasc_filename("miniagasc_*")
+# Version 1.7 of miniagasc
+MINIAGASC_1P7 = agasc.get_agasc_filename("miniagasc_*", version="1p7")
 
 
 def get_ds_agasc_cone(ra, dec):
@@ -420,10 +420,10 @@ def test_proseco_agasc_1p7():
 def test_supplement_get_agasc_cone():
     ra, dec = 282.53, -0.38  # Obsid 22429 with a couple of color1=1.5 stars
     stars1 = agasc.get_agasc_cone(
-        ra, dec, date="2021:001", agasc_file=MINIAGASC, use_supplement=False
+        ra, dec, date="2021:001", agasc_file=MINIAGASC_1P7, use_supplement=False
     )
     stars2 = agasc.get_agasc_cone(
-        ra, dec, date="2021:001", agasc_file=MINIAGASC, use_supplement=True
+        ra, dec, date="2021:001", agasc_file=MINIAGASC_1P7, use_supplement=True
     )
     ok = stars2["MAG_CATID"] == agasc.MAG_CATID_SUPPLEMENT
 
@@ -461,8 +461,8 @@ def test_supplement_get_star():
     agasc_id = 58720672
     # Also checks that the default is False given the os.environ override for
     # this test file.
-    star1 = agasc.get_star(agasc_id, agasc_file=MINIAGASC)
-    star2 = agasc.get_star(agasc_id, agasc_file=MINIAGASC, use_supplement=True)
+    star1 = agasc.get_star(agasc_id, agasc_file=MINIAGASC_1P7)
+    star2 = agasc.get_star(agasc_id, agasc_file=MINIAGASC_1P7, use_supplement=True)
     assert star1["MAG_CATID"] != agasc.MAG_CATID_SUPPLEMENT
     assert star2["MAG_CATID"] == agasc.MAG_CATID_SUPPLEMENT
 
@@ -504,8 +504,8 @@ def test_supplement_get_star_disable_decorator():
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason="no mags in supplement")
 def test_supplement_get_stars():
     agasc_ids = [58720672, 670303120]
-    star1 = agasc.get_stars(agasc_ids, agasc_file=MINIAGASC)
-    star2 = agasc.get_stars(agasc_ids, agasc_file=MINIAGASC, use_supplement=True)
+    star1 = agasc.get_stars(agasc_ids, agasc_file=MINIAGASC_1P7)
+    star2 = agasc.get_stars(agasc_ids, agasc_file=MINIAGASC_1P7, use_supplement=True)
     assert np.all(star1["MAG_CATID"] != agasc.MAG_CATID_SUPPLEMENT)
     assert np.all(star2["MAG_CATID"] == agasc.MAG_CATID_SUPPLEMENT)
 
@@ -533,13 +533,13 @@ def test_get_supplement_table_bad_dict():
 
 
 @agasc.set_supplement_enabled(True)
-def test_get_bad_star_with_supplement():
+def test_get_bad_star_with_supplement(proseco_agasc_1p7):
     agasc_id = 797847184
     star = agasc.get_star(agasc_id, use_supplement=True)
     assert star["CLASS"] == agasc.BAD_CLASS_SUPPLEMENT
 
 
-def test_bad_agasc_supplement_env_var():
+def test_bad_agasc_supplement_env_var(proseco_agasc_1p7):
     try:
         os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = "asdfasdf"
         with pytest.raises(ValueError, match="env var must be either"):
