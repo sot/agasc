@@ -1,10 +1,10 @@
 ================================================
-THE AXAF Guide and Acquisition Star Catalog V1.7
+THE AXAF Guide and Acquisition Star Catalog V1.8
 ================================================
 
 An all-sky astrometric and photometric catalog
 prepared for the operation of Chandra
-(formerly AXAF). version 1.7 September 2018
+(formerly AXAF). version 1.8 July 2024
 
 Introduction
 ============
@@ -13,8 +13,8 @@ The AXAF Guide and Acquisition Star Catalog (AGASC) is presented in
 this set of FITS (Flexible Image Transport System) files, and may
 be distributed in a variety of formats, including DAT (DDS format)
 or CD-ROM (compact disc, read only memory in ISO 9660 format).  This
-issue, Version 1.7, corresponds to the AGASC as completed
-18 September 2018.
+issue, Version 1.8, corresponds to the AGASC as completed
+11 July 2024.
 
 The primary source of data for the AGASC is the Guide Star Catalog
 (GSC) for the Hubble Space Telescope (HST), version 1.1.  The release
@@ -64,6 +64,10 @@ Version 1.7 improves upon the 1.6 calibration (observed ACA magnitude
 and its error) for red stars by including the i magnitude information
 from the AAVSO (American Association of Variable Star Observers)
 Photometric All-Sky Survey (APASS) DR9.
+
+Version 1.8 includes improved star positions and proper motions from Gaia
+DR3, as well as improved estimated magnitudes derived from Gaia DR3 photometry
+and more than 94,000 ACA observed stars. 
 
 Organization of the FITS Data Files
 ===================================
@@ -118,10 +122,10 @@ numbers XREF_IDx are included from the original x=1-6 catalogs we
 have matched.
 
 
-Summary of the AGASC1.7 Format
+Summary of the AGASC1.8 Format
 ==============================
 
-Each FITS regions table in the AGASC1.7 consists of 3 parts, the
+Each FITS regions table in the AGASC1.8 consists of 3 parts, the
 primary header, the table header, and the table data. The conventions
 for FITS Binary Tables are detailed in Cotton, Tody and Pence (1995,
 A&A, 113, 159), or at http://fits.nrao.edu/FITS.html
@@ -131,7 +135,7 @@ regions tables.  That length is 5x2880= 14400bytes. After these 14400
 bytes comes star data records.
 
 The data for each star amounts to 122 bytes, in 47 data columns for
-AGASC1.7.  Default values are -9999 or 0 where no data are available.
+AGASC1.8.  Default values are -9999 or 0 where no data are available.
 Many columns require data; these have no default values.  Another
 exception is COLOR1, whose default value is 0.7000 for most stars,
 or 1.5000 for stars with COLOR1 greater than 1.5000. Details on all
@@ -151,10 +155,10 @@ for each data item for each star are as follows::
   ----------------------------------------------------------------
                        122 bytes per star
 
-Summary of the AGASC Version 1.7 Entries
+Summary of the AGASC Version 1.8 Entries
 ----------------------------------------
 
-Each of the FITS regions files in the AGASC1.7 will contain the
+Each of the FITS regions files in the AGASC1.8 will contain the
 following fields for each entry::
 
     BYTES NAME - brief description
@@ -182,6 +186,7 @@ following fields for each entry::
             4 - ACT
             5 - Tycho-2
             6 - GSC-ACT
+            7 - Gaia DR3
 
     4    EPOCH - float variable identifying the epoch of the ra and dec
         measurements. Default value of -9999.0
@@ -257,6 +262,9 @@ following fields for each entry::
             18  0.72  IIIaJ + GG385
             21  0.00  PPM V mag
             22  1.00  PPM B mag
+            23        Gaia DR3 G mag
+            24        Gaia DR3 Rp mag
+            25        Gaia DR3 Bp mag
 
     1    MAG_CATID - unsigned integer identifying the source of the
         mag, mag_err, and mag_band.  Codes are as follows:
@@ -268,6 +276,7 @@ following fields for each entry::
             4 - ACT
             5 - Tycho-2
             6 - GSC-ACT
+            7 - Gaia DR3
           100 - Chandra ACA estimated magnitude (only via agasc package query)
 
     4    COLOR1 - float variable expressing the cataloged or estimated B-V color,
@@ -355,9 +364,8 @@ following fields for each entry::
         brightest star within 321" of this star, and this star, in units
         of 0.01 mags.     Default value of -9999.
 
-    4    XREF_ID1 - long integer which is the star number in the
-        AGASC Version 1.0 (= GSC1.1).  This is not a unique identifier.
-        Default value of -9999.
+    4    XREF_ID1 - long integer with the highest significant 32 bits of the Gaia DR3 ID.
+        Default value of -1.
 
     4    XREF_ID2 - long integer which maps the entry to that in the PPM.
         Default value of -9999.
@@ -368,16 +376,18 @@ following fields for each entry::
     4    XREF_ID4 - long integer which maps the entry to that in the Tycho Output
         Catalog (TYC3).  Default value of -9999.
 
-    4    XREF_ID5 - long integer which maps the entry to that in a future
-        catalog.      Default value of -9999.
+    4    XREF_ID5 - long integer with the lowest significant 32 bits of the Gaia DR3 ID.
+        Default value of -9999.
 
-    2    RSV4 - short integer reserved for future use.  Default value of -9999.
+    2    RSV4 - short integer which is the star number in the
+        AGASC Version 1.0 (= GSC1.1).  This is not a unique identifier.
+        Default value of -9999.
 
     2    RSV5 - short integer reserved for future use.  Default value of -9999.
 
     2    RSV6 - short integer reserved for future use.  Default value of -9999.
 
-History of the AGASC Version 1.7
+History of the AGASC Version 1.8
 ================================
 
 The primary objective of the Chandra Aspect Camera Assembly (ACA) is to
@@ -759,13 +769,29 @@ information, V - i aka COLOR3 (APASS) in AGASC 1.7. COLOR2 (Tycho)
 combined with COLOR3 (APASS) resulted in improved calibration of the
 red spoiler stars.
 
+Gaia DR3
+--------
+
+The Gaia DR3 catalog is the third data release from the European Space Agency's (ESA) Gaia mission.
+The Gaia mission is designed to measure the positions, distances, and proper motions of stars with
+unprecedented accuracy. We cross-matched the AGASC catalog with the Gaia DR3 catalog, and calibrated
+the ACA magnitude estimates of more than 94,000 observed stars with the corresponding Gaia
+magnitudes.
+
+More details concerning Gaia can be found in the following resources:
+
+   
+1. Gaia Data Release 3, A. Avllenari et al. 2024, A&A, 674, A1
+   https://doi.org/10.1051/0004-6361/202243940
+2. https://www.cosmos.esa.int/web/gaia-users/archive/gdr3-documentation
+3. https://gea.esac.esa.int/archive/
+
 
 Acknowledgements
 ================
 
-The AXAF Guide and Acquisition Star Catalog version 1.7 was prepared
-from AGASC1.6 and AAVSO (American Association of Variable Star Observers)
-Photometric All-Sky Survey (APASS) DR9, primarily by Malgosia Sobolewska,
+The AXAF Guide and Acquisition Star Catalog version 1.8 was prepared
+from AGASC1.7 and Gaia DR3, primarily by Javier G Gonzalez,
 Tom Aldcroft, and Jean Connelly. Thanks to the entire Star Selection and
 Aspect Working Group for its input in the development and testing of this
 catalog. The Chandra X-ray Center is supported through NASA Contract
@@ -773,5 +799,5 @@ NAS8-39073. Information about Chandra and the Chandra X-ray Observatory
 Center may be found on the WWW at http://chandra.harvard.edu/
 Detailed information about the catalog and its construction can be
 obtained from the Chandra aspect web page at
-https://cxc.harvard.edu/mta/ASPECT/agasc1p7 or by emailing:
+https://cxc.harvard.edu/mta/ASPECT/agasc1p8 or by emailing:
 aspect_help@cfa.harvard.edu
