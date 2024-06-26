@@ -318,7 +318,8 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
                 # from those, find the ones which differ in last observation time
                 # (any others will not be updated)
                 last_obs_differs = (
-                    outliers_current[i_cur]["last_obs_time"] != outliers_new[i_new]["last_obs_time"]
+                    outliers_current[i_cur]["last_obs_time"]
+                    != outliers_new[i_new]["last_obs_time"]
                 )
                 i_cur = i_cur[last_obs_differs]
                 i_new = i_new[last_obs_differs]
@@ -330,11 +331,15 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
 
                 # reset new values in the cases we do not want to update mag_aca
                 updt_mag = (
-                    (np.abs(current["mag_aca"] - new["mag_aca"]) > d_mag_threshold)
-                    | (np.abs(current["mag_aca_err"] - new["mag_aca_err"]) > d_mag_threshold)
+                    np.abs(current["mag_aca"] - new["mag_aca"]) > d_mag_threshold
+                ) | (
+                    np.abs(current["mag_aca_err"] - new["mag_aca_err"])
+                    > d_mag_threshold
                 )
                 new["mag_aca"] = np.where(updt_mag, new["mag_aca"], current["mag_aca"])
-                new["mag_aca_err"] = np.where(updt_mag, current["mag_aca_err"], new["mag_aca_err"])
+                new["mag_aca_err"] = np.where(
+                    updt_mag, current["mag_aca_err"], new["mag_aca_err"]
+                )
 
                 # overwrite current values with new values
                 outliers_current[i_cur] = new
@@ -342,7 +347,9 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
                 # and calculate diff to return)
                 updated_stars = np.zeros(len(new), dtype=MAGS_DTYPE)
                 updated_stars["mag_aca"] = new["mag_aca"] - current["mag_aca"]
-                updated_stars["mag_aca_err"] = new["mag_aca_err"] - current["mag_aca_err"]
+                updated_stars["mag_aca_err"] = (
+                    new["mag_aca_err"] - current["mag_aca_err"]
+                )
                 updated_stars["agasc_id"] = new["agasc_id"]
                 updated_stars = updated_stars[updt_mag]  # all others are zero
 
