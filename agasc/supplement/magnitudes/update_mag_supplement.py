@@ -351,7 +351,6 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
                     new["mag_aca_err"] - current["mag_aca_err"]
                 )
                 updated_stars["agasc_id"] = new["agasc_id"]
-                updated_stars = updated_stars[updt_mag]  # all others are zero
 
                 # find agasc_ids in new list but not in current list
                 new_stars = ~np.in1d(
@@ -740,16 +739,32 @@ def do(
             multi_star_html_args["no_progress"] = no_progress
 
         else:
+            updt_mag = (updated_stars["mag_aca"] != 0) | (
+                updated_stars["mag_aca_err"] != 0
+            )
             sections = [
                 {"id": "new_stars", "title": "New Stars", "stars": new_stars},
                 {
                     "id": "updated_stars",
                     "title": "Updated Stars",
-                    "stars": updated_stars["agasc_id"] if len(updated_stars) else [],
+                    "stars": (
+                        updated_stars["agasc_id"][updt_mag].tolist()
+                        if len(updated_stars[updt_mag])
+                        else []
+                    ),
+                },
+                {
+                    "id": "not_updated_stars",
+                    "title": "Magnitude not Updated",
+                    "stars": (
+                        updated_stars["agasc_id"][~updt_mag].tolist()
+                        if len(updated_stars[~updt_mag])
+                        else []
+                    ),
                 },
                 {
                     "id": "other_stars",
-                    "title": "Magnitude not Updated",
+                    "title": "Other (unexpectedly not updated)",
                     "stars": list(
                         agasc_stats["agasc_id"][
                             ~np.in1d(agasc_stats["agasc_id"], new_stars)
