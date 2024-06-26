@@ -338,7 +338,7 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
                 )
                 new["mag_aca"] = np.where(updt_mag, new["mag_aca"], current["mag_aca"])
                 new["mag_aca_err"] = np.where(
-                    updt_mag, current["mag_aca_err"], new["mag_aca_err"]
+                    updt_mag, new["mag_aca_err"], current["mag_aca_err"]
                 )
 
                 # overwrite current values with new values
