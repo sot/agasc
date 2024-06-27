@@ -265,7 +265,7 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir="."):
             pickle.dump(fails, out)
 
 
-def update_supplement(agasc_stats, filename, include_all=True):
+def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0.01):
     """
     Update the magnitude table of the AGASC supplement.
 
@@ -274,6 +274,9 @@ def update_supplement(agasc_stats, filename, include_all=True):
     :param include_all: bool
         if True, all OK entries are included in supplement.
         if False, only OK entries marked 'selected_*'
+    :param d_mag_threshold: float
+        If the absolute difference between the new and the current mag_aca is less than this value,
+        mag_aca is not updated. Note that last_obs_time is always updated.
     :return:
     """
     if agasc_stats is None or len(agasc_stats) == 0:
@@ -312,33 +315,52 @@ def update_supplement(agasc_stats, filename, include_all=True):
                     outliers_current["agasc_id"],
                     return_indices=True,
                 )
+                # from those, find the ones which differ in last observation time
+                # (any others will not be updated)
+                last_obs_differs = (
+                    outliers_current[i_cur]["last_obs_time"]
+                    != outliers_new[i_new]["last_obs_time"]
+                )
+                i_cur = i_cur[last_obs_differs]
+                i_new = i_new[last_obs_differs]
+
+                # The original will not modified when changing these tables.
                 current = outliers_current[i_cur]
                 new = outliers_new[i_new]
+                assert len(new) == len(current)  # this should always be true
 
-                # from those, find the ones which differ in last observation time
-                i_cur = i_cur[current["last_obs_time"] != new["last_obs_time"]]
-                i_new = i_new[current["last_obs_time"] != new["last_obs_time"]]
-                # overwrite current values with new values (and calculate diff to return)
-                updated_stars = np.zeros(len(outliers_new[i_new]), dtype=MAGS_DTYPE)
-                updated_stars["mag_aca"] = (
-                    outliers_new[i_new]["mag_aca"] - outliers_current[i_cur]["mag_aca"]
+                # reset new values in the cases we do not want to update mag_aca
+                updt_mag = (
+                    np.abs(current["mag_aca"] - new["mag_aca"]) > d_mag_threshold
+                ) | (
+                    np.abs(current["mag_aca_err"] - new["mag_aca_err"])
+                    > d_mag_threshold
                 )
+                new["mag_aca"] = np.where(updt_mag, new["mag_aca"], current["mag_aca"])
+                new["mag_aca_err"] = np.where(
+                    updt_mag, new["mag_aca_err"], current["mag_aca_err"]
+                )
+
+                # overwrite current values with new values
+                outliers_current[i_cur] = new
+
+                # and calculate diff to return
+                updated_stars = np.zeros(len(new), dtype=MAGS_DTYPE)
+                updated_stars["mag_aca"] = new["mag_aca"] - current["mag_aca"]
                 updated_stars["mag_aca_err"] = (
-                    outliers_new[i_new]["mag_aca_err"]
-                    - outliers_current[i_cur]["mag_aca_err"]
+                    new["mag_aca_err"] - current["mag_aca_err"]
                 )
-                updated_stars["agasc_id"] = outliers_new[i_new]["agasc_id"]
-                outliers_current[i_cur] = outliers_new[i_new]
+                updated_stars["agasc_id"] = new["agasc_id"]
 
                 # find agasc_ids in new list but not in current list
                 new_stars = ~np.in1d(
                     outliers_new["agasc_id"], outliers_current["agasc_id"]
                 )
+
                 # and add them to the current list
-                outliers_current = np.concatenate(
-                    [outliers_current, outliers_new[new_stars]]
+                outliers = np.sort(
+                    np.concatenate([outliers_current, outliers_new[new_stars]])
                 )
-                outliers = np.sort(outliers_current)
 
                 new_stars = outliers_new[new_stars]["agasc_id"]
 
@@ -717,16 +739,32 @@ def do(
             multi_star_html_args["no_progress"] = no_progress
 
         else:
+            updt_mag = (updated_stars["mag_aca"] != 0) | (
+                updated_stars["mag_aca_err"] != 0
+            )
             sections = [
                 {"id": "new_stars", "title": "New Stars", "stars": new_stars},
                 {
                     "id": "updated_stars",
                     "title": "Updated Stars",
-                    "stars": updated_stars["agasc_id"] if len(updated_stars) else [],
+                    "stars": (
+                        updated_stars["agasc_id"][updt_mag].tolist()
+                        if len(updated_stars[updt_mag])
+                        else []
+                    ),
+                },
+                {
+                    "id": "not_updated_stars",
+                    "title": "Magnitude not Updated",
+                    "stars": (
+                        updated_stars["agasc_id"][~updt_mag].tolist()
+                        if len(updated_stars[~updt_mag])
+                        else []
+                    ),
                 },
                 {
                     "id": "other_stars",
-                    "title": "Other Stars",
+                    "title": "Other (unexpectedly not updated)",
                     "stars": list(
                         agasc_stats["agasc_id"][
                             ~np.in1d(agasc_stats["agasc_id"], new_stars)
