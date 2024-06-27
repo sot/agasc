@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import tables
+import agasc
 from astropy import table
 from astropy.table import Table, join
 from chandra_aca.transform import yagzag_to_pixels
@@ -35,7 +36,7 @@ def get_star_observations(start=None, stop=None, obsid=None):
     )
 
     # Add mag_aca_err column
-    filename = os.path.join(os.environ["SKA"], "data", "agasc", "proseco_agasc_1p7.h5")
+    filename = agasc.get_agasc_filename()
     with tables.open_file(filename) as h5:
         agasc_ids = h5.root.data.col("AGASC_ID")
         mag_errs = h5.root.data.col("MAG_ACA_ERR") * 0.01
