@@ -344,7 +344,7 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
                 # overwrite current values with new values
                 outliers_current[i_cur] = new
 
-                # and calculate diff to return)
+                # and calculate diff to return
                 updated_stars = np.zeros(len(new), dtype=MAGS_DTYPE)
                 updated_stars["mag_aca"] = new["mag_aca"] - current["mag_aca"]
                 updated_stars["mag_aca_err"] = (
