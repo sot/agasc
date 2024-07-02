@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Magnitude Supplement API &#8212; Agasc 4.19.0 documentation</title>
+    <title>Magnitude Supplement API &#8212; Agasc 4.20.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=db6269fb"></script>
+    <script src="_static/documentation_options.js?v=a5b539c6"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -52,7 +52,7 @@
 	
       </li>
       <li>
-	<a href="index.html">Agasc 4.19.0 documentation</a>
+	<a href="index.html">Agasc 4.20.0 documentation</a>
 	 &#187;
       </li>
       
@@ -415,7 +415,7 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.supplement.magnitudes.update_mag_supplement.update_supplement">
-<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">update_supplement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_supplement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_supplement" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.update_mag_supplement.</span></span><span class="sig-name descname"><span class="pre">update_supplement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_mag_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/update_mag_supplement.html#update_supplement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.update_mag_supplement.update_supplement" title="Link to this definition">¶</a></dt>
 <dd><p>Update the magnitude table of the AGASC supplement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -425,6 +425,9 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 <li><p><strong>include_all</strong> – bool
 if True, all OK entries are included in supplement.
 if False, only OK entries marked ‘selected_*’</p></li>
+<li><p><strong>d_mag_threshold</strong> – float
+If the absolute difference between the new and the current mag_aca is less than this value,
+mag_aca is not updated. Note that last_obs_time is always updated.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

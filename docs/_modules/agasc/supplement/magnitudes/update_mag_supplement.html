@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.supplement.magnitudes.update_mag_supplement &#8212; Agasc 4.19.0 documentation</title>
+    <title>agasc.supplement.magnitudes.update_mag_supplement &#8212; Agasc 4.20.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../../../_static/documentation_options.js?v=db6269fb"></script>
+    <script src="../../../../_static/documentation_options.js?v=a5b539c6"></script>
     <script src="../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../../index.html">Agasc 4.19.0 documentation</a>
+	<a href="../../../../index.html">Agasc 4.20.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -341,7 +341,7 @@
 
 <div class="viewcode-block" id="update_supplement">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.update_supplement">[docs]</a>
-<span class="k">def</span> <span class="nf">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">d_mag_threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the magnitude table of the AGASC supplement.</span>
 
@@ -350,6 +350,9 @@
 <span class="sd">    :param include_all: bool</span>
 <span class="sd">        if True, all OK entries are included in supplement.</span>
 <span class="sd">        if False, only OK entries marked &#39;selected_*&#39;</span>
+<span class="sd">    :param d_mag_threshold: float</span>
+<span class="sd">        If the absolute difference between the new and the current mag_aca is less than this value,</span>
+<span class="sd">        mag_aca is not updated. Note that last_obs_time is always updated.</span>
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">agasc_stats</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -388,33 +391,52 @@
                     <span class="n">outliers_current</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
                     <span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="p">)</span>
+                <span class="c1"># from those, find the ones which differ in last observation time</span>
+                <span class="c1"># (any others will not be updated)</span>
+                <span class="n">last_obs_differs</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">][</span><span class="s2">&quot;last_obs_time&quot;</span><span class="p">]</span>
+                    <span class="o">!=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s2">&quot;last_obs_time&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">i_cur</span> <span class="o">=</span> <span class="n">i_cur</span><span class="p">[</span><span class="n">last_obs_differs</span><span class="p">]</span>
+                <span class="n">i_new</span> <span class="o">=</span> <span class="n">i_new</span><span class="p">[</span><span class="n">last_obs_differs</span><span class="p">]</span>
+
+                <span class="c1"># The original will not modified when changing these tables.</span>
                 <span class="n">current</span> <span class="o">=</span> <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">]</span>
                 <span class="n">new</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">new</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>  <span class="c1"># this should always be true</span>
 
-                <span class="c1"># from those, find the ones which differ in last observation time</span>
-                <span class="n">i_cur</span> <span class="o">=</span> <span class="n">i_cur</span><span class="p">[</span><span class="n">current</span><span class="p">[</span><span class="s2">&quot;last_obs_time&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;last_obs_time&quot;</span><span class="p">]]</span>
-                <span class="n">i_new</span> <span class="o">=</span> <span class="n">i_new</span><span class="p">[</span><span class="n">current</span><span class="p">[</span><span class="s2">&quot;last_obs_time&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;last_obs_time&quot;</span><span class="p">]]</span>
-                <span class="c1"># overwrite current values with new values (and calculate diff to return)</span>
-                <span class="n">updated_stars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MAGS_DTYPE</span><span class="p">)</span>
-                <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">][</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span>
+                <span class="c1"># reset new values in the cases we do not want to update mag_aca</span>
+                <span class="n">updt_mag</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">d_mag_threshold</span>
+                <span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">current</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">])</span>
+                    <span class="o">&gt;</span> <span class="n">d_mag_threshold</span>
                 <span class="p">)</span>
+                <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">updt_mag</span><span class="p">,</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">])</span>
+                <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="n">updt_mag</span><span class="p">,</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">],</span> <span class="n">current</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+
+                <span class="c1"># overwrite current values with new values</span>
+                <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span>
+
+                <span class="c1"># and calculate diff to return</span>
+                <span class="n">updated_stars</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">MAGS_DTYPE</span><span class="p">)</span>
+                <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">current</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span>
                 <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span>
-                    <span class="o">-</span> <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">][</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span>
+                    <span class="n">new</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">current</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span>
                 <span class="p">)</span>
-                <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">][</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
-                <span class="n">outliers_current</span><span class="p">[</span><span class="n">i_cur</span><span class="p">]</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">i_new</span><span class="p">]</span>
+                <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
 
                 <span class="c1"># find agasc_ids in new list but not in current list</span>
                 <span class="n">new_stars</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span>
                     <span class="n">outliers_new</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span> <span class="n">outliers_current</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
                 <span class="p">)</span>
+
                 <span class="c1"># and add them to the current list</span>
-                <span class="n">outliers_current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">outliers_current</span><span class="p">,</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">new_stars</span><span class="p">]]</span>
+                <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">outliers_current</span><span class="p">,</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">new_stars</span><span class="p">]])</span>
                 <span class="p">)</span>
-                <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">outliers_current</span><span class="p">)</span>
 
                 <span class="n">new_stars</span> <span class="o">=</span> <span class="n">outliers_new</span><span class="p">[</span><span class="n">new_stars</span><span class="p">][</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
 
@@ -796,16 +818,32 @@
             <span class="n">multi_star_html_args</span><span class="p">[</span><span class="s2">&quot;no_progress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">no_progress</span>
 
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">updt_mag</span> <span class="o">=</span> <span class="p">(</span><span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;mag_aca&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+                <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">)</span>
             <span class="n">sections</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;new_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;New Stars&quot;</span><span class="p">,</span> <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="n">new_stars</span><span class="p">},</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;updated_stars&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Updated Stars&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">)</span> <span class="k">else</span> <span class="p">[],</span>
+                    <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">][</span><span class="n">updt_mag</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">[</span><span class="n">updt_mag</span><span class="p">])</span>
+                        <span class="k">else</span> <span class="p">[]</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;not_updated_stars&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Magnitude not Updated&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">][</span><span class="o">~</span><span class="n">updt_mag</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">[</span><span class="o">~</span><span class="n">updt_mag</span><span class="p">])</span>
+                        <span class="k">else</span> <span class="p">[]</span>
+                    <span class="p">),</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;other_stars&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Other Stars&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Other (unexpectedly not updated)&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
                         <span class="n">agasc_stats</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">][</span>
                             <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span> <span class="n">new_stars</span><span class="p">)</span>
