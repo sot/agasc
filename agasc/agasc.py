@@ -252,10 +252,10 @@ def _read_h5_table(
     row1: None | int,
 ) -> np.ndarray:
     if isinstance(h5_file, tables.file.File):
-        out = _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5_file)
+        out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1, columns)
     else:
         with tables.open_file(h5_file) as h5:
-            out = _read_h5_table_from_open_h5_file(columns, path, row0, row1, h5)
+            out = _read_h5_table_from_open_h5_file(h5, path, row0, row1, columns)
 
     out = np.asarray(out)  # Convert to structured ndarray (not recarray)
     return out
@@ -535,18 +535,18 @@ def get_agasc_cone(
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
-    # Ensure that the columns we need are read from the AGASC file. Sort the columns
-    # so caching is effective.
-    if columns is None:
-        columns_query = None
-    else:
-        columns_set = (set(columns) | set(COLUMNS_REQUIRED)) - {
-            "RA_PMCORR",
-            "DEC_PMCORR",
-        }
-        columns_query = tuple(sorted(columns_set))
+    # Ensure that the columns we need are read from the AGASC file, excluding PMCORR
+    # columns if supplied since they are not in the HDF5. Sort the columns so caching is
+    # effective.
+    columns_query = (
+        None
+        if columns is None
+        else tuple(sorted(set(columns) - {"RA_PMCORR", "DEC_PMCORR"}))
+    )
+    stars = get_stars_func(
+        ra, dec, rad_pm, agasc_file=agasc_file, columns=columns_query, cache=cache
+    )
 
-    stars = get_stars_func(ra, dec, rad_pm, agasc_file, columns_query, cache)
     add_pmcorr_columns(stars, date)
     if fix_color1:
         update_color1_column(stars)
@@ -558,14 +558,11 @@ def get_agasc_cone(
         stars = stars[ok]
 
     update_from_supplement(stars, use_supplement)
+
+    if columns is not None:
+        stars = stars.__class__({col: stars[col] for col in columns}, copy=False)
+
     stars.meta["agasc_file"] = agasc_file
-
-    if columns is not None:
-        stars = Table({col: stars[col] for col in columns}, copy=False)
-
-    if columns is not None:
-        stars = Table({col: stars[col] for col in columns}, copy=False)
-
     return stars
 
 
