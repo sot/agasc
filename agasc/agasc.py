@@ -42,18 +42,14 @@ SUPPLEMENT_ENABLED_DEFAULT = "True"
 MAG_CATID_SUPPLEMENT = 100
 BAD_CLASS_SUPPLEMENT = 100
 
-# Columns that are required for calls to get_agasc_cone and get_star(s)
-COLUMNS_REQUIRED = [
-    "AGASC_ID",
+# Columns that are required for calls to get_agasc_cone
+COLUMNS_REQUIRED = {
     "RA",
     "DEC",
     "EPOCH",
     "PM_DEC",
     "PM_RA",
-    "COLOR1",
-    "RSV3",
-    "COLOR2",
-]
+}
 
 RA_DECS_CACHE = {}
 
@@ -235,7 +231,7 @@ def read_h5_table(
     return out
 
 
-@functools.lru_cache(maxsize=1)
+@functools.lru_cache
 def _read_h5_table_cached(
     h5_file: str | Path,
     columns: tuple,
@@ -261,14 +257,18 @@ def _read_h5_table(
     return out
 
 
-def _read_h5_table_from_open_h5_file(h5, path, row0, row1, columns=None):
+def _read_h5_table_from_open_h5_file(
+    h5: tables.file.File,
+    path: str,
+    row0: int,
+    row1: int,
+    columns: tuple | None = None,
+):
     data = getattr(h5.root, path)
+    out = data.read(start=row0, stop=row1)
     if columns:
-        out = {col: data.read(field=col, start=row0, stop=row1) for col in columns}
-        out = np.rec.fromarrays(list(out.values()), names=list(out.keys()))
-    else:
-        out = data.read(start=row0, stop=row1)
-    return out
+        out = np.rec.fromarrays([out[col] for col in columns], names=columns)
+    return np.asarray(out)
 
 
 def get_agasc_filename(
@@ -409,7 +409,7 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     return np.degrees(dists)
 
 
-def update_color1_column(stars):
+def update_color1_column(stars: Table):
     """
     For any stars which have a V-I color (RSV3 > 0) and COLOR1 == 1.5
     then set COLOR1 = COLOR2 * 0.850.  For such stars the MAG_ACA / MAG_ACA_ERR
@@ -422,8 +422,11 @@ def update_color1_column(stars):
     https://heasarc.nasa.gov/W3Browse/all/tycho2.html for a reminder of the
     scaling between the two.
 
-    This updates ``stars`` in place.
+    This updates ``stars`` in place if the COLOR1 column is present.
     """
+    if "COLOR1" not in stars.columns:
+        return
+
     # Select red stars that have a reliable mag in AGASC 1.7 and later.
     color15 = np.isclose(stars["COLOR1"], 1.5) & (stars["RSV3"] > 0)
     new_color1 = stars["COLOR2"][color15] * 0.850
@@ -543,6 +546,11 @@ def get_agasc_cone(
         if columns is None
         else tuple(sorted(set(columns) - {"RA_PMCORR", "DEC_PMCORR"}))
     )
+
+    # Minimal columns to compute PM-corrected positions and do filtering.
+    if columns and COLUMNS_REQUIRED - set(columns):
+        raise ValueError(f"columns must include all of {COLUMNS_REQUIRED}")
+
     stars = get_stars_func(
         ra, dec, rad_pm, agasc_file=agasc_file, columns=columns_query, cache=cache
     )
@@ -558,9 +566,6 @@ def get_agasc_cone(
         stars = stars[ok]
 
     update_from_supplement(stars, use_supplement)
-
-    if columns is not None:
-        stars = stars.__class__({col: stars[col] for col in columns}, copy=False)
 
     stars.meta["agasc_file"] = agasc_file
     return stars
