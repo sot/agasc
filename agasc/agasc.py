@@ -539,12 +539,13 @@ def get_agasc_cone(
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
     # Ensure that the columns we need are read from the AGASC file, excluding PMCORR
-    # columns if supplied since they are not in the HDF5. Sort the columns so caching is
-    # effective.
+    # columns if supplied since they are not in the HDF5.
     columns_query = (
         None
         if columns is None
-        else tuple(sorted(set(columns) - {"RA_PMCORR", "DEC_PMCORR"}))
+        else tuple(
+            column for column in columns if column not in ("RA_PMCORR", "DEC_PMCORR")
+        )
     )
 
     # Minimal columns to compute PM-corrected positions and do filtering.
