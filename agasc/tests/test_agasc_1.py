@@ -9,7 +9,7 @@ from astropy.table import Table
 from ska_helpers.utils import temp_env_var
 
 import agasc
-from agasc.agasc import update_color1_column
+from agasc.agasc import _read_h5_table_cached, update_color1_column
 
 
 def test_multi_agasc():
@@ -210,3 +210,63 @@ def test_get_agasc_filename(tmp_path, monkeypatch):
     # With a glob pattern existence of a matching file is required
     with pytest.raises(FileNotFoundError, match="No AGASC files"):
         agasc.get_agasc_filename("doesnt-exist*")
+
+
+@pytest.mark.parametrize("agasc_version", ["1p7", "1p8"])
+def test_cache_and_columns(agasc_version):
+    """Ensure that caching doesn't affect the outputs of get_agasc_cone().
+
+    Also make sure that setting `columns` has the desired result.
+    """
+    agasc_file = agasc.get_agasc_filename(version=agasc_version, allow_rc=True)
+    n_iter = 10
+    np.random.seed(0)
+    ras = np.random.uniform(0, 360, n_iter)
+    decs = np.random.uniform(-90, 90, n_iter)
+
+    # fmt: off
+    colnames = (
+        "AGASC_ID", "RA", "DEC", "PM_RA", "PM_DEC", "EPOCH", "MAG_ACA",
+        "RA_PMCORR", "DEC_PMCORR",
+    )
+    colnames_all = [
+        "AGASC_ID", "RA", "DEC", "POS_ERR", "EPOCH", "PM_RA", "PM_DEC",
+        "MAG_ACA", "MAG_ACA_ERR", "CLASS", "COLOR1", "COLOR2", "RSV1", "RSV3", "VAR",
+        "ASPQ1", "ASPQ2", "ASPQ3", "RA_PMCORR", "DEC_PMCORR"
+    ]
+    # fmt: on
+
+    _read_h5_table_cached.cache_clear()
+    assert _read_h5_table_cached.cache_info().hits == 0
+    assert _read_h5_table_cached.cache_info().currsize == 0
+
+    # Prime the cache with 2 entries (one for each values of columns)
+    for columns in (colnames, None):
+        agasc.get_agasc_cone(
+            cache=True, columns=columns, ra=0, dec=0, agasc_file=agasc_file
+        )
+    assert _read_h5_table_cached.cache_info().currsize == 2
+    assert _read_h5_table_cached.cache_info().misses == 2
+
+    stars = {}
+    for ra, dec in zip(ras, decs):
+        for cache in (False, True):
+            for columns in (None, colnames):
+                stars[cache, columns] = agasc.get_agasc_cone(
+                    cache=cache,
+                    columns=columns,
+                    ra=ra,
+                    dec=dec,
+                    agasc_file=agasc_file,
+                    date="2019:001",
+                )
+
+            assert stars[cache, None].colnames == colnames_all
+            assert stars[cache, colnames].colnames == list(colnames)
+
+        assert np.all(stars[True, None] == stars[False, None])
+        assert np.all(stars[True, colnames] == stars[False, colnames])
+
+    # Still just two cache entries
+    assert _read_h5_table_cached.cache_info().misses == 2
+    assert _read_h5_table_cached.cache_info().currsize == 2
