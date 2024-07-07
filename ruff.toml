@@ -46,6 +46,7 @@ lint.extend-ignore = [
 extend-exclude = [
   "docs",
   "validate",
+  "*.ipynb",
 ]
 
 [lint.pycodestyle]

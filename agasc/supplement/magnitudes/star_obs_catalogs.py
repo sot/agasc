@@ -1,6 +1,5 @@
 import numpy as np
 import tables
-import agasc
 from astropy import table
 from astropy.table import Table, join
 from chandra_aca.transform import yagzag_to_pixels
