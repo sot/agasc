@@ -181,11 +181,11 @@ def get_ra_decs(agasc_file):
 
 def read_h5_table(
     h5_file: str | Path | tables.file.File,
-    columns: Optional[list | tuple] = None,
     row0: Optional[int] = None,
     row1: Optional[int] = None,
     path="data",
     cache=False,
+    columns: Optional[list | tuple] = None,
 ) -> np.ndarray:
     """
     Read HDF5 table ``columns`` from group ``path`` in ``h5_file``.
@@ -194,16 +194,13 @@ def read_h5_table(
     e.g. ``data[row0:row1]``.
 
     If ``cache`` is ``True`` then the data for the last read is cached in memory. The
-    cache key is ``(h5_file, columns, row0, row1, path)`` and only one cache entry is
-    kept. It is typically not useful to cache the read if ``row0`` or ``row1`` are
-    specified.
+    cache key is ``(h5_file, path, columns)`` and up to 128 cache entries are
+    kept.
 
     Parameters
     ----------
     h5_file : str, Path, tables.file.File
         Path to the HDF5 file to read.
-    columns : list or tuple, optional
-        Column names to read from the file. If not specified, all columns are read.
     row0 : int, optional
         First row to read. Default is None (read from first row).
     row1 : int, optional
@@ -212,6 +209,8 @@ def read_h5_table(
         Path to the data table in the HDF5 file. Default is 'data'.
     cache : bool, optional
         Whether to cache the read data. Default is False.
+    columns : list or tuple, optional
+        Column names to read from the file. If not specified, all columns are read.
 
     Returns
     -------
@@ -224,10 +223,10 @@ def read_h5_table(
     if cache:
         if isinstance(h5_file, tables.file.File):
             h5_file = h5_file.filename
-        data = _read_h5_table_cached(h5_file, columns, path)
+        data = _read_h5_table_cached(h5_file, path, columns)
         out = data[row0:row1]
     else:
-        out = _read_h5_table(h5_file, columns, path, row0, row1)
+        out = _read_h5_table(h5_file, path, row0, row1, columns)
 
     return out
 
@@ -235,18 +234,18 @@ def read_h5_table(
 @functools.lru_cache
 def _read_h5_table_cached(
     h5_file: str | Path,
-    columns: tuple,
     path: str,
+    columns: tuple | None = None,
 ) -> np.ndarray:
-    return _read_h5_table(h5_file, columns, path, row0=None, row1=None)
+    return _read_h5_table(h5_file, path, row0=None, row1=None, columns=columns)
 
 
 def _read_h5_table(
     h5_file: str | Path | tables.file.File,
-    columns: tuple,
     path: str,
     row0: None | int,
     row1: None | int,
+    columns: tuple | None = None,
 ) -> np.ndarray:
     if isinstance(h5_file, tables.file.File):
         out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1, columns)
@@ -642,7 +641,9 @@ def get_stars_from_dec_sorted_h5(
     dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
     ok = dists <= radius
 
-    stars = read_h5_table(agasc_file, columns, row0=idx0, row1=idx1, cache=cache)
+    stars = read_h5_table(
+        agasc_file, row0=idx0, row1=idx1, cache=cache, columns=columns
+    )
     stars = Table(stars[ok])
 
     return stars

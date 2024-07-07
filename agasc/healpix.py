@@ -124,7 +124,9 @@ def get_stars_from_healpix_h5(
     def make_stars_list(h5_file):
         for healpix_index in healpix_indices:
             idx0, idx1 = healpix_index_map[healpix_index]
-            stars = read_h5_table(h5_file, columns, row0=idx0, row1=idx1, cache=cache)
+            stars = read_h5_table(
+                h5_file, row0=idx0, row1=idx1, cache=cache, columns=columns
+            )
             stars_list.append(stars)
 
     if cache:
