@@ -13,6 +13,7 @@ import numpy as np
 import tables
 from astropy.table import Column, Table
 from Chandra.Time import DateTime
+from cxotime import CxoTimeLike, convert_time_format
 from packaging.version import Version
 
 from .healpix import get_healpix_index_table, get_stars_from_healpix_h5, is_healpix
@@ -495,6 +496,7 @@ def get_agasc_cone(
     pm_filter=True,
     fix_color1=True,
     use_supplement=None,
+    matlab_pm_bug=False,
     columns=None,
     cache=False,
 ):
@@ -523,6 +525,8 @@ def get_agasc_cone(
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
     :param use_supplement: Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
+    :param matlab_pm_bug: Apply MATLAB proper motion bug prior to the MAY2118A loads
+        (default=False)
     :param columns: Columns to return (default=all)
     :param cache: Cache the AGASC data in memory (default=False)
 
@@ -556,6 +560,9 @@ def get_agasc_cone(
         ra, dec, rad_pm, agasc_file=agasc_file, columns=columns_query, cache=cache
     )
 
+    if matlab_pm_bug:
+        apply_matlab_pm_bug(stars, date)
+
     add_pmcorr_columns(stars, date)
     if fix_color1:
         update_color1_column(stars)
@@ -567,9 +574,35 @@ def get_agasc_cone(
         stars = stars[ok]
 
     update_from_supplement(stars, use_supplement)
-
     stars.meta["agasc_file"] = agasc_file
+
     return stars
+
+
+def apply_matlab_pm_bug(stars: Table, date: CxoTimeLike):
+    """Account for a bug in MATLAB proper motion correction.
+
+    The bug was not dividing the RA proper motion by cos(dec), so here we premultiply by
+    that factor so that add_pmcorr_columns() will match MATLAB. This is mostly for use
+    in kadi.commands.observations.set_star_ids() to match flight catalogs created with
+    MATLAB.
+
+    This bug was fixed starting with the MAY2118A loads (MATLAB Tools 2018115).
+
+    Parameters
+    ----------
+    stars : astropy.table.Table
+        Table of stars from the AGASC
+    date : CxoTimeLike
+        Date for proper motion correction
+    """
+    if convert_time_format(date, "date") < "2018:141:03:35:03.000":
+        ok = stars["PM_RA"] != -9999
+        # Note this is an int16 field so there is some rounding error, but for
+        # the purpose of star identification this is fine.
+        stars["PM_RA"][ok] = np.round(
+            stars["PM_RA"][ok] * np.cos(np.deg2rad(stars["DEC"][ok]))
+        )
 
 
 def get_stars_from_dec_sorted_h5(
