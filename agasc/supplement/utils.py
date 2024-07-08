@@ -2,6 +2,7 @@
 import logging
 import warnings
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import tables
@@ -69,7 +70,11 @@ COLUMN_DESCRIPTION = {
 
 
 @lru_cache_timed(timeout=3600)
-def get_supplement_table(name, agasc_dir=None, as_dict=False):
+def get_supplement_table(
+    name: str,
+    agasc_dir: Optional[str] = None,
+    as_dict: bool = False,
+) -> Table | dict:
     """Get one of the tables in the AGASC supplement.
 
     This function gets one of the supplement tables, specified with ``name``:
@@ -92,11 +97,12 @@ def get_supplement_table(name, agasc_dir=None, as_dict=False):
 
     Parameters
     ----------
-    name
+    name : str
         Table name within the AGASC supplement HDF5 file
-    data_root : directory containing the AGASC supplement HDF5 file
+    agasc_dir : str, optional
+        directory containing the AGASC supplement HDF5 file
         (default=same directory as the AGASC file)
-    as_dict
+    as_dict : bool
         return result as a dictionary (default=False)
 
     Returns
@@ -207,21 +213,21 @@ def update_table(filename, table, path, dtype, keys, dry_run=False, create=False
 
     Parameters
     ----------
-    filename
-
-    table
-        table.Table
+    filename : str
+        Name of the HDF5 file
+    table : table.Table | None
+        Table update values
     path : str
-        the path of the table in the supplement ('obs', 'mags')
+        Path of the table in the supplement ('obs', 'mags')
     dtype : np.dtype
-        the dtype of the table. Used only if the table is not in the supplement already.
+        Dtype of the table. Used only if the table is not in the supplement already.
         If it is not given, and the table does not exist in the supplement,
         an exception will be raised.
     keys : list
-        a list of columns that uniquely identify a row in the table.
+        List of columns that uniquely identify a row in the table.
         In case of duplicates, the last appearance is kept.
-    dry_run
-        bool
+    dry_run: bool
+        Do not save the table.
     create : bool
         Create a supplement file if it does not exist
     """

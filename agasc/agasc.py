@@ -10,6 +10,7 @@ from typing import Optional
 
 import numexpr
 import numpy as np
+import numpy.typing as npt
 import tables
 from astropy.table import Column, Table
 from Chandra.Time import DateTime
@@ -93,7 +94,7 @@ COMMON_DOC = f"""By default, stars with available mag estimates or bad star entr
 
 
 @contextlib.contextmanager
-def set_supplement_enabled(value):
+def set_supplement_enabled(value: bool):
     """Decorator / context manager to temporarily set the default for use of
     AGASC supplement in query functions.
 
@@ -382,7 +383,12 @@ def get_agasc_filename(
     return str(out)
 
 
-def sphere_dist(ra1, dec1, ra2, dec2):
+def sphere_dist(
+    ra1: npt.ArrayLike,
+    dec1: npt.ArrayLike,
+    ra2: npt.ArrayLike,
+    dec2: npt.ArrayLike,
+) -> np.ndarray:
     """
     Haversine formula for angular distance on a sphere: more stable at poles.
     This version uses arctan instead of arcsin and thus does better with sign
@@ -391,18 +397,18 @@ def sphere_dist(ra1, dec1, ra2, dec2):
 
     Parameters
     ----------
-    ra1
+    ra1 : array_like
         first RA (deg)
-    dec1
+    dec1 : array_like
         first Dec (deg)
-    ra2
+    ra2 : array_like
         second RA (deg)
-    dec2
+    dec2 : array_like
         second Dec (deg)
 
     Returns
     -------
-    angular separation distance (deg)
+    angular separation distance (deg) : array_like
     """
 
     ra1 = np.radians(ra1).astype(np.float64)
@@ -504,18 +510,18 @@ def add_pmcorr_columns(stars, date):
 
 
 def get_agasc_cone(
-    ra,
-    dec,
-    radius=1.5,
-    date=None,
-    agasc_file=None,
-    pm_filter=True,
-    fix_color1=True,
-    use_supplement=None,
-    matlab_pm_bug=False,
-    columns=None,
-    cache=False,
-):
+    ra: float,
+    dec: float,
+    radius: float = 1.5,
+    date: Optional[CxoTimeLike] = None,
+    agasc_file: Optional[str] = None,
+    pm_filter: bool = True,
+    fix_color1: bool = True,
+    use_supplement: Optional[bool] = None,
+    matlab_pm_bug: bool = False,
+    columns: Optional[tuple[str]] = None,
+    cache: bool = False,
+) -> Table:
     """
     Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.
 
@@ -534,32 +540,34 @@ def get_agasc_cone(
 
     Parameters
     ----------
-    ra
+    ra : float
         RA (deg)
-    dec
+    dec : float
         Declination (deg)
-    radius
+    radius : float
         Cone search radius (deg)
-    date
+    date : CxoTimeLike, optional
         Date for proper motion (default=Now)
-    agasc_file
+    agasc_file : str, optional
         AGASC file (optional)
-    pm_filter
+    pm_filter : bool
         Use PM-corrected positions in filtering
-    fix_color1
+    fix_color1 : bool
         set COLOR1=COLOR2 * 0.85 for stars with V-I color
-    use_supplement : Use estimated mag from AGASC supplement where available
-        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
-    matlab_pm_bug : Apply MATLAB proper motion bug prior to the MAY2118A loads
-        (default=False)
-    columns
+    use_supplement : bool, optional
+        Use estimated mag from AGASC supplement where available (default=value of
+        AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
+    matlab_pm_bug : bool
+        Apply MATLAB proper motion bug prior to the MAY2118A loads (default=False)
+    columns : tuple[str], optional
         Columns to return (default=all)
-    cache
+    cache : bool
         Cache the AGASC data in memory (default=False)
 
     Returns
     -------
-    astropy Table of AGASC entries
+    astropy.table.Table
+        Table of AGASC entries
     """
     agasc_file = get_agasc_filename(agasc_file)
 
@@ -679,7 +687,13 @@ def get_stars_from_dec_sorted_h5(
     return stars
 
 
-def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=None):
+def get_star(
+    id: int,
+    agasc_file: Optional[str] = None,
+    date: Optional[CxoTimeLike] = None,
+    fix_color1: bool = True,
+    use_supplement: Optional[bool] = None,
+) -> Table:
     """
     Get AGASC catalog entry for star with requested id.
 
@@ -690,7 +704,7 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
       >>> import agasc
       >>> star = agasc.get_star(636629880)
       >>> for name in star.colnames:
-      ...     print '{{:12s}} : {{}}'.format(name, star[name])
+      ...     print('{{:12s}} : {{}}'.format(name, star[name]))
       AGASC_ID     : 636629880
       RA           : 125.64184
       DEC          : -4.23235
@@ -711,18 +725,22 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
 
     Parameters
     ----------
-    id
+    id : int
         AGASC id
-    date
+    agasc_file : Optional[str]
+        Path to the AGASC file (default=None)
+    date : Optional[CxoTimeLike]
         Date for proper motion (default=Now)
-    fix_color1
-        set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
-    use_supplement : Use estimated mag from AGASC supplement where available
+    fix_color1 : bool
+        Set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
+    use_supplement : Optional[bool]
+        Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
 
     Returns
     -------
-    astropy Table Row of entry for id
+    astropy.table.Table
+        Row of entry for id
     """
 
     agasc_file = get_agasc_filename(agasc_file)
@@ -784,13 +802,13 @@ def _get_rows_read_entire(ids_1d, dates_1d, agasc_file):
 
 
 def get_stars(
-    ids,
-    agasc_file=None,
-    dates=None,
-    method_threshold=5000,
-    fix_color1=True,
-    use_supplement=None,
-):
+    ids: int | npt.ArrayLike,
+    agasc_file: Optional[str] = None,
+    dates: Optional[CxoTimeLike] = None,
+    method_threshold: int = 5000,
+    fix_color1: bool = True,
+    use_supplement: Optional[bool] = None,
+) -> Table | Table.Row:
     """
     Get AGASC catalog entries for star ``ids`` at ``dates``.
 
@@ -815,7 +833,7 @@ def get_stars(
       >>> import agasc
       >>> star = agasc.get_stars(636629880)
       >>> for name in star.colnames:
-      ...     print '{{:12s}} : {{}}'.format(name, star[name])
+      ...     print('{{:12s}} : {{}}'.format(name, star[name]))
       AGASC_ID     : 636629880
       RA           : 125.64184
       DEC          : -4.23235
@@ -836,14 +854,19 @@ def get_stars(
 
     Parameters
     ----------
-    ids
+    ids : int or array_like
         AGASC ids (scalar or array)
-    dates
+    agasc_file : str, optional
+        AGASC file (optional)
+    dates : CxoTimeLike, optional
         Dates for proper motion (scalar or array) (default=Now)
-    fix_color1
+    method_threshold : int
+        Number of stars above which to use the "read_entire_agasc" method
+    fix_color1 : bool
         set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
-    use_supplement : Use estimated mag from AGASC supplement where available
-        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
+    use_supplement : bool, optional
+        Use estimated mag from AGASC supplement where available (default=value of
+        AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
 
     Returns
     -------
