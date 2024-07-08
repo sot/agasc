@@ -120,7 +120,9 @@ def set_supplement_enabled(value):
       # Globally disable use of the supplement everywhere
       os.environ[agasc.SUPPLEMENT_ENABLED_VAR] = 'False'
 
-    :param value: bool
+    Parameters
+    ----------
+    value : bool
         Whether to use the AGASC supplement in the context / decorator
     """
     if not isinstance(value, bool):
@@ -387,12 +389,20 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     conventions.  This uses numexpr to speed expression evaluation by a factor
     of 2 to 3.
 
-    :param ra1: first RA (deg)
-    :param dec1: first Dec (deg)
-    :param ra2: second RA (deg)
-    :param dec2: second Dec (deg)
+    Parameters
+    ----------
+    ra1
+        first RA (deg)
+    dec1
+        first Dec (deg)
+    ra2
+        second RA (deg)
+    dec2
+        second Dec (deg)
 
-    :returns: angular separation distance (deg)
+    Returns
+    -------
+    angular separation distance (deg)
     """
 
     ra1 = np.radians(ra1).astype(np.float64)
@@ -449,9 +459,16 @@ def add_pmcorr_columns(stars, date):
 
     The ``stars`` table is updated in-place.
 
-    :param stars: astropy Table of stars from the AGASC
-    :param date: scalar, list, array of date(s) in DateTime-compatible format
-    :returns: None
+    Parameters
+    ----------
+    stars
+        astropy Table of stars from the AGASC
+    date
+        scalar, list, array of date(s) in DateTime-compatible format
+
+    Returns
+    -------
+    None
     """
     # Convert date to DateTime ensuring it can broadcast to stars table. Since
     # DateTime is slow keep it as a scalar if possible.
@@ -515,21 +532,34 @@ def get_agasc_cone(
       >>> stars = agasc.get_agasc_cone(10.0, 20.0, 1.5)
       >>> plt.plot(stars['RA'], stars['DEC'], '.')
 
-    :param ra: RA (deg)
-    :param dec: Declination (deg)
-    :param radius: Cone search radius (deg)
-    :param date: Date for proper motion (default=Now)
-    :param agasc_file: AGASC file (optional)
-    :param pm_filter: Use PM-corrected positions in filtering
-    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
-    :param use_supplement: Use estimated mag from AGASC supplement where available
+    Parameters
+    ----------
+    ra
+        RA (deg)
+    dec
+        Declination (deg)
+    radius
+        Cone search radius (deg)
+    date
+        Date for proper motion (default=Now)
+    agasc_file
+        AGASC file (optional)
+    pm_filter
+        Use PM-corrected positions in filtering
+    fix_color1
+        set COLOR1=COLOR2 * 0.85 for stars with V-I color
+    use_supplement : Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
-    :param matlab_pm_bug: Apply MATLAB proper motion bug prior to the MAY2118A loads
+    matlab_pm_bug : Apply MATLAB proper motion bug prior to the MAY2118A loads
         (default=False)
-    :param columns: Columns to return (default=all)
-    :param cache: Cache the AGASC data in memory (default=False)
+    columns
+        Columns to return (default=all)
+    cache
+        Cache the AGASC data in memory (default=False)
 
-    :returns: astropy Table of AGASC entries
+    Returns
+    -------
+    astropy Table of AGASC entries
     """
     agasc_file = get_agasc_filename(agasc_file)
 
@@ -679,12 +709,20 @@ def get_star(id, agasc_file=None, date=None, fix_color1=True, use_supplement=Non
       MAG          : 13.2700004578
       ...
 
-    :param id: AGASC id
-    :param date: Date for proper motion (default=Now)
-    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
-    :param use_supplement: Use estimated mag from AGASC supplement where available
+    Parameters
+    ----------
+    id
+        AGASC id
+    date
+        Date for proper motion (default=Now)
+    fix_color1
+        set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
+    use_supplement : Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
-    :returns: astropy Table Row of entry for id
+
+    Returns
+    -------
+    astropy Table Row of entry for id
     """
 
     agasc_file = get_agasc_filename(agasc_file)
@@ -796,12 +834,20 @@ def get_stars(
       MAG          : 13.2700004578
       ...
 
-    :param ids: AGASC ids (scalar or array)
-    :param dates: Dates for proper motion (scalar or array) (default=Now)
-    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
-    :param use_supplement: Use estimated mag from AGASC supplement where available
+    Parameters
+    ----------
+    ids
+        AGASC ids (scalar or array)
+    dates
+        Dates for proper motion (scalar or array) (default=Now)
+    fix_color1
+        set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)
+    use_supplement : Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
-    :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input
+
+    Returns
+    -------
+    astropy Table of AGASC entries, or Table Row of one entry for scalar input
     """
     agasc_file = get_agasc_filename(agasc_file)
 
@@ -864,8 +910,11 @@ def update_from_supplement(stars, use_supplement=None):
     ``use_supplement`` argument, which has priority, and the
     ``AGASC_SUPPLEMENT_ENABLED`` environment variable.
 
-    :param stars: astropy.table.Table of stars
-    :param use_supplement: bool, None
+    Parameters
+    ----------
+    stars
+        astropy.table.Table of stars
+    use_supplement : bool, None
         Use the supplement (default=None, see above)
     """
     if use_supplement is None:
