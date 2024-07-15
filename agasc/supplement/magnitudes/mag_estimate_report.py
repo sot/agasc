@@ -289,9 +289,9 @@ class MagEstimateReport:
                 agasc_stats["t_mean_dr3"] - agasc_stats["mag_aca"]
             ) / agasc_stats["mag_aca_err"]
             agasc_stats["new"] = True
-            agasc_stats["new"][
-                np.in1d(agasc_stats["agasc_id"], updated_star_ids)
-            ] = False
+            agasc_stats["new"][np.in1d(agasc_stats["agasc_id"], updated_star_ids)] = (
+                False
+            )
             agasc_stats["update_mag_aca"] = np.nan
             agasc_stats["update_mag_aca_err"] = np.nan
             agasc_stats["last_obs"] = CxoTime(agasc_stats["last_obs_time"]).date
@@ -457,7 +457,7 @@ class MagEstimateReport:
         timeline["std"] = np.nan
         timeline["mag_mean"] = np.nan
         timeline["mag_std"] = np.nan
-        for obsid in np.unique(timeline["obsid"]):
+        for obsid in np.unique(timeline["obsid"]):  # noqa: PLR1704
             sel = obs_stats["obsid"] == obsid
             if draw_obs_mag_stats and np.any(sel):
                 timeline["mag_mean"][timeline["obsid"] == obsid] = obs_stats[sel][
@@ -825,7 +825,7 @@ class MagEstimateReport:
                 all_ok = timeline["obs_ok"] & all_ok
                 flags = [("OBS not OK", ~timeline["obs_ok"])] + flags
 
-            for obsid in obsids:
+            for obsid in obsids:  # noqa: PLR1704
                 limits[obsid] = (
                     timeline["x"][timeline["obsid"] == obsid].min(),
                     timeline["x"][timeline["obsid"] == obsid].max(),

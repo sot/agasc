@@ -5,6 +5,7 @@ Update Magnitude Statistics.
 
 
 """
+
 import argparse
 import logging
 import os
@@ -245,7 +246,6 @@ def get_next_file_name(file_name):
 
 
 def main():
-
     args = get_args()
     args_log_file = args.pop("args_log_file")
 

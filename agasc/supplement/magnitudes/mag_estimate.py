@@ -11,6 +11,7 @@ import numba
 import numpy as np
 import scipy.special
 import scipy.stats
+import Ska.quatutil
 from astropy.table import Table, vstack
 from Chandra.Time import DateTime
 from chandra_aca.transform import count_rate_to_mag, pixels_to_yagzag
@@ -21,7 +22,6 @@ from mica.archive import aca_l0
 from mica.archive.aca_dark.dark_cal import get_dark_cal_image
 from Quaternion import Quat
 
-import Ska.quatutil
 from agasc import get_star
 
 from . import star_obs_catalogs

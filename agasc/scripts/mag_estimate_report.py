@@ -76,7 +76,6 @@ def get_parser():
 
 
 def main():
-
     args = get_parser().parse_args()
 
     args.output_dir = Path(os.path.expandvars(args.output_dir))

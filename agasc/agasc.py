@@ -13,6 +13,7 @@ import numpy as np
 import tables
 from astropy.table import Column, Table
 from Chandra.Time import DateTime
+from cxotime import CxoTimeLike, convert_time_format
 from packaging.version import Version
 
 from .healpix import get_healpix_index_table, get_stars_from_healpix_h5, is_healpix
@@ -41,6 +42,15 @@ SUPPLEMENT_ENABLED_ENV = "AGASC_SUPPLEMENT_ENABLED"
 SUPPLEMENT_ENABLED_DEFAULT = "True"
 MAG_CATID_SUPPLEMENT = 100
 BAD_CLASS_SUPPLEMENT = 100
+
+# Columns that are required for calls to get_agasc_cone
+COLUMNS_REQUIRED = {
+    "RA",
+    "DEC",
+    "EPOCH",
+    "PM_DEC",
+    "PM_RA",
+}
 
 RA_DECS_CACHE = {}
 
@@ -175,21 +185,22 @@ def read_h5_table(
     row1: Optional[int] = None,
     path="data",
     cache=False,
+    columns: Optional[list | tuple] = None,
 ) -> np.ndarray:
     """
-    Read HDF5 table from group ``path`` in ``h5_file``.
+    Read HDF5 table ``columns`` from group ``path`` in ``h5_file``.
 
     If ``row0`` and ``row1`` are specified then only the rows in that range are read,
     e.g. ``data[row0:row1]``.
 
     If ``cache`` is ``True`` then the data for the last read is cached in memory. The
-    cache key is ``(h5_file, path)`` and only one cache entry is kept. If ``h5_file``
-    is an HDF5 file object then the filename is used as the cache key.
+    cache key is ``(h5_file, path, columns)`` and up to 128 cache entries are
+    kept.
 
     Parameters
     ----------
     h5_file : str, Path, tables.file.File
-        Path to the HDF5 file to read or an open HDF5 file from ``tables.open_file``.
+        Path to the HDF5 file to read.
     row0 : int, optional
         First row to read. Default is None (read from first row).
     row1 : int, optional
@@ -198,29 +209,35 @@ def read_h5_table(
         Path to the data table in the HDF5 file. Default is 'data'.
     cache : bool, optional
         Whether to cache the read data. Default is False.
+    columns : list or tuple, optional
+        Column names to read from the file. If not specified, all columns are read.
 
     Returns
     -------
     out : np.ndarray
         The HDF5 data as a numpy structured array
     """
+    if columns is not None:
+        columns = tuple(columns)
+
     if cache:
         if isinstance(h5_file, tables.file.File):
             h5_file = h5_file.filename
-        data = _read_h5_table_cached(h5_file, path)
+        data = _read_h5_table_cached(h5_file, path, columns)
         out = data[row0:row1]
     else:
-        out = _read_h5_table(h5_file, path, row0, row1)
+        out = _read_h5_table(h5_file, path, row0, row1, columns)
 
     return out
 
 
-@functools.lru_cache(maxsize=1)
+@functools.lru_cache
 def _read_h5_table_cached(
     h5_file: str | Path,
     path: str,
+    columns: tuple | None = None,
 ) -> np.ndarray:
-    return _read_h5_table(h5_file, path, row0=None, row1=None)
+    return _read_h5_table(h5_file, path, row0=None, row1=None, columns=columns)
 
 
 def _read_h5_table(
@@ -228,21 +245,30 @@ def _read_h5_table(
     path: str,
     row0: None | int,
     row1: None | int,
+    columns: tuple | None = None,
 ) -> np.ndarray:
     if isinstance(h5_file, tables.file.File):
-        out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1)
+        out = _read_h5_table_from_open_h5_file(h5_file, path, row0, row1, columns)
     else:
         with tables.open_file(h5_file) as h5:
-            out = _read_h5_table_from_open_h5_file(h5, path, row0, row1)
+            out = _read_h5_table_from_open_h5_file(h5, path, row0, row1, columns)
 
     out = np.asarray(out)  # Convert to structured ndarray (not recarray)
     return out
 
 
-def _read_h5_table_from_open_h5_file(h5, path, row0, row1):
+def _read_h5_table_from_open_h5_file(
+    h5: tables.file.File,
+    path: str,
+    row0: int,
+    row1: int,
+    columns: tuple | None = None,
+):
     data = getattr(h5.root, path)
     out = data.read(start=row0, stop=row1)
-    return out
+    if columns:
+        out = np.rec.fromarrays([out[col] for col in columns], names=columns)
+    return np.asarray(out)
 
 
 def get_agasc_filename(
@@ -383,7 +409,7 @@ def sphere_dist(ra1, dec1, ra2, dec2):
     return np.degrees(dists)
 
 
-def update_color1_column(stars):
+def update_color1_column(stars: Table):
     """
     For any stars which have a V-I color (RSV3 > 0) and COLOR1 == 1.5
     then set COLOR1 = COLOR2 * 0.850.  For such stars the MAG_ACA / MAG_ACA_ERR
@@ -396,8 +422,11 @@ def update_color1_column(stars):
     https://heasarc.nasa.gov/W3Browse/all/tycho2.html for a reminder of the
     scaling between the two.
 
-    This updates ``stars`` in place.
+    This updates ``stars`` in place if the COLOR1 column is present.
     """
+    if "COLOR1" not in stars.columns:
+        return
+
     # Select red stars that have a reliable mag in AGASC 1.7 and later.
     color15 = np.isclose(stars["COLOR1"], 1.5) & (stars["RSV3"] > 0)
     new_color1 = stars["COLOR2"][color15] * 0.850
@@ -466,6 +495,8 @@ def get_agasc_cone(
     pm_filter=True,
     fix_color1=True,
     use_supplement=None,
+    matlab_pm_bug=False,
+    columns=None,
     cache=False,
 ):
     """
@@ -493,6 +524,9 @@ def get_agasc_cone(
     :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color
     :param use_supplement: Use estimated mag from AGASC supplement where available
         (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)
+    :param matlab_pm_bug: Apply MATLAB proper motion bug prior to the MAY2118A loads
+        (default=False)
+    :param columns: Columns to return (default=all)
     :param cache: Cache the AGASC data in memory (default=False)
 
     :returns: astropy Table of AGASC entries
@@ -507,7 +541,27 @@ def get_agasc_cone(
     # Possibly expand initial radius to allow for slop due proper motion
     rad_pm = radius + (0.1 if pm_filter else 0.0)
 
-    stars = get_stars_func(ra, dec, rad_pm, agasc_file, cache)
+    # Ensure that the columns we need are read from the AGASC file, excluding PMCORR
+    # columns if supplied since they are not in the HDF5.
+    columns_query = (
+        None
+        if columns is None
+        else tuple(
+            column for column in columns if column not in ("RA_PMCORR", "DEC_PMCORR")
+        )
+    )
+
+    # Minimal columns to compute PM-corrected positions and do filtering.
+    if columns and COLUMNS_REQUIRED - set(columns):
+        raise ValueError(f"columns must include all of {COLUMNS_REQUIRED}")
+
+    stars = get_stars_func(
+        ra, dec, rad_pm, agasc_file=agasc_file, columns=columns_query, cache=cache
+    )
+
+    if matlab_pm_bug:
+        apply_matlab_pm_bug(stars, date)
+
     add_pmcorr_columns(stars, date)
     if fix_color1:
         update_color1_column(stars)
@@ -524,11 +578,38 @@ def get_agasc_cone(
     return stars
 
 
+def apply_matlab_pm_bug(stars: Table, date: CxoTimeLike):
+    """Account for a bug in MATLAB proper motion correction.
+
+    The bug was not dividing the RA proper motion by cos(dec), so here we premultiply by
+    that factor so that add_pmcorr_columns() will match MATLAB. This is mostly for use
+    in kadi.commands.observations.set_star_ids() to match flight catalogs created with
+    MATLAB.
+
+    This bug was fixed starting with the MAY2118A loads (MATLAB Tools 2018115).
+
+    Parameters
+    ----------
+    stars : astropy.table.Table
+        Table of stars from the AGASC
+    date : CxoTimeLike
+        Date for proper motion correction
+    """
+    if convert_time_format(date, "date") < "2018:141:03:35:03.000":
+        ok = stars["PM_RA"] != -9999
+        # Note this is an int16 field so there is some rounding error, but for
+        # the purpose of star identification this is fine.
+        stars["PM_RA"][ok] = np.round(
+            stars["PM_RA"][ok] * np.cos(np.deg2rad(stars["DEC"][ok]))
+        )
+
+
 def get_stars_from_dec_sorted_h5(
     ra: float,
     dec: float,
     radius: float,
     agasc_file: str | Path,
+    columns: Optional[list[str] | tuple[str]] = None,
     cache: bool = False,
 ) -> Table:
     """
@@ -544,6 +625,8 @@ def get_stars_from_dec_sorted_h5(
         The radius of the search circle, in degrees.
     agasc_file : str or Path
         The path to the AGASC HDF5 file.
+    columns : list or tuple, optional
+        The columns to read from the AGASC file. If not specified, all columns are read.
     cache : bool, optional
         Whether to cache the AGASC data in memory. Default is False.
 
@@ -558,7 +641,9 @@ def get_stars_from_dec_sorted_h5(
     dists = sphere_dist(ra, dec, ra_decs.ra[idx0:idx1], ra_decs.dec[idx0:idx1])
     ok = dists <= radius
 
-    stars = read_h5_table(agasc_file, row0=idx0, row1=idx1, cache=cache)
+    stars = read_h5_table(
+        agasc_file, row0=idx0, row1=idx1, cache=cache, columns=columns
+    )
     stars = Table(stars[ok])
 
     return stars

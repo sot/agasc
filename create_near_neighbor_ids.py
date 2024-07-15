@@ -11,6 +11,7 @@ of AGASC 1.7 on a local (fast) drive.
 This creates an output file like ``agasc<version>_near_neighbor_ids.fits.gz`` which can
 be used by ``create_derived_agasc_h5.py`` to include near neighbors.
 """
+
 import argparse
 from pathlib import Path
 
