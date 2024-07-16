@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API documentation &#8212; Agasc 4.20.0 documentation</title>
+    <title>API documentation &#8212; Agasc 4.21.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=a5b539c6"></script>
+    <script src="_static/documentation_options.js?v=d460739f"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.20.0 documentation</a>
+	<a href="index.html">Agasc 4.21.0 documentation</a>
 	 &#187;
       </li>
       
@@ -93,7 +93,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.agasc.get_agasc_cone">
-<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_color1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supplement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_cone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_color1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supplement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matlab_pm_bug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_cone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_cone" title="Link to this definition">¶</a></dt>
 <dd><p>Get AGASC catalog entries within <code class="docutils literal notranslate"><span class="pre">radius</span></code> degrees of <code class="docutils literal notranslate"><span class="pre">ra</span></code>, <code class="docutils literal notranslate"><span class="pre">dec</span></code>.</p>
 <p>The star positions are corrected for proper motion using the <code class="docutils literal notranslate"><span class="pre">date</span></code>
 argument, which defaults to the current date if not supplied.  The
@@ -143,6 +143,9 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 <li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color</p></li>
 <li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
 (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
+<li><p><strong>matlab_pm_bug</strong> – Apply MATLAB proper motion bug prior to the MAY2118A loads
+(default=False)</p></li>
+<li><p><strong>columns</strong> – Columns to return (default=all)</p></li>
 <li><p><strong>cache</strong> – Cache the AGASC data in memory (default=False)</p></li>
 </ul>
 </dd>
@@ -382,17 +385,17 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.agasc.read_h5_table">
-<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">read_h5_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#read_h5_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.read_h5_table" title="Link to this definition">¶</a></dt>
-<dd><p>Read HDF5 table from group <code class="docutils literal notranslate"><span class="pre">path</span></code> in <code class="docutils literal notranslate"><span class="pre">h5_file</span></code>.</p>
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">read_h5_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#read_h5_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.read_h5_table" title="Link to this definition">¶</a></dt>
+<dd><p>Read HDF5 table <code class="docutils literal notranslate"><span class="pre">columns</span></code> from group <code class="docutils literal notranslate"><span class="pre">path</span></code> in <code class="docutils literal notranslate"><span class="pre">h5_file</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">row0</span></code> and <code class="docutils literal notranslate"><span class="pre">row1</span></code> are specified then only the rows in that range are read,
 e.g. <code class="docutils literal notranslate"><span class="pre">data[row0:row1]</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">cache</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> then the data for the last read is cached in memory. The
-cache key is <code class="docutils literal notranslate"><span class="pre">(h5_file,</span> <span class="pre">path)</span></code> and only one cache entry is kept. If <code class="docutils literal notranslate"><span class="pre">h5_file</span></code>
-is an HDF5 file object then the filename is used as the cache key.</p>
+cache key is <code class="docutils literal notranslate"><span class="pre">(h5_file,</span> <span class="pre">path,</span> <span class="pre">columns)</span></code> and up to 128 cache entries are
+kept.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>h5_file</strong><span class="classifier">str, Path, tables.file.File</span></dt><dd><p>Path to the HDF5 file to read or an open HDF5 file from <code class="docutils literal notranslate"><span class="pre">tables.open_file</span></code>.</p>
+<dt><strong>h5_file</strong><span class="classifier">str, Path, tables.file.File</span></dt><dd><p>Path to the HDF5 file to read.</p>
 </dd>
 <dt><strong>row0</strong><span class="classifier">int, optional</span></dt><dd><p>First row to read. Default is None (read from first row).</p>
 </dd>
@@ -401,6 +404,8 @@ is an HDF5 file object then the filename is used as the cache key.</p>
 <dt><strong>path</strong><span class="classifier">str, optional</span></dt><dd><p>Path to the data table in the HDF5 file. Default is ‘data’.</p>
 </dd>
 <dt><strong>cache</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to cache the read data. Default is False.</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">list or tuple, optional</span></dt><dd><p>Column names to read from the file. If not specified, all columns are read.</p>
 </dd>
 </dl>
 </dd>
