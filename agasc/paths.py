@@ -14,7 +14,9 @@ def default_agasc_dir():
     This returns the ``AGASC_DIR`` environment variable if defined, otherwise
     ``$SKA/data/agasc``.
 
-    :returns: Path
+    Returns
+    -------
+    Path
     """
     if "AGASC_DIR" in os.environ:
         out = Path(os.environ["AGASC_DIR"])
@@ -26,7 +28,9 @@ def default_agasc_dir():
 def default_agasc_file():
     """Default main AGASC file.
 
-    :returns: str
+    Returns
+    -------
+    str
     """
     from agasc import get_agasc_filename
 
