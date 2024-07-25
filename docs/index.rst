@@ -10,6 +10,13 @@ AGASC Catalog Description and History
 
    catalog-description
 
+- :doc:`catalog-description-1p7`
+
+.. toctree::
+   :hidden:
+
+   catalog-description-1p7
+
 
 Getting started
 ---------------
