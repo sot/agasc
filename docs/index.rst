@@ -3,18 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-AGASC 1.8 Catalog Description and History
------------------------------------------
+AGASC Catalog Description and History
+-------------------------------------
 .. toctree::
    :maxdepth: 2
 
    catalog-description
 
+- :doc:`catalog-description-1p7`
 
-AGASC 1.7 (Previous Version) Readme
--------------------------------------
+.. toctree::
+   :hidden:
 
-   :doc:`catalog-description-1p7`
+   catalog-description-1p7
 
 
 Getting started
