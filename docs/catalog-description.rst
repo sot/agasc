@@ -297,7 +297,7 @@ following fields for each entry::
         For Tycho catalogs, this is the Tycho BT-VT color.
         Default value of -9999.0
 
-    2    COLOR2_ERR - short integer expressing the error in color2, iun
+    2    COLOR2_ERR - short integer expressing the error in color2, in
         units of 0.01mag.    Default value of -9999.
 
     1    C2_CATID - unsigned integer identifying the source of color2 and
