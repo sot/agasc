@@ -281,9 +281,10 @@ following fields for each entry::
 
     4    COLOR1 - float variable expressing the cataloged or estimated B-V color,
         used for mag_aca, in mag.  If no colors are available, the default
-        value is 0.7000.  If Tycho-2 data show colors redder than
-        (B-V)=1.5, then the default value is 1.5000.  True cataloged
-        color values are stored in COLOR2.
+        value is 0.7000.  If the color is derived from Tycho-2 (C1_CATID=5) and
+	that color is redder than (B-V)=1.5 then COLOR1 is set to 1.5000. This
+	is the case for about 21,000 stars in AGASC 1.8. True cataloged color
+	values are stored in COLOR2.
 
     2    COL0R1_ERR - short integer expressing the error in color1 in units of
         0.01 mag.  Default value of -9999.
