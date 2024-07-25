@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>THE AXAF Guide and Acquisition Star Catalog V1.8 &#8212; Agasc 4.21.1 documentation</title>
+    <title>THE AXAF Guide and Acquisition Star Catalog V1.7 &#8212; Agasc 4.21.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
@@ -16,8 +16,8 @@
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="THE AXAF Guide and Acquisition Star Catalog V1.7" href="catalog-description-1p7.html" />
-    <link rel="prev" title="AGASC Catalog Description and History" href="index.html" />
+    <link rel="next" title="API documentation" href="api.html" />
+    <link rel="prev" title="THE AXAF Guide and Acquisition Star Catalog V1.8" href="catalog-description.html" />
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 
   </head><body>
@@ -47,12 +47,12 @@
     <h3>Navigation</h3>
     <ul>
       <li class="right">
-	<a href="catalog-description-1p7.html" title="THE AXAF Guide and Acquisition Star Catalog V1.7">
+	<a href="api.html" title="API documentation">
 	  next &raquo;
 	</a>
       </li>
       <li class="right">
-	<a href="index.html" title="AGASC Catalog Description and History">
+	<a href="catalog-description.html" title="THE AXAF Guide and Acquisition Star Catalog V1.8">
 	  &laquo; previous
 	</a>
 	 |
@@ -62,7 +62,7 @@
 	 &#187;
       </li>
       
-      <li>THE AXAF Guide and Acquisition Star Catalog V1.8</li> 
+      <li>THE AXAF Guide and Acquisition Star Catalog V1.7</li> 
     </ul>
 </div>
   
@@ -72,19 +72,19 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="the-axaf-guide-and-acquisition-star-catalog-v1-8">
-<h1>THE AXAF Guide and Acquisition Star Catalog V1.8<a class="headerlink" href="#the-axaf-guide-and-acquisition-star-catalog-v1-8" title="Link to this heading">¶</a></h1>
+  <section id="the-axaf-guide-and-acquisition-star-catalog-v1-7">
+<h1>THE AXAF Guide and Acquisition Star Catalog V1.7<a class="headerlink" href="#the-axaf-guide-and-acquisition-star-catalog-v1-7" title="Link to this heading">¶</a></h1>
 <p>An all-sky astrometric and photometric catalog
 prepared for the operation of Chandra
-(formerly AXAF). version 1.8 July 2024</p>
+(formerly AXAF). version 1.7 September 2018</p>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
 <p>The AXAF Guide and Acquisition Star Catalog (AGASC) is presented in
 this set of FITS (Flexible Image Transport System) files, and may
 be distributed in a variety of formats, including DAT (DDS format)
 or CD-ROM (compact disc, read only memory in ISO 9660 format).  This
-issue, Version 1.8, corresponds to the AGASC as completed
-11 July 2024.</p>
+issue, Version 1.7, corresponds to the AGASC as completed
+18 September 2018.</p>
 <p>The primary source of data for the AGASC is the Guide Star Catalog
 (GSC) for the Hubble Space Telescope (HST), version 1.1.  The release
 number of AGASC will remain at 1 unless a different base catalog is
@@ -132,9 +132,6 @@ for red stars with a Tycho-2 color greater than 0.9.</p>
 and its error) for red stars by including the i magnitude information
 from the AAVSO (American Association of Variable Star Observers)
 Photometric All-Sky Survey (APASS) DR9.</p>
-<p>Version 1.8 includes improved star positions and proper motions from Gaia
-DR3, as well as improved estimated magnitudes derived from Gaia DR3 photometry
-and more than 94,000 ACA observed stars.</p>
 </section>
 <section id="organization-of-the-fits-data-files">
 <h2>Organization of the FITS Data Files<a class="headerlink" href="#organization-of-the-fits-data-files" title="Link to this heading">¶</a></h2>
@@ -186,9 +183,9 @@ boundaries in RA and DEC. Cross-references to the original star ID
 numbers XREF_IDx are included from the original x=1-6 catalogs we
 have matched.</p>
 </section>
-<section id="summary-of-the-agasc1-8-format">
-<h2>Summary of the AGASC1.8 Format<a class="headerlink" href="#summary-of-the-agasc1-8-format" title="Link to this heading">¶</a></h2>
-<p>Each FITS regions table in the AGASC1.8 consists of 3 parts, the
+<section id="summary-of-the-agasc1-7-format">
+<h2>Summary of the AGASC1.7 Format<a class="headerlink" href="#summary-of-the-agasc1-7-format" title="Link to this heading">¶</a></h2>
+<p>Each FITS regions table in the AGASC1.7 consists of 3 parts, the
 primary header, the table header, and the table data. The conventions
 for FITS Binary Tables are detailed in Cotton, Tody and Pence (1995,
 A&amp;A, 113, 159), or at <a class="reference external" href="http://fits.nrao.edu/FITS.html">http://fits.nrao.edu/FITS.html</a></p>
@@ -196,7 +193,7 @@ A&amp;A, 113, 159), or at <a class="reference external" href="http://fits.nrao.e
 regions tables.  That length is 5x2880= 14400bytes. After these 14400
 bytes comes star data records.</p>
 <p>The data for each star amounts to 122 bytes, in 47 data columns for
-AGASC1.8.  Default values are -9999 or 0 where no data are available.
+AGASC1.7.  Default values are -9999 or 0 where no data are available.
 Many columns require data; these have no default values.  Another
 exception is COLOR1, whose default value is 0.7000 for most stars,
 or 1.5000 for stars with COLOR1 greater than 1.5000. Details on all
@@ -215,9 +212,9 @@ for each data item for each star are as follows:</p>
                      <span class="mi">122</span> <span class="nb">bytes</span> <span class="n">per</span> <span class="n">star</span>
 </pre></div>
 </div>
-<section id="summary-of-the-agasc-version-1-8-entries">
-<h3>Summary of the AGASC Version 1.8 Entries<a class="headerlink" href="#summary-of-the-agasc-version-1-8-entries" title="Link to this heading">¶</a></h3>
-<p>Each of the FITS regions files in the AGASC1.8 will contain the
+<section id="summary-of-the-agasc-version-1-7-entries">
+<h3>Summary of the AGASC Version 1.7 Entries<a class="headerlink" href="#summary-of-the-agasc-version-1-7-entries" title="Link to this heading">¶</a></h3>
+<p>Each of the FITS regions files in the AGASC1.7 will contain the
 following fields for each entry:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>BYTES NAME - brief description
 
@@ -244,7 +241,6 @@ following fields for each entry:</p>
         4 - ACT
         5 - Tycho-2
         6 - GSC-ACT
-        7 - Gaia DR3
 
 4    EPOCH - float variable identifying the epoch of the ra and dec
     measurements. Default value of -9999.0
@@ -320,9 +316,6 @@ following fields for each entry:</p>
         18  0.72  IIIaJ + GG385
         21  0.00  PPM V mag
         22  1.00  PPM B mag
-        23        Gaia DR3 G mag
-        24        Gaia DR3 Rp mag
-        25        Gaia DR3 Bp mag
 
 1    MAG_CATID - unsigned integer identifying the source of the
     mag, mag_err, and mag_band.  Codes are as follows:
@@ -334,15 +327,13 @@ following fields for each entry:</p>
         4 - ACT
         5 - Tycho-2
         6 - GSC-ACT
-        7 - Gaia DR3
       100 - Chandra ACA estimated magnitude (only via agasc package query)
 
 4    COLOR1 - float variable expressing the cataloged or estimated B-V color,
     used for mag_aca, in mag.  If no colors are available, the default
-    value is 0.7000.  If the color is derived from Tycho-2 (C1_CATID=5) and
-    that color is redder than (B-V)=1.5 then COLOR1 is set to 1.5000. This
-    is the case for about 21,000 stars in AGASC 1.8. True cataloged color
-    values are stored in COLOR2.
+    value is 0.7000.  If Tycho-2 data show colors redder than
+    (B-V)=1.5, then the default value is 1.5000.  True cataloged
+    color values are stored in COLOR2.
 
 2    COL0R1_ERR - short integer expressing the error in color1 in units of
     0.01 mag.  Default value of -9999.
@@ -355,7 +346,7 @@ following fields for each entry:</p>
     For Tycho catalogs, this is the Tycho BT-VT color.
     Default value of -9999.0
 
-2    COLOR2_ERR - short integer expressing the error in color2, in
+2    COLOR2_ERR - short integer expressing the error in color2, iun
     units of 0.01mag.    Default value of -9999.
 
 1    C2_CATID - unsigned integer identifying the source of color2 and
@@ -423,8 +414,9 @@ following fields for each entry:</p>
     brightest star within 321&quot; of this star, and this star, in units
     of 0.01 mags.     Default value of -9999.
 
-4    XREF_ID1 - long integer with the highest significant 32 bits of the Gaia DR3 ID.
-    Default value of -1.
+4    XREF_ID1 - long integer which is the star number in the
+    AGASC Version 1.0 (= GSC1.1).  This is not a unique identifier.
+    Default value of -9999.
 
 4    XREF_ID2 - long integer which maps the entry to that in the PPM.
     Default value of -9999.
@@ -435,12 +427,10 @@ following fields for each entry:</p>
 4    XREF_ID4 - long integer which maps the entry to that in the Tycho Output
     Catalog (TYC3).  Default value of -9999.
 
-4    XREF_ID5 - long integer with the lowest significant 32 bits of the Gaia DR3 ID.
-    Default value of -9999.
+4    XREF_ID5 - long integer which maps the entry to that in a future
+    catalog.      Default value of -9999.
 
-2    RSV4 - short integer which is the star number in the
-    AGASC Version 1.0 (= GSC1.1).  This is not a unique identifier.
-    Default value of -9999.
+2    RSV4 - short integer reserved for future use.  Default value of -9999.
 
 2    RSV5 - short integer reserved for future use.  Default value of -9999.
 
@@ -449,8 +439,8 @@ following fields for each entry:</p>
 </div>
 </section>
 </section>
-<section id="history-of-the-agasc-version-1-8">
-<h2>History of the AGASC Version 1.8<a class="headerlink" href="#history-of-the-agasc-version-1-8" title="Link to this heading">¶</a></h2>
+<section id="history-of-the-agasc-version-1-7">
+<h2>History of the AGASC Version 1.7<a class="headerlink" href="#history-of-the-agasc-version-1-7" title="Link to this heading">¶</a></h2>
 <p>The primary objective of the Chandra Aspect Camera Assembly (ACA) is to
 measure the image positions of selected target stars and fiducial
 lights in its field of view (FOV). The Chandra on board computer uses
@@ -791,26 +781,12 @@ information, V - i aka COLOR3 (APASS) in AGASC 1.7. COLOR2 (Tycho)
 combined with COLOR3 (APASS) resulted in improved calibration of the
 red spoiler stars.</p>
 </section>
-<section id="gaia-dr3">
-<h3>Gaia DR3<a class="headerlink" href="#gaia-dr3" title="Link to this heading">¶</a></h3>
-<p>The Gaia DR3 catalog is the third data release from the European Space Agency’s (ESA) Gaia mission.
-The Gaia mission is designed to measure the positions, distances, and proper motions of stars with
-unprecedented accuracy. We cross-matched the AGASC catalog with the Gaia DR3 catalog, and calibrated
-the ACA magnitude estimates of more than 94,000 observed stars with the corresponding Gaia
-magnitudes.</p>
-<p>More details concerning Gaia can be found in the following resources:</p>
-<ol class="arabic simple">
-<li><p>Gaia Data Release 3, A. Avllenari et al. 2024, A&amp;A, 674, A1
-<a class="reference external" href="https://doi.org/10.1051/0004-6361/202243940">https://doi.org/10.1051/0004-6361/202243940</a></p></li>
-<li><p><a class="reference external" href="https://www.cosmos.esa.int/web/gaia-users/archive/gdr3-documentation">https://www.cosmos.esa.int/web/gaia-users/archive/gdr3-documentation</a></p></li>
-<li><p><a class="reference external" href="https://gea.esac.esa.int/archive/">https://gea.esac.esa.int/archive/</a></p></li>
-</ol>
-</section>
 </section>
 <section id="acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">¶</a></h2>
-<p>The AXAF Guide and Acquisition Star Catalog version 1.8 was prepared
-from AGASC1.7 and Gaia DR3, primarily by Javier G Gonzalez,
+<p>The AXAF Guide and Acquisition Star Catalog version 1.7 was prepared
+from AGASC1.6 and AAVSO (American Association of Variable Star Observers)
+Photometric All-Sky Survey (APASS) DR9, primarily by Malgosia Sobolewska,
 Tom Aldcroft, and Jean Connelly. Thanks to the entire Star Selection and
 Aspect Working Group for its input in the development and testing of this
 catalog. The Chandra X-ray Center is supported through NASA Contract
@@ -818,7 +794,7 @@ NAS8-39073. Information about Chandra and the Chandra X-ray Observatory
 Center may be found on the WWW at <a class="reference external" href="http://chandra.harvard.edu/">http://chandra.harvard.edu/</a>
 Detailed information about the catalog and its construction can be
 obtained from the Chandra aspect web page at
-<a class="reference external" href="https://cxc.harvard.edu/mta/ASPECT/agasc1p8">https://cxc.harvard.edu/mta/ASPECT/agasc1p8</a> or by emailing:
+<a class="reference external" href="https://cxc.harvard.edu/mta/ASPECT/agasc1p7">https://cxc.harvard.edu/mta/ASPECT/agasc1p7</a> or by emailing:
 <a class="reference external" href="mailto:aspect_help&#37;&#52;&#48;cfa&#46;harvard&#46;edu">aspect_help<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a></p>
 </section>
 </section>
@@ -831,14 +807,14 @@ obtained from the Chandra aspect web page at
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#">THE AXAF Guide and Acquisition Star Catalog V1.8</a><ul>
+<li><a class="reference internal" href="#">THE AXAF Guide and Acquisition Star Catalog V1.7</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#organization-of-the-fits-data-files">Organization of the FITS Data Files</a></li>
-<li><a class="reference internal" href="#summary-of-the-agasc1-8-format">Summary of the AGASC1.8 Format</a><ul>
-<li><a class="reference internal" href="#summary-of-the-agasc-version-1-8-entries">Summary of the AGASC Version 1.8 Entries</a></li>
+<li><a class="reference internal" href="#summary-of-the-agasc1-7-format">Summary of the AGASC1.7 Format</a><ul>
+<li><a class="reference internal" href="#summary-of-the-agasc-version-1-7-entries">Summary of the AGASC Version 1.7 Entries</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#history-of-the-agasc-version-1-8">History of the AGASC Version 1.8</a><ul>
+<li><a class="reference internal" href="#history-of-the-agasc-version-1-7">History of the AGASC Version 1.7</a><ul>
 <li><a class="reference internal" href="#hst-guide-star-catalog">HST Guide Star Catalog</a></li>
 <li><a class="reference internal" href="#positions-and-proper-motions-catalog-ppm">Positions and Proper Motions Catalog (PPM)</a></li>
 <li><a class="reference internal" href="#tycho-output-catalog-tyc">TYCHO Output Catalog (TYC)</a></li>
@@ -847,7 +823,6 @@ obtained from the Chandra aspect web page at
 <li><a class="reference internal" href="#gsc-act-catalog">GSC-ACT Catalog</a></li>
 <li><a class="reference internal" href="#mass-galaxy-catalog">2MASS Galaxy Catalog</a></li>
 <li><a class="reference internal" href="#aavso-photometric-all-sky-survey-apass">AAVSO Photometric All-Sky Survey (APASS)</a></li>
-<li><a class="reference internal" href="#gaia-dr3">Gaia DR3</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
@@ -858,18 +833,18 @@ obtained from the Chandra aspect web page at
 
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="index.html"
-                          title="previous chapter">AGASC Catalog Description and History</a></p>
+    <p class="topless"><a href="catalog-description.html"
+                          title="previous chapter">THE AXAF Guide and Acquisition Star Catalog V1.8</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="catalog-description-1p7.html"
-                          title="next chapter">THE AXAF Guide and Acquisition Star Catalog V1.7</a></p>
+    <p class="topless"><a href="api.html"
+                          title="next chapter">API documentation</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/catalog-description.rst.txt"
+      <li><a href="_sources/catalog-description-1p7.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -884,7 +859,7 @@ obtained from the Chandra aspect web page at
     </div>
 <footer class="footer">
   <p class="pull-right">
-    <a href="_sources/catalog-description.rst.txt"
+    <a href="_sources/catalog-description-1p7.rst.txt"
        rel="nofollow">Page Source</a> &nbsp;
     <a href="#">Back to Top</a></p>
   <p>

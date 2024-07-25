@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API documentation &#8212; Agasc 4.21.0 documentation</title>
+    <title>API documentation &#8212; Agasc 4.21.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=d460739f"></script>
+    <script src="_static/documentation_options.js?v=7018f786"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Maintaining the AGASC Supplement" href="supplement.html" />
-    <link rel="prev" title="THE AXAF Guide and Acquisition Star Catalog V1.7" href="catalog-description.html" />
+    <link rel="prev" title="THE AXAF Guide and Acquisition Star Catalog V1.7" href="catalog-description-1p7.html" />
     <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
 
   </head><body>
@@ -52,13 +52,13 @@
 	</a>
       </li>
       <li class="right">
-	<a href="catalog-description.html" title="THE AXAF Guide and Acquisition Star Catalog V1.7">
+	<a href="catalog-description-1p7.html" title="THE AXAF Guide and Acquisition Star Catalog V1.7">
 	  &laquo; previous
 	</a>
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.21.0 documentation</a>
+	<a href="index.html">Agasc 4.21.1 documentation</a>
 	 &#187;
       </li>
       
@@ -133,24 +133,37 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ra</strong> – RA (deg)</p></li>
-<li><p><strong>dec</strong> – Declination (deg)</p></li>
-<li><p><strong>radius</strong> – Cone search radius (deg)</p></li>
-<li><p><strong>date</strong> – Date for proper motion (default=Now)</p></li>
-<li><p><strong>agasc_file</strong> – AGASC file (optional)</p></li>
-<li><p><strong>pm_filter</strong> – Use PM-corrected positions in filtering</p></li>
-<li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color</p></li>
-<li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
-(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
-<li><p><strong>matlab_pm_bug</strong> – Apply MATLAB proper motion bug prior to the MAY2118A loads
-(default=False)</p></li>
-<li><p><strong>columns</strong> – Columns to return (default=all)</p></li>
-<li><p><strong>cache</strong> – Cache the AGASC data in memory (default=False)</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ra</strong><span class="classifier">float</span></dt><dd><p>RA (deg)</p>
+</dd>
+<dt><strong>dec</strong><span class="classifier">float</span></dt><dd><p>Declination (deg)</p>
+</dd>
+<dt><strong>radius</strong><span class="classifier">float</span></dt><dd><p>Cone search radius (deg)</p>
+</dd>
+<dt><strong>date</strong><span class="classifier">CxoTimeLike, optional</span></dt><dd><p>Date for proper motion (default=Now)</p>
+</dd>
+<dt><strong>agasc_file</strong><span class="classifier">str, optional</span></dt><dd><p>AGASC file (optional)</p>
+</dd>
+<dt><strong>pm_filter</strong><span class="classifier">bool</span></dt><dd><p>Use PM-corrected positions in filtering</p>
+</dd>
+<dt><strong>fix_color1</strong><span class="classifier">bool</span></dt><dd><p>set COLOR1=COLOR2 * 0.85 for stars with V-I color</p>
+</dd>
+<dt><strong>use_supplement</strong><span class="classifier">bool, optional</span></dt><dd><p>Use estimated mag from AGASC supplement where available (default=value of
+AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p>
+</dd>
+<dt><strong>matlab_pm_bug</strong><span class="classifier">bool</span></dt><dd><p>Apply MATLAB proper motion bug prior to the MAY2118A loads (default=False)</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">tuple[str], optional</span></dt><dd><p>Columns to return (default=all)</p>
+</dd>
+<dt><strong>cache</strong><span class="classifier">bool</span></dt><dd><p>Cache the AGASC data in memory (default=False)</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>astropy Table of AGASC entries</p>
+<dd class="field-even"><dl class="simple">
+<dt>astropy.table.Table</dt><dd><p>Table of AGASC entries</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -263,7 +276,7 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_star</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">star</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
 <span class="go">AGASC_ID     : 636629880</span>
 <span class="go">RA           : 125.64184</span>
 <span class="go">DEC          : -4.23235</span>
@@ -285,16 +298,25 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>id</strong> – AGASC id</p></li>
-<li><p><strong>date</strong> – Date for proper motion (default=Now)</p></li>
-<li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p></li>
-<li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
-(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>id</strong><span class="classifier">int</span></dt><dd><p>AGASC id</p>
+</dd>
+<dt><strong>agasc_file</strong><span class="classifier">Optional[str]</span></dt><dd><p>Path to the AGASC file (default=None)</p>
+</dd>
+<dt><strong>date</strong><span class="classifier">Optional[CxoTimeLike]</span></dt><dd><p>Date for proper motion (default=Now)</p>
+</dd>
+<dt><strong>fix_color1</strong><span class="classifier">bool</span></dt><dd><p>Set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p>
+</dd>
+<dt><strong>use_supplement</strong><span class="classifier">Optional[bool]</span></dt><dd><p>Use estimated mag from AGASC supplement where available
+(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>astropy Table Row of entry for id</p>
+<dd class="field-even"><dl class="simple">
+<dt>astropy.table.Table</dt><dd><p>Row of entry for id</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -345,7 +367,7 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 <dt>Example::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_stars</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">star</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
 <span class="go">AGASC_ID     : 636629880</span>
 <span class="go">RA           : 125.64184</span>
 <span class="go">DEC          : -4.23235</span>
@@ -369,16 +391,26 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ids</strong> – AGASC ids (scalar or array)</p></li>
-<li><p><strong>dates</strong> – Dates for proper motion (scalar or array) (default=Now)</p></li>
-<li><p><strong>fix_color1</strong> – set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p></li>
-<li><p><strong>use_supplement</strong> – Use estimated mag from AGASC supplement where available
-(default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ids</strong><span class="classifier">int or array_like</span></dt><dd><p>AGASC ids (scalar or array)</p>
+</dd>
+<dt><strong>agasc_file</strong><span class="classifier">str, optional</span></dt><dd><p>AGASC file (optional)</p>
+</dd>
+<dt><strong>dates</strong><span class="classifier">CxoTimeLike, optional</span></dt><dd><p>Dates for proper motion (scalar or array) (default=Now)</p>
+</dd>
+<dt><strong>method_threshold</strong><span class="classifier">int</span></dt><dd><p>Number of stars above which to use the “read_entire_agasc” method</p>
+</dd>
+<dt><strong>fix_color1</strong><span class="classifier">bool</span></dt><dd><p>set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</p>
+</dd>
+<dt><strong>use_supplement</strong><span class="classifier">bool, optional</span></dt><dd><p>Use estimated mag from AGASC supplement where available (default=value of
+AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>astropy Table of AGASC entries, or Table Row of one entry for scalar input</p>
+<dd class="field-even"><dl class="simple">
+<dt>astropy Table of AGASC entries, or Table Row of one entry for scalar input</dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -446,8 +478,10 @@ default behavior to use the AGASC supplement star mags when available.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> – bool
-Whether to use the AGASC supplement in the context / decorator</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>value</strong><span class="classifier">bool</span></dt><dd><p>Whether to use the AGASC supplement in the context / decorator</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -461,15 +495,21 @@ conventions.  This uses numexpr to speed expression evaluation by a factor
 of 2 to 3.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ra1</strong> – first RA (deg)</p></li>
-<li><p><strong>dec1</strong> – first Dec (deg)</p></li>
-<li><p><strong>ra2</strong> – second RA (deg)</p></li>
-<li><p><strong>dec2</strong> – second Dec (deg)</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ra1</strong><span class="classifier">array_like</span></dt><dd><p>first RA (deg)</p>
+</dd>
+<dt><strong>dec1</strong><span class="classifier">array_like</span></dt><dd><p>first Dec (deg)</p>
+</dd>
+<dt><strong>ra2</strong><span class="classifier">array_like</span></dt><dd><p>second RA (deg)</p>
+</dd>
+<dt><strong>dec2</strong><span class="classifier">array_like</span></dt><dd><p>second Dec (deg)</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>angular separation distance (deg)</p>
+<dd class="field-even"><dl class="simple">
+<dt><strong>angular separation distance (deg)</strong><span class="classifier">array_like</span></dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -516,7 +556,9 @@ proseco). Default is True, in which case all AGASC columns are required.</p>
 <code class="docutils literal notranslate"><span class="pre">$SKA/data/agasc</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+<dd class="field-odd"><dl class="simple">
+<dt>Path</dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -527,7 +569,9 @@ proseco). Default is True, in which case all AGASC columns are required.</p>
 <dd><p>Default main AGASC file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -538,16 +582,16 @@ proseco). Default is True, in which case all AGASC columns are required.</p>
 <dd><p>Update the ‘bad’ table of the AGASC supplement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> – pathlib.Path
-AGASC supplement filename.</p></li>
-<li><p><strong>bad</strong> – list
-List of pairs (agasc_id, source)</p></li>
-<li><p><strong>dry_run</strong> – bool
-Do not save the table.</p></li>
-<li><p><strong>create</strong> – bool
-Create a supplement file if it does not exist</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">pathlib.Path</span></dt><dd><p>AGASC supplement filename.</p>
+</dd>
+<dt><strong>bad</strong><span class="classifier">list</span></dt><dd><p>List of pairs (agasc_id, source)</p>
+</dd>
+<dt><strong>dry_run</strong><span class="classifier">bool</span></dt><dd><p>Do not save the table.</p>
+</dd>
+<dt><strong>create</strong><span class="classifier">bool</span></dt><dd><p>Create a supplement file if it does not exist</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -573,15 +617,20 @@ key is the <code class="docutils literal notranslate"><span class="pre">(agasc_i
 of the remaining columns.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – Table name within the AGASC supplement HDF5 file</p></li>
-<li><p><strong>data_root</strong> – directory containing the AGASC supplement HDF5 file
-(default=same directory as the AGASC file)</p></li>
-<li><p><strong>as_dict</strong> – return result as a dictionary (default=False)</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Table name within the AGASC supplement HDF5 file</p>
+</dd>
+<dt><strong>agasc_dir</strong><span class="classifier">str, optional</span></dt><dd><p>directory containing the AGASC supplement HDF5 file
+(default=same directory as the AGASC file)</p>
+</dd>
+<dt><strong>as_dict</strong><span class="classifier">bool</span></dt><dd><p>return result as a dictionary (default=False)</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>supplement table as <code class="docutils literal notranslate"><span class="pre">Table</span></code> or <code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+<dd class="field-even"><dl class="simple">
+<dt>supplement table as <code class="docutils literal notranslate"><span class="pre">Table</span></code> or <code class="docutils literal notranslate"><span class="pre">dict</span></code></dt><dd></dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -603,10 +652,12 @@ of the remaining columns.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> – pathlib.Path</p></li>
-<li><p><strong>table_name</strong> – str or list</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong></dt><dd><p>pathlib.Path</p>
+</dd>
+<dt><strong>table_name</strong></dt><dd><p>str or list</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -617,20 +668,18 @@ of the remaining columns.</p>
 <dd><p>Update the ‘mags’ table of the AGASC supplement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> – AGASC supplement filename</p></li>
-<li><p><strong>mags</strong> – <p>list of dict or table.Table
-list entries are dictionaries like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
- <span class="s1">&#39;mag_aca&#39;</span><span class="p">:</span> <span class="mf">9.</span><span class="p">,</span>
- <span class="s1">&#39;mag_aca_err&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
- <span class="s1">&#39;last_obs_time&#39;</span><span class="p">:</span> <span class="mf">541074324.949</span><span class="p">}</span>
-</pre></div>
-</div>
-</p></li>
-<li><p><strong>dry_run</strong> – bool
-Do not save the table.</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong></dt><dd><p>AGASC supplement filename</p>
+</dd>
+<dt><strong>mags</strong><span class="classifier">list of dict or table.Table</span></dt><dd><p>list entries are dictionaries like::
+{‘agasc_id’: 1,
+‘mag_aca’: 9.,
+‘mag_aca_err’: 0.2,
+‘last_obs_time’: 541074324.949}</p>
+</dd>
+<dt><strong>dry_run</strong><span class="classifier">bool</span></dt><dd><p>Do not save the table.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -641,26 +690,24 @@ Do not save the table.</p></li>
 <dd><p>Update the ‘obs’ table of the AGASC supplement.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> – AGASC supplement filename</p></li>
-<li><p><strong>obs</strong> – <p>list of dict or table.Table
-Dictionary with status flag for specific observations.
-list entries are dictionaries like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;agasc_id&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
- <span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">:</span> <span class="s1">&#39;2009:310:17:26:44.706&#39;</span><span class="p">,</span>
- <span class="s1">&#39;obsid&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
- <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
- <span class="s1">&#39;comments&#39;</span><span class="p">:</span> <span class="s1">&#39;some comment&#39;</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>All the keys are optional except ‘status’, as long as the observations are uniquely defined.
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong></dt><dd><p>AGASC supplement filename</p>
+</dd>
+<dt><strong>obs</strong><span class="classifier">list of dict or table.Table</span></dt><dd><p>Dictionary with status flag for specific observations.
+list entries are dictionaries like::
+{‘agasc_id’: 1,
+‘mp_starcat_time’: ‘2009:310:17:26:44.706’,
+‘obsid’: 0,
+‘status’: 0,
+‘comments’: ‘some comment’}
+All the keys are optional except ‘status’, as long as the observations are uniquely defined.
 If ‘agasc_id’ is not given, then it applies to all stars in that observation.</p>
-</p></li>
-<li><p><strong>dry_run</strong> – bool
-Do not save the table.</p></li>
-<li><p><strong>create</strong> – bool
-Create a supplement file if it does not exist</p></li>
-</ul>
+</dd>
+<dt><strong>dry_run</strong><span class="classifier">bool</span></dt><dd><p>Do not save the table.</p>
+</dd>
+<dt><strong>create</strong><span class="classifier">bool</span></dt><dd><p>Create a supplement file if it does not exist</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -700,7 +747,7 @@ Create a supplement file if it does not exist</p></li>
 
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="catalog-description.html"
+    <p class="topless"><a href="catalog-description-1p7.html"
                           title="previous chapter">THE AXAF Guide and Acquisition Star Catalog V1.7</a></p>
   </div>
   <div>

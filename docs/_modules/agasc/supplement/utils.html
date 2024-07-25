@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.supplement.utils &#8212; Agasc 4.21.0 documentation</title>
+    <title>agasc.supplement.utils &#8212; Agasc 4.21.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../../_static/documentation_options.js?v=d460739f"></script>
+    <script src="../../../_static/documentation_options.js?v=7018f786"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../index.html">Agasc 4.21.0 documentation</a>
+	<a href="../../../index.html">Agasc 4.21.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -64,6 +64,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">tables</span>
@@ -133,7 +134,11 @@
 <div class="viewcode-block" id="get_supplement_table">
 <a class="viewcode-back" href="../../../api.html#agasc.supplement.utils.get_supplement_table">[docs]</a>
 <span class="nd">@lru_cache_timed</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_supplement_table</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">agasc_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_supplement_table</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">agasc_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">as_dict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get one of the tables in the AGASC supplement.</span>
 
 <span class="sd">    This function gets one of the supplement tables, specified with ``name``:</span>
@@ -154,12 +159,19 @@
 <span class="sd">    key is the ``(agasc_id, mp_starcat_time)`` tuple. In all cases the value is a dict</span>
 <span class="sd">    of the remaining columns.</span>
 
-<span class="sd">    :param name: Table name within the AGASC supplement HDF5 file</span>
-<span class="sd">    :param data_root: directory containing the AGASC supplement HDF5 file</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Table name within the AGASC supplement HDF5 file</span>
+<span class="sd">    agasc_dir : str, optional</span>
+<span class="sd">        directory containing the AGASC supplement HDF5 file</span>
 <span class="sd">        (default=same directory as the AGASC file)</span>
-<span class="sd">    :param as_dict: return result as a dictionary (default=False)</span>
+<span class="sd">    as_dict : bool</span>
+<span class="sd">        return result as a dictionary (default=False)</span>
 
-<span class="sd">    :returns: supplement table as ``Table`` or ``dict``</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    supplement table as ``Table`` or ``dict``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">agasc_dir</span> <span class="o">=</span> <span class="n">default_agasc_dir</span><span class="p">()</span> <span class="k">if</span> <span class="n">agasc_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">agasc_dir</span><span class="p">)</span>
 
@@ -224,8 +236,12 @@
 <span class="sd">        from agasc.supplement.utils import get_supplement_table</span>
 <span class="sd">        versions = get_supplement_table(&#39;agasc_versions&#39;)</span>
 
-<span class="sd">    :param filename: pathlib.Path</span>
-<span class="sd">    :param table_name: str or list</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename</span>
+<span class="sd">        pathlib.Path</span>
+<span class="sd">    table_name</span>
+<span class="sd">        str or list</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
@@ -263,19 +279,24 @@
 <span class="sd">    This overwrites all rows already in the supplement table and appends that rows not yet in the</span>
 <span class="sd">    supplement table.</span>
 
-<span class="sd">    :param filename:</span>
-<span class="sd">    :param table: table.Table</span>
-<span class="sd">    :param path: str</span>
-<span class="sd">        the path of the table in the supplement (&#39;obs&#39;, &#39;mags&#39;)</span>
-<span class="sd">    :param dtype: np.dtype</span>
-<span class="sd">        the dtype of the table. Used only if the table is not in the supplement already.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Name of the HDF5 file</span>
+<span class="sd">    table : table.Table | None</span>
+<span class="sd">        Table update values</span>
+<span class="sd">    path : str</span>
+<span class="sd">        Path of the table in the supplement (&#39;obs&#39;, &#39;mags&#39;)</span>
+<span class="sd">    dtype : np.dtype</span>
+<span class="sd">        Dtype of the table. Used only if the table is not in the supplement already.</span>
 <span class="sd">        If it is not given, and the table does not exist in the supplement,</span>
 <span class="sd">        an exception will be raised.</span>
-<span class="sd">    :param keys: list</span>
-<span class="sd">        a list of columns that uniquely identify a row in the table.</span>
+<span class="sd">    keys : list</span>
+<span class="sd">        List of columns that uniquely identify a row in the table.</span>
 <span class="sd">        In case of duplicates, the last appearance is kept.</span>
-<span class="sd">    :param dry_run: bool</span>
-<span class="sd">    :param create: bool</span>
+<span class="sd">    dry_run: bool</span>
+<span class="sd">        Do not save the table.</span>
+<span class="sd">    create : bool</span>
 <span class="sd">        Create a supplement file if it does not exist</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -337,16 +358,21 @@
 <span class="sd">    If the file does not exist, it either raises an exception or issues a warning, depending on the</span>
 <span class="sd">    input arguments. If the table does not exist, it returns a newly created table.</span>
 
-<span class="sd">    :param filename: str or pathlib.Path</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str or pathlib.Path</span>
 <span class="sd">        The name of the HDF5 file.</span>
-<span class="sd">    :param path: str</span>
+<span class="sd">    path : str</span>
 <span class="sd">        Path of the table in the supplement (&#39;obs&#39;, &#39;mags&#39;)</span>
-<span class="sd">    :param dtype: np.dtype</span>
+<span class="sd">    dtype : np.dtype</span>
 <span class="sd">        Numpy dtype of the table. If the table exists, the dtype is ignored. If the table does not</span>
 <span class="sd">        exist and no dtype is given, an exception will be raised.</span>
-<span class="sd">    :param create: bool</span>
+<span class="sd">    create : bool</span>
 <span class="sd">        Issues a warning if the supplement file does not exist</span>
-<span class="sd">    :returns: table.Table</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    table.Table</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
@@ -373,13 +399,15 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the &#39;bad&#39; table of the AGASC supplement.</span>
 
-<span class="sd">    :param filename: pathlib.Path</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : pathlib.Path</span>
 <span class="sd">        AGASC supplement filename.</span>
-<span class="sd">    :param bad: list</span>
+<span class="sd">    bad : list</span>
 <span class="sd">        List of pairs (agasc_id, source)</span>
-<span class="sd">    :param dry_run: bool</span>
+<span class="sd">    dry_run : bool</span>
 <span class="sd">        Do not save the table.</span>
-<span class="sd">    :param create: bool</span>
+<span class="sd">    create : bool</span>
 <span class="sd">        Create a supplement file if it does not exist</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -429,23 +457,23 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the &#39;obs&#39; table of the AGASC supplement.</span>
 
-<span class="sd">    :param filename:</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename :</span>
 <span class="sd">        AGASC supplement filename</span>
-<span class="sd">    :param obs: list of dict or table.Table</span>
+<span class="sd">    obs : list of dict or table.Table</span>
 <span class="sd">        Dictionary with status flag for specific observations.</span>
 <span class="sd">        list entries are dictionaries like::</span>
-
-<span class="sd">            {&#39;agasc_id&#39;: 1,</span>
-<span class="sd">             &#39;mp_starcat_time&#39;: &#39;2009:310:17:26:44.706&#39;,</span>
-<span class="sd">             &#39;obsid&#39;: 0,</span>
-<span class="sd">             &#39;status&#39;: 0,</span>
-<span class="sd">             &#39;comments&#39;: &#39;some comment&#39;}</span>
-
+<span class="sd">        {&#39;agasc_id&#39;: 1,</span>
+<span class="sd">        &#39;mp_starcat_time&#39;: &#39;2009:310:17:26:44.706&#39;,</span>
+<span class="sd">        &#39;obsid&#39;: 0,</span>
+<span class="sd">        &#39;status&#39;: 0,</span>
+<span class="sd">        &#39;comments&#39;: &#39;some comment&#39;}</span>
 <span class="sd">        All the keys are optional except &#39;status&#39;, as long as the observations are uniquely defined.</span>
 <span class="sd">        If &#39;agasc_id&#39; is not given, then it applies to all stars in that observation.</span>
-<span class="sd">    :param dry_run: bool</span>
+<span class="sd">    dry_run : bool</span>
 <span class="sd">        Do not save the table.</span>
-<span class="sd">    :param create: bool</span>
+<span class="sd">    create : bool</span>
 <span class="sd">        Create a supplement file if it does not exist</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -467,17 +495,17 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the &#39;mags&#39; table of the AGASC supplement.</span>
 
-<span class="sd">    :param filename:</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename :</span>
 <span class="sd">        AGASC supplement filename</span>
-<span class="sd">    :param mags: list of dict or table.Table</span>
+<span class="sd">    mags : list of dict or table.Table</span>
 <span class="sd">        list entries are dictionaries like::</span>
-
-<span class="sd">            {&#39;agasc_id&#39;: 1,</span>
-<span class="sd">             &#39;mag_aca&#39;: 9.,</span>
-<span class="sd">             &#39;mag_aca_err&#39;: 0.2,</span>
-<span class="sd">             &#39;last_obs_time&#39;: 541074324.949}</span>
-
-<span class="sd">    :param dry_run: bool</span>
+<span class="sd">        {&#39;agasc_id&#39;: 1,</span>
+<span class="sd">        &#39;mag_aca&#39;: 9.,</span>
+<span class="sd">        &#39;mag_aca_err&#39;: 0.2,</span>
+<span class="sd">        &#39;last_obs_time&#39;: 541074324.949}</span>
+<span class="sd">    dry_run : bool</span>
 <span class="sd">        Do not save the table.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">update_table</span><span class="p">(</span>

@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.21.0 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.21.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../_static/documentation_options.js?v=d460739f"></script>
+    <script src="../../_static/documentation_options.js?v=7018f786"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.21.0 documentation</a>
+	<a href="../../index.html">Agasc 4.21.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -72,6 +72,7 @@
 
 <span class="kn">import</span> <span class="nn">numexpr</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
 <span class="kn">import</span> <span class="nn">tables</span>
 <span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Table</span>
 <span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
@@ -157,7 +158,7 @@
 <div class="viewcode-block" id="set_supplement_enabled">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.set_supplement_enabled">[docs]</a>
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<span class="k">def</span> <span class="nf">set_supplement_enabled</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">set_supplement_enabled</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator / context manager to temporarily set the default for use of</span>
 <span class="sd">    AGASC supplement in query functions.</span>
 
@@ -184,7 +185,9 @@
 <span class="sd">      # Globally disable use of the supplement everywhere</span>
 <span class="sd">      os.environ[agasc.SUPPLEMENT_ENABLED_VAR] = &#39;False&#39;</span>
 
-<span class="sd">    :param value: bool</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : bool</span>
 <span class="sd">        Whether to use the AGASC supplement in the context / decorator</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
@@ -453,19 +456,32 @@
 
 <div class="viewcode-block" id="sphere_dist">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.sphere_dist">[docs]</a>
-<span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span><span class="n">ra1</span><span class="p">,</span> <span class="n">dec1</span><span class="p">,</span> <span class="n">ra2</span><span class="p">,</span> <span class="n">dec2</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span>
+    <span class="n">ra1</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+    <span class="n">dec1</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+    <span class="n">ra2</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+    <span class="n">dec2</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Haversine formula for angular distance on a sphere: more stable at poles.</span>
 <span class="sd">    This version uses arctan instead of arcsin and thus does better with sign</span>
 <span class="sd">    conventions.  This uses numexpr to speed expression evaluation by a factor</span>
 <span class="sd">    of 2 to 3.</span>
 
-<span class="sd">    :param ra1: first RA (deg)</span>
-<span class="sd">    :param dec1: first Dec (deg)</span>
-<span class="sd">    :param ra2: second RA (deg)</span>
-<span class="sd">    :param dec2: second Dec (deg)</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ra1 : array_like</span>
+<span class="sd">        first RA (deg)</span>
+<span class="sd">    dec1 : array_like</span>
+<span class="sd">        first Dec (deg)</span>
+<span class="sd">    ra2 : array_like</span>
+<span class="sd">        second RA (deg)</span>
+<span class="sd">    dec2 : array_like</span>
+<span class="sd">        second Dec (deg)</span>
 
-<span class="sd">    :returns: angular separation distance (deg)</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    angular separation distance (deg) : array_like</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">ra1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">ra1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -523,9 +539,16 @@
 
 <span class="sd">    The ``stars`` table is updated in-place.</span>
 
-<span class="sd">    :param stars: astropy Table of stars from the AGASC</span>
-<span class="sd">    :param date: scalar, list, array of date(s) in DateTime-compatible format</span>
-<span class="sd">    :returns: None</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stars</span>
+<span class="sd">        astropy Table of stars from the AGASC</span>
+<span class="sd">    date</span>
+<span class="sd">        scalar, list, array of date(s) in DateTime-compatible format</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Convert date to DateTime ensuring it can broadcast to stars table. Since</span>
     <span class="c1"># DateTime is slow keep it as a scalar if possible.</span>
@@ -563,18 +586,18 @@
 <div class="viewcode-block" id="get_agasc_cone">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a>
 <span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span>
-    <span class="n">ra</span><span class="p">,</span>
-    <span class="n">dec</span><span class="p">,</span>
-    <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-    <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">pm_filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">matlab_pm_bug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">):</span>
+    <span class="n">ra</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">dec</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CxoTimeLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">pm_filter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">fix_color1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_supplement</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">matlab_pm_bug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries within ``radius`` degrees of ``ra``, ``dec``.</span>
 
@@ -591,21 +614,36 @@
 <span class="sd">      &gt;&gt;&gt; stars = agasc.get_agasc_cone(10.0, 20.0, 1.5)</span>
 <span class="sd">      &gt;&gt;&gt; plt.plot(stars[&#39;RA&#39;], stars[&#39;DEC&#39;], &#39;.&#39;)</span>
 
-<span class="sd">    :param ra: RA (deg)</span>
-<span class="sd">    :param dec: Declination (deg)</span>
-<span class="sd">    :param radius: Cone search radius (deg)</span>
-<span class="sd">    :param date: Date for proper motion (default=Now)</span>
-<span class="sd">    :param agasc_file: AGASC file (optional)</span>
-<span class="sd">    :param pm_filter: Use PM-corrected positions in filtering</span>
-<span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color</span>
-<span class="sd">    :param use_supplement: Use estimated mag from AGASC supplement where available</span>
-<span class="sd">        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</span>
-<span class="sd">    :param matlab_pm_bug: Apply MATLAB proper motion bug prior to the MAY2118A loads</span>
-<span class="sd">        (default=False)</span>
-<span class="sd">    :param columns: Columns to return (default=all)</span>
-<span class="sd">    :param cache: Cache the AGASC data in memory (default=False)</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ra : float</span>
+<span class="sd">        RA (deg)</span>
+<span class="sd">    dec : float</span>
+<span class="sd">        Declination (deg)</span>
+<span class="sd">    radius : float</span>
+<span class="sd">        Cone search radius (deg)</span>
+<span class="sd">    date : CxoTimeLike, optional</span>
+<span class="sd">        Date for proper motion (default=Now)</span>
+<span class="sd">    agasc_file : str, optional</span>
+<span class="sd">        AGASC file (optional)</span>
+<span class="sd">    pm_filter : bool</span>
+<span class="sd">        Use PM-corrected positions in filtering</span>
+<span class="sd">    fix_color1 : bool</span>
+<span class="sd">        set COLOR1=COLOR2 * 0.85 for stars with V-I color</span>
+<span class="sd">    use_supplement : bool, optional</span>
+<span class="sd">        Use estimated mag from AGASC supplement where available (default=value of</span>
+<span class="sd">        AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</span>
+<span class="sd">    matlab_pm_bug : bool</span>
+<span class="sd">        Apply MATLAB proper motion bug prior to the MAY2118A loads (default=False)</span>
+<span class="sd">    columns : tuple[str], optional</span>
+<span class="sd">        Columns to return (default=all)</span>
+<span class="sd">    cache : bool</span>
+<span class="sd">        Cache the AGASC data in memory (default=False)</span>
 
-<span class="sd">    :returns: astropy Table of AGASC entries</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    astropy.table.Table</span>
+<span class="sd">        Table of AGASC entries</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">get_agasc_filename</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
 
@@ -728,7 +766,13 @@
 
 <div class="viewcode-block" id="get_star">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_star">[docs]</a>
-<span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CxoTimeLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fix_color1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_supplement</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entry for star with requested id.</span>
 
@@ -739,7 +783,7 @@
 <span class="sd">      &gt;&gt;&gt; import agasc</span>
 <span class="sd">      &gt;&gt;&gt; star = agasc.get_star(636629880)</span>
 <span class="sd">      &gt;&gt;&gt; for name in star.colnames:</span>
-<span class="sd">      ...     print &#39;{{:12s}} : {{}}&#39;.format(name, star[name])</span>
+<span class="sd">      ...     print(&#39;{{:12s}} : {{}}&#39;.format(name, star[name]))</span>
 <span class="sd">      AGASC_ID     : 636629880</span>
 <span class="sd">      RA           : 125.64184</span>
 <span class="sd">      DEC          : -4.23235</span>
@@ -758,12 +802,24 @@
 <span class="sd">      MAG          : 13.2700004578</span>
 <span class="sd">      ...</span>
 
-<span class="sd">    :param id: AGASC id</span>
-<span class="sd">    :param date: Date for proper motion (default=Now)</span>
-<span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
-<span class="sd">    :param use_supplement: Use estimated mag from AGASC supplement where available</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    id : int</span>
+<span class="sd">        AGASC id</span>
+<span class="sd">    agasc_file : Optional[str]</span>
+<span class="sd">        Path to the AGASC file (default=None)</span>
+<span class="sd">    date : Optional[CxoTimeLike]</span>
+<span class="sd">        Date for proper motion (default=Now)</span>
+<span class="sd">    fix_color1 : bool</span>
+<span class="sd">        Set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
+<span class="sd">    use_supplement : Optional[bool]</span>
+<span class="sd">        Use estimated mag from AGASC supplement where available</span>
 <span class="sd">        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</span>
-<span class="sd">    :returns: astropy Table Row of entry for id</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    astropy.table.Table</span>
+<span class="sd">        Row of entry for id</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">get_agasc_filename</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
@@ -828,13 +884,13 @@
 <div class="viewcode-block" id="get_stars">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a>
 <span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span>
-    <span class="n">ids</span><span class="p">,</span>
-    <span class="n">agasc_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">dates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">method_threshold</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
-    <span class="n">fix_color1</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-<span class="p">):</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
+    <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CxoTimeLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="n">fix_color1</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_supplement</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Table</span> <span class="o">|</span> <span class="n">Table</span><span class="o">.</span><span class="n">Row</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get AGASC catalog entries for star ``ids`` at ``dates``.</span>
 
@@ -859,7 +915,7 @@
 <span class="sd">      &gt;&gt;&gt; import agasc</span>
 <span class="sd">      &gt;&gt;&gt; star = agasc.get_stars(636629880)</span>
 <span class="sd">      &gt;&gt;&gt; for name in star.colnames:</span>
-<span class="sd">      ...     print &#39;{{:12s}} : {{}}&#39;.format(name, star[name])</span>
+<span class="sd">      ...     print(&#39;{{:12s}} : {{}}&#39;.format(name, star[name]))</span>
 <span class="sd">      AGASC_ID     : 636629880</span>
 <span class="sd">      RA           : 125.64184</span>
 <span class="sd">      DEC          : -4.23235</span>
@@ -878,12 +934,25 @@
 <span class="sd">      MAG          : 13.2700004578</span>
 <span class="sd">      ...</span>
 
-<span class="sd">    :param ids: AGASC ids (scalar or array)</span>
-<span class="sd">    :param dates: Dates for proper motion (scalar or array) (default=Now)</span>
-<span class="sd">    :param fix_color1: set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
-<span class="sd">    :param use_supplement: Use estimated mag from AGASC supplement where available</span>
-<span class="sd">        (default=value of AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</span>
-<span class="sd">    :returns: astropy Table of AGASC entries, or Table Row of one entry for scalar input</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ids : int or array_like</span>
+<span class="sd">        AGASC ids (scalar or array)</span>
+<span class="sd">    agasc_file : str, optional</span>
+<span class="sd">        AGASC file (optional)</span>
+<span class="sd">    dates : CxoTimeLike, optional</span>
+<span class="sd">        Dates for proper motion (scalar or array) (default=Now)</span>
+<span class="sd">    method_threshold : int</span>
+<span class="sd">        Number of stars above which to use the &quot;read_entire_agasc&quot; method</span>
+<span class="sd">    fix_color1 : bool</span>
+<span class="sd">        set COLOR1=COLOR2 * 0.85 for stars with V-I color (default=True)</span>
+<span class="sd">    use_supplement : bool, optional</span>
+<span class="sd">        Use estimated mag from AGASC supplement where available (default=value of</span>
+<span class="sd">        AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    astropy Table of AGASC entries, or Table Row of one entry for scalar input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">get_agasc_filename</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
 
@@ -947,8 +1016,11 @@
 <span class="sd">    ``use_supplement`` argument, which has priority, and the</span>
 <span class="sd">    ``AGASC_SUPPLEMENT_ENABLED`` environment variable.</span>
 
-<span class="sd">    :param stars: astropy.table.Table of stars</span>
-<span class="sd">    :param use_supplement: bool, None</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stars</span>
+<span class="sd">        astropy.table.Table of stars</span>
+<span class="sd">    use_supplement : bool, None</span>
 <span class="sd">        Use the supplement (default=None, see above)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">use_supplement</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
