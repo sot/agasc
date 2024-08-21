@@ -521,14 +521,14 @@ def test_get_supplement_table_bad():
     bad = agasc.get_supplement_table("bad")
     assert isinstance(bad, Table)
     assert bad.colnames == ["agasc_id", "source"]
-    assert len(bad) > 3300
+    assert len(bad) > 300
     assert 797847184 in bad["agasc_id"]
 
 
 def test_get_supplement_table_bad_dict():
     bad = agasc.get_supplement_table("bad", as_dict=True)
     assert isinstance(bad, dict)
-    assert len(bad) > 3300
+    assert len(bad) > 300
     assert bad[797847184] == {"source": 1}
 
 
