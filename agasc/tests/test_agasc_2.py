@@ -26,13 +26,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import Ska.Shell
 import tables
 from astropy.io import ascii
 from astropy.table import Row, Table
 from cxotime import CxoTime
 
 import agasc
-import Ska.Shell
 from agasc import write_agasc
 
 os.environ[agasc.SUPPLEMENT_ENABLED_ENV] = "False"
