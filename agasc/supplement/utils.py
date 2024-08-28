@@ -127,7 +127,11 @@ def get_supplement_table(
             dat = np.array([], dtype=dtypes.get(name, []))
 
     if name in ["agasc_versions", "last_updated"]:
-        out = {name: dat[0][name] for name in dat.dtype.names} if len(dat) else {}
+        out = (
+            {name: dat[0][name].decode() for name in dat.dtype.names}
+            if len(dat)
+            else {}
+        )
     elif as_dict:
         out = {}
         keys_names = {
