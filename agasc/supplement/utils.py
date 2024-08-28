@@ -126,26 +126,25 @@ def get_supplement_table(
             )
             dat = np.array([], dtype=dtypes.get(name, []))
 
-    if as_dict:
-        if name in ["agasc_versions", "last_updated"]:
-            out = {name: dat[0][name] for name in dat.dtype.names} if len(dat) else {}
-        else:
-            out = {}
-            keys_names = {
-                "mags": ["agasc_id"],
-                "bad": ["agasc_id"],
-                "obs": ["agasc_id", "mp_starcat_time"],
+    if name in ["agasc_versions", "last_updated"]:
+        out = {name: dat[0][name] for name in dat.dtype.names} if len(dat) else {}
+    elif as_dict:
+        out = {}
+        keys_names = {
+            "mags": ["agasc_id"],
+            "bad": ["agasc_id"],
+            "obs": ["agasc_id", "mp_starcat_time"],
+        }
+        key_names = keys_names[name]
+        for row in dat:
+            # Make the key, coercing the values from numpy to native Python
+            key = tuple(row[nm].item() for nm in key_names)
+            if len(key) == 1:
+                key = key[0]
+            # Make the value from the remaining non-key column names
+            out[key] = {
+                nm: row[nm].item() for nm in row.dtype.names if nm not in key_names
             }
-            key_names = keys_names[name]
-            for row in dat:
-                # Make the key, coercing the values from numpy to native Python
-                key = tuple(row[nm].item() for nm in key_names)
-                if len(key) == 1:
-                    key = key[0]
-                # Make the value from the remaining non-key column names
-                out[key] = {
-                    nm: row[nm].item() for nm in row.dtype.names if nm not in key_names
-                }
     else:
         out = Table(dat)
         index = {agasc_id: idx for idx, agasc_id in enumerate(out["agasc_id"])}
