@@ -83,17 +83,19 @@ def get_supplement_table(
     - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)
     - ``obs``: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,
       comments)
+    - ``agasc_versions``: AGASC package version at the time of the supplement table updates
+    - ``last_updated``: Time of last update of the supplement tables
 
     This function is cached with a timeout of an hour, so you can call it
     repeatedly with no penalty in performance.
 
     If ``as_dict=False`` (default) then the table is returned as an astropy
-    ``Table``.
+    ``Table``. Ignored for ``agasc_versions`` and ``last_updated``.
 
     If ``as_dict=True`` then the table is returned as a dict of {key: value}
     pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the
     key is the ``(agasc_id, mp_starcat_time)`` tuple. In all cases the value is a dict
-    of the remaining columns.
+    of the remaining columns. Ignored for ``agasc_versions`` and ``last_updated``.
 
     Parameters
     ----------
@@ -103,7 +105,8 @@ def get_supplement_table(
         directory containing the AGASC supplement HDF5 file
         (default=same directory as the AGASC file)
     as_dict : bool
-        return result as a dictionary (default=False)
+        return result as a dictionary (default=False). Ignored for ``agasc_versions`` and
+        ``last_updated``.
 
     Returns
     -------
