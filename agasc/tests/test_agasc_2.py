@@ -475,6 +475,37 @@ def test_supplement_get_star():
     assert star2["MAG_ACA_ERR"] != star1["MAG_ACA_ERR"]
 
 
+def test_proper_motion_date_context_manager():
+    star_id = 984622968
+    date1 = "2000:001"
+    with agasc.set_proper_motion_date(date1):
+        star1a = agasc.get_star(star_id)
+    star1b = agasc.get_star(star_id, date=date1)
+    assert star1a["RA_PMCORR"] == star1b["RA_PMCORR"]
+    assert star1a["DEC_PMCORR"] == star1b["DEC_PMCORR"]
+
+    date2 = "2025:001"
+    with agasc.set_proper_motion_date(date2):
+        star2a = agasc.get_star(star_id)
+    star2b = agasc.get_star(star_id, date=date2)
+    assert star2a["RA_PMCORR"] == star2b["RA_PMCORR"]
+    assert star2a["DEC_PMCORR"] == star2b["DEC_PMCORR"]
+
+    assert np.isclose(star1a["RA_PMCORR"], 346.4668294739581, rtol=0, atol=1e-5)
+    assert np.isclose(star1a["DEC_PMCORR"], -35.85307531933251, rtol=0, atol=1e-5)
+    assert np.isclose(star2a["RA_PMCORR"], 346.5247782327743, rtol=0, atol=1e-5)
+    assert np.isclose(star2a["DEC_PMCORR"], -35.843839208221404, rtol=0, atol=1e-5)
+
+
+@agasc.set_proper_motion_date("2000:001")
+def test_proper_motion_date_decorator():
+    star_id = 55725616
+    star1 = agasc.get_star(star_id)
+    star2 = agasc.get_star(star_id, date="2000:001")
+    for name in star1.colnames:
+        assert star1[name] == star2[name]
+
+
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason="no mags in supplement")
 def test_supplement_get_star_disable_context_manager():
     """Test that disable_supplement_mags context manager works.

@@ -31,7 +31,9 @@ __all__ = [
     "MAG_CATID_SUPPLEMENT",
     "BAD_CLASS_SUPPLEMENT",
     "set_supplement_enabled",
+    "set_proper_motion_date",
     "SUPPLEMENT_ENABLED_ENV",
+    "PROPER_MOTION_DATE_ENV",
     "write_agasc",
     "TABLE_DTYPE",
     "TableOrder",
@@ -39,6 +41,7 @@ __all__ = [
 
 logger = logging.getLogger("agasc")
 
+PROPER_MOTION_DATE_ENV = "AGASC_PROPER_MOTION_DATE"
 SUPPLEMENT_ENABLED_ENV = "AGASC_SUPPLEMENT_ENABLED"
 SUPPLEMENT_ENABLED_DEFAULT = "True"
 MAG_CATID_SUPPLEMENT = 100
@@ -91,6 +94,50 @@ COMMON_DOC = f"""By default, stars with available mag estimates or bad star entr
 
     The default AGASC supplement file is ``<AGASC_DIR>/agasc_supplement.h5``.
     """
+
+
+@contextlib.contextmanager
+def set_proper_motion_date(date: CxoTimeLike):
+    """Decorator / context manager to temporarily set the default date for use of
+    proper motion in AGASC functions.
+
+    This sets the default for the ``date`` argument in AGASC function calls if the
+    user does not supply that argument.
+
+    This is mostly for testing in applications where the user cannot supply the date
+    to the agasc functions directly.
+
+    Examples::
+
+      import agasc
+
+      # Use a specific date for the context block
+      with agasc.set_agasc_proper_motion_date("2021:141:03:35:03.000"):
+          stars = agasc.get_agasc_cone(10.0, 20.0, 1.5)
+
+      # Use a specific date for the function
+      @agasc.set_agasc_proper_motion_date("2021:141:03:35:03.000")
+      def test_get_agasc_cone():
+          stars = agasc.get_agasc_cone(10.0, 20.0, 1.5)
+          ...
+
+      # Globally use a specific date everywhere
+      os.environ[agasc.PROPER_MOTION_DATE_ENV] = "2021:141:03:35:03.000"
+
+    Parameters
+    ----------
+    date : CxoTimeLike
+        Date for proper motion correction
+    """
+    orig = os.environ.get(PROPER_MOTION_DATE_ENV)
+    os.environ[PROPER_MOTION_DATE_ENV] = str(date)
+
+    yield
+
+    if orig is None:
+        del os.environ[PROPER_MOTION_DATE_ENV]
+    else:
+        os.environ[PROPER_MOTION_DATE_ENV] = orig
 
 
 @contextlib.contextmanager
@@ -476,6 +523,10 @@ def add_pmcorr_columns(stars, date):
     -------
     None
     """
+    if date is None:
+        # Try the environment variable and default back to None.
+        date = os.environ.get(PROPER_MOTION_DATE_ENV, default=None)
+
     # Convert date to DateTime ensuring it can broadcast to stars table. Since
     # DateTime is slow keep it as a scalar if possible.
     if np.asarray(date).shape == ():
