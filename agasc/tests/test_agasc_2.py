@@ -504,6 +504,9 @@ def test_proper_motion_date_decorator():
     star2 = agasc.get_star(star_id, date="2000:001")
     for name in star1.colnames:
         assert star1[name] == star2[name]
+    star3 = agasc.get_star(star_id, date="2050:001")
+    assert star1["RA_PMCORR"] != star3["RA_PMCORR"]
+    assert star1["DEC_PMCORR"] != star3["DEC_PMCORR"]
 
 
 @pytest.mark.skipif(NO_MAGS_IN_SUPPLEMENT, reason="no mags in supplement")
