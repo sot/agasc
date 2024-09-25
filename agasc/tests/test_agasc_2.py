@@ -427,9 +427,13 @@ def test_supplement_get_agasc_cone():
     )
     ok = stars2["MAG_CATID"] == agasc.MAG_CATID_SUPPLEMENT
 
-    change_names = ["MAG_CATID", "COLOR1", "MAG_ACA", "MAG_ACA_ERR"]
+    change_names = ["MAG_CATID", "COLOR1", "MAG_ACA", "MAG_ACA_ERR", "CLASS"]
     for name in set(stars1.colnames) - set(change_names):
         assert np.all(stars1[name] == stars2[name])
+
+    # For CLASS the only ones that are different should have the "bad" class 100
+    class_nok = stars2["CLASS"] != stars1["CLASS"]
+    assert np.all(stars2["CLASS"][class_nok] == 100)
 
     assert not np.any(stars1["MAG_CATID"] == agasc.MAG_CATID_SUPPLEMENT)
 
