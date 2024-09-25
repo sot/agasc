@@ -30,6 +30,7 @@ import Ska.Shell
 import tables
 from astropy.io import ascii
 from astropy.table import Row, Table
+from cxotime import CxoTime
 
 import agasc
 from agasc import write_agasc
@@ -645,3 +646,10 @@ def test_write_missing_column(tmp_path, stars_in):
 
     # OK for full_agasc=False
     write_agasc(temp, stars=stars, version="test", full_agasc=False)
+
+
+def test_last_updated():
+    last_updated = agasc.get_supplement_table("last_updated")
+    assert CxoTime(last_updated["supplement"]).date.startswith("20")
+
+    _ = agasc.get_supplement_table("agasc_versions")
