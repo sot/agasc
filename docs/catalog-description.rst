@@ -69,6 +69,17 @@ Version 1.8 includes improved star positions and proper motions from Gaia
 DR3, as well as improved estimated magnitudes derived from Gaia DR3 photometry
 and more than 94,000 ACA observed stars. 
 
+
+Use of the AGASC 1.8 in Chandra Operations
+==========================================
+
+The Chandra Aspect Team uses an HDF5 version of the AGASC 1.8 data and
+the Python agasc package https://sot.github.io/agasc/index.html. References
+in this document to the agasc package refer to that Python code.
+Contact aspect_help@cfa.harvard.edu if you would like to use the catalog
+directly with that Python package.
+
+
 Organization of the FITS Data Files
 ===================================
 
