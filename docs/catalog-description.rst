@@ -75,7 +75,6 @@ Organization of the FITS Data Files
 The top directory includes the files::
 
     ----------------------------------------------------------------
-    readme.txt    - Introduction. ASCII
     agasc         - Directory for AGASC FITS region files.
     tables        - Directory for AGASC supporting tables.
     ----------------------------------------------------------------
@@ -83,7 +82,6 @@ The top directory includes the files::
 In the tables subdirectory are these tables::
 
     ----------------------------------------------------
-    comments.txt  - Introduction and general comments. ASCII
     regions       - Boundaries of GSC regions. FITS binary table
     lg_reg_x      - Index to large regions. FITS binary table
     sm_reg_x      - Index to small regions. FITS binary table
