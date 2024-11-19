@@ -35,6 +35,7 @@ __all__ = [
     "write_agasc",
     "TABLE_DTYPE",
     "TableOrder",
+    "add_pmcorr_columns",
 ]
 
 logger = logging.getLogger("agasc")
