@@ -86,6 +86,7 @@ Organization of the FITS Data Files
 The top directory includes the files::
 
     ----------------------------------------------------------------
+    readme.txt    - this file
     agasc         - Directory for AGASC FITS region files.
     tables        - Directory for AGASC supporting tables.
     ----------------------------------------------------------------
