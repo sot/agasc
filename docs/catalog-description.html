@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>THE AXAF Guide and Acquisition Star Catalog V1.8 &#8212; Agasc 4.21.1 documentation</title>
+    <title>THE AXAF Guide and Acquisition Star Catalog V1.8 &#8212; Agasc 4.22.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=7018f786"></script>
+    <script src="_static/documentation_options.js?v=461fad74"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.21.1 documentation</a>
+	<a href="index.html">Agasc 4.22.0 documentation</a>
 	 &#187;
       </li>
       
@@ -136,11 +136,19 @@ Photometric All-Sky Survey (APASS) DR9.</p>
 DR3, as well as improved estimated magnitudes derived from Gaia DR3 photometry
 and more than 94,000 ACA observed stars.</p>
 </section>
+<section id="use-of-the-agasc-1-8-in-chandra-operations">
+<h2>Use of the AGASC 1.8 in Chandra Operations<a class="headerlink" href="#use-of-the-agasc-1-8-in-chandra-operations" title="Link to this heading">¶</a></h2>
+<p>The Chandra Aspect Team uses an HDF5 version of the AGASC 1.8 data and
+the Python agasc package <a class="reference external" href="https://sot.github.io/agasc/index.html">https://sot.github.io/agasc/index.html</a>. References
+in this document to the agasc package refer to that Python code.
+Contact <a class="reference external" href="mailto:aspect_help&#37;&#52;&#48;cfa&#46;harvard&#46;edu">aspect_help<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a> if you would like to use the catalog
+directly with that Python package.</p>
+</section>
 <section id="organization-of-the-fits-data-files">
 <h2>Organization of the FITS Data Files<a class="headerlink" href="#organization-of-the-fits-data-files" title="Link to this heading">¶</a></h2>
 <p>The top directory includes the files:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">----------------------------------------------------------------</span>
-<span class="n">readme</span><span class="o">.</span><span class="n">txt</span>    <span class="o">-</span> <span class="n">Introduction</span><span class="o">.</span> <span class="n">ASCII</span>
+<span class="n">readme</span><span class="o">.</span><span class="n">txt</span>    <span class="o">-</span> <span class="n">this</span> <span class="n">file</span>
 <span class="n">agasc</span>         <span class="o">-</span> <span class="n">Directory</span> <span class="k">for</span> <span class="n">AGASC</span> <span class="n">FITS</span> <span class="n">region</span> <span class="n">files</span><span class="o">.</span>
 <span class="n">tables</span>        <span class="o">-</span> <span class="n">Directory</span> <span class="k">for</span> <span class="n">AGASC</span> <span class="n">supporting</span> <span class="n">tables</span><span class="o">.</span>
 <span class="o">----------------------------------------------------------------</span>
@@ -148,7 +156,6 @@ and more than 94,000 ACA observed stars.</p>
 </div>
 <p>In the tables subdirectory are these tables:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">----------------------------------------------------</span>
-<span class="n">comments</span><span class="o">.</span><span class="n">txt</span>  <span class="o">-</span> <span class="n">Introduction</span> <span class="ow">and</span> <span class="n">general</span> <span class="n">comments</span><span class="o">.</span> <span class="n">ASCII</span>
 <span class="n">regions</span>       <span class="o">-</span> <span class="n">Boundaries</span> <span class="n">of</span> <span class="n">GSC</span> <span class="n">regions</span><span class="o">.</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">table</span>
 <span class="n">lg_reg_x</span>      <span class="o">-</span> <span class="n">Index</span> <span class="n">to</span> <span class="n">large</span> <span class="n">regions</span><span class="o">.</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">table</span>
 <span class="n">sm_reg_x</span>      <span class="o">-</span> <span class="n">Index</span> <span class="n">to</span> <span class="n">small</span> <span class="n">regions</span><span class="o">.</span> <span class="n">FITS</span> <span class="n">binary</span> <span class="n">table</span>
@@ -833,6 +840,7 @@ obtained from the Chandra aspect web page at
 <ul>
 <li><a class="reference internal" href="#">THE AXAF Guide and Acquisition Star Catalog V1.8</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#use-of-the-agasc-1-8-in-chandra-operations">Use of the AGASC 1.8 in Chandra Operations</a></li>
 <li><a class="reference internal" href="#organization-of-the-fits-data-files">Organization of the FITS Data Files</a></li>
 <li><a class="reference internal" href="#summary-of-the-agasc1-8-format">Summary of the AGASC1.8 Format</a><ul>
 <li><a class="reference internal" href="#summary-of-the-agasc-version-1-8-entries">Summary of the AGASC Version 1.8 Entries</a></li>

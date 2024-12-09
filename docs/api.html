@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API documentation &#8212; Agasc 4.21.1 documentation</title>
+    <title>API documentation &#8212; Agasc 4.22.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=7018f786"></script>
+    <script src="_static/documentation_options.js?v=461fad74"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.21.1 documentation</a>
+	<a href="index.html">Agasc 4.22.0 documentation</a>
 	 &#187;
       </li>
       
@@ -89,6 +89,30 @@
 <li><p>TableOrder.HEALPIX. The stars are sorted using a HEALPix index.</p></li>
 <li><p>TableOrder.DEC. The stars are sorted by declination.</p></li>
 </ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="agasc.agasc.add_pmcorr_columns">
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">add_pmcorr_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#add_pmcorr_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.add_pmcorr_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table <code class="docutils literal notranslate"><span class="pre">stars</span></code>.</p>
+<p>This computes the PM-corrected RA and Dec of all <code class="docutils literal notranslate"><span class="pre">stars</span></code> using the supplied
+<code class="docutils literal notranslate"><span class="pre">date</span></code>, which may be a scalar or an array-valued object (np.array or list).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">stars</span></code> table is updated in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>stars</strong></dt><dd><p>astropy Table of stars from the AGASC</p>
+</dd>
+<dt><strong>date</strong></dt><dd><p>scalar, list, array of date(s) in DateTime-compatible format</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>None</dt><dd></dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -725,6 +749,7 @@ If ‘agasc_id’ is not given, then it applies to all stars in that observation
 <li><a class="reference internal" href="#">API documentation</a><ul>
 <li><a class="reference internal" href="#agasc.agasc.TABLE_DTYPE"><code class="docutils literal notranslate"><span class="pre">TABLE_DTYPE</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.TableOrder"><code class="docutils literal notranslate"><span class="pre">TableOrder</span></code></a></li>
+<li><a class="reference internal" href="#agasc.agasc.add_pmcorr_columns"><code class="docutils literal notranslate"><span class="pre">add_pmcorr_columns()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_agasc_cone"><code class="docutils literal notranslate"><span class="pre">get_agasc_cone()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_agasc_filename"><code class="docutils literal notranslate"><span class="pre">get_agasc_filename()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.agasc.get_star"><code class="docutils literal notranslate"><span class="pre">get_star()</span></code></a></li>

@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.21.1 documentation</title>
+    <title>agasc.agasc &#8212; Agasc 4.22.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../_static/documentation_options.js?v=7018f786"></script>
+    <script src="../../_static/documentation_options.js?v=461fad74"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.21.1 documentation</a>
+	<a href="../../index.html">Agasc 4.22.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -97,6 +97,7 @@
     <span class="s2">&quot;write_agasc&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TABLE_DTYPE&quot;</span><span class="p">,</span>
     <span class="s2">&quot;TableOrder&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_pmcorr_columns&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;agasc&quot;</span><span class="p">)</span>
@@ -531,6 +532,8 @@
         <span class="n">stars</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">][</span><span class="n">color15</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_color1</span>
 
 
+<div class="viewcode-block" id="add_pmcorr_columns">
+<a class="viewcode-back" href="../../api.html#agasc.agasc.add_pmcorr_columns">[docs]</a>
 <span class="k">def</span> <span class="nf">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table ``stars``.</span>
 
@@ -580,7 +583,8 @@
             <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ra_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RA_PMCORR&quot;</span><span class="p">),</span>
             <span class="n">Column</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dec_pmcorr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;DEC_PMCORR&quot;</span><span class="p">),</span>
         <span class="p">]</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="get_agasc_cone">
