@@ -47,7 +47,6 @@ MASK = {
 
 
 EXCEPTION_MSG = {
-    -1: "Unknown",
     0: "OK",
     1: "No level 0 data",
     2: "No telemetry data",
@@ -55,8 +54,9 @@ EXCEPTION_MSG = {
     4: "Time mismatch between cheta and level0",
     5: "Failed job",
     6: "Suspect observation",
+    1000: "Unknown",
 }
-EXCEPTION_CODES = collections.defaultdict(lambda: -1)
+EXCEPTION_CODES = collections.defaultdict(lambda: 1000)
 EXCEPTION_CODES.update({msg: code for code, msg in EXCEPTION_MSG.items() if code > 0})
 
 
