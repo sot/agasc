@@ -92,6 +92,16 @@ class MagStatsException(Exception):
                 "traceback": "\n".join(stack_trace),
             }
 
+    def _failed_(self):
+        """
+        Check if the exception is a failure.
+
+        :return: bool
+        """
+        return self.error_code > 1
+
+    failed = property(_failed_)
+
     def __str__(self):
         return (
             f"MagStatsException: {self.msg} (agasc_id: {self.agasc_id}, "
@@ -1310,12 +1320,12 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                 {
                     "obs_ok": False,
                     "obs_suspect": False,
-                    "obs_fail": True,
+                    "obs_fail": e.failed,
                     "comments": comment if excluded_obs[i] else f"Error: {e.msg}.",
                 }
             )
             stats.append(obs_stat)
-            if not excluded_obs[i]:
+            if e.failed and not excluded_obs[i]:
                 logger.debug(
                     f"  Error in get_agasc_id_stats({agasc_id=},"
                     f" obsid={obs['obsid']}): {e}"
@@ -1352,7 +1362,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     if len(all_telem) - len(failures) <= 0:
         # and we reach here if some observations were not flagged as bad, but all failed.
         logger.debug(
-            f"  Error in get_agasc_id_stats({agasc_id=}): There is no OK observation."
+            f"  get_agasc_id_stats({agasc_id=}): There is no OK observation."
         )
         return result, stats, failures
 
