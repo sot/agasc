@@ -74,8 +74,8 @@ class MagStatsException(Exception):
             if isinstance(mp_starcat_time, list) and len(mp_starcat_time) == 1
             else mp_starcat_time
         )
-        for k in kwargs:
-            setattr(self, k, kwargs[k])
+        for key, val in kwargs.items():
+            setattr(self, key, val)
 
         exc_type, exc_value, exc_traceback = sys.exc_info()
         if exc_type is None:
@@ -254,7 +254,7 @@ def get_star_position(star, telem):
     zag = np.arctan2(d_aca[:, 2], d_aca[:, 0]) * rad_to_arcsec
 
     logger.debug(
-        f'    star position. AGASC_ID={star["AGASC_ID"]}, '
+        f"    star position. AGASC_ID={star['AGASC_ID']}, "
         f"{len(yag)} samples, ({yag[0]}, {zag[0]})..."
     )
     return {
@@ -318,8 +318,8 @@ def get_telemetry(obs):
     stop = CxoTime(obs["obs_stop"]).cxcsec
     slot = obs["slot"]
     logger.debug(
-        f'  Getting telemetry for AGASC ID={obs["agasc_id"]}, OBSID={obs["obsid"]}, '
-        f'mp_starcat_time={obs["mp_starcat_time"]}'
+        f"  Getting telemetry for AGASC ID={obs['agasc_id']}, OBSID={obs['obsid']}, "
+        f"mp_starcat_time={obs['mp_starcat_time']}"
     )
 
     # first we get slot data from mica and magnitudes from cheta and match them in time
@@ -423,9 +423,9 @@ def get_telemetry(obs):
         & (telem["AOACFCT"] == "TRAK")
     )
 
-    assert len(slot_data) == len(
-        mag_est_ok
-    ), f"len(slot_data) != len(ok) ({len(slot_data)} != {len(mag_est_ok)})"
+    assert len(slot_data) == len(mag_est_ok), (
+        f"len(slot_data) != len(ok) ({len(slot_data)} != {len(mag_est_ok)})"
+    )
 
     # etc...
     logger.debug("    Adding magnitude estimates")
@@ -499,7 +499,7 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
             telem.append(t)
         except Exception:
             if not ignore_exceptions:
-                logger.info(f'{agasc_id=}, obsid={o["obsid"]} failed')
+                logger.info(f"{agasc_id=}, obsid={o['obsid']} failed")
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 trace = traceback.extract_tb(exc_traceback)
                 logger.info(f"{exc_type.__name__} {exc_value}")
@@ -754,8 +754,8 @@ def get_obs_stats(obs, telem=None):
         dictionary with stats
     """
     logger.debug(
-        f'  Getting OBS stats for AGASC ID {obs["agasc_id"]},'
-        f' OBSID {obs["agasc_id"]} at {obs["mp_starcat_time"]}'
+        f"  Getting OBS stats for AGASC ID {obs['agasc_id']},"
+        f" OBSID {obs['agasc_id']} at {obs['mp_starcat_time']}"
     )
 
     star_obs_catalogs.load()
@@ -842,9 +842,9 @@ def get_obs_stats(obs, telem=None):
     if len(telem) > 0:
         stats.update(calc_obs_stats(telem))
         logger.debug(
-            f'    slot={stats["slot"]}, f_ok={stats["f_ok"]:.3f}, '
-            f'f_mag_est_ok={stats["f_mag_est_ok"]:.3f}, f_dr3={stats["f_dr3"]:.3f}, '
-            f'mag={stats["mag_obs"]:.2f}'
+            f"    slot={stats['slot']}, f_ok={stats['f_ok']:.3f}, "
+            f"f_mag_est_ok={stats['f_mag_est_ok']:.3f}, f_dr3={stats['f_dr3']:.3f}, "
+            f"mag={stats['mag_obs']:.2f}"
         )
     return stats
 
@@ -1236,7 +1236,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     if np.any(excluded_obs):
         logger.debug(
             "  Excluding observations flagged in obs-status table: "
-            f'{list(star_obs[excluded_obs]["obsid"])}'
+            f"{list(star_obs[excluded_obs]['obsid'])}"
         )
 
     included_obs = np.array(
@@ -1251,7 +1251,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     if np.any(included_obs):
         logger.debug(
             "  Including observations marked OK in obs-status table: "
-            f'{list(star_obs[included_obs]["obsid"])}'
+            f"{list(star_obs[included_obs]['obsid'])}"
         )
 
     failures = []
@@ -1265,7 +1265,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             status = obs_status_override[(oi, ai)]
             logger.debug(
                 f"  overriding status for (AGASC ID {ai}, starcat time {oi}): "
-                f'{status["status"]}, {status["comments"]}'
+                f"{status['status']}, {status['comments']}"
             )
             comment = status["comments"]
         try:
@@ -1318,7 +1318,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
             if not excluded_obs[i]:
                 logger.debug(
                     f"  Error in get_agasc_id_stats({agasc_id=},"
-                    f' obsid={obs["obsid"]}): {e}'
+                    f" obsid={obs['obsid']}): {e}"
                 )
                 failures.append(dict(e))
 
@@ -1365,7 +1365,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         t["obs_ok"] = np.ones_like(t["mag_est_ok"], dtype=bool) * s["obs_ok"]
         logger.debug(
             "  identifying outlying observations "
-            f'(OBSID={s["obsid"]}, mp_starcat_time={s["mp_starcat_time"]})'
+            f"(OBSID={s['obsid']}, mp_starcat_time={s['mp_starcat_time']})"
         )
         t["obs_outlier"] = np.zeros_like(t["mag_est_ok"])
         if np.any(t["mag_est_ok"]) and s["f_mag_est_ok"] > 0 and s["obs_ok"]:
@@ -1532,5 +1532,5 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         }
     )
 
-    logger.debug(f'  stats for AGASC ID {agasc_id}:  {stats["mag_obs"][0]}')
+    logger.debug(f"  stats for AGASC ID {agasc_id}:  {stats['mag_obs'][0]}")
     return result, stats, failures
