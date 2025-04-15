@@ -271,6 +271,8 @@ class MagEstimateReport:
         ]
 
         agasc_stats = self.agasc_stats.copy()
+        if not np.all(np.diff(agasc_stats["agasc_id"]) > 0):
+            agasc_stats.sort(keys=["agasc_id"])
 
         # add some extra fields
         if len(agasc_stats):
@@ -297,12 +299,14 @@ class MagEstimateReport:
             agasc_stats["last_obs"] = CxoTime(agasc_stats["last_obs_time"]).date
 
         if len(updated_stars):
-            agasc_stats["update_mag_aca"][
-                np.in1d(agasc_stats["agasc_id"], updated_star_ids)
-            ] = updated_stars["mag_aca"]
-            agasc_stats["update_mag_aca_err"][
-                np.in1d(agasc_stats["agasc_id"], updated_star_ids)
-            ] = updated_stars["mag_aca_err"]
+            in_agasc_stats = np.in1d(updated_stars["agasc_id"], agasc_stats["agasc_id"])
+            if np.any(~in_agasc_stats):
+                raise ValueError(
+                    "ome stars in updated_stars are not not in agasc_stats"
+                )
+            idx1 = np.searchsorted(agasc_stats["agasc_id"], updated_stars["agasc_id"])
+            agasc_stats["update_mag_aca"][idx1] = updated_stars["mag_aca"]
+            agasc_stats["update_mag_aca_err"][idx1] = updated_stars["mag_aca_err"]
 
         tooltips = {
             "warning": "At least one bad observation",
