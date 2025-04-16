@@ -568,15 +568,15 @@ def test_parse_file(monkeypatch, mock_open):
         print("arg:")
         print(data)
         data = update_supplement._sanitize_args(data)
-        assert (
-            data == TEST_DATA[filename]
-        ), f'_parse_obs_status_file("{filename}") == TEST_DATA["{filename}"]'
+        assert data == TEST_DATA[filename], (
+            f'_parse_obs_status_file("{filename}") == TEST_DATA["{filename}"]'
+        )
 
         # _parse_obs_status_file should be idempotent
         data = update_supplement._sanitize_args(data)
-        assert (
-            data == TEST_DATA[filename]
-        ), "update_supplement._sanitize_args should be idempotent"
+        assert data == TEST_DATA[filename], (
+            "update_supplement._sanitize_args should be idempotent"
+        )
 
 
 def test_parse_args_file(monkeypatch, mock_open):
@@ -1303,13 +1303,13 @@ def _monkeypatch_star_obs_catalogs_(monkeypatch, test_file, path):
     ]
 
     res = {t: table.Table.read(test_file, path=f"{path}/cat/{t}") for t in tables}
-    for k in res:
-        res[k].convert_bytestring_to_unicode()
+    for val in res.values():
+        val.convert_bytestring_to_unicode()
     res["STARS_OBS"].add_index("agasc_id")
     res["STARS_OBS"].add_index("mp_starcat_time")
 
-    for k in res:
-        monkeypatch.setattr(star_obs_catalogs, k, res[k])
+    for key, val in res.items():
+        monkeypatch.setattr(star_obs_catalogs, key, val)
 
 
 def _monkeypatch_get_telemetry_(monkeypatch, test_file, path):

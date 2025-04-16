@@ -237,7 +237,7 @@ class MagEstimateReport:
         }
 
         if filename is None:
-            filename = f'mag_estimates_{info["tstart"]}-{info["tstop"]}.html'
+            filename = f"mag_estimates_{info['tstart']}-{info['tstop']}.html"
 
         # this is the list of agasc_id for which we will generate individual reports (if possible)
         if sections:
@@ -325,7 +325,7 @@ class MagEstimateReport:
                 dirname = (
                     self.directory
                     / "stars"
-                    / f"{agasc_id//1e7:03.0f}"
+                    / f"{agasc_id // 1e7:03.0f}"
                     / f"{agasc_id:.0f}"
                 )
                 if make_single_reports:

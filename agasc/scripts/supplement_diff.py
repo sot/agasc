@@ -24,8 +24,10 @@ def read_file(filename, exclude=None):
     if exclude is None:
         exclude = []
     formats = {
-        "agasc_versions": {k: "{:>21s}" for k in ["mags", "obs", "bad", "supplement"]},
-        "last_updated": {k: "{:>21s}" for k in ["mags", "obs", "bad", "supplement"]},
+        "agasc_versions": dict.fromkeys(
+            ["mags", "obs", "bad", "supplement"], "{:>21s}"
+        ),
+        "last_updated": dict.fromkeys(["mags", "obs", "bad", "supplement"], "{:>21s}"),
         "obs": {"comments": "{:>80s}", "agasc_id": "{:10d}"},
     }
 
