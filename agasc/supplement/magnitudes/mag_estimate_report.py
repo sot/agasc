@@ -300,6 +300,11 @@ class MagEstimateReport:
         if len(updated_stars):
             in_agasc_stats = np.in1d(updated_stars["agasc_id"], agasc_stats["agasc_id"])
             if np.any(~in_agasc_stats):
+                # This should never happen in weekly processing, because updated_stars is created
+                # in update_mag_supplement.update_supplement. If there is an error, it will mean
+                # this function (and this class) is using an outdated agasc_stats file
+                # (mag_stats_agasc.fits by default) which is inconsistent with the passed
+                # updated_stars array.
                 raise ValueError(
                     "Some stars in updated_stars are not not in agasc_stats"
                 )
