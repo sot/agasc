@@ -271,8 +271,7 @@ class MagEstimateReport:
         ]
 
         agasc_stats = self.agasc_stats.copy()
-        if not np.all(np.diff(agasc_stats["agasc_id"]) > 0):
-            agasc_stats.sort(keys=["agasc_id"])
+        agasc_stats.sort(keys=["agasc_id"])
 
         # add some extra fields
         if len(agasc_stats):
