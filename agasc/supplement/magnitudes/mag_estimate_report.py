@@ -302,7 +302,7 @@ class MagEstimateReport:
             in_agasc_stats = np.in1d(updated_stars["agasc_id"], agasc_stats["agasc_id"])
             if np.any(~in_agasc_stats):
                 raise ValueError(
-                    "ome stars in updated_stars are not not in agasc_stats"
+                    "Some stars in updated_stars are not not in agasc_stats"
                 )
             idx1 = np.searchsorted(agasc_stats["agasc_id"], updated_stars["agasc_id"])
             agasc_stats["update_mag_aca"][idx1] = updated_stars["mag_aca"]
