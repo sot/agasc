@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Magnitude Supplement API &#8212; Agasc 4.22.0 documentation</title>
+    <title>Magnitude Supplement API &#8212; Agasc 4.23.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=461fad74"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/documentation_options.js?v=37cae72d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
@@ -52,7 +52,7 @@
 	
       </li>
       <li>
-	<a href="index.html">Agasc 4.22.0 documentation</a>
+	<a href="index.html">Agasc 4.23.0 documentation</a>
 	 &#187;
       </li>
       
@@ -72,7 +72,18 @@
 <dl class="py exception">
 <dt class="sig sig-object py" id="agasc.supplement.magnitudes.mag_estimate.MagStatsException">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agasc.supplement.magnitudes.mag_estimate.</span></span><span class="sig-name descname"><span class="pre">MagStatsException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obsid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mp_starcat_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/supplement/magnitudes/mag_estimate.html#MagStatsException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.MagStatsException" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="py property">
+<dt class="sig sig-object py" id="agasc.supplement.magnitudes.mag_estimate.MagStatsException.failed">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">failed</span></span><a class="headerlink" href="#agasc.supplement.magnitudes.mag_estimate.MagStatsException.failed" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the exception is a failure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="agasc.supplement.magnitudes.mag_estimate.add_obs_info">
@@ -401,10 +412,10 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>obs_stats</strong> – </p></li>
-<li><p><strong>agasc_stats</strong> – </p></li>
-<li><p><strong>fails</strong> – </p></li>
-<li><p><strong>outdir</strong> – </p></li>
+<li><p><strong>obs_stats</strong></p></li>
+<li><p><strong>agasc_stats</strong></p></li>
+<li><p><strong>fails</strong></p></li>
+<li><p><strong>outdir</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -420,8 +431,8 @@ obs_stats, agasc_stats, fails, failed_jobs</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>agasc_stats</strong> – </p></li>
-<li><p><strong>filename</strong> – </p></li>
+<li><p><strong>agasc_stats</strong></p></li>
+<li><p><strong>filename</strong></p></li>
 <li><p><strong>include_all</strong> – bool
 if True, all OK entries are included in supplement.
 if False, only OK entries marked ‘selected_*’</p></li>
@@ -443,11 +454,14 @@ mag_aca is not updated. Note that last_obs_time is always updated.</p></li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Magnitude Supplement API</a><ul>
-<li><a class="reference internal" href="#agasc.supplement.magnitudes.mag_estimate.MagStatsException"><code class="docutils literal notranslate"><span class="pre">MagStatsException</span></code></a></li>
+<li><a class="reference internal" href="#agasc.supplement.magnitudes.mag_estimate.MagStatsException"><code class="docutils literal notranslate"><span class="pre">MagStatsException</span></code></a><ul>
+<li><a class="reference internal" href="#agasc.supplement.magnitudes.mag_estimate.MagStatsException.failed"><code class="docutils literal notranslate"><span class="pre">MagStatsException.failed</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#agasc.supplement.magnitudes.mag_estimate.add_obs_info"><code class="docutils literal notranslate"><span class="pre">add_obs_info()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.supplement.magnitudes.mag_estimate.calc_obs_stats"><code class="docutils literal notranslate"><span class="pre">calc_obs_stats()</span></code></a></li>
 <li><a class="reference internal" href="#agasc.supplement.magnitudes.mag_estimate.get_agasc_id_stats"><code class="docutils literal notranslate"><span class="pre">get_agasc_id_stats()</span></code></a></li>
@@ -498,7 +512,7 @@ mag_aca is not updated. Note that last_obs_time is always updated.</p></li>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
   </p>
 </footer>
   </body>

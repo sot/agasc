@@ -5,12 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.22.0 documentation</title>
+    <title>Maintaining the AGASC Supplement &#8212; Agasc 4.23.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=461fad74"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/documentation_options.js?v=37cae72d"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.22.0 documentation</a>
+	<a href="index.html">Agasc 4.23.0 documentation</a>
 	 &#187;
       </li>
       
@@ -335,25 +335,25 @@ information relevant for the magnitude estimation from acq data.</p>
                                <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
 </pre></div>
 </div>
-<section id="named-arguments">
-<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.update_supplement-get_parser-named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#agasc.scripts.update_supplement-get_parser-named-arguments" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--output-dir</kbd></dt>
 <dd><p>Directory containing agasc_supplement.h5 (default=’.’)</p>
-<p>Default: .</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">.</span></code></p>
 </dd>
 <dt><kbd>--log-level</kbd></dt>
 <dd><p>Possible choices: debug, info, warning, error</p>
-<p>Default: “info”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'info'</span></code></p>
 </dd>
 <dt><kbd>--dry-run</kbd></dt>
 <dd><p>Dry run (no actual file or database updates)</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 </dl>
 </section>
-<section id="obs/star-status">
-<h4>OBS/star status<a class="headerlink" href="#obs/star-status" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.update_supplement-get_parser-obs/star-status">
+<h4>OBS/star status<a class="headerlink" href="#agasc.scripts.update_supplement-get_parser-obs/star-status" title="Link to this heading">¶</a></h4>
 <p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
 <dl class="option-list">
 <dt><kbd>--obs-status-file</kbd></dt>
@@ -373,11 +373,11 @@ information relevant for the magnitude estimation from acq data.</p>
 </dd>
 <dt><kbd>--comments</kbd></dt>
 <dd><p>Comments for status override.</p>
-<p>Default: “”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">''</span></code></p>
 </dd>
 <dt><kbd>--bad-star-id</kbd></dt>
 <dd><p>AGASC ID of bad star.</p>
-<p>Default: []</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">[]</span></code></p>
 </dd>
 <dt><kbd>--bad-star-source</kbd></dt>
 <dd><p>Source identifier indicating provenance.</p>
@@ -405,8 +405,8 @@ information relevant for the magnitude estimation from acq data.</p>
                                <span class="p">[</span><span class="o">--</span><span class="n">dry</span><span class="o">-</span><span class="n">run</span><span class="p">]</span>
 </pre></div>
 </div>
-<section id="named-arguments">
-<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.update_mag_supplement-get_parser-named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#agasc.scripts.update_mag_supplement-get_parser-named-arguments" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--start</kbd></dt>
 <dd><p>Include only stars observed after this time. CxoTime-compatible time stamp. Default: now - 30 days.</p>
@@ -416,23 +416,23 @@ information relevant for the magnitude estimation from acq data.</p>
 </dd>
 <dt><kbd>--whole-history</kbd></dt>
 <dd><p>Include all star observations and ignore –start/stop.</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt><kbd>--agasc-id-file</kbd></dt>
 <dd><p>Include only observations of stars whose AGASC IDs are specified in this file, one per line.</p>
 </dd>
 <dt><kbd>--output-dir</kbd></dt>
 <dd><p>Directory where agasc_supplement.h5 is located.Other output is placed here as well. Default: .</p>
-<p>Default: “.”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'.'</span></code></p>
 </dd>
 <dt><kbd>--include-bad</kbd></dt>
 <dd><p>Do not exclude “bad” stars from magnitude estimates. Default: False</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 </dl>
 </section>
-<section id="obs/star-status">
-<h4>OBS/star status<a class="headerlink" href="#obs/star-status" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.update_mag_supplement-get_parser-obs/star-status">
+<h4>OBS/star status<a class="headerlink" href="#agasc.scripts.update_mag_supplement-get_parser-obs/star-status" title="Link to this heading">¶</a></h4>
 <p>options to modify the “bads” and “obs” tables in AGASC supplement. Modifications to supplement happen before all magnitude estimates are made.</p>
 <dl class="option-list">
 <dt><kbd>--obs-status-file</kbd></dt>
@@ -452,50 +452,50 @@ information relevant for the magnitude estimation from acq data.</p>
 </dd>
 <dt><kbd>--comments</kbd></dt>
 <dd><p>Comments for status override.</p>
-<p>Default: “”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">''</span></code></p>
 </dd>
 <dt><kbd>--bad-star-id</kbd></dt>
 <dd><p>AGASC ID of bad star.</p>
-<p>Default: []</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">[]</span></code></p>
 </dd>
 <dt><kbd>--bad-star-source</kbd></dt>
 <dd><p>Source identifier indicating provenance.</p>
 </dd>
 </dl>
 </section>
-<section id="reporting">
-<h4>Reporting<a class="headerlink" href="#reporting" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.update_mag_supplement-get_parser-reporting">
+<h4>Reporting<a class="headerlink" href="#agasc.scripts.update_mag_supplement-get_parser-reporting" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--report</kbd></dt>
 <dd><p>Generate HTML report for the period covered. Default: False</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt><kbd>--reports-dir</kbd></dt>
 <dd><p>Directory where to place reports. Default: &lt;output_dir&gt;/supplement_reports/weekly.</p>
 </dd>
 </dl>
 </section>
-<section id="other">
-<h4>Other<a class="headerlink" href="#other" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.update_mag_supplement-get_parser-other">
+<h4>Other<a class="headerlink" href="#agasc.scripts.update_mag_supplement-get_parser-other" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--multi-process</kbd></dt>
 <dd><p>Use multi-processing to accelerate run.</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt><kbd>--log-level</kbd></dt>
 <dd><p>Possible choices: debug, info, warning, error</p>
-<p>Default: “info”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'info'</span></code></p>
 </dd>
 <dt><kbd>--no-progress</kbd></dt>
 <dd><p>Do not show a progress bar</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt><kbd>--args-file</kbd></dt>
 <dd><p>YAML file with arguments to agasc.supplement.magnitudes.update_mag_supplement.do</p>
 </dd>
 <dt><kbd>--dry-run</kbd></dt>
 <dd><p>Dry run (no actual file or database updates)</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 </dl>
 </section>
@@ -512,8 +512,8 @@ information relevant for the magnitude estimation from acq data.</p>
                                <span class="p">[</span><span class="o">--</span><span class="nb">all</span><span class="o">-</span><span class="n">stars</span><span class="p">]</span>
 </pre></div>
 </div>
-<section id="named-arguments">
-<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.mag_estimate_report-get_parser-named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#agasc.scripts.mag_estimate_report-get_parser-named-arguments" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--start</kbd></dt>
 <dd><p>Time to start processing new observations. CxoTime-compatible time stamp. Default: now - 90 days</p>
@@ -523,27 +523,27 @@ information relevant for the magnitude estimation from acq data.</p>
 </dd>
 <dt><kbd>--input-dir</kbd></dt>
 <dd><p>Directory containing mag-stats files. Default: $SKA/data/agasc</p>
-<p>Default: “$SKA/data/agasc”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'$SKA/data/agasc'</span></code></p>
 </dd>
 <dt><kbd>--output-dir</kbd></dt>
 <dd><p>Output directory. Default: supplement_reports/suspect</p>
-<p>Default: “supplement_reports/suspect”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'supplement_reports/suspect'</span></code></p>
 </dd>
 <dt><kbd>--obs-stats</kbd></dt>
 <dd><p>FITS file with mag-stats for all observations. Default: mag_stats_obsid.fits</p>
-<p>Default: “mag_stats_obsid.fits”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'mag_stats_obsid.fits'</span></code></p>
 </dd>
 <dt><kbd>--agasc-stats</kbd></dt>
 <dd><p>FITS file with mag-stats for all observed AGASC stars. Default: mag_stats_agasc.fits</p>
-<p>Default: “mag_stats_agasc.fits”</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">'mag_stats_agasc.fits'</span></code></p>
 </dd>
 <dt><kbd>--weekly-report</kbd></dt>
 <dd><p>Add links to navigate weekly reports.</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 <dt><kbd>--all-stars</kbd></dt>
 <dd><p>Include all stars in the report, not just suspect.</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 </dl>
 </section>
@@ -562,8 +562,8 @@ update the supplement in $SKA/data/agasc/rc</p></li>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">agasc</span><span class="o">-</span><span class="n">supplement</span><span class="o">-</span><span class="n">tasks</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">{</span><span class="n">update</span><span class="o">-</span><span class="n">rc</span><span class="p">,</span><span class="n">disposition</span><span class="p">,</span><span class="n">schedule</span><span class="o">-</span><span class="n">promotion</span><span class="p">}</span>
 </pre></div>
 </div>
-<section id="positional-arguments">
-<h4>Positional Arguments<a class="headerlink" href="#positional-arguments" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.supplement_tasks-get_parser-positional-arguments">
+<h4>Positional Arguments<a class="headerlink" href="#agasc.scripts.supplement_tasks-get_parser-positional-arguments" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>task</kbd></dt>
 <dd><p>Possible choices: update-rc, disposition, schedule-promotion</p>
@@ -579,8 +579,8 @@ update the supplement in $SKA/data/agasc/rc</p></li>
                              <span class="p">[</span><span class="o">--</span><span class="n">exclude</span><span class="o">-</span><span class="n">mags</span><span class="p">]</span>
 </pre></div>
 </div>
-<section id="named-arguments">
-<h4>Named Arguments<a class="headerlink" href="#named-arguments" title="Link to this heading">¶</a></h4>
+<section id="agasc.scripts.supplement_diff-get_parser-named-arguments">
+<h4>Named Arguments<a class="headerlink" href="#agasc.scripts.supplement_diff-get_parser-named-arguments" title="Link to this heading">¶</a></h4>
 <dl class="option-list">
 <dt><kbd>--from</kbd></dt>
 <dd><p>The original supplement file.</p>
@@ -590,11 +590,11 @@ update the supplement in $SKA/data/agasc/rc</p></li>
 </dd>
 <dt><kbd>-o</kbd></dt>
 <dd><p>Output HTML file</p>
-<p>Default: agasc_supplement_diff.html</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">agasc_supplement_diff.html</span></code></p>
 </dd>
 <dt><kbd>--exclude-mags</kbd></dt>
 <dd><p>Exclude changes in the “mags” table. There can be many of these.</p>
-<p>Default: False</p>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
 </dl>
 </section>
@@ -1203,7 +1203,7 @@ star-observations to date, but if it is created if it does not exist already.</p
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#">Maintaining the AGASC Supplement</a><ul>
@@ -1226,27 +1226,27 @@ star-observations to date, but if it is created if it does not exist already.</p
 </li>
 <li><a class="reference internal" href="#scripts">Scripts</a><ul>
 <li><a class="reference internal" href="#agasc-update-supplement"><span class="xref std std-ref">agasc-update-supplement</span></a><ul>
-<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
-<li><a class="reference internal" href="#obs/star-status">OBS/star status</a></li>
+<li><a class="reference internal" href="#agasc.scripts.update_supplement-get_parser-named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#agasc.scripts.update_supplement-get_parser-obs/star-status">OBS/star status</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#agasc-update-magnitudes"><span class="xref std std-ref">agasc-update-magnitudes</span></a><ul>
-<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
-<li><a class="reference internal" href="#obs/star-status">OBS/star status</a></li>
-<li><a class="reference internal" href="#reporting">Reporting</a></li>
-<li><a class="reference internal" href="#other">Other</a></li>
+<li><a class="reference internal" href="#agasc.scripts.update_mag_supplement-get_parser-named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#agasc.scripts.update_mag_supplement-get_parser-obs/star-status">OBS/star status</a></li>
+<li><a class="reference internal" href="#agasc.scripts.update_mag_supplement-get_parser-reporting">Reporting</a></li>
+<li><a class="reference internal" href="#agasc.scripts.update_mag_supplement-get_parser-other">Other</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#agasc-magnitudes-report"><span class="xref std std-ref">agasc-magnitudes-report</span></a><ul>
-<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#agasc.scripts.mag_estimate_report-get_parser-named-arguments">Named Arguments</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#agasc-supplement-tasks"><span class="xref std std-ref">agasc-supplement-tasks</span></a><ul>
-<li><a class="reference internal" href="#positional-arguments">Positional Arguments</a></li>
+<li><a class="reference internal" href="#agasc.scripts.supplement_tasks-get_parser-positional-arguments">Positional Arguments</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#agasc-supplement-diff"><span class="xref std std-ref">agasc-supplement-diff</span></a><ul>
-<li><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+<li><a class="reference internal" href="#agasc.scripts.supplement_diff-get_parser-named-arguments">Named Arguments</a></li>
 </ul>
 </li>
 </ul>
@@ -1300,7 +1300,7 @@ star-observations to date, but if it is created if it does not exist already.</p
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
   </p>
 </footer>
   </body>
