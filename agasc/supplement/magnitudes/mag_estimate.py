@@ -373,6 +373,14 @@ def get_telemetry(obs):
             slot=obs["slot"],
         )
     times = msids[f"AOACMAG{slot}"].times
+    if len(times) == 0:
+        raise MagStatsException(
+            "No telemetry data",
+            agasc_id=obs["agasc_id"],
+            obsid=obs["obsid"],
+            mp_starcat_time=obs["mp_starcat_time"],
+        )
+
     tmin = np.min([np.min(slot_data["END_INTEG_TIME"]), np.min(times)])
     t1 = np.round((times - tmin) / 1.025)
     t2 = np.round((slot_data["END_INTEG_TIME"].data - tmin) / 1.025)
@@ -384,7 +392,7 @@ def get_telemetry(obs):
     if len(times) == 0:
         # the intersection was null.
         raise MagStatsException(
-            "Either no telemetry or no matching times between cheta and level0",
+            "No matching times between cheta and level0",
             agasc_id=obs["agasc_id"],
             obsid=obs["obsid"],
             mp_starcat_time=obs["mp_starcat_time"],
