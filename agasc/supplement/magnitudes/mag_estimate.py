@@ -50,10 +50,8 @@ EXCEPTION_MSG = {
     0: "OK",
     1: "No level 0 data",
     2: "No telemetry data",
-    3: "Mismatch in telemetry between aca_l0 and cheta",
-    4: "Time mismatch between cheta and level0",
-    5: "Failed job",
-    6: "Suspect observation",
+    3: "No matching times between cheta and level0",
+    4: "Suspect observation",
     1000: "Unknown",
 }
 EXCEPTION_CODES = collections.defaultdict(lambda: 1000)
