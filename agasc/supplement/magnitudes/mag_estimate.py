@@ -765,7 +765,7 @@ def get_obs_stats(obs, telem=None):
     """
     logger.debug(
         f"  Getting OBS stats for AGASC ID {obs['agasc_id']},"
-        f" OBSID {obs['agasc_id']} at {obs['mp_starcat_time']}"
+        f" OBSID {obs['obsid']} at {obs['mp_starcat_time']}"
     )
 
     star_obs_catalogs.load()
