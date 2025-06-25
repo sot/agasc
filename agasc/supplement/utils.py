@@ -176,10 +176,10 @@ def save_version(filename, table_name):
     table_name
         str or list
     """
+    import agasc  # noqa: PLC0415
+
     if isinstance(table_name, str):
         table_name = [table_name]
-
-    import agasc
 
     filename = Path(filename)
 

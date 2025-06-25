@@ -285,7 +285,6 @@ def test_get_stars3():
 
 def test_get_stars_many():
     """Test get_stars() with at least GET_STARS_METHOD_THRESHOLD (5000) stars"""
-    from agasc import agasc
 
     stars = agasc.get_agasc_cone(0, 0, radius=0.5)
     agasc_ids = stars["AGASC_ID"]
