@@ -297,7 +297,7 @@ class MagEstimateReport:
             agasc_stats["update_mag_aca_err"] = np.nan
             agasc_stats["last_obs"] = CxoTime(agasc_stats["last_obs_time"]).date
 
-        if len(updated_stars):
+        if len(updated_stars) > 0:
             in_agasc_stats = np.in1d(updated_stars["agasc_id"], agasc_stats["agasc_id"])
             if np.any(~in_agasc_stats):
                 # This should never happen in weekly processing, because updated_stars is created
