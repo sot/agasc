@@ -50,10 +50,8 @@ EXCEPTION_MSG = {
     0: "OK",
     1: "No level 0 data",
     2: "No telemetry data",
-    3: "Mismatch in telemetry between aca_l0 and cheta",
-    4: "Time mismatch between cheta and level0",
-    5: "Failed job",
-    6: "Suspect observation",
+    3: "No matching times between cheta and level0",
+    4: "Suspect observation",
     1000: "Unknown",
 }
 EXCEPTION_CODES = collections.defaultdict(lambda: 1000)
@@ -373,6 +371,14 @@ def get_telemetry(obs):
             slot=obs["slot"],
         )
     times = msids[f"AOACMAG{slot}"].times
+    if len(times) == 0:
+        raise MagStatsException(
+            "No telemetry data",
+            agasc_id=obs["agasc_id"],
+            obsid=obs["obsid"],
+            mp_starcat_time=obs["mp_starcat_time"],
+        )
+
     tmin = np.min([np.min(slot_data["END_INTEG_TIME"]), np.min(times)])
     t1 = np.round((times - tmin) / 1.025)
     t2 = np.round((slot_data["END_INTEG_TIME"].data - tmin) / 1.025)
@@ -384,7 +390,7 @@ def get_telemetry(obs):
     if len(times) == 0:
         # the intersection was null.
         raise MagStatsException(
-            "Either no telemetry or no matching times between cheta and level0",
+            "No matching times between cheta and level0",
             agasc_id=obs["agasc_id"],
             obsid=obs["obsid"],
             mp_starcat_time=obs["mp_starcat_time"],
@@ -765,7 +771,7 @@ def get_obs_stats(obs, telem=None):
     """
     logger.debug(
         f"  Getting OBS stats for AGASC ID {obs['agasc_id']},"
-        f" OBSID {obs['agasc_id']} at {obs['mp_starcat_time']}"
+        f" OBSID {obs['obsid']} at {obs['mp_starcat_time']}"
     )
 
     star_obs_catalogs.load()
