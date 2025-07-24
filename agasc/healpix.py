@@ -108,7 +108,7 @@ def get_stars_from_healpix_h5(
     stars : astropy.table.Table
         Table of stars within the search cone, with columns from the AGASC data table.
     """
-    from agasc import read_h5_table, sphere_dist
+    from agasc import read_h5_table, sphere_dist  # noqa: PLC0415
 
     # Table of healpix, idx0, idx1 where idx is the index into main AGASC data table
     healpix_index_map, nside = get_healpix_info(agasc_file)
@@ -146,10 +146,6 @@ def get_stars_from_healpix_h5(
 
 
 def make_index(stars, nside, outfile=None):
-    import astropy_healpix as hpx
-    from astropy import units as u
-    from astropy.table import Table
-
     hp = hpx.HEALPix(nside=nside, order="nested")
     indices = hp.lonlat_to_healpix(stars["RA"] * u.degree, stars["DEC"] * u.degree)
     if not np.all(np.diff(indices) >= 0):

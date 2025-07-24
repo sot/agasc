@@ -1,4 +1,5 @@
 import builtins
+import copy
 import io
 import os
 import pathlib
@@ -6,11 +7,13 @@ import pathlib
 import numpy as np
 import pytest
 import tables
+from _pytest.monkeypatch import MonkeyPatch
 from astropy import table
 
+import agasc
 from agasc.scripts import update_supplement
 from agasc.supplement.magnitudes import mag_estimate, star_obs_catalogs
-from agasc.supplement.utils import BAD_DTYPE, OBS_DTYPE
+from agasc.supplement.utils import BAD_DTYPE, MAGS_DTYPE, OBS_DTYPE, save_version
 
 TEST_DATA_DIR = pathlib.Path(__file__).parent / "data"
 
@@ -800,8 +803,6 @@ def test_parse_args_obs(monkeypatch, mock_open):
 
 
 def test_parse_args(monkeypatch, mock_open):
-    import copy
-
     # calling function before catalog is initialized gives an exception
     with pytest.raises(RuntimeError, match=r"catalog"):
         _ = update_supplement.parse_args("file_5.yml")
@@ -1086,8 +1087,6 @@ def test_add_bad_star(monkeypatch):
 
 
 def test_update_mags(monkeypatch):
-    from agasc.supplement.utils import MAGS_DTYPE
-
     monkeypatch.setattr(star_obs_catalogs, "STARS_OBS", STARS_OBS)
 
     # this test starts from the agasc supplement in agasc/tests/data/agasc_supplement.h5
@@ -1182,7 +1181,6 @@ def test_save_version(monkeypatch):
     # this test takes the following dictionary and passes it to save_version
     # it then checks that a corresponding astropy table with the right structure is created and its
     # write method is called
-    import agasc
 
     versions = {"obs": agasc.__version__, "mags": agasc.__version__}
 
@@ -1196,13 +1194,11 @@ def test_save_version(monkeypatch):
         if kwargs["path"] == "agasc_versions":
             for k, _v in versions.items():
                 assert k in args[0].colnames
-                assert args[0][k][0] == versions[k]
+                assert args[0][k][0] == _v
 
     mock_write.calls = []
 
     monkeypatch.setattr(table.Table, "write", mock_write)
-
-    from agasc.supplement.utils import save_version
 
     save_version("test_save_version.h5", ["obs", "mags"])
     assert len(mock_write.calls) > 0, "Table.write was never called"
@@ -1337,7 +1333,6 @@ def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / "mag-stats.h5"):
         - 23681 has only ten points
         - 48900 magnitude changes significantly during the observation
     """
-    from astropy.table import vstack
 
     if os.path.exists(filename):
         os.unlink(filename)
@@ -1378,7 +1373,7 @@ def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / "mag-stats.h5"):
     ]
     telem_by_obsid[-1]["mags_img"] += 0.01 * np.exp(np.arange(100) / 20)
     telem_by_obsid[-1]["mags"] += 0.01 * np.exp(np.arange(100) / 20)
-    t = vstack(telem_by_obsid)
+    t = table.vstack(telem_by_obsid)
 
     t.write(filename, path="/obs_status/telem", serialize_meta=True, append=True)
 
@@ -1386,7 +1381,6 @@ def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / "mag-stats.h5"):
 def recreate_test_supplement(supplement_filename=TEST_DATA_DIR / "agasc_supplement.h5"):
     # this is not a test function, but a function to generate the test supplement from scratch
     # whenever it needs updating, so all the data is actually contained in this file
-    from _pytest.monkeypatch import MonkeyPatch
 
     monkeypatch = MonkeyPatch()
     monkeypatch.setitem(__builtins__, "open", _open)

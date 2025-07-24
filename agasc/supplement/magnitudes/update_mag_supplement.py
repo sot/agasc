@@ -3,7 +3,9 @@ import datetime
 import logging
 import os
 import pickle
+import sqlite3
 import sys
+import time
 import traceback
 import warnings
 from functools import partial
@@ -12,19 +14,15 @@ from multiprocessing import Pool
 import jinja2
 import numpy as np
 import tables
-from astropy import table, time
+from astropy import table
 from astropy import units as u
-from cxotime import CxoTime
+from astropy.table import Table, vstack
+from cxotime import CxoTime, TimeDelta
 from mica.starcheck import get_starcheck_catalog
 from tqdm import tqdm
 
-from agasc.supplement.magnitudes import (
-    mag_estimate,
-    star_obs_catalogs,
-)
-from agasc.supplement.magnitudes import (
-    mag_estimate_report as msr,
-)
+from agasc.supplement.magnitudes import mag_estimate, star_obs_catalogs
+from agasc.supplement.magnitudes import mag_estimate_report as msr
 from agasc.supplement.utils import MAGS_DTYPE, save_version
 
 logger = logging.getLogger("agasc.supplement")
@@ -36,8 +34,6 @@ def level0_archive_time_range():
 
     :return: tuple of CxoTime
     """
-    import os
-    import sqlite3
 
     db_file = os.path.expandvars("$SKA/data/mica/archive/aca0/archfiles.db3")
     with sqlite3.connect(db_file) as connection:
@@ -65,9 +61,6 @@ def get_agasc_id_stats(
     :return: astropy.table.Table, astropy.table.Table, list
         obs_stats, agasc_stats, fails
     """
-    from astropy.table import Table, vstack
-
-    from agasc.supplement.magnitudes import mag_estimate
 
     if obs_status_override is None:
         obs_status_override = {}
@@ -142,9 +135,6 @@ def get_agasc_id_stats_pool(
     :return: astropy.table.Table, astropy.table.Table, list
         obs_stats, agasc_stats, fails, failed_jobs
     """
-    import time
-
-    from astropy.table import Table, vstack
 
     if obs_status_override is None:
         obs_status_override = {}
@@ -716,7 +706,7 @@ def do(
             report_dir = reports_dir / f"{report_date.date[:8]}"
             report_data_file = report_dir / f"report_data_{report_date.date[:8]}.pkl"
 
-            week = time.TimeDelta(7 * u.day)
+            week = TimeDelta(7 * u.day)
             nav_links = {
                 "previous": f"../{(report_date - week).date[:8]}/index.html",
                 "up": "..",

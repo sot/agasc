@@ -32,6 +32,6 @@ def default_agasc_file():
     -------
     str
     """
-    from agasc import get_agasc_filename
+    from agasc import get_agasc_filename  # noqa: PLC0415
 
     return get_agasc_filename()
