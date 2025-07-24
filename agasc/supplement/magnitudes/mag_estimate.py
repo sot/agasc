@@ -1365,17 +1365,18 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         )
         return result, stats, failures
 
-    if len(all_telem) - len(failures) <= 0:
+    # add failed observations to the list of excluded observations
+    excluded_obs += np.array([t is None for t in all_telem])
+    # and remove all excluded observations from all_telem
+    all_telem = [t for i, t in enumerate(all_telem) if not excluded_obs[i]]
+
+    if len(all_telem) == 0:
         # and we reach here if some observations were not flagged as bad, but all failed.
         logger.debug(f"  get_agasc_id_stats({agasc_id=}): There is no OK observation.")
         return result, stats, failures
 
-    excluded_obs += np.array([t is None for t in all_telem])
-
     logger.debug("  identifying outlying observations...")
-    for i, (s, t) in enumerate(zip(stats, all_telem)):
-        if excluded_obs[i]:
-            continue
+    for s, t in zip(stats[~excluded_obs], all_telem, strict=True):
         t["obs_ok"] = np.ones_like(t["mag_est_ok"], dtype=bool) * s["obs_ok"]
         logger.debug(
             "  identifying outlying observations "
@@ -1392,9 +1393,7 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
                     | (t["mags"] > s["q75"] + 1.5 * iqr)
                 )
             )
-    all_telem = vstack(
-        [Table(t) for i, t in enumerate(all_telem) if not excluded_obs[i]]
-    )
+    all_telem = vstack([Table(t) for t in all_telem])
     n_total = len(all_telem)
 
     kalman = (all_telem["AOACASEQ"] == "KALM") & (all_telem["AOPCADMD"] == "NPNT")
