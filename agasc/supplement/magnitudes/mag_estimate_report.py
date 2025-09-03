@@ -251,6 +251,7 @@ class MagEstimateReport:
                 {
                     "id": "other_stars",
                     "title": "Other Stars",
+                    "description": "",
                     "stars": self.agasc_stats["agasc_id"][
                         ~np.isin(self.agasc_stats["agasc_id"], agasc_ids)
                     ],
@@ -1050,4 +1051,20 @@ GLOSSARY = {
         observation that the Kalman filter is getting any star centroid at all. This
         includes measurements out to 5 arcsec box halfwidth, so potentially 7 arcsec
         radial offset.""",
+    "mag<sub>obs</sub>": (
+        "Estimated magnitude. This will be the magnitude in the supplement after the update"
+    ),
+    "mag<sub>catalog</sub>": "The magnitude in the AGASC catalog.",
+    "&delta;<sub>mag cat</sub>": """Difference between observed and catalog magnitudes:
+        mag<sub>obs</sub> - mag<sub>catalog</sub>""",
+    "&delta;<sub>mag</sub>/&sigma;<sub>mag</sub>": """
+        Difference between observed and catalog magnitudes divided by catalog magnitude error:
+        &delta;<sub>mag</sub>/&sigma;<sub>mag</sub>""",
+    "&delta;<sub>mag</sub>": (
+        "Variation in observed magnitude since last version of AGASC supplement"
+    ),
+    "&delta;<sub>&sigma;</sub>": (
+        "Variation in observed magnitude standard deviation since last version of"
+        " AGASC supplement"
+    ),
 }

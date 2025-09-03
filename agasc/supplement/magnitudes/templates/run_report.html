@@ -56,7 +56,14 @@
     {%- for section in sections %}
     <a name="{{ section.id }}"> </a>
     <h3> {{ section.title }} </h3>
-    <p> {{ section.description }} </p>
+
+    <p>
+      {{ section.description }}
+      Rows marked red are stars that have a failed observation in this run.
+      Rows marked yellow are stars that have a failed observation in their history, but not in this
+      run.
+    </p>
+
     <table class="table table-hover">
       <tr>
       <tr>
@@ -138,6 +145,9 @@
     <a name="failures"> </a>
     {%- if failures %}
     <h3> Failures </h3>
+
+    <p> Processing of these stars raised an exception. </p>
+
     <table class="table table-hover">
       <tr>
         <th> AGASC ID </th>
