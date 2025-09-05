@@ -96,7 +96,7 @@ class MagStatsException(Exception):
 
         :return: bool
         """
-        return self.error_code > 1
+        return self.error_code > 2
 
     failed = property(_failed_)
 
@@ -523,7 +523,7 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
                     logger.info(f"  in {step.filename}:{step.lineno}/{step.name}:")
                     logger.info(f"    {step.line}")
                 raise
-    return vstack(telem)
+    return vstack(telem) if telem else []
 
 
 def add_obs_info(telem, obs_stats):
