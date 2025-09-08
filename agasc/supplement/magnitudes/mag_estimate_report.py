@@ -444,12 +444,16 @@ class MagEstimateReport:
                 # it just means there is no telemetry
                 if e.fail:
                     # if it is some other failure, just notify we are skipping it
-                    logger.debug(f"Skip {agasc_id} in MagEstimateReport.plot_agasc_id_single: {e}")
+                    logger.debug(
+                        f"Skip {agasc_id} in MagEstimateReport.plot_agasc_id_single: {e}"
+                    )
                 telem = []
             except Exception as e:
                 # this is an exception not considered in MagStatsException, so this is not normal
                 # issue a message that triggers a warning in weekly processing
-                logger.debug(f"Unexpected error in MagEstimateReport.plot_agasc_id_single: {e}")
+                logger.debug(
+                    f"Unexpected error in MagEstimateReport.plot_agasc_id_single: {e}"
+                )
                 telem = []
 
         if len(telem) == 0 or (
