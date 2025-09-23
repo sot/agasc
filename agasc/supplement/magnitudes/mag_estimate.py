@@ -48,7 +48,7 @@ MASK = {
 
 EXCEPTION_MSG = {
     0: "OK",
-    1: "No level 0 data",
+    1: "No mica archive level 0 data",
     2: "No telemetry data",
     3: "No matching times between cheta and level0",
     4: "Suspect observation",
@@ -96,7 +96,7 @@ class MagStatsException(Exception):
 
         :return: bool
         """
-        return self.error_code > 1
+        return self.error_code > 2
 
     failed = property(_failed_)
 
@@ -363,7 +363,7 @@ def get_telemetry(obs):
     msids.filter_bad(union=True)
     if len(slot_data) == 0:
         raise MagStatsException(
-            "No level 0 data",
+            "No mica archive level 0 data",
             agasc_id=obs["agasc_id"],
             obsid=obs["obsid"],
             mp_starcat_time=obs["mp_starcat_time"],
@@ -523,7 +523,7 @@ def get_telemetry_by_agasc_id(agasc_id, obsid=None, ignore_exceptions=False):
                     logger.info(f"  in {step.filename}:{step.lineno}/{step.name}:")
                     logger.info(f"    {step.line}")
                 raise
-    return vstack(telem)
+    return vstack(telem) if telem else []
 
 
 def add_obs_info(telem, obs_stats):

@@ -437,9 +437,23 @@ class MagEstimateReport:
                 telem = mag_estimate.get_telemetry_by_agasc_id(
                     agasc_id, ignore_exceptions=True
                 )
-                telem = mag_estimate.add_obs_info(telem, obs_stats)
+                if len(telem) > 0:
+                    telem = mag_estimate.add_obs_info(telem, obs_stats)
+            except mag_estimate.MagStatsException as e:
+                # when there is no telemetry, MagStatsException is raised but is not a failure
+                # it just means there is no telemetry
+                if e.fail:
+                    # if it is some other failure, just notify we are skipping it
+                    logger.debug(
+                        f"Skip {agasc_id} in MagEstimateReport.plot_agasc_id_single: {e}"
+                    )
+                telem = []
             except Exception as e:
-                logger.debug(f"Error making plot: {e}")
+                # this is an exception not considered in MagStatsException, so this is not normal
+                # issue a message that triggers a warning in weekly processing
+                logger.debug(
+                    f"Unexpected error in MagEstimateReport.plot_agasc_id_single: {e}"
+                )
                 telem = []
 
         if len(telem) == 0 or (
@@ -917,11 +931,21 @@ class MagEstimateReport:
                 telem = mag_estimate.get_telemetry_by_agasc_id(
                     agasc_id, ignore_exceptions=True
                 )
-                telem = mag_estimate.add_obs_info(
-                    telem, self.obs_stats[self.obs_stats["agasc_id"] == agasc_id]
-                )
+                if len(telem) > 0:
+                    telem = mag_estimate.add_obs_info(
+                        telem, self.obs_stats[self.obs_stats["agasc_id"] == agasc_id]
+                    )
+            except mag_estimate.MagStatsException as e:
+                # when there is no telemetry, MagStatsException is raised but is not a failure
+                # it just means there is no telemetry
+                if e.fail:
+                    # if it is some other failure, just notify we are skipping it
+                    logger.debug(f"Skip {agasc_id} in MagEstimateReport.plot_set: {e}")
+                telem = []
             except Exception as e:
-                logger.debug(f"Error making plot: {e}")
+                # this is an exception not considered in MagStatsException, so this is not normal
+                # issue a message that triggers a warning in weekly processing
+                logger.debug(f"Unexpected error in MagEstimateReport.plot_set: {e}")
                 telem = []
 
         if len(telem) == 0:
