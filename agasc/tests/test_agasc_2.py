@@ -31,6 +31,7 @@ import tables
 from astropy.io import ascii
 from astropy.table import Row, Table
 from cxotime import CxoTime
+from packaging.version import parse
 
 import agasc
 from agasc import write_agasc
@@ -649,6 +650,27 @@ def test_write_missing_column(tmp_path, stars_in):
 
 def test_last_updated():
     last_updated = agasc.get_supplement_table("last_updated")
+    assert isinstance(last_updated, dict)
+    assert set(last_updated) == {"bad", "mags", "obs", "supplement"}
+    for date in last_updated.values():
+        # check that dates are valid times
+        CxoTime(date)
+
+    # this checks that the version is not the beginning of the epoch
     assert CxoTime(last_updated["supplement"]).date.startswith("20")
 
-    _ = agasc.get_supplement_table("agasc_versions")
+    # as_dict is ignored for last_updated
+    assert isinstance(agasc.get_supplement_table("last_updated", as_dict=False), dict)
+
+def test_agasc_versions():
+    agasc_versions = agasc.get_supplement_table("agasc_versions")
+
+    assert isinstance(agasc_versions, dict)
+    assert set(agasc_versions) == {"bad", "mags", "obs", "supplement"}
+    for version in agasc_versions.values():
+        # check that versions are valid
+        parse(version)
+
+    # as_dict is ignored for agasc_versions
+    assert isinstance(agasc.get_supplement_table("agasc_versions", as_dict=False), dict)
+
