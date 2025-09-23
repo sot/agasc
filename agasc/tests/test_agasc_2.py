@@ -662,6 +662,7 @@ def test_last_updated():
     # as_dict is ignored for last_updated
     assert isinstance(agasc.get_supplement_table("last_updated", as_dict=False), dict)
 
+
 def test_agasc_versions():
     agasc_versions = agasc.get_supplement_table("agasc_versions")
 
@@ -673,4 +674,3 @@ def test_agasc_versions():
 
     # as_dict is ignored for agasc_versions
     assert isinstance(agasc.get_supplement_table("agasc_versions", as_dict=False), dict)
-
