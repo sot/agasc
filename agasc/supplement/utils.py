@@ -83,17 +83,19 @@ def get_supplement_table(
     - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)
     - ``obs``: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,
       comments)
+    - ``agasc_versions``: AGASC package version at the time of the supplement table updates
+    - ``last_updated``: Time of last update of the supplement tables
 
     This function is cached with a timeout of an hour, so you can call it
     repeatedly with no penalty in performance.
 
     If ``as_dict=False`` (default) then the table is returned as an astropy
-    ``Table``.
+    ``Table``. Ignored for ``agasc_versions`` and ``last_updated``.
 
     If ``as_dict=True`` then the table is returned as a dict of {key: value}
     pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the
     key is the ``(agasc_id, mp_starcat_time)`` tuple. In all cases the value is a dict
-    of the remaining columns.
+    of the remaining columns. Ignored for ``agasc_versions`` and ``last_updated``.
 
     Parameters
     ----------
@@ -103,7 +105,8 @@ def get_supplement_table(
         directory containing the AGASC supplement HDF5 file
         (default=same directory as the AGASC file)
     as_dict : bool
-        return result as a dictionary (default=False)
+        return result as a dictionary (default=False). Ignored for ``agasc_versions`` and
+        ``last_updated``.
 
     Returns
     -------
@@ -126,26 +129,29 @@ def get_supplement_table(
             )
             dat = np.array([], dtype=dtypes.get(name, []))
 
-    if as_dict:
-        if name in ["agasc_versions", "last_updated"]:
-            out = {name: dat[0][name] for name in dat.dtype.names} if len(dat) else {}
-        else:
-            out = {}
-            keys_names = {
-                "mags": ["agasc_id"],
-                "bad": ["agasc_id"],
-                "obs": ["agasc_id", "mp_starcat_time"],
+    if name in ["agasc_versions", "last_updated"]:
+        out = (
+            {name: dat[0][name].decode() for name in dat.dtype.names}
+            if len(dat)
+            else {}
+        )
+    elif as_dict:
+        out = {}
+        keys_names = {
+            "mags": ["agasc_id"],
+            "bad": ["agasc_id"],
+            "obs": ["agasc_id", "mp_starcat_time"],
+        }
+        key_names = keys_names[name]
+        for row in dat:
+            # Make the key, coercing the values from numpy to native Python
+            key = tuple(row[nm].item() for nm in key_names)
+            if len(key) == 1:
+                key = key[0]
+            # Make the value from the remaining non-key column names
+            out[key] = {
+                nm: row[nm].item() for nm in row.dtype.names if nm not in key_names
             }
-            key_names = keys_names[name]
-            for row in dat:
-                # Make the key, coercing the values from numpy to native Python
-                key = tuple(row[nm].item() for nm in key_names)
-                if len(key) == 1:
-                    key = key[0]
-                # Make the value from the remaining non-key column names
-                out[key] = {
-                    nm: row[nm].item() for nm in row.dtype.names if nm not in key_names
-                }
     else:
         out = Table(dat)
         index = {agasc_id: idx for idx, agasc_id in enumerate(out["agasc_id"])}
