@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API documentation &#8212; Agasc 4.23.1 documentation</title>
+    <title>API documentation &#8212; Agasc 4.23.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=93b26334"></script>
+    <script src="_static/documentation_options.js?v=a44ae95e"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.23.1 documentation</a>
+	<a href="index.html">Agasc 4.23.2 documentation</a>
 	 &#187;
       </li>
       
@@ -630,15 +630,17 @@ proseco). Default is True, in which case all AGASC columns are required.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">mags</span></code>: Estimated mags (agasc_id, mag_aca mag_aca_err)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">obs</span></code>: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,
 comments)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agasc_versions</span></code>: AGASC package version at the time of the supplement table updates</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">last_updated</span></code>: Time of last update of the supplement tables</p></li>
 </ul>
 <p>This function is cached with a timeout of an hour, so you can call it
 repeatedly with no penalty in performance.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">as_dict=False</span></code> (default) then the table is returned as an astropy
-<code class="docutils literal notranslate"><span class="pre">Table</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">Table</span></code>. Ignored for <code class="docutils literal notranslate"><span class="pre">agasc_versions</span></code> and <code class="docutils literal notranslate"><span class="pre">last_updated</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">as_dict=True</span></code> then the table is returned as a dict of {key: value}
 pairs. For <code class="docutils literal notranslate"><span class="pre">mags</span></code> and <code class="docutils literal notranslate"><span class="pre">bad</span></code>, the key is <code class="docutils literal notranslate"><span class="pre">agasc_id</span></code>. For <code class="docutils literal notranslate"><span class="pre">obs</span></code> the
 key is the <code class="docutils literal notranslate"><span class="pre">(agasc_id,</span> <span class="pre">mp_starcat_time)</span></code> tuple. In all cases the value is a dict
-of the remaining columns.</p>
+of the remaining columns. Ignored for <code class="docutils literal notranslate"><span class="pre">agasc_versions</span></code> and <code class="docutils literal notranslate"><span class="pre">last_updated</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -647,7 +649,8 @@ of the remaining columns.</p>
 <dt><strong>agasc_dir</strong><span class="classifier">str, optional</span></dt><dd><p>directory containing the AGASC supplement HDF5 file
 (default=same directory as the AGASC file)</p>
 </dd>
-<dt><strong>as_dict</strong><span class="classifier">bool</span></dt><dd><p>return result as a dictionary (default=False)</p>
+<dt><strong>as_dict</strong><span class="classifier">bool</span></dt><dd><p>return result as a dictionary (default=False). Ignored for <code class="docutils literal notranslate"><span class="pre">agasc_versions</span></code> and
+<code class="docutils literal notranslate"><span class="pre">last_updated</span></code>.</p>
 </dd>
 </dl>
 </dd>

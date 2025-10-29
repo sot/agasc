@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.supplement.utils &#8212; Agasc 4.23.1 documentation</title>
+    <title>agasc.supplement.utils &#8212; Agasc 4.23.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../../_static/documentation_options.js?v=93b26334"></script>
+    <script src="../../../_static/documentation_options.js?v=a44ae95e"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../index.html">Agasc 4.23.1 documentation</a>
+	<a href="../../../index.html">Agasc 4.23.2 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -147,17 +147,19 @@
 <span class="sd">    - ``mags``: Estimated mags (agasc_id, mag_aca mag_aca_err)</span>
 <span class="sd">    - ``obs``: Star-observation status for mag estimation (mp_starcat_time, agasc_id, obsid, status,</span>
 <span class="sd">      comments)</span>
+<span class="sd">    - ``agasc_versions``: AGASC package version at the time of the supplement table updates</span>
+<span class="sd">    - ``last_updated``: Time of last update of the supplement tables</span>
 
 <span class="sd">    This function is cached with a timeout of an hour, so you can call it</span>
 <span class="sd">    repeatedly with no penalty in performance.</span>
 
 <span class="sd">    If ``as_dict=False`` (default) then the table is returned as an astropy</span>
-<span class="sd">    ``Table``.</span>
+<span class="sd">    ``Table``. Ignored for ``agasc_versions`` and ``last_updated``.</span>
 
 <span class="sd">    If ``as_dict=True`` then the table is returned as a dict of {key: value}</span>
 <span class="sd">    pairs. For ``mags`` and ``bad``, the key is ``agasc_id``. For ``obs`` the</span>
 <span class="sd">    key is the ``(agasc_id, mp_starcat_time)`` tuple. In all cases the value is a dict</span>
-<span class="sd">    of the remaining columns.</span>
+<span class="sd">    of the remaining columns. Ignored for ``agasc_versions`` and ``last_updated``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -167,7 +169,8 @@
 <span class="sd">        directory containing the AGASC supplement HDF5 file</span>
 <span class="sd">        (default=same directory as the AGASC file)</span>
 <span class="sd">    as_dict : bool</span>
-<span class="sd">        return result as a dictionary (default=False)</span>
+<span class="sd">        return result as a dictionary (default=False). Ignored for ``agasc_versions`` and</span>
+<span class="sd">        ``last_updated``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -190,26 +193,29 @@
             <span class="p">)</span>
             <span class="n">dat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[]))</span>
 
-    <span class="k">if</span> <span class="n">as_dict</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;agasc_versions&quot;</span><span class="p">,</span> <span class="s2">&quot;last_updated&quot;</span><span class="p">]:</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">dat</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dat</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">}</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">keys_names</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;mags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;bad&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">,</span> <span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">],</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;agasc_versions&quot;</span><span class="p">,</span> <span class="s2">&quot;last_updated&quot;</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">dat</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">dat</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">}</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+            <span class="k">else</span> <span class="p">{}</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">as_dict</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">keys_names</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;mags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;bad&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">,</span> <span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="n">key_names</span> <span class="o">=</span> <span class="n">keys_names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dat</span><span class="p">:</span>
+            <span class="c1"># Make the key, coercing the values from numpy to native Python</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">key_names</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Make the value from the remaining non-key column names</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">nm</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">nm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_names</span>
             <span class="p">}</span>
-            <span class="n">key_names</span> <span class="o">=</span> <span class="n">keys_names</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dat</span><span class="p">:</span>
-                <span class="c1"># Make the key, coercing the values from numpy to native Python</span>
-                <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">key_names</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="c1"># Make the value from the remaining non-key column names</span>
-                <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="n">nm</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">nm</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">nm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_names</span>
-                <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">out</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
         <span class="n">index</span> <span class="o">=</span> <span class="p">{</span><span class="n">agasc_id</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">agasc_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">])}</span>
