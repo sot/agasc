@@ -212,7 +212,11 @@ def get_obs_status_parser():
     )
     status.add_argument("--obsid", help="OBSID for status override.", type=int)
     status.add_argument("--agasc-id", help="AGASC ID for status override.", type=int)
-    status.add_argument("--status", help="Status to override.")
+    status.add_argument(
+        "--status",
+        help="Status to override. If using integer codes, 0=ok/good, 1=bad.",
+        choices=["ok", "good", "bad", 0, 1]
+    )
     status.add_argument("--comments", help="Comments for status override.", default="")
     status.add_argument(
         "--bad-star-id",
