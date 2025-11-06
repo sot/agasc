@@ -149,6 +149,18 @@ can be updated using the `agasc-update-supplement`_ script.  This is normally
 done using a YAML file, but the script also accepts command-line arguments to
 specify the bad star and star observation information (more info below).
 
+When updating the star-observation status, one has to provide the following information:
+
+    - status: a numeric code indicating whether the observation is good or bad **(0=good, 1=bad)**.
+      When calling the script from the command line, one can also use the strings "ok", "good",
+      or "bad".
+    - obsid: the OBSID of the observation to which the status applies.
+    - mp_starcat_time: required when the OBSID is not enough to uniquely identify the observation.
+    - comments: a string with comments about the reason to set the status (optional).
+      This is usually set to an annotation from the rubric above.
+    - agasc_id: list of AGASC IDs to which the status applies.
+      This is optional. If not provided, all stars in the observation are used.
+
 Calling the script with a YAML file can be done as follows::
 
     agasc-update-supplement --obs-status-file status.yml
@@ -193,7 +205,7 @@ Alternatively, the following call adds a single bad star::
 
 The following adds a single star observation::
 
-    agasc-update-supplement --obs 11849 --agasc-id 1019348536 --status False
+    agasc-update-supplement --obsid 11849 --agasc-id 1019348536 --status bad --comments "no telem"
 
 Updating via mica tools
 """""""""""""""""""""""
