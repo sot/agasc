@@ -138,16 +138,68 @@ Details
 -------
 
 The following sections provide more detailed information on the underlying
-tools used to manage the AGASC supplement. In most cases these will not be
-run manually during production processing.
+tools used to manage the AGASC supplement. In most cases these tools will not be
+run manually during production processing, which uses the higher-level `agasc-supplement-tasks`_
+script to coordinate the various steps.
 
 Bad Star and Star Observation Updates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The tables of bad stars and of star observation status in the AGASC supplement
-can be updated using the `agasc-update-supplement`_ script.  This is normally
-done using a YAML file, but the script also accepts command-line arguments to
-specify the bad star and star observation information (more info below).
+is normally done using `agasc-supplement-tasks`_ and an `obs_status.yml` YAML file. The
+`agasc-supplement-tasks`_ script runs a few steps spelled out in the
+`task_schedule_supplement_dispositions.cfg` file, which include:
+
+    - update the supplement
+    - re-run the magnitude estimation for the affected stars
+    - re-generate the weekly reports
+    - generate a diff of the updated supplement against the previous version
+
+If we want to update the supplement manually, there are two alternatives:
+
+    - `agasc-update-magnitudes`_
+    - `agasc-update-supplement`_
+
+agasc-update-magnitudes
+""""""""""""""""""""""""
+
+The `agasc-update-magnitudes`_ script re-runs the update of the supplement, the magnitude estimation
+and report generation at once. This command is part of the task schedule run by
+`agasc-supplement-tasks`_ when applying dispositions. It is generally better to use the
+higher-level script, but in some cases it might be acceptable to run the following commands
+directly::
+
+    agasc-update-magnitudes \
+        --log-level debug \
+        --report \
+        --output-dir ${SKA}/data/agasc/rc \
+        --obs-status-file ${SKA}/data/agasc/rc/obs_status.yml \
+        --args-file ${SKA}/data/agasc/rc/supplement_reports/weekly/latest/call_args.yml
+    cp -fr ${SKA}/data/agasc/rc/supplement_reports/weekly/latest/stars/* \
+        ${SKA}/data/agasc/rc/supplement_reports/stars
+
+Note these options are meant to re-run the magnitude estimation with the same arguments as the last
+run. The last line copies the observation-specific HTML reports to the top location
+
+The downside of this approach is that the supplement diff is not generated, and a report of
+"suspect" stars is not re-generated.
+
+The `agasc-update-magnitudes`_ script has command-line options to update the supplement without
+providing an obs-status file. The options are the same as those for `agasc-update-supplement`_
+(see below).
+
+agasc-update-supplement
+"""""""""""""""""""""""""
+
+An easier alternative is the `agasc-update-supplement`_ script.  This script can be run manually
+and provides more flexibility in specifying the bad star and star observation information
+(more info below). However, **this script only updates the supplement file and does not
+re-run the magnitude estimation or re-generate the reports**. Sometimes this is acceptable.
+
+In what follows, we assume the script is called from the same directory where the
+supplement file to be updated resides. By default, the script looks for a file
+named ``agasc_supplement.h5`` in the current working directory, but this can be
+changed via a command-line argument.
 
 When updating the star-observation status, one has to provide the following information:
 
@@ -165,7 +217,7 @@ Calling the script with a YAML file can be done as follows::
 
     agasc-update-supplement --obs-status-file status.yml
 
-An example `status.yml` file is:
+An example ``status.yml`` file is:
 
 .. code-block:: yaml
 
