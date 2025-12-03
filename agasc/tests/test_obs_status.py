@@ -1227,10 +1227,10 @@ def test_override(monkeypatch):
         agasc_stats["n_obsids_suspect"] == 2
     )  # two suspect count as "fail" in this context
     assert not np.isclose(
-        np.mean(telem[np.in1d(telem["obsid"], [12800])]["mags"]), agasc_stats["mag_obs"]
+        np.mean(telem[np.isin(telem["obsid"], [12800])]["mags"]), agasc_stats["mag_obs"]
     )
     assert np.isclose(
-        np.mean(telem[np.in1d(telem["obsid"], [12800, 23682, 23683])]["mags"]),
+        np.mean(telem[np.isin(telem["obsid"], [12800, 23682, 23683])]["mags"]),
         agasc_stats["mag_obs"],
     )
 
@@ -1253,10 +1253,10 @@ def test_override(monkeypatch):
         agasc_stats["n_obsids_suspect"] == 0
     )  # no fails because all status==1 skipped
     assert np.isclose(
-        np.mean(telem[np.in1d(telem["obsid"], [12800])]["mags"]), agasc_stats["mag_obs"]
+        np.mean(telem[np.isin(telem["obsid"], [12800])]["mags"]), agasc_stats["mag_obs"]
     )
     assert not np.isclose(
-        np.mean(telem[np.in1d(telem["obsid"], [12800, 23682, 23683])]["mags"]),
+        np.mean(telem[np.isin(telem["obsid"], [12800, 23682, 23683])]["mags"]),
         agasc_stats["mag_obs"],
     )
 
@@ -1276,7 +1276,7 @@ def test_override(monkeypatch):
     assert agasc_stats["n_obsids_ok"] == 3
     assert agasc_stats["n_obsids_suspect"] == 1  # one failed
     assert np.isclose(
-        np.mean(telem[np.in1d(telem["obsid"], [12800, 23681, 23683])]["mags"]),
+        np.mean(telem[np.isin(telem["obsid"], [12800, 23681, 23683])]["mags"]),
         agasc_stats["mag_obs"],
     )
 
@@ -1346,7 +1346,7 @@ def recreate_mag_stats_test_data(filename=TEST_DATA_DIR / "mag-stats.h5"):
         "2018:296:15:53:14.596",
     ]
     STARS_OBS = star_obs_catalogs.STARS_OBS[
-        np.in1d(star_obs_catalogs.STARS_OBS["mp_starcat_time"], mp_starcat_time)
+        np.isin(star_obs_catalogs.STARS_OBS["mp_starcat_time"], mp_starcat_time)
     ]
     STARS_OBS = STARS_OBS.group_by("agasc_id")
     STARS_OBS.add_index("agasc_id")

@@ -27,7 +27,7 @@ def get_star_observations(start=None, stop=None, obsid=None):
     catalogs = commands.get_starcats_as_table(
         start=start, stop=stop, obsid=obsid, unique=True
     )
-    catalogs = catalogs[np.in1d(catalogs["type"], ["BOT", "GUI"])]
+    catalogs = catalogs[np.isin(catalogs["type"], ["BOT", "GUI"])]
     star_obs = join(observations, catalogs, keys=join_keys)
     star_obs.rename_columns(["id", "starcat_date"], ["agasc_id", "mp_starcat_time"])
     star_obs["row"], star_obs["col"] = yagzag_to_pixels(

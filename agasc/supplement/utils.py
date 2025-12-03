@@ -265,9 +265,9 @@ def update_table(filename, table, path, dtype, keys, dry_run=False, create=False
     i, j = np.argwhere(intersect).T
 
     # entries not yet in supplement
-    append = ~np.in1d(table[keys[0]], suppl_table[keys[0]])
+    append = ~np.isin(table[keys[0]], suppl_table[keys[0]])
     for key in keys[1:]:
-        append |= ~np.in1d(table[key], suppl_table[key])
+        append |= ~np.isin(table[key], suppl_table[key])
     k = np.argwhere(append).T
 
     if not len(i) and not len(k[0]):

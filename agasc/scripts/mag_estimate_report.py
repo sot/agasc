@@ -101,7 +101,7 @@ def main():
     stars = np.unique(obs_stats[ok]["agasc_id"])
     sections = [{"id": "stars", "title": "Stars", "stars": stars}]
 
-    agasc_stats = agasc_stats[np.in1d(agasc_stats["agasc_id"], stars)]
+    agasc_stats = agasc_stats[np.isin(agasc_stats["agasc_id"], stars)]
 
     if args.weekly_report:
         t = CxoTime(args.stop)

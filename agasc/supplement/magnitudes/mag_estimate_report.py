@@ -252,7 +252,7 @@ class MagEstimateReport:
                     "id": "other_stars",
                     "title": "Other Stars",
                     "stars": self.agasc_stats["agasc_id"][
-                        ~np.in1d(self.agasc_stats["agasc_id"], agasc_ids)
+                        ~np.isin(self.agasc_stats["agasc_id"], agasc_ids)
                     ],
                 }
             )
@@ -290,7 +290,7 @@ class MagEstimateReport:
                 agasc_stats["t_mean_dr3"] - agasc_stats["mag_aca"]
             ) / agasc_stats["mag_aca_err"]
             agasc_stats["new"] = True
-            agasc_stats["new"][np.in1d(agasc_stats["agasc_id"], updated_star_ids)] = (
+            agasc_stats["new"][np.isin(agasc_stats["agasc_id"], updated_star_ids)] = (
                 False
             )
             agasc_stats["update_mag_aca"] = np.nan
@@ -298,7 +298,7 @@ class MagEstimateReport:
             agasc_stats["last_obs"] = CxoTime(agasc_stats["last_obs_time"]).date
 
         if len(updated_stars) > 0:
-            in_agasc_stats = np.in1d(updated_stars["agasc_id"], agasc_stats["agasc_id"])
+            in_agasc_stats = np.isin(updated_stars["agasc_id"], agasc_stats["agasc_id"])
             if np.any(~in_agasc_stats):
                 # This should never happen in weekly processing, because updated_stars is created
                 # in update_mag_supplement.update_supplement. If there is an error, it will mean
@@ -349,7 +349,7 @@ class MagEstimateReport:
         sections = [section for section in sections if len(section["stars"])]
         for section in sections:
             section["stars"] = agasc_stats[
-                np.in1d(agasc_stats["agasc_id"], section["stars"])
+                np.isin(agasc_stats["agasc_id"], section["stars"])
             ].as_array()
 
         # this is a hack
@@ -538,7 +538,7 @@ class MagEstimateReport:
         # set flags for different categories of markers
         highlighted = np.zeros(len(timeline["times"]), dtype=bool)
         if highlight_obsid:
-            highlighted = highlighted | np.in1d(timeline["obsid"], highlight_obsid)
+            highlighted = highlighted | np.isin(timeline["obsid"], highlight_obsid)
         if highlight_outliers:
             highlighted = highlighted | timeline["obs_outlier"]
 
