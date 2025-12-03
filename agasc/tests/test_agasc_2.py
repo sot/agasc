@@ -133,7 +133,7 @@ MINIAGASC_1P7 = agasc.get_agasc_filename("miniagasc_*", version="1p7")
 
 
 def get_ds_agasc_cone(ra, dec):
-    cmd = "mp_get_agasc -r {!r} -d {!r} -w {!r}".format(ra, dec, TEST_RADIUS)
+    cmd = "mp_get_agasc -r {} -d {} -w {}".format(ra, dec, TEST_RADIUS)
     lines = Ska.Shell.tcsh(cmd, env=ascds_env)
     dat = ascii.read(lines, format="no_header", names=AGASC_COLNAMES)
 
@@ -362,7 +362,7 @@ def test_add_pmcorr_is_consistent(agasc_id, date, ra_pmcorr, dec_pmcorr, label):
 
 
 def mp_get_agascid(agasc_id):
-    cmd = "mp_get_agascid {!r}".format(agasc_id)
+    cmd = "mp_get_agascid {}".format(agasc_id)
     lines = Ska.Shell.tcsh(cmd, env=ascds_env)
     lines = [line for line in lines if re.match(r"^\s*\d", line)]
     dat = ascii.read(lines, format="no_header", names=AGASC_COLNAMES)
