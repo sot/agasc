@@ -439,9 +439,9 @@ def get_telemetry(obs):
         & (telem["AOACFCT"] == "TRAK")
     )
 
-    assert len(slot_data) == len(
-        mag_est_ok
-    ), f"len(slot_data) != len(ok) ({len(slot_data)} != {len(mag_est_ok)})"
+    assert len(slot_data) == len(mag_est_ok), (
+        f"len(slot_data) != len(ok) ({len(slot_data)} != {len(mag_est_ok)})"
+    )
 
     # etc...
     logger.debug("    Adding magnitude estimates")
