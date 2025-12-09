@@ -400,7 +400,7 @@ def get_telemetry(obs):
     telem = {"times": times}
     telem.update({k: slot_data[k] for k in slot_data_cols[2:]})
     telem.update(
-        {name: msids[name].vals[np.in1d(msids[name].times, times)] for name in names}
+        {name: msids[name].vals[np.isin(msids[name].times, times)] for name in names}
     )
 
     # get the normal sun and safe sun mode intervals, which will be removed

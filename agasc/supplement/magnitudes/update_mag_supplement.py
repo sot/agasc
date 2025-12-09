@@ -343,7 +343,7 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
                 updated_stars["agasc_id"] = new["agasc_id"]
 
                 # find agasc_ids in new list but not in current list
-                new_stars = ~np.in1d(
+                new_stars = ~np.isin(
                     outliers_new["agasc_id"], outliers_current["agasc_id"]
                 )
 
@@ -547,7 +547,7 @@ def do(
 
     agasc_ids = np.unique(agasc_ids)
     stars_obs = star_obs_catalogs.STARS_OBS[
-        np.in1d(star_obs_catalogs.STARS_OBS["agasc_id"], agasc_ids)
+        np.isin(star_obs_catalogs.STARS_OBS["agasc_id"], agasc_ids)
     ]
 
     # if supplement exists:
@@ -562,7 +562,7 @@ def do(
             if not include_bad and "bad" in h5.root:
                 logger.info("Excluding bad stars")
                 stars_obs = stars_obs[
-                    ~np.in1d(stars_obs["agasc_id"], h5.root.bad[:]["agasc_id"])
+                    ~np.isin(stars_obs["agasc_id"], h5.root.bad[:]["agasc_id"])
                 ]
 
             if "obs" in h5.root:
@@ -611,7 +611,7 @@ def do(
                         )
 
                     stars_obs = stars_obs[
-                        np.in1d(stars_obs["agasc_id"], times[update]["agasc_id"])
+                        np.isin(stars_obs["agasc_id"], times[update]["agasc_id"])
                     ]
                     agasc_ids = np.sort(np.unique(stars_obs["agasc_id"]))
                     if len(update) - np.sum(update):
@@ -757,8 +757,8 @@ def do(
                     "title": "Other (unexpectedly not updated)",
                     "stars": list(
                         agasc_stats["agasc_id"][
-                            ~np.in1d(agasc_stats["agasc_id"], new_stars)
-                            & ~np.in1d(
+                            ~np.isin(agasc_stats["agasc_id"], new_stars)
+                            & ~np.isin(
                                 agasc_stats["agasc_id"], updated_stars["agasc_id"]
                             )
                         ]
