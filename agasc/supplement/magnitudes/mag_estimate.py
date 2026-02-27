@@ -1622,6 +1622,8 @@ def get_multi_obs_stats(star_obs, telem=None, obs_status_override=None):
             if fail:
                 failures.append(obs_telem)
         else:
+            # this conversion to Table might be needed to make sure different inputs work
+            obs_telem = Table(obs_telem)
             obs_stat = get_obs_stats(
                 obs, telem={k: obs_telem[k] for k in obs_telem.colnames}
             )
