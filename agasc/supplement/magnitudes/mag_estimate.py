@@ -17,6 +17,7 @@ from Chandra.Time import DateTime
 from chandra_aca.transform import count_rate_to_mag, pixels_to_yagzag
 from cheta import fetch
 from cxotime import CxoTime
+from cxotime import units as u
 from kadi import events
 from mica.archive import aca_l0
 from mica.archive.aca_dark.dark_cal import get_dark_cal_image
@@ -1178,7 +1179,9 @@ AGASC_ID_STATS_INFO = {
 }
 
 
-def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
+def get_agasc_id_stats(
+    agasc_id, obs_status_override=None, tstop=None, no_telem_time=14 * u.day
+):
     """
     Get summary magnitude statistics for an AGASC ID.
 
@@ -1189,6 +1192,8 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
         {'obs_ok': True, 'comments': 'some comment'}
     :param tstop: cxotime-compatible timestamp
         Only entries in catalogs.STARS_OBS prior to this timestamp are considered.
+    :param no_telem_time: astropy Quantity
+        Time interval to consider for discarding recent observations with no telemetry.
     :return: dict
         dictionary with stats
     """
@@ -1204,11 +1209,28 @@ def get_agasc_id_stats(agasc_id, obs_status_override=None, tstop=None):
     ]
     star_obs.sort("mp_starcat_time")
 
-    n_obsids = len(star_obs)
-
     all_telem = get_telemetry_by_observations(
         star_obs, ignore_exceptions=True, as_table=False
     )
+
+    # discard observations with no telemetry if they occured in the last two weeks.
+    discard = np.array(
+        [
+            ("error_code" in tlm)
+            and (tlm["mp_starcat_time"] > CxoTime() - no_telem_time)
+            for tlm in all_telem
+        ]
+    )
+    if np.any(discard):
+        obsids = [str(obsid) for obsid in star_obs["obsid"][discard]]
+        logger.debug(
+            f"Discarding recent observations with no telemetry (OBSIDs {' '.join(obsids)}."
+        )
+        star_obs = star_obs[~discard]
+        all_telem = [tlm for sel, tlm in zip(~discard, all_telem, strict=True) if sel]
+
+    n_obsids = len(star_obs)
+
     stats, failures = get_multi_obs_stats(
         star_obs, obs_status_override=obs_status_override, telem=all_telem
     )
