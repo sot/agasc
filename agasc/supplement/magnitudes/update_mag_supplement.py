@@ -729,10 +729,16 @@ def do(
                 updated_stars["mag_aca_err"] != 0
             )
             sections = [
-                {"id": "new_stars", "title": "New Stars", "stars": new_stars},
+                {
+                    "id": "new_stars",
+                    "title": "New Stars",
+                    "description": "These are stars that are being added to the supplement.",
+                    "stars": new_stars,
+                },
                 {
                     "id": "updated_stars",
                     "title": "Updated Stars",
+                    "description": "These are stars that are being updated in the supplement.",
                     "stars": (
                         updated_stars["agasc_id"][updt_mag].tolist()
                         if len(updated_stars[updt_mag])
@@ -742,6 +748,9 @@ def do(
                 {
                     "id": "not_updated_stars",
                     "title": "Magnitude not Updated",
+                    "description": (
+                        "These are stars whose magnitudes are not being updated in the supplement."
+                    ),
                     "stars": (
                         updated_stars["agasc_id"][~updt_mag].tolist()
                         if len(updated_stars[~updt_mag])
@@ -750,7 +759,14 @@ def do(
                 },
                 {
                     "id": "other_stars",
-                    "title": "Other (unexpectedly not updated)",
+                    "title": "Stars in Limbo",
+                    "description": (
+                        "These are stars that were in the list to process but are neither being"
+                        " added or updated. This can happen if all observations for that star"
+                        " fail or are skipped for some reason (e.g. a star with a single recent"
+                        " observation that is suspect). This is resolved after the observations"
+                        " are dispositioned or the failures are fixed."
+                    ),
                     "stars": list(
                         agasc_stats["agasc_id"][
                             ~np.isin(agasc_stats["agasc_id"], new_stars)
