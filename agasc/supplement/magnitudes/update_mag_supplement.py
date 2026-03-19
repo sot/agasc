@@ -234,6 +234,11 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir="."):
     if obs_stats is not None and len(obs_stats):
         filename = outdir / "mag_stats_obsid.fits"
         logger.debug(f"Updating {filename}")
+
+        # these two were added late, and are not necessary in the file, so the file was not updated
+        columns = list(set(obs_stats.colnames) - {"excluded", "no_telem"})
+        obs_stats = obs_stats[columns]
+
         if filename.exists():
             obs_stats = _update_table(
                 table.Table.read(filename), obs_stats, keys=["agasc_id", "obsid"]

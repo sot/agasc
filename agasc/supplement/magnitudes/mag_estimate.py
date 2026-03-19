@@ -879,6 +879,8 @@ def get_obs_stats(obs, telem=None):
             "lf_variability_1000s": np.inf,
             "tempccd": np.nan,
             "dr_star": np.inf,
+            "no_telem": True,
+            "excluded": False,
         }
     )
 
@@ -973,6 +975,7 @@ def calc_obs_stats(telem):
         "n_mag_est_ok_3": n_mag_est_ok_3,
         "n_mag_est_ok_5": n_mag_est_ok_5,
         "dr_star": dr_star,
+        "no_telem": False,
     }
     if stats["n_mag_est_ok_3"] < 10:
         return stats
