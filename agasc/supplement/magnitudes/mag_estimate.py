@@ -550,7 +550,13 @@ def get_telemetry_by_observations(observations, ignore_exceptions=False, as_tabl
                 raise
 
     if telem:
-        return vstack([Table(tel) for tel in telem]) if as_table else telem
+        # we ignore entries with error_code here because this means ignore_exceptions is true
+        # (otherwise the exception would have been raised already)
+        return (
+            vstack([Table(tel) for tel in telem if "error_code" not in tel])
+            if as_table
+            else telem
+        )
 
     return []
 
@@ -584,7 +590,8 @@ def add_obs_info(telem, obs_stats):
         o = telem["obsid"] == obsid
         telem["obs_ok"][o] = np.ones(np.count_nonzero(o), dtype=bool) * s["obs_ok"]
         if (
-            np.any(telem["mag_est_ok"][o])
+            len(telem[o]) > 0
+            and np.any(telem["mag_est_ok"][o])
             and s["f_mag_est_ok"] > 0
             and np.isfinite(s["q75"])
             and np.isfinite(s["q25"])
