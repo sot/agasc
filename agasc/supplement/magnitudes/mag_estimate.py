@@ -1238,16 +1238,21 @@ def get_agasc_id_stats(
         star_obs, obs_status_override=obs_status_override, telem=all_telem
     )
 
-    # combine magnitude estimates using a weighted mean
-    weighted_mean = get_weighted_mean(stats)
-    stats["w"] = weighted_mean["weights"]
-    stats["mean_corrected"] = weighted_mean["mean_corrected"]
-    stats["weighted_mean"] = weighted_mean["weighted_mean"]
+    # we do this in this method because a weighted mean doesn't make much sense for a list
+    # of observations. It only makes sense when considering all observations of a star.
+    if len(stats) > 0:
+        # combine magnitude estimates using a weighted mean
+        weighted_mean = get_weighted_mean(stats)
+        stats["w"] = weighted_mean["weights"]
+        stats["mean_corrected"] = weighted_mean["mean_corrected"]
+        stats["weighted_mean"] = weighted_mean["weighted_mean"]
+    else:
+        # or make sure column exists
+        stats["w"] = np.array([])
+        stats["mean_corrected"] = np.array([])
+        stats["weighted_mean"] = np.array([])
 
     star = get_star(agasc_id, use_supplement=False)
-
-    # still need to check that this is the same as before
-    last_obs_time = CxoTime(stats["mp_starcat_time"][-1]).cxcsec
 
     logger.debug("  identifying outlying observations...")
     for s, t in zip(stats, all_telem, strict=True):
@@ -1333,7 +1338,7 @@ def get_agasc_id_stats(
     result.update(
         {
             "color": star["COLOR1"],
-            "last_obs_time": last_obs_time,
+            "last_obs_time": CxoTime(stats["mp_starcat_time"][-1]).cxcsec,
             "mag_aca": star["MAG_ACA"],
             "mag_aca_err": star["MAG_ACA_ERR"] / 100,
             "mag_obs_err": min_mag_obs_err,
