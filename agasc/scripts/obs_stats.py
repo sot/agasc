@@ -14,6 +14,7 @@ from multiprocessing import Pool
 from pathlib import Path
 from pprint import pformat
 
+import numpy as np
 import yaml
 from astropy.table import Table, vstack
 from cxotime import CxoTime
@@ -243,6 +244,15 @@ def main():
         print("No observations processed successfully.")
 
     if failures:
+        # this cleans it up for YAML dumping, converting numpy types to native Python types where
+        # possible.
+        failures = [
+            {
+                k: (v.item() if isinstance(v, np.generic) and hasattr(v, "item") else v)
+                for k, v in d.items()
+            }
+            for d in failures
+        ]
         with open(args["output_dir"] / "obs_stats_failures.yml", "w") as fh:
             yaml.dump(failures, fh)
 
