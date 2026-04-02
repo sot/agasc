@@ -260,8 +260,21 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
     """
     Update the magnitude table of the AGASC supplement.
 
-    :param agasc_stats:
-    :param filename:
+    This function returns two list of stars: new stars and updated stars, which are stars that are
+    not in the supplement already, and stars thar are in the supplement before this update. Note
+    that "updated" stars are not necessarily updated in the supplement. If a star has a small change
+    in magnitude or magnitude uncertainty (less than d_mag_threshold), its magnitude is not updated
+    in the supplement, but it is still included in the "updated" stars list.
+
+    This function compares the last_obs_time of the stars in the supplement and in agasc_stats.
+    If last_obs_time is the same, then the star is not updated in the supplement (and not included
+    in the "updated" stars list), even if there is a change in magnitude. This can happen if all
+    observations since last_updated are excluded or failed.
+
+    :param agasc_stats: astropy.table.Table
+        The table with the new stats for each AGASC ID. It must include the columns in MAGS_DTYPE.
+    :param filename: str or pathlib.Path
+        The filename of the supplement to update.
     :param include_all: bool
         if True, all OK entries are included in supplement.
         if False, only OK entries marked 'selected_*'
@@ -269,6 +282,8 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
         If the absolute difference between the new and the current mag_aca is less than this value,
         mag_aca is not updated. Note that last_obs_time is always updated.
     :return:
+        new_stars: list of AGASC IDs that are new in the supplement.
+        updated_stars: list of AGASC IDs that are already in the supplement.
     """
     if agasc_stats is None or len(agasc_stats) == 0:
         return [], []
@@ -681,6 +696,10 @@ def do(
     except Exception as e:
         logger.warning(f"Failed to write {obs_status_file}: {e}")
 
+    # the following "updated_stars" is not the actual table of stars that were updated in the
+    # supplement, but the table of stars that would be updated if there were no threshold on d_mag.
+    # In other words: stars with tiny magnitude updates are not updated in the supplement, but they
+    # are included in "updated_stars".
     new_stars, updated_stars = update_supplement(agasc_stats, filename=filename)
     logger.info(f"  {len(new_stars)} new stars, {len(updated_stars)} updated stars")
 
@@ -766,11 +785,13 @@ def do(
                     "id": "other_stars",
                     "title": "Stars in Limbo",
                     "description": (
-                        "These are stars that were in the list to process but are neither being"
-                        " added or updated. This can happen if all observations for that star"
-                        " fail or are skipped for some reason (e.g. a star with a single recent"
-                        " observation that is suspect). This is resolved after the observations"
-                        " are dispositioned or the failures are fixed."
+                        "This section is here for informational purposes."
+                        " These are stars that were in the list to process but are neither being"
+                        " added nor updated. This can happen if all recent observations for that"
+                        " star fail or are skipped for some reason (e.g. all recent observation are"
+                        " so recent that telemetry is not available). This is resolved after the"
+                        " observations are dispositioned or the failures are fixed."
+                        " If there are errors, they should show up elsewhere in this report."
                     ),
                     "stars": list(
                         agasc_stats["agasc_id"][
