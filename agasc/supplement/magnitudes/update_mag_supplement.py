@@ -569,7 +569,9 @@ def do(
     # find the latest observation with telemetry: take one star-obs per observation,
     # and get telemetry for each just to find the last observation with data.
     # Cut processing off right after that time.
-    recent_obs = stars_obs[stars_obs["mp_starcat_time"] > stop - 7 * u.day].copy()
+    recent_obs = stars_obs[
+        stars_obs["mp_starcat_time"] > CxoTime(stop) - 7 * u.day
+    ].copy()
     recent_obs = recent_obs.group_by("mp_starcat_time")
     recent_obs = recent_obs[recent_obs.groups.indices[:-1]]
     recent_obs.sort(["mp_starcat_time"], reverse=True)
