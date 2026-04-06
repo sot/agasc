@@ -566,6 +566,29 @@ def do(
         np.isin(star_obs_catalogs.STARS_OBS["agasc_id"], agasc_ids)
     ]
 
+    # find the latest observation with telemetry: take one star-obs per observation,
+    # and get telemetry for each just to find the last observation with data.
+    # Cut processing off right after that time.
+    recent_obs = stars_obs[stars_obs["mp_starcat_time"] > stop - 7 * u.day].copy()
+    recent_obs = recent_obs.group_by("mp_starcat_time")
+    recent_obs = recent_obs[recent_obs.groups.indices[:-1]]
+    recent_obs.sort(["mp_starcat_time"], reverse=True)
+    telem = mag_estimate.get_telemetry_by_observations(
+        recent_obs, ignore_exceptions=True, as_table=False
+    )
+    processing_cutoff = stop
+    for obs, tel in zip(recent_obs, telem, strict=True):
+        if "error_code" in tel:
+            continue
+        logger.info(
+            f"Latest observation with telemetry: OBSID {obs['obsid']} at  {obs['mp_starcat_time']}"
+        )
+        processing_cutoff = CxoTime(obs["mp_starcat_time"]) + 1 * u.second
+        break
+    # and some AGASC Ids might be dropped because they are only observed in observations after the
+    # processing cutoff
+    agasc_ids = np.unique(agasc_ids)
+
     # if supplement exists:
     # - drop bad stars
     # - get OBS status override
@@ -662,7 +685,7 @@ def do(
 
     obs_stats, agasc_stats, fails = get_stats(
         agasc_ids,
-        tstop=stop,
+        tstop=processing_cutoff,
         obs_status_override=obs_status_override,
         no_progress=no_progress,
     )
