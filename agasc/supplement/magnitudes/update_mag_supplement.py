@@ -581,6 +581,9 @@ def do(
     processing_cutoff = stop
     for obs, tel in zip(recent_obs, telem, strict=True):
         if "error_code" in tel:
+            logger.info(
+                f"Skipping OBSID {obs['obsid']} at  {obs['mp_starcat_time']} ({obs['msg']})"
+            )
             continue
         logger.info(
             f"Latest observation with telemetry: OBSID {obs['obsid']} at  {obs['mp_starcat_time']}"
