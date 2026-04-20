@@ -582,7 +582,8 @@ def do(
     for obs, tel in zip(recent_obs, telem, strict=True):
         if "error_code" in tel:
             logger.info(
-                f"Skipping OBSID {obs['obsid']} at  {obs['mp_starcat_time']} ({obs['msg']})"
+                f"Skipping OBSID {obs['obsid']} at  {obs['mp_starcat_time']}"
+                f" ({tel.get('msg', tel['error_code'])})"
             )
             continue
         logger.info(
