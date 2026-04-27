@@ -1258,6 +1258,10 @@ def get_agasc_id_stats(
         stats["w"] = np.array([])
         stats["mean_corrected"] = np.array([])
         stats["weighted_mean"] = np.array([])
+        weighted_mean = {
+            "mag_weighted_mean": [],
+            "mag_weighted_std": [],
+        }
 
     star = get_star(agasc_id, use_supplement=False)
 
