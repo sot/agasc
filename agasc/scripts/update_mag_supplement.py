@@ -256,7 +256,7 @@ def main():
         and (args["reports_dir"] / f"{args['report_date'].date[:8]}").exists()
     ):
         args_log_file.replace(
-            args["reports_dir"] / f"{args['report_date'].date[:8]}" / args_log_file.name
+            args["reports_dir"] / f"{args['report_date'].date[:8]}" / "call_args.yml"
         )
 
 
