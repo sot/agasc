@@ -530,7 +530,7 @@ def get_telemetry_by_observations(observations, ignore_exceptions=False, as_tabl
                 telem.append(dict(exc))
             else:
                 logger.info(f"{agasc_id=}, obsid={obs['obsid']} failed")
-                logger.info(f"{exc.exception['name']} {exc.exception['value']}")
+                logger.info(f"{exc.exception['type']} {exc.exception['value']}")
                 for step in exc.exception["traceback"]:
                     logger.info(step)
         except Exception:
@@ -543,13 +543,13 @@ def get_telemetry_by_observations(observations, ignore_exceptions=False, as_tabl
             if ignore_exceptions:
                 logger.debug("Ignored unknown exception:")
                 logger.debug(f"{agasc_id=}, obsid={obs['obsid']} failed")
-                logger.debug(f"{exc.exception['name']} {exc.exception['value']}")
+                logger.debug(f"{exc.exception['type']} {exc.exception['value']}")
                 for step in exc.exception["traceback"]:
                     logger.debug(step)
                 telem.append(dict(exc))
             else:
                 logger.info(f"{agasc_id=}, obsid={obs['obsid']} failed")
-                logger.info(f"{exc.exception['name']} {exc.exception['value']}")
+                logger.info(f"{exc.exception['type']} {exc.exception['value']}")
                 for step in exc.exception["traceback"]:
                     logger.info(step)
                 raise
