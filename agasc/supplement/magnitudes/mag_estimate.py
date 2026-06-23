@@ -546,7 +546,9 @@ def get_telemetry_by_observations(observations, ignore_exceptions=False, as_tabl
                 logger.debug(f"{exc.exception['type']} {exc.exception['value']}")
                 for step in exc.exception["traceback"]:
                     logger.debug(step)
-                telem.append(dict(exc))
+                exc_dict = dict(exc)
+                exc_dict["msg"] = f"{exc.exception['type']} - {exc.exception['value']}"
+                telem.append(exc_dict)
             else:
                 logger.info(f"{agasc_id=}, obsid={obs['obsid']} failed")
                 logger.info(f"{exc.exception['type']} {exc.exception['value']}")
