@@ -1303,18 +1303,18 @@ def get_agasc_id_stats(
     result = {
         "last_obs_time": 0,
         "agasc_id": agasc_id,
-        "mag_aca": np.nan,
-        "mag_aca_err": np.nan,
+        "mag_aca": star["MAG_ACA"],
+        "mag_aca_err": star["MAG_ACA_ERR"] / 100,
         "mag_obs": 0.0,
-        "mag_obs_err": np.nan,
+        "mag_obs_err": min_mag_obs_err,
         "mag_obs_std": 0.0,
-        "color": np.nan,
-        "n_obsids": 0,
-        "n_obsids_fail": 0,
+        "color": star["COLOR1"],
+        "n_obsids": n_obsids,
+        "n_obsids_fail": len(failures),
         "n_obsids_suspect": 0,
         "n_obsids_ok": 0,
         "n_no_mag": 0,
-        "n": 0,
+        "n": len(all_telem),
         "n_ok": 0,
         "n_ok_3": 0,
         "n_ok_5": 0,
@@ -1350,24 +1350,21 @@ def get_agasc_id_stats(
         "f_ok_5": 0.0,
     }
 
-    # this can be moved up
+    if len(stats) == 0:
+        logger.debug(f"  No stats for AGASC ID {agasc_id}.")
+        return result, stats, failures
+
     result.update(
         {
-            "color": star["COLOR1"],
             "last_obs_time": CxoTime(stats["mp_starcat_time"][-1]).cxcsec,
-            "mag_aca": star["MAG_ACA"],
-            "mag_aca_err": star["MAG_ACA_ERR"] / 100,
-            "mag_obs_err": min_mag_obs_err,
-            "n_obsids_fail": len(failures),
-            "n": len(all_telem),
             "n_obsids_suspect": np.count_nonzero(stats["obs_suspect"]),
-            "n_obsids": n_obsids,
             "n_obsids_ok": np.count_nonzero(stats["obs_ok"]),
-            "n_no_mag": np.count_nonzero((~stats["obs_ok"]))
-            + np.count_nonzero(stats["f_mag_est_ok"][stats["obs_ok"]] < 0.3),
+            "n_no_mag": (
+                np.count_nonzero((~stats["obs_ok"]))
+                + np.count_nonzero(stats["f_mag_est_ok"][stats["obs_ok"]] < 0.3)
+            ),
         }
     )
-
     for tag in ["dr3", "dbox5"]:
         result.update(
             {
