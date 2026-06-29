@@ -76,7 +76,7 @@ def get_agasc_id_stats(
             agasc_stat, obs_stat, obs_fail = mag_estimate.get_agasc_id_stats(
                 agasc_id=agasc_id, obs_status_override=obs_status_override, tstop=tstop
             )
-            if agasc_stats["n_obsids_ok"] == 0:
+            if agasc_stat["n_obsids_ok"] == 0:
                 logger.debug(f"Skipping {agasc_id} because it has no OK observations")
                 continue
             agasc_stats.append(agasc_stat)
