@@ -251,6 +251,7 @@ class MagEstimateReport:
                 {
                     "id": "other_stars",
                     "title": "Other Stars",
+                    "description": "",
                     "stars": self.agasc_stats["agasc_id"][
                         ~np.isin(self.agasc_stats["agasc_id"], agasc_ids)
                     ],
@@ -285,9 +286,9 @@ class MagEstimateReport:
                 (agasc_stats["n_obs_bad"] > 0) | (agasc_stats["n_obsids"] == 0)
             ] = "warning"
             agasc_stats["flag"][agasc_stats["n_obs_bad_fail"] > 0] = "danger"
-            agasc_stats["delta"] = agasc_stats["t_mean_dr3"] - agasc_stats["mag_aca"]
+            agasc_stats["delta"] = agasc_stats["mag_obs"] - agasc_stats["mag_aca"]
             agasc_stats["sigma"] = (
-                agasc_stats["t_mean_dr3"] - agasc_stats["mag_aca"]
+                agasc_stats["mag_obs"] - agasc_stats["mag_aca"]
             ) / agasc_stats["mag_aca_err"]
             agasc_stats["new"] = True
             agasc_stats["new"][np.isin(agasc_stats["agasc_id"], updated_star_ids)] = (
@@ -313,8 +314,8 @@ class MagEstimateReport:
             agasc_stats["update_mag_aca_err"][idx1] = updated_stars["mag_aca_err"]
 
         tooltips = {
-            "warning": "At least one bad observation",
-            "danger": "At least failed observation",
+            "warning": "At least one known bad observation",
+            "danger": "At least one failed or suspect observation",
         }
 
         # make all individual star reports
@@ -1017,11 +1018,11 @@ GLOSSARY = {
     "mag_est_ok": (
         "Subset of Kalman samples that have a magnitude estimate (track & ion_rad)"
     ),
-    "n_total": "Total number of sample regardless of OBC PCAD status",
+    "n_total": "Total number of samples regardless of OBC PCAD status",
     "n": "Synonym for n_total",
     "n_kalman": "Number of Kalman samples",
-    "n_dr3": "Number of dr3 samples.",
-    "n_dbox5": "Number of dbox5 samples.",
+    "n_dr3": "Number of (mag_est_ok & dr3) samples",
+    "n_dbox5": "Number of (mag_est_ok & dbox5) samples",
     "n_track": "Number of track samples.",
     "n_ok_3": "Number of (track & sat_pix & ion_rad & dr3) samples",
     "n_ok_5": "Number of (track & sat_pix & ion_rad & dbox5) samples",
@@ -1030,14 +1031,14 @@ GLOSSARY = {
     "n_mag_est_ok_5": "Number of (track & ion_rad & dbox5) samples",
     "f_dr3": (
         "Fraction of mag-est-ok samples with centroid residual < 3 arcsec"
-        "((mag_est_ok & n_dr3)/n_mag_est_ok)"
+        " (n_mag_est_ok_3/n_mag_est_ok)"
     ),
     "f_dbox5": (
         "Fraction of mag-est-ok samples with centroid within 5 arcsec box"
-        "((mag_est_ok & n_dbox5)/n_mag_est_ok)"
+        " (n_mag_est_ok_5/n_mag_est_ok)"
     ),
     "f_mag_est_ok": (
-        """n_mag_est_ok_3/n_kalman. This is a measure of the fraction of time during
+        """n_mag_est_ok/n_kalman. This is a measure of the fraction of time during
         an observation that a magnitude estimate is available."""
     ),
     "f_mag_est_ok_3": "n_mag_est_ok_3/n_kalman.",
@@ -1050,4 +1051,20 @@ GLOSSARY = {
         observation that the Kalman filter is getting any star centroid at all. This
         includes measurements out to 5 arcsec box halfwidth, so potentially 7 arcsec
         radial offset.""",
+    "mag<sub>obs</sub>": (
+        "Estimated magnitude. This will be the magnitude in the supplement after the update"
+    ),
+    "mag<sub>catalog</sub>": "The magnitude in the AGASC catalog.",
+    "&delta;<sub>mag cat</sub>": """Difference between observed and catalog magnitudes:
+        mag<sub>obs</sub> - mag<sub>catalog</sub>""",
+    "&delta;<sub>mag</sub>/&sigma;<sub>mag</sub>": """
+        Difference between observed and catalog magnitudes divided by catalog magnitude error:
+        &delta;<sub>mag cat</sub>/&sigma;<sub>mag</sub>""",
+    "&delta;<sub>mag</sub>": (
+        "Variation in observed magnitude since last version of AGASC supplement"
+    ),
+    "&delta;<sub>&sigma;</sub>": (
+        "Variation in observed magnitude uncertainty (mag_aca_err) since last version"
+        " of the AGASC supplement"
+    ),
 }

@@ -794,7 +794,11 @@ def do(
                 {
                     "id": "updated_stars",
                     "title": "Updated Stars",
-                    "description": "These are stars that are being updated in the supplement.",
+                    "description": (
+                        "These are stars that are being updated in the supplement."
+                        " Magnitudes are updated only if the absolute change is larger"
+                        " than 0.01 mag."
+                    ),
                     "stars": (
                         updated_stars["agasc_id"][updt_mag].tolist()
                         if len(updated_stars[updt_mag])
@@ -805,7 +809,9 @@ def do(
                     "id": "not_updated_stars",
                     "title": "Magnitude not Updated",
                     "description": (
-                        "These are stars whose magnitudes are not being updated in the supplement."
+                        "These are stars whose magnitudes are not being updated in the"
+                        " supplement. Magnitudes are updated only if the absolute change"
+                        " is larger than 0.01 mag."
                     ),
                     "stars": (
                         updated_stars["agasc_id"][~updt_mag].tolist()

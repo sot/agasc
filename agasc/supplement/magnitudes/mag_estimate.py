@@ -640,7 +640,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     dark_cal = get_dark_cal_image(
         t_start,
         "nearest",
-        t_ccd_ref=np.mean(slot_data["TEMPCCD"] - 273.16),
+        t_ccd_ref=np.mean(slot_data["TEMPCCD"] - 273.15),
         aca_image=False,
     )
 
@@ -710,7 +710,7 @@ OBS_STATS_INFO = {
         "Start time of the observation according to kadi.commands (in cxc seconds)"
     ),
     "tstop": (
-        "Start time of the observation according to kadi.commands (in cxc seconds)"
+        "Stop time of the observation according to kadi.commands (in cxc seconds)"
     ),
     "mag_correction": "Overall correction applied to the magnitude estimate",
     "responsivity": "Responsivity correction applied to the magnitude estimate",
@@ -718,11 +718,11 @@ OBS_STATS_INFO = {
     "mag_aca": "ACA star magnitude from the AGASC catalog",
     "mag_aca_err": "ACA star magnitude uncertainty from the AGASC catalog",
     "row": (
-        "Expected row number, based on star location and yanf/zang from"
+        "Expected row number, based on star location and yang/zang from"
         " mica.archive.starcheck DB"
     ),
     "col": (
-        "Expected col number, based on star location and yanf/zang from"
+        "Expected col number, based on star location and yang/zang from"
         " mica.archive.starcheck DB"
     ),
     "mag_img": "Magnitude estimate from image telemetry (uncorrected)",
@@ -741,14 +741,16 @@ OBS_STATS_INFO = {
     ),
     "f_track": 'Fraction of kalman samples with AOACFCT == "TRAK" (n_track/n_kalman)',
     "f_mag_est_ok": (
-        "Fraction of all samples included in magnitude estimate regardless of centroid"
-        " residual (n_mag_est_ok/n_kalman)"
+        "Fraction of kalman samples included in magnitude estimate regardless of"
+        " centroid residual (n_mag_est_ok/n_kalman)"
     ),
     "f_mag_est_ok_3": (
-        "Fraction of kalman samples with (mag_est_ok & dr3) == True (n_ok_3/n_kalman)"
+        "Fraction of kalman samples with (mag_est_ok & dr3) == True"
+        " (n_mag_est_ok_3/n_kalman)"
     ),
     "f_mag_est_ok_5": (
-        "Fraction of kalman samples with (mag_est_ok & dbox5) == True (n_ok_5/n_kalman)"
+        "Fraction of kalman samples with (mag_est_ok & dbox5) == True"
+        " (n_mag_est_ok_5/n_kalman)"
     ),
     "f_ok": "n_ok_5 / n_kalman. Same as f_ok_5.",  # fix this
     "f_ok_3": """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
@@ -758,15 +760,15 @@ OBS_STATS_INFO = {
         observation that the Kalman filter is getting any star centroid at all.""",
     "f_dr3": (
         "Fraction of mag-est-ok samples with centroid residual < 3 arcsec"
-        " (n_dr3/n_mag_est_ok)"
+        " (n_mag_est_ok_3/n_mag_est_ok)"
     ),
     "f_dbox5": (
         "Fraction of mag-est-ok samples with centroid residual within a 5 arcsec box "
-        "(n_dbox5/n_mag_est_ok)"
+        "(n_mag_est_ok_5/n_mag_est_ok)"
     ),
     "q25": "1st quartile of estimated magnitude",
     "median": "Median of estimated magnitude",
-    "q75": "1st quartile of estimated magnitude",
+    "q75": "3rd quartile of estimated magnitude",
     "mean": "Mean of estimated magnitude",
     "mean_err": "Uncertainty in the mean of estimated magnitude",
     "std": "Standard deviation of estimated magnitude",
@@ -780,13 +782,33 @@ OBS_STATS_INFO = {
     "t_skew": "Skewness of estimated magnitude after removing outliers",
     "t_kurt": "Kurtosis of estimated magnitude after removing outliers",
     "n": "Number of samples",
-    "n_ok": "Number of samples with (kalman & mag_est_ok & dbox5) == True",
+    "n_ok": (
+        "Number of samples with (kalman & track & sat_pix & ion_rad & dbox5) == True."
+        " Same as n_ok_5."
+    ),
+    "n_ok_3": (
+        "Number of samples with (kalman & track & sat_pix & ion_rad & dr3) == True"
+    ),
+    "n_ok_5": (
+        "Number of samples with (kalman & track & sat_pix & ion_rad & dbox5) == True"
+    ),
+    "n_mag_est_ok": (
+        "Number of kalman samples included in magnitude estimate (track & ion_rad)"
+    ),
+    "n_mag_est_ok_3": "Number of (mag_est_ok & dr3) samples",
+    "n_mag_est_ok_5": "Number of (mag_est_ok & dbox5) samples",
     "outliers": "Number of outliers (+- 3 IQR)",
-    "lf_variability_100s": "Rolling mean of OK magnitudes with a 100 second window",
-    "lf_variability_500s": "Rolling mean of OK magnitudes with a 500 second window",
-    "lf_variability_1000s": "Rolling mean of OK magnitudes with a 1000 second window",
-    "tempccd": "CCD temperature",
-    "dr_star": "Angle residual",
+    "lf_variability_100s": (
+        "Peak-to-peak (max - min) of the 100 second rolling mean of OK magnitudes"
+    ),
+    "lf_variability_500s": (
+        "Peak-to-peak (max - min) of the 500 second rolling mean of OK magnitudes"
+    ),
+    "lf_variability_1000s": (
+        "Peak-to-peak (max - min) of the 1000 second rolling mean of OK magnitudes"
+    ),
+    "tempccd": "CCD temperature (degrees C)",
+    "dr_star": "Angle residual of the star (arcsec)",
     "obs_ok": "Boolean flag: everything OK with this observation",
     "obs_suspect": 'Boolean flag: this observation is "suspect"',
     "obs_fail": (
@@ -796,7 +818,9 @@ OBS_STATS_INFO = {
     "comments": "",
     "w": "Weight to be used on a weighted mean (1/std)",
     "mean_corrected": "Corrected mean used in weighted mean (t_mean + mag_correction)",
-    "weighted_mean": "Mean weighted by inverse of standard deviation (mean/std)",
+    "weighted_mean": (
+        "Weighted mean term: mean_corrected * w = (t_mean + mag_correction)/std"
+    ),
 }
 
 
@@ -1026,8 +1050,8 @@ def calc_obs_stats(telem):
             "mean": np.mean(mags[ok]),
             "mean_err": scipy.stats.sem(mags[ok]),
             "std": np.std(mags[ok]),
-            "skew": scipy.stats.skew(mags),
-            "kurt": scipy.stats.kurtosis(mags),
+            "skew": scipy.stats.skew(mags[ok]),
+            "kurt": scipy.stats.kurtosis(mags[ok]),
             "t_mean": np.mean(mags[ok & (~outlier)]),
             "t_mean_err": scipy.stats.sem(mags[ok & (~outlier)]),
             "t_std": np.std(mags[ok & (~outlier)]),
@@ -1037,7 +1061,7 @@ def calc_obs_stats(telem):
             "lf_variability_100s": np.max(s_100s) - np.min(s_100s),
             "lf_variability_500s": np.max(s_500s) - np.min(s_500s),
             "lf_variability_1000s": np.max(s_1000s) - np.min(s_1000s),
-            "tempccd": np.mean(telem["TEMPCCD"][ok]) - 273.16,
+            "tempccd": np.mean(telem["TEMPCCD"][ok]) - 273.15,
         }
     )
 
@@ -1074,9 +1098,27 @@ AGASC_ID_STATS_INFO = {
     "n_mag_est_ok": (
         "Total number of image samples included in magnitude estimate for the star"
     ),
+    "n_mag_est_ok_3": (
+        "Number of (mag_est_ok & dr3) samples, counting only OK observations"
+    ),
+    "n_mag_est_ok_5": (
+        "Number of (mag_est_ok & dbox5) samples, counting only OK observations"
+    ),
+    "n_ok": (
+        "Number of kalman samples with (track & sat_pix & ion_rad & dbox5) == True,"
+        " counting only OK observations. Same as n_ok_5."
+    ),
+    "n_ok_3": (
+        "Number of kalman samples with (track & sat_pix & ion_rad & dr3) == True,"
+        " counting only OK observations"
+    ),
+    "n_ok_5": (
+        "Number of kalman samples with (track & sat_pix & ion_rad & dbox5) == True,"
+        " counting only OK observations"
+    ),
     "f_mag_est_ok": (
-        "Fraction of all samples included in magnitude estimate regardless of centroid"
-        " residual (n_mag_est_ok / n_kalman)"
+        "Fraction of kalman samples included in magnitude estimate regardless of"
+        " centroid residual (n_mag_est_ok / n_kalman)"
     ),
     "f_mag_est_ok_3": (
         "Fraction of kalman samples that are included in magnitude estimate and within"
@@ -1101,7 +1143,9 @@ AGASC_ID_STATS_INFO = {
         "Average of magnitudes over observations, weighed by the inverse of its"
         " standard deviation"
     ),
-    "mag_weighted_std": "Uncertainty in the weighted magnitude mean",
+    "mag_weighted_std": (
+        "Weighted standard deviation of the per-observation mean magnitudes"
+    ),
     "t_mean": "Mean magnitude after removing outliers on a per-observation basis",
     "t_std": (
         "Magnitude standard deviation after removing outliers on a per-observation"
@@ -1125,6 +1169,14 @@ AGASC_ID_STATS_INFO = {
     "t_std_dr3": (
         "Truncated magnitude standard deviation after removing outliers and samples"
         " with centroid residual > 3 arcsec on a per-observation basis"
+    ),
+    "t_mean_dr3_not": (
+        "Mean magnitude of mag-est-ok samples with centroid residual > 3 arcsec,"
+        " after removing outliers"
+    ),
+    "t_std_dr3_not": (
+        "Magnitude standard deviation of mag-est-ok samples with centroid residual"
+        " > 3 arcsec, after removing outliers"
     ),
     "mean_dr3": (
         "Mean magnitude after removing outliers and samples with "
@@ -1162,6 +1214,14 @@ AGASC_ID_STATS_INFO = {
     "t_std_dbox5": (
         "Truncated magnitude standard deviation after removing outliers and samples"
         " with centroid residual out of a 5 arcsec box, on a per-observation basis"
+    ),
+    "t_mean_dbox5_not": (
+        "Mean magnitude of mag-est-ok samples with centroid residual outside a"
+        " 5 arcsec box, after removing outliers"
+    ),
+    "t_std_dbox5_not": (
+        "Magnitude standard deviation of mag-est-ok samples with centroid residual"
+        " outside a 5 arcsec box, after removing outliers"
     ),
     "mean_dbox5": (
         "Mean magnitude after removing outliers and samples with "
