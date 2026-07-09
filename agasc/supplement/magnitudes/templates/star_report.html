@@ -27,13 +27,13 @@
               </td>
             </tr>
             <tr>
-              <td> mag<sub>3 arcsec </sub> </td>
+              <td data-toggle="tooltip" data-placement="top" title="Truncated mean magnitude using samples with radial centroid residual < 3 arcsec"> mag<sub>3 arcsec </sub> </td>
               <td>
                 {{ "%.2f" | format(agasc_stats.t_mean_dr3) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dr3) }}
               </td>
             </tr>
             <tr>
-              <td> mag<sub>5 arcsec </sub> </td>
+              <td data-toggle="tooltip" data-placement="top" title="Truncated mean magnitude using samples with centroid residual within a 5 arcsec box. This is the estimate that goes into the supplement (mag_obs)"> mag<sub>5 arcsec </sub> </td>
               <td>
                 {{ "%.2f" | format(agasc_stats.t_mean_dbox5) }} &#177; {{ "%.2f" | format(agasc_stats.t_std_dbox5) }}
               </td>

@@ -710,7 +710,7 @@ OBS_STATS_INFO = {
         "Start time of the observation according to kadi.commands (in cxc seconds)"
     ),
     "tstop": (
-        "Start time of the observation according to kadi.commands (in cxc seconds)"
+        "Stop time of the observation according to kadi.commands (in cxc seconds)"
     ),
     "mag_correction": "Overall correction applied to the magnitude estimate",
     "responsivity": "Responsivity correction applied to the magnitude estimate",
@@ -718,11 +718,11 @@ OBS_STATS_INFO = {
     "mag_aca": "ACA star magnitude from the AGASC catalog",
     "mag_aca_err": "ACA star magnitude uncertainty from the AGASC catalog",
     "row": (
-        "Expected row number, based on star location and yanf/zang from"
+        "Expected row number, based on star location and yang/zang from"
         " mica.archive.starcheck DB"
     ),
     "col": (
-        "Expected col number, based on star location and yanf/zang from"
+        "Expected col number, based on star location and yang/zang from"
         " mica.archive.starcheck DB"
     ),
     "mag_img": "Magnitude estimate from image telemetry (uncorrected)",
@@ -760,15 +760,15 @@ OBS_STATS_INFO = {
         observation that the Kalman filter is getting any star centroid at all.""",
     "f_dr3": (
         "Fraction of mag-est-ok samples with centroid residual < 3 arcsec"
-        " (n_dr3/n_mag_est_ok)"
+        " (n_mag_est_ok_3/n_mag_est_ok)"
     ),
     "f_dbox5": (
         "Fraction of mag-est-ok samples with centroid residual within a 5 arcsec box "
-        "(n_dbox5/n_mag_est_ok)"
+        "(n_mag_est_ok_5/n_mag_est_ok)"
     ),
     "q25": "1st quartile of estimated magnitude",
     "median": "Median of estimated magnitude",
-    "q75": "1st quartile of estimated magnitude",
+    "q75": "3rd quartile of estimated magnitude",
     "mean": "Mean of estimated magnitude",
     "mean_err": "Uncertainty in the mean of estimated magnitude",
     "std": "Standard deviation of estimated magnitude",
@@ -796,8 +796,8 @@ OBS_STATS_INFO = {
     "lf_variability_1000s": (
         "Peak-to-peak (max - min) of the 1000 second rolling mean of OK magnitudes"
     ),
-    "tempccd": "CCD temperature",
-    "dr_star": "Angle residual",
+    "tempccd": "CCD temperature (degrees C)",
+    "dr_star": "Angle residual of the star (arcsec)",
     "obs_ok": "Boolean flag: everything OK with this observation",
     "obs_suspect": 'Boolean flag: this observation is "suspect"',
     "obs_fail": (
@@ -807,7 +807,9 @@ OBS_STATS_INFO = {
     "comments": "",
     "w": "Weight to be used on a weighted mean (1/std)",
     "mean_corrected": "Corrected mean used in weighted mean (t_mean + mag_correction)",
-    "weighted_mean": "Mean weighted by inverse of standard deviation (mean/std)",
+    "weighted_mean": (
+        "Weighted mean term: mean_corrected * w = (t_mean + mag_correction)/std"
+    ),
 }
 
 
@@ -1112,7 +1114,9 @@ AGASC_ID_STATS_INFO = {
         "Average of magnitudes over observations, weighed by the inverse of its"
         " standard deviation"
     ),
-    "mag_weighted_std": "Uncertainty in the weighted magnitude mean",
+    "mag_weighted_std": (
+        "Weighted standard deviation of the per-observation mean magnitudes"
+    ),
     "t_mean": "Mean magnitude after removing outliers on a per-observation basis",
     "t_std": (
         "Magnitude standard deviation after removing outliers on a per-observation"

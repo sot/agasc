@@ -1018,11 +1018,11 @@ GLOSSARY = {
     "mag_est_ok": (
         "Subset of Kalman samples that have a magnitude estimate (track & ion_rad)"
     ),
-    "n_total": "Total number of sample regardless of OBC PCAD status",
+    "n_total": "Total number of samples regardless of OBC PCAD status",
     "n": "Synonym for n_total",
     "n_kalman": "Number of Kalman samples",
-    "n_dr3": "Number of dr3 samples.",
-    "n_dbox5": "Number of dbox5 samples.",
+    "n_dr3": "Number of (mag_est_ok & dr3) samples",
+    "n_dbox5": "Number of (mag_est_ok & dbox5) samples",
     "n_track": "Number of track samples.",
     "n_ok_3": "Number of (track & sat_pix & ion_rad & dr3) samples",
     "n_ok_5": "Number of (track & sat_pix & ion_rad & dbox5) samples",
@@ -1031,11 +1031,11 @@ GLOSSARY = {
     "n_mag_est_ok_5": "Number of (track & ion_rad & dbox5) samples",
     "f_dr3": (
         "Fraction of mag-est-ok samples with centroid residual < 3 arcsec"
-        "((mag_est_ok & n_dr3)/n_mag_est_ok)"
+        " (n_mag_est_ok_3/n_mag_est_ok)"
     ),
     "f_dbox5": (
         "Fraction of mag-est-ok samples with centroid within 5 arcsec box"
-        "((mag_est_ok & n_dbox5)/n_mag_est_ok)"
+        " (n_mag_est_ok_5/n_mag_est_ok)"
     ),
     "f_mag_est_ok": (
         """n_mag_est_ok/n_kalman. This is a measure of the fraction of time during
