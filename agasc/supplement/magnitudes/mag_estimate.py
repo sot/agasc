@@ -516,6 +516,13 @@ def get_telemetry_by_agasc_id(
     )
 
 
+def _has_error(telem):
+    # error entries produced by get_telemetry_by_observations are plain dicts;
+    # successful telemetry can be a dict or an astropy Table, and
+    # `"error_code" in <Table>` raises TypeError under numpy >= 2
+    return isinstance(telem, dict) and "error_code" in telem
+
+
 def get_telemetry_by_observations(observations, ignore_exceptions=False, as_table=True):
     telem = []
     for obs in observations:
@@ -560,7 +567,7 @@ def get_telemetry_by_observations(observations, ignore_exceptions=False, as_tabl
         # we ignore entries with error_code here because this means ignore_exceptions is true
         # (otherwise the exception would have been raised already)
         return (
-            vstack([Table(tel) for tel in telem if "error_code" not in tel])
+            vstack([Table(tel) for tel in telem if not _has_error(tel)])
             if as_table
             else telem
         )
@@ -1233,8 +1240,7 @@ def get_agasc_id_stats(
     # discard observations with no telemetry if they occured in the last two weeks.
     discard = np.array(
         [
-            ("error_code" in tlm)
-            and (tlm["mp_starcat_time"] > CxoTime() - no_telem_time)
+            _has_error(tlm) and (tlm["mp_starcat_time"] > CxoTime() - no_telem_time)
             for tlm in all_telem
         ]
     )
@@ -1649,7 +1655,7 @@ def get_multi_obs_stats(star_obs, telem=None, obs_status_override=None):
             comment = status["comments"]
 
         obs_telem = telem[i]
-        if "error_code" in obs_telem:
+        if _has_error(obs_telem):
             fail = obs_telem["error_code"] > 2
             obs_stat = get_obs_stats(obs, telem=[])
             obs_stat.update(
