@@ -1059,12 +1059,12 @@ GLOSSARY = {
         mag<sub>obs</sub> - mag<sub>catalog</sub>""",
     "&delta;<sub>mag</sub>/&sigma;<sub>mag</sub>": """
         Difference between observed and catalog magnitudes divided by catalog magnitude error:
-        &delta;<sub>mag</sub>/&sigma;<sub>mag</sub>""",
+        &delta;<sub>mag cat</sub>/&sigma;<sub>mag</sub>""",
     "&delta;<sub>mag</sub>": (
         "Variation in observed magnitude since last version of AGASC supplement"
     ),
     "&delta;<sub>&sigma;</sub>": (
-        "Variation in observed magnitude standard deviation since last version of"
-        " AGASC supplement"
+        "Variation in observed magnitude uncertainty (mag_aca_err) since last version"
+        " of the AGASC supplement"
     ),
 }
