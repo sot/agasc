@@ -314,8 +314,8 @@ class MagEstimateReport:
             agasc_stats["update_mag_aca_err"][idx1] = updated_stars["mag_aca_err"]
 
         tooltips = {
-            "warning": "At least one bad observation",
-            "danger": "At least failed observation",
+            "warning": "At least one known bad observation",
+            "danger": "At least one failed or suspect observation",
         }
 
         # make all individual star reports
@@ -1038,7 +1038,7 @@ GLOSSARY = {
         "((mag_est_ok & n_dbox5)/n_mag_est_ok)"
     ),
     "f_mag_est_ok": (
-        """n_mag_est_ok_3/n_kalman. This is a measure of the fraction of time during
+        """n_mag_est_ok/n_kalman. This is a measure of the fraction of time during
         an observation that a magnitude estimate is available."""
     ),
     "f_mag_est_ok_3": "n_mag_est_ok_3/n_kalman.",

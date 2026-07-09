@@ -59,9 +59,9 @@
 
     <p>
       {{ section.description }}
-      Rows marked red are stars that have a failed observation in this run.
-      Rows marked yellow are stars that have a failed observation in their history, but not in this
-      run.
+      Rows marked red are stars with at least one failed or suspect observation.
+      Rows marked yellow are stars with at least one known bad observation that is not included
+      in the magnitude estimate, but no failed or suspect observations.
     </p>
 
     <table class="table table-hover">
@@ -70,10 +70,10 @@
         <th data-toggle="tooltip" data-placement="top" title="ID in AGASC"> AGASC ID </th>
         <th data-toggle="tooltip" data-placement="top" title="Last time the star was observed"> Last Obs </th>
         <th data-toggle="tooltip" data-placement="top" title="Number of times the star has been observed"> n<sub>obs</sub> </th>
-        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Observations not included in calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>bad</sub> </th>
-        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Suspect or failed observations (not included in calculation) <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>fail</sub> </th>
+        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Observations not included in calculation. They fail one of: <br/> n &gt; 10 <br/>f_mag_est_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>bad</sub> </th>
+        <th data-toggle="tooltip" data-html="true" data-placement="top" title="Suspect or failed observations (not included in calculation). Suspect observations fail one of: <br/> n &gt; 10 <br/>f_mag_est_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> n<sub>fail</sub> </th>
         <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of kalman time with OBC OK and centroid within a 5 arcsec square window around target: <br/> dbox5 <br/> AOACFCT == TRAK <br/> AOACISP == OK <br/> AOACIIR == OK"> f<sub>ok</sub> </th>
-        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of total time when there is a magnitude estimate and centroid within 3 arcsec of target"> f<sub>mag est ok 3</sub> </th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of kalman time when there is a magnitude estimate and centroid within 3 arcsec of target"> f<sub>mag est ok 3</sub> </th>
         <th data-toggle="tooltip" data-placement="top" title="Fraction of the magnitude estimates with centroid within a 5 arcsec square window around target"> f<sub>5 arcsec</sub> </th>
         <th data-toggle="tooltip" data-placement="top" title="Magnitude in AGASC"> mag<sub>catalog</sub> </th>
         <th data-toggle="tooltip" data-placement="top" title="Magnitude observed"> mag<sub>obs</sub> </th>

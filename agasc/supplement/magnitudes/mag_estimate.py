@@ -741,14 +741,16 @@ OBS_STATS_INFO = {
     ),
     "f_track": 'Fraction of kalman samples with AOACFCT == "TRAK" (n_track/n_kalman)',
     "f_mag_est_ok": (
-        "Fraction of all samples included in magnitude estimate regardless of centroid"
-        " residual (n_mag_est_ok/n_kalman)"
+        "Fraction of kalman samples included in magnitude estimate regardless of"
+        " centroid residual (n_mag_est_ok/n_kalman)"
     ),
     "f_mag_est_ok_3": (
-        "Fraction of kalman samples with (mag_est_ok & dr3) == True (n_ok_3/n_kalman)"
+        "Fraction of kalman samples with (mag_est_ok & dr3) == True"
+        " (n_mag_est_ok_3/n_kalman)"
     ),
     "f_mag_est_ok_5": (
-        "Fraction of kalman samples with (mag_est_ok & dbox5) == True (n_ok_5/n_kalman)"
+        "Fraction of kalman samples with (mag_est_ok & dbox5) == True"
+        " (n_mag_est_ok_5/n_kalman)"
     ),
     "f_ok": "n_ok_5 / n_kalman. Same as f_ok_5.",  # fix this
     "f_ok_3": """n_ok_3 / n_kalman. This is a measure of the fraction of time during an
@@ -780,11 +782,20 @@ OBS_STATS_INFO = {
     "t_skew": "Skewness of estimated magnitude after removing outliers",
     "t_kurt": "Kurtosis of estimated magnitude after removing outliers",
     "n": "Number of samples",
-    "n_ok": "Number of samples with (kalman & mag_est_ok & dbox5) == True",
+    "n_ok": (
+        "Number of samples with (kalman & track & sat_pix & ion_rad & dbox5) == True."
+        " Same as n_ok_5."
+    ),
     "outliers": "Number of outliers (+- 3 IQR)",
-    "lf_variability_100s": "Rolling mean of OK magnitudes with a 100 second window",
-    "lf_variability_500s": "Rolling mean of OK magnitudes with a 500 second window",
-    "lf_variability_1000s": "Rolling mean of OK magnitudes with a 1000 second window",
+    "lf_variability_100s": (
+        "Peak-to-peak (max - min) of the 100 second rolling mean of OK magnitudes"
+    ),
+    "lf_variability_500s": (
+        "Peak-to-peak (max - min) of the 500 second rolling mean of OK magnitudes"
+    ),
+    "lf_variability_1000s": (
+        "Peak-to-peak (max - min) of the 1000 second rolling mean of OK magnitudes"
+    ),
     "tempccd": "CCD temperature",
     "dr_star": "Angle residual",
     "obs_ok": "Boolean flag: everything OK with this observation",
@@ -1075,8 +1086,8 @@ AGASC_ID_STATS_INFO = {
         "Total number of image samples included in magnitude estimate for the star"
     ),
     "f_mag_est_ok": (
-        "Fraction of all samples included in magnitude estimate regardless of centroid"
-        " residual (n_mag_est_ok / n_kalman)"
+        "Fraction of kalman samples included in magnitude estimate regardless of"
+        " centroid residual (n_mag_est_ok / n_kalman)"
     ),
     "f_mag_est_ok_3": (
         "Fraction of kalman samples that are included in magnitude estimate and within"

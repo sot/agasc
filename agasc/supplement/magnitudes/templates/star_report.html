@@ -70,8 +70,8 @@
       <h3> Observation Info </h3>
 
       <p>
-        These are all observations of this star. Rows marked red are observations that failed to
-        process.
+        These are all observations of this star. Rows marked red are observations that are not OK
+        and are not included in the magnitude estimate.
       </p>
 
       <table  class="table table-hover">
@@ -83,13 +83,13 @@
           <th data-toggle="tooltip" data-placement="top" title="Pixel column"> Col </th>
           <!-- th data-toggle="tooltip" data-placement="top" data-html="true" title="Observation is considered in the calculation <br/> n &gt; 10 <br/>f_ok &gt; 0.3 <br/> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  < 1"> OK </th -->
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples"> N </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples with a magnitude estimate <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> N<sub>mag est ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of time samples with a magnitude estimate <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK'"> N<sub>mag est ok</sub> </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number of outlying samples"> N<sub>out</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of the total time when there is a magnitude estimate <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK' <br/> OBS_OK)"> f<sub>mag est ok</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of kalman time when there is a magnitude estimate <br/> AOACASEQ == 'KALM' <br/> AOACIIR == 'OK' <br/> AOPCADMD == 'NPNT' <br/> AOACFCT == 'TRAK'"> f<sub>mag est ok</sub> </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of magnitude estimates with centroid within 3 arcsec of target"> f<sub>dr3</sub> </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of magnitude estimates with centroid within a 5 arcsec square window of target"> f<sub>dbox5</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of time where there is a magnitude estimate and target within 3 arcsec <br/> as fraction of total time"> f<sub>mag est ok 3</sub> </th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="100-second Rolling mean of mag - &langle; mag &rangle;"> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Fraction of time where there is a magnitude estimate and target within 3 arcsec <br/> as fraction of kalman time"> f<sub>mag est ok 3</sub> </th>
+          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Peak-to-peak (max - min) of the 100-second rolling mean of magnitude"> &langle; &delta; <sub>mag</sub> &rangle; <sub>100s</sub>  </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Mean magnitude"> &langle; mag &rangle; </th>
           <th data-toggle="tooltip" data-placement="top" data-html="true" title="Magnitude uncertainty"> &sigma;<sub>mag</sub> </th>
           <th> Comments </th>
