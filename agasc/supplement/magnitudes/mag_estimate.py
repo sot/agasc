@@ -640,7 +640,7 @@ def get_mag_from_img(slot_data, t_start, ok=True):
     dark_cal = get_dark_cal_image(
         t_start,
         "nearest",
-        t_ccd_ref=np.mean(slot_data["TEMPCCD"] - 273.16),
+        t_ccd_ref=np.mean(slot_data["TEMPCCD"] - 273.15),
         aca_image=False,
     )
 
@@ -1026,8 +1026,8 @@ def calc_obs_stats(telem):
             "mean": np.mean(mags[ok]),
             "mean_err": scipy.stats.sem(mags[ok]),
             "std": np.std(mags[ok]),
-            "skew": scipy.stats.skew(mags),
-            "kurt": scipy.stats.kurtosis(mags),
+            "skew": scipy.stats.skew(mags[ok]),
+            "kurt": scipy.stats.kurtosis(mags[ok]),
             "t_mean": np.mean(mags[ok & (~outlier)]),
             "t_mean_err": scipy.stats.sem(mags[ok & (~outlier)]),
             "t_std": np.std(mags[ok & (~outlier)]),
@@ -1037,7 +1037,7 @@ def calc_obs_stats(telem):
             "lf_variability_100s": np.max(s_100s) - np.min(s_100s),
             "lf_variability_500s": np.max(s_500s) - np.min(s_500s),
             "lf_variability_1000s": np.max(s_1000s) - np.min(s_1000s),
-            "tempccd": np.mean(telem["TEMPCCD"][ok]) - 273.16,
+            "tempccd": np.mean(telem["TEMPCCD"][ok]) - 273.15,
         }
     )
 
