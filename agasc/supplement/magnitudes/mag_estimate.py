@@ -786,6 +786,17 @@ OBS_STATS_INFO = {
         "Number of samples with (kalman & track & sat_pix & ion_rad & dbox5) == True."
         " Same as n_ok_5."
     ),
+    "n_ok_3": (
+        "Number of samples with (kalman & track & sat_pix & ion_rad & dr3) == True"
+    ),
+    "n_ok_5": (
+        "Number of samples with (kalman & track & sat_pix & ion_rad & dbox5) == True"
+    ),
+    "n_mag_est_ok": (
+        "Number of kalman samples included in magnitude estimate (track & ion_rad)"
+    ),
+    "n_mag_est_ok_3": "Number of (mag_est_ok & dr3) samples",
+    "n_mag_est_ok_5": "Number of (mag_est_ok & dbox5) samples",
     "outliers": "Number of outliers (+- 3 IQR)",
     "lf_variability_100s": (
         "Peak-to-peak (max - min) of the 100 second rolling mean of OK magnitudes"
@@ -1087,6 +1098,24 @@ AGASC_ID_STATS_INFO = {
     "n_mag_est_ok": (
         "Total number of image samples included in magnitude estimate for the star"
     ),
+    "n_mag_est_ok_3": (
+        "Number of (mag_est_ok & dr3) samples, counting only OK observations"
+    ),
+    "n_mag_est_ok_5": (
+        "Number of (mag_est_ok & dbox5) samples, counting only OK observations"
+    ),
+    "n_ok": (
+        "Number of kalman samples with (track & sat_pix & ion_rad & dbox5) == True,"
+        " counting only OK observations. Same as n_ok_5."
+    ),
+    "n_ok_3": (
+        "Number of kalman samples with (track & sat_pix & ion_rad & dr3) == True,"
+        " counting only OK observations"
+    ),
+    "n_ok_5": (
+        "Number of kalman samples with (track & sat_pix & ion_rad & dbox5) == True,"
+        " counting only OK observations"
+    ),
     "f_mag_est_ok": (
         "Fraction of kalman samples included in magnitude estimate regardless of"
         " centroid residual (n_mag_est_ok / n_kalman)"
@@ -1141,6 +1170,14 @@ AGASC_ID_STATS_INFO = {
         "Truncated magnitude standard deviation after removing outliers and samples"
         " with centroid residual > 3 arcsec on a per-observation basis"
     ),
+    "t_mean_dr3_not": (
+        "Mean magnitude of mag-est-ok samples with centroid residual > 3 arcsec,"
+        " after removing outliers"
+    ),
+    "t_std_dr3_not": (
+        "Magnitude standard deviation of mag-est-ok samples with centroid residual"
+        " > 3 arcsec, after removing outliers"
+    ),
     "mean_dr3": (
         "Mean magnitude after removing outliers and samples with "
         "centroid residual > 3 arcsec on a per-observation basis"
@@ -1177,6 +1214,14 @@ AGASC_ID_STATS_INFO = {
     "t_std_dbox5": (
         "Truncated magnitude standard deviation after removing outliers and samples"
         " with centroid residual out of a 5 arcsec box, on a per-observation basis"
+    ),
+    "t_mean_dbox5_not": (
+        "Mean magnitude of mag-est-ok samples with centroid residual outside a"
+        " 5 arcsec box, after removing outliers"
+    ),
+    "t_std_dbox5_not": (
+        "Magnitude standard deviation of mag-est-ok samples with centroid residual"
+        " outside a 5 arcsec box, after removing outliers"
     ),
     "mean_dbox5": (
         "Mean magnitude after removing outliers and samples with "
