@@ -286,9 +286,9 @@ class MagEstimateReport:
                 (agasc_stats["n_obs_bad"] > 0) | (agasc_stats["n_obsids"] == 0)
             ] = "warning"
             agasc_stats["flag"][agasc_stats["n_obs_bad_fail"] > 0] = "danger"
-            agasc_stats["delta"] = agasc_stats["t_mean_dr3"] - agasc_stats["mag_aca"]
+            agasc_stats["delta"] = agasc_stats["mag_obs"] - agasc_stats["mag_aca"]
             agasc_stats["sigma"] = (
-                agasc_stats["t_mean_dr3"] - agasc_stats["mag_aca"]
+                agasc_stats["mag_obs"] - agasc_stats["mag_aca"]
             ) / agasc_stats["mag_aca_err"]
             agasc_stats["new"] = True
             agasc_stats["new"][np.isin(agasc_stats["agasc_id"], updated_star_ids)] = (
