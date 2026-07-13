@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API documentation &#8212; Agasc 4.23.3 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <title>API documentation &#8212; Agasc 4.24.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=00326d47"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/documentation_options.js?v=b99116e3"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -58,7 +58,7 @@
 	 |
       </li>
       <li>
-	<a href="index.html">Agasc 4.23.3 documentation</a>
+	<a href="index.html">Agasc 4.24.0 documentation</a>
 	 &#187;
       </li>
       
@@ -76,13 +76,13 @@
 <span id="api-documentation"></span><h1>API documentation<a class="headerlink" href="#module-agasc.agasc" title="Link to this heading">¶</a></h1>
 <dl class="py data">
 <dt class="sig sig-object py" id="agasc.agasc.TABLE_DTYPE">
-<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">TABLE_DTYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">dtype([('AGASC_ID',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('RA',</span> <span class="pre">'&lt;f8'),</span> <span class="pre">('DEC',</span> <span class="pre">'&lt;f8'),</span> <span class="pre">('POS_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('POS_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('EPOCH',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('PM_RA',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PM_DEC',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PM_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('PLX',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PLX_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PLX_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('MAG_ACA',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('MAG_ACA_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('CLASS',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('MAG_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG_BAND',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('COLOR1',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('COLOR1_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('C1_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('COLOR2',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('COLOR2_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('C2_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('RSV1',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('RSV2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV3',</span> <span class="pre">'u1'),</span> <span class="pre">('VAR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('VAR_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('ASPQ1',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ASPQ2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ASPQ3',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ1',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ3',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ4',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ5',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ6',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('XREF_ID1',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID2',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID3',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID4',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID5',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('RSV4',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV5',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV6',</span> <span class="pre">'&lt;i2')])</span></em><a class="headerlink" href="#agasc.agasc.TABLE_DTYPE" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">TABLE_DTYPE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">dtype([('AGASC_ID',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('RA',</span> <span class="pre">'&lt;f8'),</span> <span class="pre">('DEC',</span> <span class="pre">'&lt;f8'),</span> <span class="pre">('POS_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('POS_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('EPOCH',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('PM_RA',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PM_DEC',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PM_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('PLX',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PLX_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('PLX_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('MAG_ACA',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('MAG_ACA_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('CLASS',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('MAG_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG_BAND',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('MAG_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('COLOR1',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('COLOR1_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('C1_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('COLOR2',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('COLOR2_ERR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('C2_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('RSV1',</span> <span class="pre">'&lt;f4'),</span> <span class="pre">('RSV2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV3',</span> <span class="pre">'u1'),</span> <span class="pre">('VAR',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('VAR_CATID',</span> <span class="pre">'u1'),</span> <span class="pre">('ASPQ1',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ASPQ2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ASPQ3',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ1',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ2',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ3',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ4',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ5',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('ACQQ6',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('XREF_ID1',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID2',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID3',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID4',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('XREF_ID5',</span> <span class="pre">'&lt;i4'),</span> <span class="pre">('RSV4',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV5',</span> <span class="pre">'&lt;i2'),</span> <span class="pre">('RSV6',</span> <span class="pre">'&lt;i2')])</span></span><a class="headerlink" href="#agasc.agasc.TABLE_DTYPE" title="Link to this definition">¶</a></dt>
 <dd><p>Standard dtypes for AGASC table.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="agasc.agasc.TableOrder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">TableOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names=&lt;not</span> <span class="pre">given&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#TableOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.TableOrder" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">TableOrder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#TableOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.TableOrder" title="Link to this definition">¶</a></dt>
 <dd><p>Enumeration type to specify the AGASC table ordering:</p>
 <ul class="simple">
 <li><p>TableOrder.NONE. The stars are not sorted.</p></li>
@@ -123,8 +123,8 @@
 argument, which defaults to the current date if not supplied.  The
 corrected positions are available in the <code class="docutils literal notranslate"><span class="pre">RA_PMCORR</span></code> and <code class="docutils literal notranslate"><span class="pre">DEC_PMCORR</span></code>
 columns, respectively.</p>
-<p>By default, stars with available mag estimates or bad star entries
-in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
+<dl>
+<dt>By default, stars with available mag estimates or bad star entries</dt><dd><p>in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_ACA</span></code> and <code class="docutils literal notranslate"><span class="pre">MAG_ACA_ERR</span></code> are set according to the supplement.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">agasc.MAG_CATID_SUPPLEMENT</span></code>.</p></li>
@@ -149,8 +149,10 @@ in <code class="docutils literal notranslate"><span class="pre">default_agasc_di
 <p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
 otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
 <p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
+</dd>
+</dl>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stars</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_agasc_cone</span><span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stars</span><span class="p">[</span><span class="s1">&#39;RA&#39;</span><span class="p">],</span> <span class="n">stars</span><span class="p">[</span><span class="s1">&#39;DEC&#39;</span><span class="p">],</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
 </pre></div>
@@ -196,8 +198,8 @@ AGASC_SUPPLEMENT_ENABLED env var, or True if not defined)</p>
 <dt class="sig sig-object py" id="agasc.agasc.get_agasc_filename">
 <span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_agasc_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_rc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_agasc_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_agasc_filename" title="Link to this definition">¶</a></dt>
 <dd><p>Get a matching AGASC file name from <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is not specified or is None then return either
-<code class="docutils literal notranslate"><span class="pre">default_agasc_dir()/${AGASC_HDF5_FILE}</span></code> if <code class="docutils literal notranslate"><span class="pre">${AGASC_HDF5_FILE}</span></code> is defined;
+<dl>
+<dt>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> is not specified or is None then return either</dt><dd><p><code class="docutils literal notranslate"><span class="pre">default_agasc_dir()/${AGASC_HDF5_FILE}</span></code> if <code class="docutils literal notranslate"><span class="pre">${AGASC_HDF5_FILE}</span></code> is defined;
 or return the latest version of <code class="docutils literal notranslate"><span class="pre">proseco_agasc</span></code> in <code class="docutils literal notranslate"><span class="pre">default_agasc_dir()</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with the suffix <code class="docutils literal notranslate"><span class="pre">.h5</span></code> then it is returned as-is.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> ends with <code class="docutils literal notranslate"><span class="pre">*</span></code> then the latest version of the matching AGASC file
@@ -206,6 +208,8 @@ in <code class="docutils literal notranslate"><span class="pre">default_agasc_di
 <p>Any other ending for <code class="docutils literal notranslate"><span class="pre">agasc_file</span></code> raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
 <p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
 otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -226,7 +230,7 @@ otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/da
 </dl>
 <p class="rubric">Examples</p>
 <p>Setup:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">agasc</span> <span class="kn">import</span> <span class="n">get_agasc_filename</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">agasc</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_agasc_filename</span>
 </pre></div>
 </div>
 <p>Selecting files in the default AGASC directory:</p>
@@ -270,8 +274,8 @@ environment variable:</p>
 <dt class="sig sig-object py" id="agasc.agasc.get_star">
 <span class="sig-prename descclassname"><span class="pre">agasc.agasc.</span></span><span class="sig-name descname"><span class="pre">get_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agasc_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix_color1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supplement</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/agasc/agasc.html#get_star"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#agasc.agasc.get_star" title="Link to this definition">¶</a></dt>
 <dd><p>Get AGASC catalog entry for star with requested id.</p>
-<p>By default, stars with available mag estimates or bad star entries
-in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
+<dl>
+<dt>By default, stars with available mag estimates or bad star entries</dt><dd><p>in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_ACA</span></code> and <code class="docutils literal notranslate"><span class="pre">MAG_ACA_ERR</span></code> are set according to the supplement.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">agasc.MAG_CATID_SUPPLEMENT</span></code>.</p></li>
@@ -296,8 +300,10 @@ in <code class="docutils literal notranslate"><span class="pre">default_agasc_di
 <p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
 otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
 <p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
+</dd>
+</dl>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_star</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">star</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
@@ -361,8 +367,8 @@ the number of stars is greater than <code class="docutils literal notranslate"><
 <p>Unlike the similar <code class="docutils literal notranslate"><span class="pre">get_star</span></code> function, this adds a <code class="docutils literal notranslate"><span class="pre">DATE</span></code> column
 indicating the date at which the star coordinates (RA_PMCORR, DEC_PMCORR)
 are computed.</p>
-<p>By default, stars with available mag estimates or bad star entries
-in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
+<dl>
+<dt>By default, stars with available mag estimates or bad star entries</dt><dd><p>in the AGASC supplement are updated in-place in the output <code class="docutils literal notranslate"><span class="pre">stars</span></code> Table:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_ACA</span></code> and <code class="docutils literal notranslate"><span class="pre">MAG_ACA_ERR</span></code> are set according to the supplement.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">MAG_CATID</span></code> (mag catalog ID) is set to <code class="docutils literal notranslate"><span class="pre">agasc.MAG_CATID_SUPPLEMENT</span></code>.</p></li>
@@ -387,8 +393,8 @@ in <code class="docutils literal notranslate"><span class="pre">default_agasc_di
 <p>The default AGASC directory is the environment variable <code class="docutils literal notranslate"><span class="pre">${AGASC_DIR}</span></code> if defined,
 otherwise <code class="docutils literal notranslate"><span class="pre">${SKA}/data/agasc</span></code>.</p>
 <p>The default AGASC supplement file is <code class="docutils literal notranslate"><span class="pre">&lt;AGASC_DIR&gt;/agasc_supplement.h5</span></code>.</p>
-<dl>
-<dt>Example::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">agasc</span>
+</dd>
+<dt>Example::</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">agasc</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">agasc</span><span class="o">.</span><span class="n">get_stars</span><span class="p">(</span><span class="mi">636629880</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">star</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{:12s}</span><span class="s1"> : </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
@@ -484,7 +490,7 @@ calls if the user does not supply that argument.</p>
 <p>This is mostly for testing or legacy applications to override the
 default behavior to use the AGASC supplement star mags when available.</p>
 <p>Examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">agasc</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">agasc</span>
 
 <span class="c1"># Disable use of the supplement for the context block</span>
 <span class="k">with</span> <span class="n">agasc</span><span class="o">.</span><span class="n">set_supplement_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">):</span>
@@ -492,7 +498,7 @@ default behavior to use the AGASC supplement star mags when available.</p>
 
 <span class="c1"># Disable use of the supplement for the function</span>
 <span class="nd">@agasc</span><span class="o">.</span><span class="n">set_supplement_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_get_aca_catalog</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_get_aca_catalog</span><span class="p">():</span>
     <span class="n">aca</span> <span class="o">=</span> <span class="n">proseco</span><span class="o">.</span><span class="n">get_aca_catalog</span><span class="p">(</span><span class="n">obsid</span><span class="o">=</span><span class="mi">8008</span><span class="p">)</span>
     <span class="o">...</span>
 
@@ -668,12 +674,12 @@ of the remaining columns. Ignored for <code class="docutils literal notranslate"
 <dd><p>Save the version of a supplement table to the “versions” table.</p>
 <p>Along with the version, the time of update is also added to another table called “last_updated”</p>
 <p>Example usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">agasc.supplement.utils</span> <span class="kn">import</span> <span class="n">save_version</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agasc.supplement.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_version</span>
 <span class="n">save_version</span><span class="p">(</span><span class="s1">&#39;agasc_supplement.h5&#39;</span><span class="p">,</span> <span class="n">mags</span><span class="o">=</span><span class="s1">&#39;4.10.2&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The different versions can be retrieved from the default supplement:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">agasc.supplement.utils</span> <span class="kn">import</span> <span class="n">get_supplement_table</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">agasc.supplement.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_supplement_table</span>
 <span class="n">versions</span> <span class="o">=</span> <span class="n">get_supplement_table</span><span class="p">(</span><span class="s1">&#39;agasc_versions&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -806,7 +812,7 @@ If ‘agasc_id’ is not given, then it applies to all stars in that observation
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 9.1.0. &nbsp;
   </p>
 </footer>
   </body>

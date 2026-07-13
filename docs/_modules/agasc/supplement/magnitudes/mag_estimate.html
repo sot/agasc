@@ -4,13 +4,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.supplement.magnitudes.mag_estimate &#8212; Agasc 4.23.3 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <title>agasc.supplement.magnitudes.mag_estimate &#8212; Agasc 4.24.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../../../_static/documentation_options.js?v=00326d47"></script>
-    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/documentation_options.js?v=b99116e3"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../../index.html">Agasc 4.23.3 documentation</a>
+	<a href="../../../../index.html">Agasc 4.24.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -64,29 +64,30 @@
 <span class="sd">Functions to estimate observed ACA magnitudes</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 
-<span class="kn">import</span> <span class="nn">numba</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.special</span>
-<span class="kn">import</span> <span class="nn">scipy.stats</span>
-<span class="kn">import</span> <span class="nn">Ska.quatutil</span>
-<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">vstack</span>
-<span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
-<span class="kn">from</span> <span class="nn">chandra_aca.transform</span> <span class="kn">import</span> <span class="n">count_rate_to_mag</span><span class="p">,</span> <span class="n">pixels_to_yagzag</span>
-<span class="kn">from</span> <span class="nn">cheta</span> <span class="kn">import</span> <span class="n">fetch</span>
-<span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
-<span class="kn">from</span> <span class="nn">kadi</span> <span class="kn">import</span> <span class="n">events</span>
-<span class="kn">from</span> <span class="nn">mica.archive</span> <span class="kn">import</span> <span class="n">aca_l0</span>
-<span class="kn">from</span> <span class="nn">mica.archive.aca_dark.dark_cal</span> <span class="kn">import</span> <span class="n">get_dark_cal_image</span>
-<span class="kn">from</span> <span class="nn">Quaternion</span> <span class="kn">import</span> <span class="n">Quat</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.special</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">Ska.quatutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Chandra.Time</span><span class="w"> </span><span class="kn">import</span> <span class="n">DateTime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">chandra_aca.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">count_rate_to_mag</span><span class="p">,</span> <span class="n">pixels_to_yagzag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cheta</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxoTime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kadi</span><span class="w"> </span><span class="kn">import</span> <span class="n">events</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mica.archive</span><span class="w"> </span><span class="kn">import</span> <span class="n">aca_l0</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mica.archive.aca_dark.dark_cal</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_dark_cal_image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Quaternion</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quat</span>
 
-<span class="kn">from</span> <span class="nn">agasc</span> <span class="kn">import</span> <span class="n">get_star</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agasc</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_star</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">star_obs_catalogs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">star_obs_catalogs</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;agasc.supplement&quot;</span><span class="p">)</span>
 
@@ -122,8 +123,8 @@
 
 <div class="viewcode-block" id="MagStatsException">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.MagStatsException">[docs]</a>
-<span class="k">class</span> <span class="nc">MagStatsException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MagStatsException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">agasc_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">obsid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mp_starcat_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -154,7 +155,7 @@
                 <span class="s2">&quot;traceback&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stack_trace</span><span class="p">),</span>
             <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_failed_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_failed_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the exception is a failure.</span>
 
@@ -164,13 +165,13 @@
 
     <span class="n">failed</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_failed_</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;MagStatsException: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2"> (agasc_id: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_id</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;obsid: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">obsid</span><span class="si">}</span><span class="s2">, mp_starcat_time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mp_starcat_time</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield</span> <span class="s2">&quot;error_code&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_code</span>
         <span class="k">yield</span> <span class="s2">&quot;msg&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span>
         <span class="k">yield</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">agasc_id</span>
@@ -181,7 +182,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_magnitude_correction</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">mag_aca</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_magnitude_correction</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">mag_aca</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a time-dependent correction to AOACMAG (prior to dynamic background subtraction).</span>
 
@@ -211,7 +212,7 @@
 
 <div class="viewcode-block" id="get_responsivity">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_responsivity">[docs]</a>
-<span class="k">def</span> <span class="nf">get_responsivity</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_responsivity</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ACA magnitude response over time.</span>
 
@@ -231,7 +232,7 @@
 
 <div class="viewcode-block" id="get_droop_systematic_shift">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_droop_systematic_shift">[docs]</a>
-<span class="k">def</span> <span class="nf">get_droop_systematic_shift</span><span class="p">(</span><span class="n">magnitude</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_droop_systematic_shift</span><span class="p">(</span><span class="n">magnitude</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Difference between the magnitude determined from DC-subtracted image telemetry and</span>
 <span class="sd">    the catalog ACA magnitude.</span>
@@ -252,7 +253,7 @@
 
 <div class="viewcode-block" id="rolling_mean">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.rolling_mean">[docs]</a>
-<span class="k">def</span> <span class="nf">rolling_mean</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rolling_mean</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the rolling mean of the &#39;f&#39; array, using a centered square window in time.</span>
 
@@ -281,7 +282,7 @@
 
 
 <span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">_rolling_mean_</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">selection</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_rolling_mean_</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">selection</span><span class="p">):</span>
     <span class="n">i_min</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">i_max</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
@@ -305,7 +306,7 @@
 
 <div class="viewcode-block" id="get_star_position">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_star_position">[docs]</a>
-<span class="k">def</span> <span class="nf">get_star_position</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="n">telem</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_star_position</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="n">telem</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Residuals for a given AGASC record at a given slot/time.</span>
 
@@ -381,7 +382,7 @@
 
 <div class="viewcode-block" id="get_telemetry">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_telemetry">[docs]</a>
-<span class="k">def</span> <span class="nf">get_telemetry</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_telemetry</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get all telemetry relevant for the magnitude estimation task.</span>
 
@@ -563,7 +564,9 @@
 
 <div class="viewcode-block" id="get_telemetry_by_agasc_id">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_telemetry_by_agasc_id">[docs]</a>
-<span class="k">def</span> <span class="nf">get_telemetry_by_agasc_id</span><span class="p">(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">obsid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_telemetry_by_agasc_id</span><span class="p">(</span>
+    <span class="n">agasc_id</span><span class="p">,</span> <span class="n">obsid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_table</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get all telemetry relevant for the magnitude estimation, given an AGASC ID.</span>
 
@@ -573,10 +576,13 @@
 <span class="sd">    :param obsid: int (optional)</span>
 <span class="sd">    :param ignore_exceptions: bool</span>
 <span class="sd">        if True, any exception is ignored. Useful in some cases. Default is False.</span>
+<span class="sd">    :param as_table: bool</span>
+<span class="sd">        if True, the telemetry is returned as an astropy Table. If False, it is returned as a list</span>
+<span class="sd">        of dicts, one per observation. Default is True.</span>
 <span class="sd">    :return: dict</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Getting telemetry for AGASC ID=</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>  <span class="c1"># should this be here?</span>
     <span class="k">if</span> <span class="n">obsid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span>
             <span class="p">(</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">agasc_id</span><span class="p">)</span>
@@ -587,31 +593,74 @@
             <span class="o">&amp;</span> <span class="p">(</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">obsid</span><span class="p">)</span>
         <span class="p">]</span>
     <span class="n">obs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">get_telemetry_by_observations</span><span class="p">(</span>
+        <span class="n">obs</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="n">ignore_exceptions</span><span class="p">,</span> <span class="n">as_table</span><span class="o">=</span><span class="n">as_table</span>
+    <span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_has_error</span><span class="p">(</span><span class="n">telem</span><span class="p">):</span>
+    <span class="c1"># error entries produced by get_telemetry_by_observations are plain dicts;</span>
+    <span class="c1"># successful telemetry can be a dict or an astropy Table, and</span>
+    <span class="c1"># `&quot;error_code&quot; in &lt;Table&gt;` raises TypeError under numpy &gt;= 2</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">telem</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;error_code&quot;</span> <span class="ow">in</span> <span class="n">telem</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_telemetry_by_observations</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_table</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">telem</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">obs</span> <span class="ow">in</span> <span class="n">observations</span><span class="p">:</span>
+        <span class="n">agasc_id</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">get_telemetry</span><span class="p">(</span><span class="n">o</span><span class="p">))</span>
-            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">]</span>
-            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">agasc_id</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">get_telemetry</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;times&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">agasc_id</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;times&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
             <span class="n">telem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">MagStatsException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ignore_exceptions</span><span class="p">:</span>
+                <span class="n">telem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">, obsid=</span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s2">&quot;traceback&quot;</span><span class="p">]:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_exceptions</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">, obsid=</span><span class="si">{</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
-                <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-                <span class="n">trace</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exc_type</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">exc_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">trace</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  in </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">exc</span> <span class="o">=</span> <span class="n">MagStatsException</span><span class="p">(</span>
+                <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>
+                <span class="n">agasc_id</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
+                <span class="n">obsid</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">],</span>
+                <span class="n">mp_starcat_time</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ignore_exceptions</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ignored unknown exception:&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">, obsid=</span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s2">&quot;traceback&quot;</span><span class="p">]:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+                <span class="n">exc_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                <span class="n">exc_dict</span><span class="p">[</span><span class="s2">&quot;msg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">telem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc_dict</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">, obsid=</span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">exception</span><span class="p">[</span><span class="s2">&quot;traceback&quot;</span><span class="p">]:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
                 <span class="k">raise</span>
-    <span class="k">return</span> <span class="n">vstack</span><span class="p">(</span><span class="n">telem</span><span class="p">)</span> <span class="k">if</span> <span class="n">telem</span> <span class="k">else</span> <span class="p">[]</span></div>
 
+    <span class="k">if</span> <span class="n">telem</span><span class="p">:</span>
+        <span class="c1"># we ignore entries with error_code here because this means ignore_exceptions is true</span>
+        <span class="c1"># (otherwise the exception would have been raised already)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">vstack</span><span class="p">([</span><span class="n">Table</span><span class="p">(</span><span class="n">tel</span><span class="p">)</span> <span class="k">for</span> <span class="n">tel</span> <span class="ow">in</span> <span class="n">telem</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_error</span><span class="p">(</span><span class="n">tel</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="n">as_table</span>
+            <span class="k">else</span> <span class="n">telem</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[]</span>
 
 
 <div class="viewcode-block" id="add_obs_info">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.add_obs_info">[docs]</a>
-<span class="k">def</span> <span class="nf">add_obs_info</span><span class="p">(</span><span class="n">telem</span><span class="p">,</span> <span class="n">obs_stats</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_obs_info</span><span class="p">(</span><span class="n">telem</span><span class="p">,</span> <span class="n">obs_stats</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add observation-specific information to a telemetry table (ok flag, and outlier flag).</span>
 
@@ -640,7 +689,8 @@
         <span class="n">o</span> <span class="o">=</span> <span class="n">telem</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">obsid</span>
         <span class="n">telem</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">][</span><span class="n">o</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">o</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">][</span><span class="n">o</span><span class="p">])</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="n">o</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">telem</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">][</span><span class="n">o</span><span class="p">])</span>
             <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
             <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;q75&quot;</span><span class="p">])</span>
             <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;q25&quot;</span><span class="p">])</span>
@@ -660,7 +710,7 @@
 
 
 <span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">staggered_aca_slice</span><span class="p">(</span><span class="n">array_in</span><span class="p">,</span> <span class="n">array_out</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">staggered_aca_slice</span><span class="p">(</span><span class="n">array_in</span><span class="p">,</span> <span class="n">array_out</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">&lt;</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="n">col</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">&lt;</span> <span class="mi">1024</span><span class="p">:</span>
             <span class="n">array_out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_in</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">8</span><span class="p">,</span> <span class="n">col</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">col</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]</span>
@@ -668,7 +718,7 @@
 
 <div class="viewcode-block" id="get_mag_from_img">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_mag_from_img">[docs]</a>
-<span class="k">def</span> <span class="nf">get_mag_from_img</span><span class="p">(</span><span class="n">slot_data</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">ok</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mag_from_img</span><span class="p">(</span><span class="n">slot_data</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">ok</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Vectorized estimate of the magnitude from mica archive image telemetry data.</span>
 
@@ -848,7 +898,7 @@
 
 <div class="viewcode-block" id="get_obs_stats">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_obs_stats">[docs]</a>
-<span class="k">def</span> <span class="nf">get_obs_stats</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_obs_stats</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get summary magnitude statistics for an observation.</span>
 
@@ -888,6 +938,7 @@
             <span class="s2">&quot;mag_aca_err&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;MAG_ACA_ERR&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span>
             <span class="s2">&quot;row&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;row&quot;</span><span class="p">],</span>
             <span class="s2">&quot;col&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;obs_ok&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -940,6 +991,8 @@
             <span class="s2">&quot;lf_variability_1000s&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
             <span class="s2">&quot;tempccd&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
             <span class="s2">&quot;dr_star&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+            <span class="s2">&quot;no_telem&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;excluded&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -953,13 +1006,20 @@
             <span class="sa">f</span><span class="s2">&quot;f_mag_est_ok=</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;f_mag_est_ok&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, f_dr3=</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;f_dr3&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;mag=</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;mag_obs&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
+
+    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;lf_variability_100s&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">stats</span></div>
 
 
 
 <div class="viewcode-block" id="calc_obs_stats">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.calc_obs_stats">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_obs_stats</span><span class="p">(</span><span class="n">telem</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_obs_stats</span><span class="p">(</span><span class="n">telem</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get summary magnitude statistics for an observation.</span>
 
@@ -1030,6 +1090,7 @@
         <span class="s2">&quot;n_mag_est_ok_3&quot;</span><span class="p">:</span> <span class="n">n_mag_est_ok_3</span><span class="p">,</span>
         <span class="s2">&quot;n_mag_est_ok_5&quot;</span><span class="p">:</span> <span class="n">n_mag_est_ok_5</span><span class="p">,</span>
         <span class="s2">&quot;dr_star&quot;</span><span class="p">:</span> <span class="n">dr_star</span><span class="p">,</span>
+        <span class="s2">&quot;no_telem&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;n_mag_est_ok_3&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">stats</span>
@@ -1239,7 +1300,9 @@
 
 <div class="viewcode-block" id="get_agasc_id_stats">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_agasc_id_stats">[docs]</a>
-<span class="k">def</span> <span class="nf">get_agasc_id_stats</span><span class="p">(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_agasc_id_stats</span><span class="p">(</span>
+    <span class="n">agasc_id</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_telem_time</span><span class="o">=</span><span class="mi">14</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get summary magnitude statistics for an AGASC ID.</span>
 
@@ -1250,6 +1313,8 @@
 <span class="sd">        {&#39;obs_ok&#39;: True, &#39;comments&#39;: &#39;some comment&#39;}</span>
 <span class="sd">    :param tstop: cxotime-compatible timestamp</span>
 <span class="sd">        Only entries in catalogs.STARS_OBS prior to this timestamp are considered.</span>
+<span class="sd">    :param no_telem_time: astropy Quantity</span>
+<span class="sd">        Time interval to consider for discarding recent observations with no telemetry.</span>
 <span class="sd">    :return: dict</span>
 <span class="sd">        dictionary with stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1265,22 +1330,96 @@
     <span class="p">]</span>
     <span class="n">star_obs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">)</span>
 
+    <span class="n">all_telem</span> <span class="o">=</span> <span class="n">get_telemetry_by_observations</span><span class="p">(</span>
+        <span class="n">star_obs</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_table</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="c1"># discard observations with no telemetry if they occured in the last two weeks.</span>
+    <span class="n">discard</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">_has_error</span><span class="p">(</span><span class="n">tlm</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">tlm</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">CxoTime</span><span class="p">()</span> <span class="o">-</span> <span class="n">no_telem_time</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tlm</span> <span class="ow">in</span> <span class="n">all_telem</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">discard</span><span class="p">):</span>
+        <span class="n">obsids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">obsid</span><span class="p">)</span> <span class="k">for</span> <span class="n">obsid</span> <span class="ow">in</span> <span class="n">star_obs</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">][</span><span class="n">discard</span><span class="p">]]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Discarding recent observations with no telemetry (OBSIDs </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">obsids</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">star_obs</span> <span class="o">=</span> <span class="n">star_obs</span><span class="p">[</span><span class="o">~</span><span class="n">discard</span><span class="p">]</span>
+        <span class="n">all_telem</span> <span class="o">=</span> <span class="p">[</span><span class="n">tlm</span> <span class="k">for</span> <span class="n">sel</span><span class="p">,</span> <span class="n">tlm</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">~</span><span class="n">discard</span><span class="p">,</span> <span class="n">all_telem</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">sel</span><span class="p">]</span>
+
+    <span class="n">n_obsids</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_obs</span><span class="p">)</span>
+
+    <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span> <span class="o">=</span> <span class="n">get_multi_obs_stats</span><span class="p">(</span>
+        <span class="n">star_obs</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="n">obs_status_override</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="n">all_telem</span>
+    <span class="p">)</span>
+
+    <span class="c1"># we do this in this method because a weighted mean doesn&#39;t make much sense for a list</span>
+    <span class="c1"># of observations. It only makes sense when considering all observations of a star.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># combine magnitude estimates using a weighted mean</span>
+        <span class="n">weighted_mean</span> <span class="o">=</span> <span class="n">get_weighted_mean</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weighted_mean</span><span class="p">[</span><span class="s2">&quot;weights&quot;</span><span class="p">]</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mean_corrected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weighted_mean</span><span class="p">[</span><span class="s2">&quot;mean_corrected&quot;</span><span class="p">]</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;weighted_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">weighted_mean</span><span class="p">[</span><span class="s2">&quot;weighted_mean&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># or make sure column exists</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mean_corrected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;weighted_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="n">weighted_mean</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;mag_weighted_mean&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;mag_weighted_std&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
+    <span class="n">star</span> <span class="o">=</span> <span class="n">get_star</span><span class="p">(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;  identifying outlying observations...&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">all_telem</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;no_telem&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;excluded&quot;</span><span class="p">]:</span>
+            <span class="k">continue</span>
+        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;  identifying outlying observations &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(OBSID=</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, mp_starcat_time=</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obs_outlier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]:</span>
+            <span class="n">iqr</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q75&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q25&quot;</span><span class="p">]</span>
+            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obs_outlier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">]</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">iqr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mags&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q25&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mags&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q75&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="n">all_telem</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">all_telem</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;excluded&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;no_telem&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_telem</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">all_telem</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">all_telem</span><span class="p">)</span>
+
     <span class="c1"># this is the default result, if nothing gets calculated</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;last_obs_time&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;agasc_id&quot;</span><span class="p">:</span> <span class="n">agasc_id</span><span class="p">,</span>
-        <span class="s2">&quot;mag_aca&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
-        <span class="s2">&quot;mag_aca_err&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="s2">&quot;mag_aca&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;MAG_ACA&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;mag_aca_err&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;MAG_ACA_ERR&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span>
         <span class="s2">&quot;mag_obs&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;mag_obs_err&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="s2">&quot;mag_obs_err&quot;</span><span class="p">:</span> <span class="n">min_mag_obs_err</span><span class="p">,</span>
         <span class="s2">&quot;mag_obs_std&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
-        <span class="s2">&quot;n_obsids&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;n_obsids_fail&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;n_obsids&quot;</span><span class="p">:</span> <span class="n">n_obsids</span><span class="p">,</span>
+        <span class="s2">&quot;n_obsids_fail&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">),</span>
         <span class="s2">&quot;n_obsids_suspect&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;n_obsids_ok&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;n_no_mag&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_telem</span><span class="p">),</span>
         <span class="s2">&quot;n_ok&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;n_ok_3&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;n_ok_5&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -1293,8 +1432,8 @@
         <span class="s2">&quot;sigma_plus&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;mag_weighted_mean&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;mag_weighted_std&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;mag_weighted_mean&quot;</span><span class="p">:</span> <span class="n">weighted_mean</span><span class="p">[</span><span class="s2">&quot;mag_weighted_mean&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;mag_weighted_std&quot;</span><span class="p">:</span> <span class="n">weighted_mean</span><span class="p">[</span><span class="s2">&quot;mag_weighted_std&quot;</span><span class="p">],</span>
         <span class="s2">&quot;t_mean&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;t_std&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
         <span class="s2">&quot;n_outlier&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -1309,13 +1448,28 @@
         <span class="s2">&quot;selected_rtol&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;selected_mag_aca_err&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
         <span class="s2">&quot;selected_color&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;f_mag_est_ok_3&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;f_mag_est_ok_5&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;f_ok_3&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;f_ok_5&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">&quot;f_mag_est_ok_3&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">&quot;f_mag_est_ok_5&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">&quot;f_ok_3&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">&quot;f_ok_5&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="p">}</span>
 
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  No stats for AGASC ID </span><span class="si">{</span><span class="n">agasc_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;last_obs_time&quot;</span><span class="p">:</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">cxcsec</span><span class="p">,</span>
+            <span class="s2">&quot;n_obsids_suspect&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_suspect&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;n_obsids_ok&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;n_no_mag&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">((</span><span class="o">~</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]))</span>
+                <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">][</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
     <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;dr3&quot;</span><span class="p">,</span> <span class="s2">&quot;dbox5&quot;</span><span class="p">]:</span>
         <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span>
@@ -1334,127 +1488,8 @@
             <span class="p">}</span>
         <span class="p">)</span>
 
-    <span class="n">n_obsids</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_obs</span><span class="p">)</span>
-
-    <span class="c1"># exclude star_obs that are in obs_status_override with status != 0</span>
-    <span class="n">excluded_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="p">(</span>
-                <span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obs_status_override</span>
-                <span class="ow">and</span> <span class="n">obs_status_override</span><span class="p">[(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">oi</span><span class="p">,</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">star_obs</span><span class="p">[[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">,</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">]]</span>
-        <span class="p">]</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">excluded_obs</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;  Excluding observations flagged in obs-status table: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">star_obs</span><span class="p">[</span><span class="n">excluded_obs</span><span class="p">][</span><span class="s1">&#39;obsid&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-
-    <span class="n">included_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="p">(</span>
-                <span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obs_status_override</span>
-                <span class="ow">and</span> <span class="n">obs_status_override</span><span class="p">[(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">oi</span><span class="p">,</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">star_obs</span><span class="p">[[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">,</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">]]</span>
-        <span class="p">]</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">included_obs</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;  Including observations marked OK in obs-status table: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">star_obs</span><span class="p">[</span><span class="n">included_obs</span><span class="p">][</span><span class="s1">&#39;obsid&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-
-    <span class="n">failures</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">all_telem</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">stats</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">last_obs_time</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">star_obs</span><span class="p">):</span>
-        <span class="n">oi</span><span class="p">,</span> <span class="n">ai</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">,</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
-        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obs_status_override</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">obs_status_override</span><span class="p">[(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;  overriding status for (AGASC ID </span><span class="si">{</span><span class="n">ai</span><span class="si">}</span><span class="s2">, starcat time </span><span class="si">{</span><span class="n">oi</span><span class="si">}</span><span class="s2">): &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;comments&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="n">comment</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">last_obs_time</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">cxcsec</span>
-            <span class="n">telem</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">get_telemetry</span><span class="p">(</span><span class="n">obs</span><span class="p">))</span>
-            <span class="n">obs_stat</span> <span class="o">=</span> <span class="n">get_obs_stats</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">telem</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">telem</span><span class="o">.</span><span class="n">colnames</span><span class="p">})</span>
-            <span class="n">obs_stat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;obs_ok&quot;</span><span class="p">:</span> <span class="n">included_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="o">|</span> <span class="p">(</span>
-                        <span class="o">~</span><span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)</span>
-                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">)</span>
-                        <span class="o">&amp;</span> <span class="p">(</span><span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;lf_variability_100s&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="p">),</span>
-                    <span class="s2">&quot;obs_suspect&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s2">&quot;obs_fail&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comment</span><span class="p">,</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">all_telem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">telem</span><span class="p">)</span>
-            <span class="n">stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_stat</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;obs_suspect&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="nb">dict</span><span class="p">(</span>
-                        <span class="n">MagStatsException</span><span class="p">(</span>
-                            <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Suspect observation&quot;</span><span class="p">,</span>
-                            <span class="n">agasc_id</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
-                            <span class="n">obsid</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">],</span>
-                            <span class="n">mp_starcat_time</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">],</span>
-                        <span class="p">)</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-        <span class="k">except</span> <span class="n">MagStatsException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="c1"># this except branch deals with exceptions thrown by get_telemetry</span>
-            <span class="n">all_telem</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-            <span class="c1"># length-zero telemetry short-circuits any new call to get_telemetry</span>
-            <span class="n">obs_stat</span> <span class="o">=</span> <span class="n">get_obs_stats</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="p">[])</span>
-            <span class="n">obs_stat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;obs_ok&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s2">&quot;obs_suspect&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                    <span class="s2">&quot;obs_fail&quot;</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">failed</span><span class="p">,</span>
-                    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comment</span> <span class="k">if</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-            <span class="n">stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_stat</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">failed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;  Error in get_agasc_id_stats(</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">,&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot; obsid=</span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-
-    <span class="n">stats</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
-    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mean_corrected&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;weighted_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-
-    <span class="n">star</span> <span class="o">=</span> <span class="n">get_star</span><span class="p">(</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;last_obs_time&quot;</span><span class="p">:</span> <span class="n">last_obs_time</span><span class="p">,</span>
-            <span class="s2">&quot;mag_aca&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;MAG_ACA&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;mag_aca_err&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;MAG_ACA_ERR&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span>
-            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">star</span><span class="p">[</span><span class="s2">&quot;COLOR1&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;n_obsids_fail&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">),</span>
-            <span class="s2">&quot;n_obsids_suspect&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_suspect&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;n_obsids&quot;</span><span class="p">:</span> <span class="n">n_obsids</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="o">~</span><span class="n">excluded_obs</span><span class="p">):</span>
+    <span class="c1"># Check requirements for calculating metrics.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;excluded&quot;</span><span class="p">]):</span>  <span class="c1"># this is a new field</span>
         <span class="c1"># this happens when all observations have been flagged as not OK a priory (obs-status).</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;  Skipping star in get_agasc_id_stats(</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">).&quot;</span>
@@ -1462,37 +1497,16 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span>
 
-    <span class="c1"># add failed observations to the list of excluded observations</span>
-    <span class="n">excluded_obs</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">all_telem</span><span class="p">])</span>
-    <span class="c1"># and remove all excluded observations from all_telem</span>
-    <span class="n">all_telem</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_telem</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_telem</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># and we reach here if some observations were not flagged as bad, but all failed.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;excluded&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;no_telem&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">):</span>
+        <span class="c1"># and we reach here if some observations were not flagged as bad, but</span>
+        <span class="c1"># there was some error getting telemetry.</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  get_agasc_id_stats(</span><span class="si">{</span><span class="n">agasc_id</span><span class="si">=}</span><span class="s2">): There is no OK observation.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;  identifying outlying observations...&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="o">~</span><span class="n">excluded_obs</span><span class="p">],</span> <span class="n">all_telem</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;  identifying outlying observations &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(OBSID=</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, mp_starcat_time=</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span>
-        <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obs_outlier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]:</span>
-            <span class="n">iqr</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q75&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q25&quot;</span><span class="p">]</span>
-            <span class="n">t</span><span class="p">[</span><span class="s2">&quot;obs_outlier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">t</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">]</span>
-                <span class="o">&amp;</span> <span class="p">(</span><span class="n">iqr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="o">&amp;</span> <span class="p">(</span>
-                    <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mags&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q25&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
-                    <span class="o">|</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;mags&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;q75&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-    <span class="n">all_telem</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">([</span><span class="n">Table</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">all_telem</span><span class="p">])</span>
-    <span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_telem</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span>
 
+    <span class="c1"># First calculate metrics that do not depend on centroid filters</span>
     <span class="n">kalman</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;AOACASEQ&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;KALM&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;AOPCADMD&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;NPNT&quot;</span><span class="p">)</span>
     <span class="n">all_telem</span> <span class="o">=</span> <span class="n">all_telem</span><span class="p">[</span><span class="n">kalman</span><span class="p">]</span>  <span class="c1"># non-npm/non-kalman are excluded</span>
     <span class="n">n_kalman</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_telem</span><span class="p">)</span>
@@ -1503,23 +1517,6 @@
     <span class="n">sat_pix</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;AOACISP&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
     <span class="n">ion_rad</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;AOACIIR&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
 
-    <span class="n">f_mag_est_ok</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">)</span>
-
-    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;mag_obs_err&quot;</span><span class="p">:</span> <span class="n">min_mag_obs_err</span><span class="p">,</span>
-            <span class="s2">&quot;n_obsids_ok&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;n_no_mag&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">((</span><span class="o">~</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]))</span>
-            <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">][</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">),</span>
-            <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">n_total</span><span class="p">,</span>
-            <span class="s2">&quot;n_mag_est_ok&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">),</span>
-            <span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">:</span> <span class="n">f_mag_est_ok</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;n_mag_est_ok&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span>
-
     <span class="n">sigma_minus</span><span class="p">,</span> <span class="n">q25</span><span class="p">,</span> <span class="n">median</span><span class="p">,</span> <span class="n">q75</span><span class="p">,</span> <span class="n">sigma_plus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span>
         <span class="n">mags</span><span class="p">[</span><span class="n">mag_est_ok</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.158</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.842</span><span class="p">]</span>
     <span class="p">)</span>
@@ -1528,37 +1525,16 @@
     <span class="n">outlier_2</span> <span class="o">=</span> <span class="n">mag_est_ok</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">mags</span> <span class="o">&gt;</span> <span class="n">q75</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">mags</span> <span class="o">&lt;</span> <span class="n">q25</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">))</span>
     <span class="n">outlier</span> <span class="o">=</span> <span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;obs_outlier&quot;</span><span class="p">]</span>
 
-    <span class="c1"># combine measurements using a weighted mean</span>
-    <span class="n">obs_ok</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
-    <span class="n">min_std</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;std&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">],</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">min_std</span>
-    <span class="p">)</span>
-    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mean_corrected&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;t_mean&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mag_correction&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span>
-    <span class="p">)</span>
-    <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;weighted_mean&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mean_corrected&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">*</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span>
-    <span class="p">)</span>
-
-    <span class="n">mag_weighted_mean</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;weighted_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;w&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="n">mag_weighted_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
-        <span class="p">((</span><span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">mag_weighted_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;w&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="o">/</span> <span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;w&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="p">)</span>
-
     <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="s2">&quot;agasc_id&quot;</span><span class="p">:</span> <span class="n">agasc_id</span><span class="p">,</span>
             <span class="s2">&quot;n_mag_est_ok&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">),</span>
-            <span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">:</span> <span class="n">f_mag_est_ok</span><span class="p">,</span>
+            <span class="s2">&quot;f_mag_est_ok&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">mag_est_ok</span><span class="p">),</span>
             <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="n">median</span><span class="p">,</span>
             <span class="s2">&quot;sigma_minus&quot;</span><span class="p">:</span> <span class="n">sigma_minus</span><span class="p">,</span>
             <span class="s2">&quot;sigma_plus&quot;</span><span class="p">:</span> <span class="n">sigma_plus</span><span class="p">,</span>
             <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mags</span><span class="p">[</span><span class="n">mag_est_ok</span><span class="p">]),</span>
             <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">mags</span><span class="p">[</span><span class="n">mag_est_ok</span><span class="p">]),</span>
-            <span class="s2">&quot;mag_weighted_mean&quot;</span><span class="p">:</span> <span class="n">mag_weighted_mean</span><span class="p">,</span>
-            <span class="s2">&quot;mag_weighted_std&quot;</span><span class="p">:</span> <span class="n">mag_weighted_std</span><span class="p">,</span>
             <span class="s2">&quot;t_mean&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mags</span><span class="p">[</span><span class="n">mag_est_ok</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">outlier</span><span class="p">)]),</span>
             <span class="s2">&quot;t_std&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">mags</span><span class="p">[</span><span class="n">mag_est_ok</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">outlier</span><span class="p">)]),</span>
             <span class="s2">&quot;n_outlier&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">mag_est_ok</span> <span class="o">&amp;</span> <span class="n">outlier</span><span class="p">),</span>
@@ -1571,8 +1547,9 @@
         <span class="p">}</span>
     <span class="p">)</span>
 
+    <span class="c1"># Calculate metrics that depend on centroid filters</span>
     <span class="n">residual_ok</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="mi">3</span><span class="p">:</span> <span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;dr&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;dy&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;dz&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">),</span>
         <span class="mi">5</span><span class="p">:</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;dy&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">all_telem</span><span class="p">[</span><span class="s2">&quot;dz&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="n">dr_tag</span> <span class="o">=</span> <span class="p">{</span><span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;dr3&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;dbox5&quot;</span><span class="p">}</span>
@@ -1618,6 +1595,7 @@
             <span class="p">}</span>
         <span class="p">)</span>
 
+    <span class="c1"># main results, which correspond to the &quot;dbox5&quot; residual cut</span>
     <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="s2">&quot;mag_obs&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;t_mean_dbox5&quot;</span><span class="p">],</span>
@@ -1645,6 +1623,183 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  stats for AGASC ID </span><span class="si">{</span><span class="n">agasc_id</span><span class="si">}</span><span class="s2">:  </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;mag_obs&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">failures</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_weighted_mean</span><span class="p">(</span><span class="n">stats</span><span class="p">):</span>
+    <span class="c1"># combine measurements using a weighted mean</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">))</span>
+    <span class="n">mean_corrected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">))</span>
+    <span class="n">weighted_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">))</span>
+    <span class="n">mag_weighted_mean</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">mag_weighted_std</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="n">obs_ok</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">obs_ok</span><span class="p">):</span>
+        <span class="n">min_std</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;std&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+        <span class="n">weights</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">],</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">min_std</span>
+        <span class="p">)</span>
+        <span class="n">mean_corrected</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;t_mean&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mag_correction&quot;</span><span class="p">][</span><span class="n">obs_ok</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">weighted_mean</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_corrected</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span>
+
+        <span class="n">mag_weighted_mean</span> <span class="o">=</span> <span class="n">weighted_mean</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">weights</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">mag_weighted_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">stats</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">][</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">mag_weighted_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="o">/</span> <span class="n">weights</span><span class="p">[</span><span class="n">obs_ok</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;weights&quot;</span><span class="p">:</span> <span class="n">weights</span><span class="p">,</span>
+        <span class="s2">&quot;mean_corrected&quot;</span><span class="p">:</span> <span class="n">mean_corrected</span><span class="p">,</span>
+        <span class="s2">&quot;weighted_mean&quot;</span><span class="p">:</span> <span class="n">weighted_mean</span><span class="p">,</span>
+        <span class="s2">&quot;mag_weighted_mean&quot;</span><span class="p">:</span> <span class="n">mag_weighted_mean</span><span class="p">,</span>
+        <span class="s2">&quot;mag_weighted_std&quot;</span><span class="p">:</span> <span class="n">mag_weighted_std</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<div class="viewcode-block" id="get_multi_obs_stats">
+<a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.mag_estimate.get_multi_obs_stats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_multi_obs_stats</span><span class="p">(</span><span class="n">star_obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get summary magnitude statistics for an AGASC ID.</span>
+
+<span class="sd">    This function deals with several errors that can occur, and assigns various success/error flags</span>
+<span class="sd">    to each observation:</span>
+
+<span class="sd">        - obs_ok: OK observations are considered OK based on criteria listed below, or are</span>
+<span class="sd">          have `status == 0` in `obs_status_override`.</span>
+<span class="sd">        - obs_suspect: observations are considered suspect if they have `status &gt; 1` in</span>
+<span class="sd">          `obs_status_override`, and do not fulfill the criteria for being OK.</span>
+<span class="sd">        - obs_fail: observations where there was an exception getting the telemetry or calculating</span>
+<span class="sd">          the stats.</span>
+<span class="sd">        - no_telem: observations where there was an exception getting the telemetry.</span>
+
+<span class="sd">    Criteria for an OK observation:</span>
+
+<span class="sd">        - n &gt; 10, where n is the total number of telemetry entries in the observation.</span>
+<span class="sd">        - f_mag_est_ok &gt; 0.3, where f_mag_est_ok is the fraction of telemetry entries with</span>
+<span class="sd">          (AOACASEQ==KALM &amp; AOACIIR==OK &amp; AOPCADMD==NPNT &amp; AOACFCT==TRAK).</span>
+<span class="sd">        - lf_variability_100s &lt; 1, where lf_variability_100s is the largest change in the magnitude</span>
+<span class="sd">          smoothed using a 100s rolling window.</span>
+
+<span class="sd">    :param star_obs: Table</span>
+<span class="sd">        Table of star observations.</span>
+<span class="sd">    :param telem: list</span>
+<span class="sd">        List of telemetry tables for each observation. Must be in the same order as star_obs.</span>
+<span class="sd">        This should generally be the result of get_telemetry_by_observations.</span>
+<span class="sd">    :param obs_status_override: dict.</span>
+<span class="sd">        Dictionary overriding the OK flag for specific observations.</span>
+<span class="sd">        Keys are (OBSID, AGASC ID) pairs, values are dictionaries like</span>
+<span class="sd">        {&#39;obs_ok&#39;: True, &#39;comments&#39;: &#39;some comment&#39;}</span>
+<span class="sd">    :return: dict</span>
+<span class="sd">        dictionary with stats</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">obs_status_override</span><span class="p">:</span>
+        <span class="n">obs_status_override</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">telem</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">telem</span> <span class="o">=</span> <span class="n">get_telemetry_by_observations</span><span class="p">(</span>
+            <span class="n">star_obs</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_table</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">telem</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">star_obs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Length of telem (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">telem</span><span class="p">)</span><span class="si">}</span><span class="s2">) does not match length of star_obs (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">star_obs</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># exclude star_obs that are in obs_status_override with status != 0</span>
+    <span class="n">excluded_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obs_status_override</span>
+                <span class="ow">and</span> <span class="n">obs_status_override</span><span class="p">[(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">oi</span><span class="p">,</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">star_obs</span><span class="p">[[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">,</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">]]</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">excluded_obs</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;  Excluding observations flagged in obs-status table: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">star_obs</span><span class="p">[</span><span class="n">excluded_obs</span><span class="p">][</span><span class="s1">&#39;obsid&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">included_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obs_status_override</span>
+                <span class="ow">and</span> <span class="n">obs_status_override</span><span class="p">[(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)][</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">oi</span><span class="p">,</span> <span class="n">ai</span> <span class="ow">in</span> <span class="n">star_obs</span><span class="p">[[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">,</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">]]</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">included_obs</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;  Including observations marked OK in obs-status table: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">star_obs</span><span class="p">[</span><span class="n">included_obs</span><span class="p">][</span><span class="s1">&#39;obsid&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">star_obs</span><span class="p">):</span>
+        <span class="n">oi</span><span class="p">,</span> <span class="n">ai</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">,</span> <span class="s2">&quot;agasc_id&quot;</span><span class="p">]</span>
+        <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obs_status_override</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">obs_status_override</span><span class="p">[(</span><span class="n">oi</span><span class="p">,</span> <span class="n">ai</span><span class="p">)]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;  overriding status for (AGASC ID </span><span class="si">{</span><span class="n">ai</span><span class="si">}</span><span class="s2">, starcat time </span><span class="si">{</span><span class="n">oi</span><span class="si">}</span><span class="s2">): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;comments&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">comment</span> <span class="o">=</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span>
+
+        <span class="n">obs_telem</span> <span class="o">=</span> <span class="n">telem</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">_has_error</span><span class="p">(</span><span class="n">obs_telem</span><span class="p">):</span>
+            <span class="n">fail</span> <span class="o">=</span> <span class="n">obs_telem</span><span class="p">[</span><span class="s2">&quot;error_code&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">2</span>
+            <span class="n">obs_stat</span> <span class="o">=</span> <span class="n">get_obs_stats</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="p">[])</span>
+            <span class="n">obs_stat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;obs_suspect&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;obs_fail&quot;</span><span class="p">:</span> <span class="n">fail</span><span class="p">,</span>
+                    <span class="s2">&quot;excluded&quot;</span><span class="p">:</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;no_telem&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comment</span>
+                    <span class="k">if</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">obs_telem</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_stat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">fail</span><span class="p">:</span>
+                <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_telem</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obs_stat</span> <span class="o">=</span> <span class="n">get_obs_stats</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">telem</span><span class="o">=</span><span class="n">obs_telem</span><span class="p">)</span>
+            <span class="n">obs_ok</span> <span class="o">=</span> <span class="n">included_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|</span> <span class="p">(</span><span class="o">~</span><span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">])</span>
+            <span class="n">obs_stat</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;obs_ok&quot;</span><span class="p">:</span> <span class="n">obs_ok</span><span class="p">,</span>
+                    <span class="s2">&quot;obs_suspect&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="n">obs_ok</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;obs_fail&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;excluded&quot;</span><span class="p">:</span> <span class="n">excluded_obs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;no_telem&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comment</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_stat</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">obs_stat</span><span class="p">[</span><span class="s2">&quot;obs_suspect&quot;</span><span class="p">]:</span>
+                <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="nb">dict</span><span class="p">(</span>
+                        <span class="n">MagStatsException</span><span class="p">(</span>
+                            <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Suspect observation&quot;</span><span class="p">,</span>
+                            <span class="n">agasc_id</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span>
+                            <span class="n">obsid</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;obsid&quot;</span><span class="p">],</span>
+                            <span class="n">mp_starcat_time</span><span class="o">=</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Table</span><span class="p">(</span><span class="n">stats</span><span class="p">),</span> <span class="n">failures</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -1669,7 +1824,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 9.1.0. &nbsp;
   </p>
 </footer>
   </body>

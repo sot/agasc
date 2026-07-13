@@ -4,13 +4,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.supplement.magnitudes.update_mag_supplement &#8212; Agasc 4.23.3 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <title>agasc.supplement.magnitudes.update_mag_supplement &#8212; Agasc 4.24.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../../../_static/documentation_options.js?v=00326d47"></script>
-    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/documentation_options.js?v=b99116e3"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script type="text/javascript" src="../../../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../../../index.html">Agasc 4.23.3 documentation</a>
+	<a href="../../../../index.html">Agasc 4.24.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -61,38 +61,38 @@
             
   <h1>Source code for agasc.supplement.magnitudes.update_mag_supplement</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">sqlite3</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlite3</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pool</span>
 
-<span class="kn">import</span> <span class="nn">jinja2</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">tables</span>
-<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">table</span>
-<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
-<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">vstack</span>
-<span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span><span class="p">,</span> <span class="n">TimeDelta</span>
-<span class="kn">from</span> <span class="nn">mica.starcheck</span> <span class="kn">import</span> <span class="n">get_starcheck_catalog</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jinja2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxoTime</span><span class="p">,</span> <span class="n">TimeDelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mica.starcheck</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_starcheck_catalog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">agasc.supplement.magnitudes</span> <span class="kn">import</span> <span class="n">mag_estimate</span><span class="p">,</span> <span class="n">star_obs_catalogs</span>
-<span class="kn">from</span> <span class="nn">agasc.supplement.magnitudes</span> <span class="kn">import</span> <span class="n">mag_estimate_report</span> <span class="k">as</span> <span class="n">msr</span>
-<span class="kn">from</span> <span class="nn">agasc.supplement.utils</span> <span class="kn">import</span> <span class="n">MAGS_DTYPE</span><span class="p">,</span> <span class="n">save_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agasc.supplement.magnitudes</span><span class="w"> </span><span class="kn">import</span> <span class="n">mag_estimate</span><span class="p">,</span> <span class="n">star_obs_catalogs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agasc.supplement.magnitudes</span><span class="w"> </span><span class="kn">import</span> <span class="n">mag_estimate_report</span> <span class="k">as</span> <span class="n">msr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">agasc.supplement.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MAGS_DTYPE</span><span class="p">,</span> <span class="n">save_version</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;agasc.supplement&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="level0_archive_time_range">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.level0_archive_time_range">[docs]</a>
-<span class="k">def</span> <span class="nf">level0_archive_time_range</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">level0_archive_time_range</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the time range covered by mica archive aca_l0 files.</span>
 
@@ -112,7 +112,7 @@
 
 <div class="viewcode-block" id="get_agasc_id_stats">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats">[docs]</a>
-<span class="k">def</span> <span class="nf">get_agasc_id_stats</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_agasc_id_stats</span><span class="p">(</span>
     <span class="n">agasc_ids</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_progress</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -143,13 +143,12 @@
             <span class="n">agasc_stat</span><span class="p">,</span> <span class="n">obs_stat</span><span class="p">,</span> <span class="n">obs_fail</span> <span class="o">=</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">get_agasc_id_stats</span><span class="p">(</span>
                 <span class="n">agasc_id</span><span class="o">=</span><span class="n">agasc_id</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="n">obs_status_override</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="n">tstop</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">agasc_stat</span><span class="p">[</span><span class="s2">&quot;n_obsids_ok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">agasc_id</span><span class="si">}</span><span class="s2"> because it has no OK observations&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
             <span class="n">agasc_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agasc_stat</span><span class="p">)</span>
             <span class="n">obs_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obs_stat</span><span class="p">)</span>
             <span class="n">fails</span> <span class="o">+=</span> <span class="n">obs_fail</span>
-        <span class="k">except</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">MagStatsException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="n">fails</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># transform Exception to MagStatsException for standard book keeping</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unexpected Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -188,7 +187,7 @@
 
 <div class="viewcode-block" id="get_agasc_id_stats_pool">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.get_agasc_id_stats_pool">[docs]</a>
-<span class="k">def</span> <span class="nf">get_agasc_id_stats_pool</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_agasc_id_stats_pool</span><span class="p">(</span>
     <span class="n">agasc_ids</span><span class="p">,</span> <span class="n">obs_status_override</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tstop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_progress</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -258,7 +257,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_update_table</span><span class="p">(</span><span class="n">table_old</span><span class="p">,</span> <span class="n">table_new</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_table</span><span class="p">(</span><span class="n">table_old</span><span class="p">,</span> <span class="n">table_new</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
     <span class="c1"># checking names, because actual types change upon saving in fits format</span>
     <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">table_old</span><span class="o">.</span><span class="n">colnames</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">table_new</span><span class="o">.</span><span class="n">colnames</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
@@ -279,7 +278,7 @@
 
 <div class="viewcode-block" id="update_mag_stats">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.update_mag_stats">[docs]</a>
-<span class="k">def</span> <span class="nf">update_mag_stats</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_mag_stats</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the mag_stats catalog.</span>
 
@@ -311,6 +310,11 @@
     <span class="k">if</span> <span class="n">obs_stats</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">):</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">outdir</span> <span class="o">/</span> <span class="s2">&quot;mag_stats_obsid.fits&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># these two were added late, and are not necessary in the file, so the file was not updated</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">obs_stats</span><span class="o">.</span><span class="n">colnames</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;excluded&quot;</span><span class="p">,</span> <span class="s2">&quot;no_telem&quot;</span><span class="p">})</span>
+        <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">obs_stats</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+
         <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">_update_table</span><span class="p">(</span>
                 <span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">obs_stats</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">,</span> <span class="s2">&quot;obsid&quot;</span><span class="p">]</span>
@@ -331,12 +335,25 @@
 
 <div class="viewcode-block" id="update_supplement">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.update_supplement">[docs]</a>
-<span class="k">def</span> <span class="nf">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">d_mag_threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">include_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">d_mag_threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the magnitude table of the AGASC supplement.</span>
 
-<span class="sd">    :param agasc_stats:</span>
-<span class="sd">    :param filename:</span>
+<span class="sd">    This function returns two list of stars: new stars and updated stars, which are stars that are</span>
+<span class="sd">    not in the supplement already, and stars thar are in the supplement before this update. Note</span>
+<span class="sd">    that &quot;updated&quot; stars are not necessarily updated in the supplement. If a star has a small change</span>
+<span class="sd">    in magnitude or magnitude uncertainty (less than d_mag_threshold), its magnitude is not updated</span>
+<span class="sd">    in the supplement, but it is still included in the &quot;updated&quot; stars list.</span>
+
+<span class="sd">    This function compares the last_obs_time of the stars in the supplement and in agasc_stats.</span>
+<span class="sd">    If last_obs_time is the same, then the star is not updated in the supplement (and not included</span>
+<span class="sd">    in the &quot;updated&quot; stars list), even if there is a change in magnitude. This can happen if all</span>
+<span class="sd">    observations since last_updated are excluded or failed.</span>
+
+<span class="sd">    :param agasc_stats: astropy.table.Table</span>
+<span class="sd">        The table with the new stats for each AGASC ID. It must include the columns in MAGS_DTYPE.</span>
+<span class="sd">    :param filename: str or pathlib.Path</span>
+<span class="sd">        The filename of the supplement to update.</span>
 <span class="sd">    :param include_all: bool</span>
 <span class="sd">        if True, all OK entries are included in supplement.</span>
 <span class="sd">        if False, only OK entries marked &#39;selected_*&#39;</span>
@@ -344,6 +361,8 @@
 <span class="sd">        If the absolute difference between the new and the current mag_aca is less than this value,</span>
 <span class="sd">        mag_aca is not updated. Note that last_obs_time is always updated.</span>
 <span class="sd">    :return:</span>
+<span class="sd">        new_stars: list of AGASC IDs that are new in the supplement.</span>
+<span class="sd">        updated_stars: list of AGASC IDs that are already in the supplement.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">agasc_stats</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
@@ -447,7 +466,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">write_obs_status_yaml</span><span class="p">(</span><span class="n">obs_stats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fails</span><span class="o">=</span><span class="p">(),</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_obs_status_yaml</span><span class="p">(</span><span class="n">obs_stats</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fails</span><span class="o">=</span><span class="p">(),</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">obs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">obs_stats</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_stats</span><span class="p">):</span>
         <span class="n">obs_stats</span> <span class="o">=</span> <span class="n">obs_stats</span><span class="p">[</span><span class="o">~</span><span class="n">obs_stats</span><span class="p">[</span><span class="s2">&quot;obs_ok&quot;</span><span class="p">]]</span>
@@ -561,7 +580,7 @@
 
 <div class="viewcode-block" id="do">
 <a class="viewcode-back" href="../../../../maintainer_api.html#agasc.supplement.magnitudes.update_mag_supplement.do">[docs]</a>
-<span class="k">def</span> <span class="nf">do</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">do</span><span class="p">(</span>
     <span class="n">start</span><span class="p">,</span>
     <span class="n">stop</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">,</span>
@@ -628,6 +647,35 @@
     <span class="n">stars_obs</span> <span class="o">=</span> <span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span>
         <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">star_obs_catalogs</span><span class="o">.</span><span class="n">STARS_OBS</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span> <span class="n">agasc_ids</span><span class="p">)</span>
     <span class="p">]</span>
+
+    <span class="c1"># find the latest observation with telemetry: take one star-obs per observation,</span>
+    <span class="c1"># and get telemetry for each just to find the last observation with data.</span>
+    <span class="c1"># Cut processing off right after that time.</span>
+    <span class="n">recent_obs</span> <span class="o">=</span> <span class="n">stars_obs</span><span class="p">[</span>
+        <span class="n">stars_obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">stop</span><span class="p">)</span> <span class="o">-</span> <span class="mi">7</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">recent_obs</span> <span class="o">=</span> <span class="n">recent_obs</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">)</span>
+    <span class="n">recent_obs</span> <span class="o">=</span> <span class="n">recent_obs</span><span class="p">[</span><span class="n">recent_obs</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">indices</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="n">recent_obs</span><span class="o">.</span><span class="n">sort</span><span class="p">([</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">telem</span> <span class="o">=</span> <span class="n">mag_estimate</span><span class="o">.</span><span class="n">get_telemetry_by_observations</span><span class="p">(</span>
+        <span class="n">recent_obs</span><span class="p">,</span> <span class="n">ignore_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">as_table</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">processing_cutoff</span> <span class="o">=</span> <span class="n">stop</span>
+    <span class="k">for</span> <span class="n">obs</span><span class="p">,</span> <span class="n">tel</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">recent_obs</span><span class="p">,</span> <span class="n">telem</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;error_code&quot;</span> <span class="ow">in</span> <span class="n">tel</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Skipping OBSID </span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> at  </span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="n">tel</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;msg&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">tel</span><span class="p">[</span><span class="s1">&#39;error_code&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Latest observation with telemetry: OBSID </span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;obsid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> at  </span><span class="si">{</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;mp_starcat_time&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">processing_cutoff</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;mp_starcat_time&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">second</span>
+        <span class="k">break</span>
+    <span class="c1"># and some AGASC Ids might be dropped because they are only observed in observations after the</span>
+    <span class="c1"># processing cutoff</span>
+    <span class="n">agasc_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">agasc_ids</span><span class="p">)</span>
 
     <span class="c1"># if supplement exists:</span>
     <span class="c1"># - drop bad stars</span>
@@ -725,7 +773,7 @@
 
     <span class="n">obs_stats</span><span class="p">,</span> <span class="n">agasc_stats</span><span class="p">,</span> <span class="n">fails</span> <span class="o">=</span> <span class="n">get_stats</span><span class="p">(</span>
         <span class="n">agasc_ids</span><span class="p">,</span>
-        <span class="n">tstop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+        <span class="n">tstop</span><span class="o">=</span><span class="n">processing_cutoff</span><span class="p">,</span>
         <span class="n">obs_status_override</span><span class="o">=</span><span class="n">obs_status_override</span><span class="p">,</span>
         <span class="n">no_progress</span><span class="o">=</span><span class="n">no_progress</span><span class="p">,</span>
     <span class="p">)</span>
@@ -759,6 +807,10 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to write </span><span class="si">{</span><span class="n">obs_status_file</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="c1"># the following &quot;updated_stars&quot; is not the actual table of stars that were updated in the</span>
+    <span class="c1"># supplement, but the table of stars that would be updated if there were no threshold on d_mag.</span>
+    <span class="c1"># In other words: stars with tiny magnitude updates are not updated in the supplement, but they</span>
+    <span class="c1"># are included in &quot;updated_stars&quot;.</span>
     <span class="n">new_stars</span><span class="p">,</span> <span class="n">updated_stars</span> <span class="o">=</span> <span class="n">update_supplement</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_stars</span><span class="p">)</span><span class="si">}</span><span class="s2"> new stars, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">)</span><span class="si">}</span><span class="s2"> updated stars&quot;</span><span class="p">)</span>
 
@@ -812,10 +864,16 @@
                 <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;mag_aca_err&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
             <span class="p">)</span>
             <span class="n">sections</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;new_stars&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;New Stars&quot;</span><span class="p">,</span> <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="n">new_stars</span><span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;new_stars&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;New Stars&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;These are stars that are being added to the supplement.&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="n">new_stars</span><span class="p">,</span>
+                <span class="p">},</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;updated_stars&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Updated Stars&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;These are stars that are being updated in the supplement.&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">(</span>
                         <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">][</span><span class="n">updt_mag</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">[</span><span class="n">updt_mag</span><span class="p">])</span>
@@ -825,6 +883,9 @@
                 <span class="p">{</span>
                     <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;not_updated_stars&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Magnitude not Updated&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">&quot;These are stars whose magnitudes are not being updated in the supplement.&quot;</span>
+                    <span class="p">),</span>
                     <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="p">(</span>
                         <span class="n">updated_stars</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">][</span><span class="o">~</span><span class="n">updt_mag</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">updated_stars</span><span class="p">[</span><span class="o">~</span><span class="n">updt_mag</span><span class="p">])</span>
@@ -833,7 +894,16 @@
                 <span class="p">},</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;other_stars&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Other (unexpectedly not updated)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Stars in Limbo&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">&quot;This section is here for informational purposes.&quot;</span>
+                        <span class="s2">&quot; These are stars that were in the list to process but are neither being&quot;</span>
+                        <span class="s2">&quot; added nor updated. This can happen if all recent observations for that&quot;</span>
+                        <span class="s2">&quot; star fail or are skipped for some reason (e.g. all recent observation are&quot;</span>
+                        <span class="s2">&quot; so recent that telemetry is not available). This is resolved after the&quot;</span>
+                        <span class="s2">&quot; observations are dispositioned or the failures are fixed.&quot;</span>
+                        <span class="s2">&quot; If there are errors, they should show up elsewhere in this report.&quot;</span>
+                    <span class="p">),</span>
                     <span class="s2">&quot;stars&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
                         <span class="n">agasc_stats</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">][</span>
                             <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">agasc_stats</span><span class="p">[</span><span class="s2">&quot;agasc_id&quot;</span><span class="p">],</span> <span class="n">new_stars</span><span class="p">)</span>
@@ -919,7 +989,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 9.1.0. &nbsp;
   </p>
 </footer>
   </body>

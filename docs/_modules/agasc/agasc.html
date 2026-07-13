@@ -4,13 +4,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>agasc.agasc &#8212; Agasc 4.23.3 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <title>agasc.agasc &#8212; Agasc 4.24.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../_static/documentation_options.js?v=00326d47"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=b99116e3"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">Agasc 4.23.3 documentation</a>
+	<a href="../../index.html">Agasc 4.24.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -61,27 +61,27 @@
             
   <h1>Source code for agasc.agasc</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
-<span class="kn">import</span> <span class="nn">contextlib</span>
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">numexpr</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
-<span class="kn">import</span> <span class="nn">tables</span>
-<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Table</span>
-<span class="kn">from</span> <span class="nn">Chandra.Time</span> <span class="kn">import</span> <span class="n">DateTime</span>
-<span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTimeLike</span><span class="p">,</span> <span class="n">convert_time_format</span>
-<span class="kn">from</span> <span class="nn">packaging.version</span> <span class="kn">import</span> <span class="n">Version</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numexpr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">Chandra.Time</span><span class="w"> </span><span class="kn">import</span> <span class="n">DateTime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cxotime</span><span class="w"> </span><span class="kn">import</span> <span class="n">CxoTimeLike</span><span class="p">,</span> <span class="n">convert_time_format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
 
-<span class="kn">from</span> <span class="nn">.healpix</span> <span class="kn">import</span> <span class="n">get_healpix_index_table</span><span class="p">,</span> <span class="n">get_stars_from_healpix_h5</span><span class="p">,</span> <span class="n">is_healpix</span>
-<span class="kn">from</span> <span class="nn">.paths</span> <span class="kn">import</span> <span class="n">default_agasc_dir</span>
-<span class="kn">from</span> <span class="nn">.supplement.utils</span> <span class="kn">import</span> <span class="n">get_supplement_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.healpix</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_healpix_index_table</span><span class="p">,</span> <span class="n">get_stars_from_healpix_h5</span><span class="p">,</span> <span class="n">is_healpix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_agasc_dir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.supplement.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_supplement_table</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;sphere_dist&quot;</span><span class="p">,</span>
@@ -159,7 +159,7 @@
 <div class="viewcode-block" id="set_supplement_enabled">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.set_supplement_enabled">[docs]</a>
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<span class="k">def</span> <span class="nf">set_supplement_enabled</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_supplement_enabled</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator / context manager to temporarily set the default for use of</span>
 <span class="sd">    AGASC supplement in query functions.</span>
 
@@ -205,35 +205,35 @@
 
 
 
-<span class="k">class</span> <span class="nc">IdNotFound</span><span class="p">(</span><span class="ne">LookupError</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IdNotFound</span><span class="p">(</span><span class="ne">LookupError</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
-<span class="k">class</span> <span class="nc">InconsistentCatalogError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InconsistentCatalogError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
 
-<span class="k">class</span> <span class="nc">RaDec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RaDec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_agasc_file</span> <span class="o">=</span> <span class="n">agasc_file</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">agasc_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">agasc_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_agasc_file</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_ra&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ra_dec</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_dec&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ra</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ra_dec</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dec</span>
 
-    <span class="k">def</span> <span class="nf">read_ra_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_ra_dec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Read the RA and DEC values from the agasc</span>
         <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
             <span class="n">ras</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;RA&quot;</span><span class="p">)</span>
@@ -241,7 +241,7 @@
         <span class="k">return</span> <span class="n">ras</span><span class="p">,</span> <span class="n">decs</span>
 
 
-<span class="k">def</span> <span class="nf">get_ra_decs</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ra_decs</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">):</span>
     <span class="n">agasc_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">agasc_file</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RA_DECS_CACHE</span><span class="p">:</span>
         <span class="n">RA_DECS_CACHE</span><span class="p">[</span><span class="n">agasc_file</span><span class="p">]</span> <span class="o">=</span> <span class="n">RaDec</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span>
@@ -250,7 +250,7 @@
 
 <div class="viewcode-block" id="read_h5_table">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.read_h5_table">[docs]</a>
-<span class="k">def</span> <span class="nf">read_h5_table</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_h5_table</span><span class="p">(</span>
     <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
     <span class="n">row0</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">row1</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -304,7 +304,7 @@
 
 
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span>
-<span class="k">def</span> <span class="nf">_read_h5_table_cached</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_h5_table_cached</span><span class="p">(</span>
     <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">columns</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -312,7 +312,7 @@
     <span class="k">return</span> <span class="n">_read_h5_table</span><span class="p">(</span><span class="n">h5_file</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">row0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">row1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_read_h5_table</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_h5_table</span><span class="p">(</span>
     <span class="n">h5_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">row0</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
@@ -329,7 +329,7 @@
     <span class="k">return</span> <span class="n">out</span>
 
 
-<span class="k">def</span> <span class="nf">_read_h5_table_from_open_h5_file</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_h5_table_from_open_h5_file</span><span class="p">(</span>
     <span class="n">h5</span><span class="p">:</span> <span class="n">tables</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">File</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">row0</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -345,7 +345,7 @@
 
 <div class="viewcode-block" id="get_agasc_filename">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_filename">[docs]</a>
-<span class="k">def</span> <span class="nf">get_agasc_filename</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_agasc_filename</span><span class="p">(</span>
     <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">allow_rc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -457,7 +457,7 @@
 
 <div class="viewcode-block" id="sphere_dist">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.sphere_dist">[docs]</a>
-<span class="k">def</span> <span class="nf">sphere_dist</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sphere_dist</span><span class="p">(</span>
     <span class="n">ra1</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
     <span class="n">dec1</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
     <span class="n">ra2</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
@@ -500,7 +500,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">update_color1_column</span><span class="p">(</span><span class="n">stars</span><span class="p">:</span> <span class="n">Table</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_color1_column</span><span class="p">(</span><span class="n">stars</span><span class="p">:</span> <span class="n">Table</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For any stars which have a V-I color (RSV3 &gt; 0) and COLOR1 == 1.5</span>
 <span class="sd">    then set COLOR1 = COLOR2 * 0.850.  For such stars the MAG_ACA / MAG_ACA_ERR</span>
@@ -534,7 +534,7 @@
 
 <div class="viewcode-block" id="add_pmcorr_columns">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.add_pmcorr_columns">[docs]</a>
-<span class="k">def</span> <span class="nf">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_pmcorr_columns</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add proper-motion corrected columns RA_PMCORR and DEC_PMCORR to Table ``stars``.</span>
 
 <span class="sd">    This computes the PM-corrected RA and Dec of all ``stars`` using the supplied</span>
@@ -589,7 +589,7 @@
 
 <div class="viewcode-block" id="get_agasc_cone">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_agasc_cone">[docs]</a>
-<span class="k">def</span> <span class="nf">get_agasc_cone</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_agasc_cone</span><span class="p">(</span>
     <span class="n">ra</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">dec</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
@@ -697,7 +697,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">apply_matlab_pm_bug</span><span class="p">(</span><span class="n">stars</span><span class="p">:</span> <span class="n">Table</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">CxoTimeLike</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_matlab_pm_bug</span><span class="p">(</span><span class="n">stars</span><span class="p">:</span> <span class="n">Table</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">CxoTimeLike</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Account for a bug in MATLAB proper motion correction.</span>
 
 <span class="sd">    The bug was not dividing the RA proper motion by cos(dec), so here we premultiply by</span>
@@ -723,7 +723,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_stars_from_dec_sorted_h5</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_stars_from_dec_sorted_h5</span><span class="p">(</span>
     <span class="n">ra</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">dec</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -770,7 +770,7 @@
 
 <div class="viewcode-block" id="get_star">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_star">[docs]</a>
-<span class="k">def</span> <span class="nf">get_star</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_star</span><span class="p">(</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CxoTimeLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -851,7 +851,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_rows_read_where</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_rows_read_where</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span>
@@ -870,7 +870,7 @@
     <span class="k">return</span> <span class="n">rows</span>
 
 
-<span class="k">def</span> <span class="nf">_get_rows_read_entire</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_rows_read_entire</span><span class="p">(</span><span class="n">ids_1d</span><span class="p">,</span> <span class="n">dates_1d</span><span class="p">,</span> <span class="n">agasc_file</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">agasc_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">h5</span><span class="p">:</span>
         <span class="n">tbl</span> <span class="o">=</span> <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span>
 
@@ -887,7 +887,7 @@
 
 <div class="viewcode-block" id="get_stars">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.get_stars">[docs]</a>
-<span class="k">def</span> <span class="nf">get_stars</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_stars</span><span class="p">(</span>
     <span class="n">ids</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">,</span>
     <span class="n">agasc_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">dates</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CxoTimeLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -998,7 +998,7 @@
 <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">update_from_supplement</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_from_supplement</span><span class="p">(</span><span class="n">stars</span><span class="p">,</span> <span class="n">use_supplement</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update mag, color1 and class information from AGASC supplement in ``stars``.</span>
 
 <span class="sd">    Stars with available mag estimates in the AGASC supplement are updated</span>
@@ -1043,7 +1043,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">supplement_enabled</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">stars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="k">def</span> <span class="nf">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set star[name] = value if ``name`` is a column in the table&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">star</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -1079,7 +1079,7 @@
             <span class="n">set_star</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="s2">&quot;CLASS&quot;</span><span class="p">,</span> <span class="n">BAD_CLASS_SUPPLEMENT</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">write_healpix_index_table</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">healpix_index</span><span class="p">:</span> <span class="n">Table</span><span class="p">,</span> <span class="n">nside</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_healpix_index_table</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">healpix_index</span><span class="p">:</span> <span class="n">Table</span><span class="p">,</span> <span class="n">nside</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write a HEALPix index table to an HDF5 file.</span>
 
@@ -1103,7 +1103,7 @@
         <span class="n">h5</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">healpix_index</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;nside&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nside</span>
 
 
-<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
 <span class="n">TABLE_DTYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">npt</span><span class="o">.</span><span class="n">DTypeLike</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;AGASC_ID&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
@@ -1162,7 +1162,7 @@
 
 <div class="viewcode-block" id="TableOrder">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.TableOrder">[docs]</a>
-<span class="k">class</span> <span class="nc">TableOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TableOrder</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enumeration type to specify the AGASC table ordering:</span>
 
@@ -1180,7 +1180,7 @@
 
 <div class="viewcode-block" id="write_agasc">
 <a class="viewcode-back" href="../../api.html#agasc.agasc.write_agasc">[docs]</a>
-<span class="k">def</span> <span class="nf">write_agasc</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_agasc</span><span class="p">(</span>
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">stars</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">version</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1257,7 +1257,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_write_agasc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">stars</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_agasc</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">stars</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Do the actual writing to HDF file.&quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1296,7 +1296,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2013, Jean Connelly, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 9.1.0. &nbsp;
   </p>
 </footer>
   </body>
