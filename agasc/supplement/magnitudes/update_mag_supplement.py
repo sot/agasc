@@ -76,13 +76,12 @@ def get_agasc_id_stats(
             agasc_stat, obs_stat, obs_fail = mag_estimate.get_agasc_id_stats(
                 agasc_id=agasc_id, obs_status_override=obs_status_override, tstop=tstop
             )
+            if agasc_stat["n_obsids_ok"] == 0:
+                logger.debug(f"Skipping {agasc_id} because it has no OK observations")
+                continue
             agasc_stats.append(agasc_stat)
             obs_stats.append(obs_stat)
             fails += obs_fail
-        except mag_estimate.MagStatsException as e:
-            msg = str(e)
-            logger.debug(msg)
-            fails.append(dict(e))
         except Exception as e:
             # transform Exception to MagStatsException for standard book keeping
             msg = f"Unexpected Error: {e}"
@@ -238,6 +237,11 @@ def update_mag_stats(obs_stats, agasc_stats, fails, outdir="."):
     if obs_stats is not None and len(obs_stats):
         filename = outdir / "mag_stats_obsid.fits"
         logger.debug(f"Updating {filename}")
+
+        # these two were added late, and are not necessary in the file, so the file was not updated
+        columns = list(set(obs_stats.colnames) - {"excluded", "no_telem"})
+        obs_stats = obs_stats[columns]
+
         if filename.exists():
             obs_stats = _update_table(
                 table.Table.read(filename), obs_stats, keys=["agasc_id", "obsid"]
@@ -259,8 +263,21 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
     """
     Update the magnitude table of the AGASC supplement.
 
-    :param agasc_stats:
-    :param filename:
+    This function returns two list of stars: new stars and updated stars, which are stars that are
+    not in the supplement already, and stars thar are in the supplement before this update. Note
+    that "updated" stars are not necessarily updated in the supplement. If a star has a small change
+    in magnitude or magnitude uncertainty (less than d_mag_threshold), its magnitude is not updated
+    in the supplement, but it is still included in the "updated" stars list.
+
+    This function compares the last_obs_time of the stars in the supplement and in agasc_stats.
+    If last_obs_time is the same, then the star is not updated in the supplement (and not included
+    in the "updated" stars list), even if there is a change in magnitude. This can happen if all
+    observations since last_updated are excluded or failed.
+
+    :param agasc_stats: astropy.table.Table
+        The table with the new stats for each AGASC ID. It must include the columns in MAGS_DTYPE.
+    :param filename: str or pathlib.Path
+        The filename of the supplement to update.
     :param include_all: bool
         if True, all OK entries are included in supplement.
         if False, only OK entries marked 'selected_*'
@@ -268,6 +285,8 @@ def update_supplement(agasc_stats, filename, include_all=True, d_mag_threshold=0
         If the absolute difference between the new and the current mag_aca is less than this value,
         mag_aca is not updated. Note that last_obs_time is always updated.
     :return:
+        new_stars: list of AGASC IDs that are new in the supplement.
+        updated_stars: list of AGASC IDs that are already in the supplement.
     """
     if agasc_stats is None or len(agasc_stats) == 0:
         return [], []
@@ -550,6 +569,35 @@ def do(
         np.isin(star_obs_catalogs.STARS_OBS["agasc_id"], agasc_ids)
     ]
 
+    # find the latest observation with telemetry: take one star-obs per observation,
+    # and get telemetry for each just to find the last observation with data.
+    # Cut processing off right after that time.
+    recent_obs = stars_obs[
+        stars_obs["mp_starcat_time"] > CxoTime(stop) - 7 * u.day
+    ].copy()
+    recent_obs = recent_obs.group_by("mp_starcat_time")
+    recent_obs = recent_obs[recent_obs.groups.indices[:-1]]
+    recent_obs.sort(["mp_starcat_time"], reverse=True)
+    telem = mag_estimate.get_telemetry_by_observations(
+        recent_obs, ignore_exceptions=True, as_table=False
+    )
+    processing_cutoff = stop
+    for obs, tel in zip(recent_obs, telem, strict=True):
+        if "error_code" in tel:
+            logger.info(
+                f"Skipping OBSID {obs['obsid']} at  {obs['mp_starcat_time']}"
+                f" ({tel.get('msg', tel['error_code'])})"
+            )
+            continue
+        logger.info(
+            f"Latest observation with telemetry: OBSID {obs['obsid']} at  {obs['mp_starcat_time']}"
+        )
+        processing_cutoff = CxoTime(obs["mp_starcat_time"]) + 1 * u.second
+        break
+    # and some AGASC Ids might be dropped because they are only observed in observations after the
+    # processing cutoff
+    agasc_ids = np.unique(agasc_ids)
+
     # if supplement exists:
     # - drop bad stars
     # - get OBS status override
@@ -646,7 +694,7 @@ def do(
 
     obs_stats, agasc_stats, fails = get_stats(
         agasc_ids,
-        tstop=stop,
+        tstop=processing_cutoff,
         obs_status_override=obs_status_override,
         no_progress=no_progress,
     )
@@ -680,6 +728,10 @@ def do(
     except Exception as e:
         logger.warning(f"Failed to write {obs_status_file}: {e}")
 
+    # the following "updated_stars" is not the actual table of stars that were updated in the
+    # supplement, but the table of stars that would be updated if there were no threshold on d_mag.
+    # In other words: stars with tiny magnitude updates are not updated in the supplement, but they
+    # are included in "updated_stars".
     new_stars, updated_stars = update_supplement(agasc_stats, filename=filename)
     logger.info(f"  {len(new_stars)} new stars, {len(updated_stars)} updated stars")
 
@@ -733,10 +785,16 @@ def do(
                 updated_stars["mag_aca_err"] != 0
             )
             sections = [
-                {"id": "new_stars", "title": "New Stars", "stars": new_stars},
+                {
+                    "id": "new_stars",
+                    "title": "New Stars",
+                    "description": "These are stars that are being added to the supplement.",
+                    "stars": new_stars,
+                },
                 {
                     "id": "updated_stars",
                     "title": "Updated Stars",
+                    "description": "These are stars that are being updated in the supplement.",
                     "stars": (
                         updated_stars["agasc_id"][updt_mag].tolist()
                         if len(updated_stars[updt_mag])
@@ -746,6 +804,9 @@ def do(
                 {
                     "id": "not_updated_stars",
                     "title": "Magnitude not Updated",
+                    "description": (
+                        "These are stars whose magnitudes are not being updated in the supplement."
+                    ),
                     "stars": (
                         updated_stars["agasc_id"][~updt_mag].tolist()
                         if len(updated_stars[~updt_mag])
@@ -754,7 +815,16 @@ def do(
                 },
                 {
                     "id": "other_stars",
-                    "title": "Other (unexpectedly not updated)",
+                    "title": "Stars in Limbo",
+                    "description": (
+                        "This section is here for informational purposes."
+                        " These are stars that were in the list to process but are neither being"
+                        " added nor updated. This can happen if all recent observations for that"
+                        " star fail or are skipped for some reason (e.g. all recent observation are"
+                        " so recent that telemetry is not available). This is resolved after the"
+                        " observations are dispositioned or the failures are fixed."
+                        " If there are errors, they should show up elsewhere in this report."
+                    ),
                     "stars": list(
                         agasc_stats["agasc_id"][
                             ~np.isin(agasc_stats["agasc_id"], new_stars)
